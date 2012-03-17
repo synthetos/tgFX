@@ -300,10 +300,10 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
         super.notifyObservers();
     }
 
-    @Override
-    protected synchronized void setChanged() {
-        super.setChanged();
-    }
+//    @Override
+//    protected synchronized void setChanged() {
+//        super.setChanged();
+//    }
 
     public static String[] listSerialPorts() {
         Enumeration ports = CommPortIdentifier.getPortIdentifiers();
@@ -354,6 +354,7 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
 
             System.out.println("[+]Opened " + port + " successfully.");
             setConnected(true); //Register that this is connectionState.
+            setClearToSend(true);
 
             return true;
         } catch (PortInUseException ex) {

@@ -4,8 +4,9 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Path?>
 
-<BorderPane id="bg" prefHeight="600" prefWidth="1024" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
+<BorderPane id="bg" prefHeight="800" prefWidth="1280" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
     <top>
        
        
@@ -14,7 +15,7 @@
             <left>
                 <HBox>
                     <children>
-                    <Label fx:id="tgfxTitle" text="tgFX"/>
+                        <Label fx:id="tgfxTitle" text="tgFX"/>
                     </children>
                 </HBox>
                 
@@ -47,11 +48,22 @@
     
     
     <center>
-        <HBox>
+<!--        <HBox>
             
-            <children>
+            <children>-->
                
-             
+        <BorderPane>
+            <center>
+                
+                <HBox  alignment="center" fx:id="canvas">
+                    
+                    <children>
+                        <Path fx:id="path"/>
+                    </children>
+                </HBox>
+            </center>
+        </BorderPane>
+               
    
                    
                        
@@ -60,9 +72,9 @@
                  
 
             
-            </children>
+<!--            </children>
             
-        </HBox>
+        </HBox>-->
     </center>
     
    
@@ -92,7 +104,7 @@
     <bottom>
        
        
-        <VBox >
+        <VBox>
             <children>
                 <TextArea prefHeight="100" editable="false" fx:id="console"></TextArea>
                 <HBox  alignment="bottom_left" fx:id="consoleBox"> 

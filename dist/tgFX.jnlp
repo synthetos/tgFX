@@ -6,16 +6,18 @@
     <description>Sample JavaFX 2.0 application.</description>
     <offline-allowed/>
   </information>
-  <resources os="Windows">
+  <resources>
     <jfx:javafx-runtime version="2.0+" href="http://javadl.sun.com/webapps/download/GetFile/javafx-latest/windows-i586/javafx2.jnlp"/>
   </resources>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
     <jar href="lib/RXTXcomm.jar" size="60866" download="eager" />
     <jar href="lib/argo-2.21.jar" size="116423" download="eager" />
-    <jar href="tgFX.jar" size="39122" download="eager" />
+    <jar href="tgFX.jar" size="42416" download="eager" />
   </resources>
-  <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="tgFX" />
+  <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="tgFX" >
+    <param name="requiredFXVersion" value="2.0+"/>
+  </applet>
   <jfx:javafx-desc  width="800" height="600" main-class="tgfx.TgFX"  name="tgFX" />
   <update check="background"/>
 </jnlp>

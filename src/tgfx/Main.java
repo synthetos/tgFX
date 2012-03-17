@@ -17,12 +17,18 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 import javafx.stage.FileChooser;
 
 import tgfx.external.SocketMonitor;
@@ -55,6 +61,25 @@ public class Main implements Initializable, Observer {
     ChoiceBox serialPorts;
     @FXML
     Button pauseResume;
+    @FXML
+    Region canvas;  //Drawing Canvas
+    
+    @FXML
+    Path path;
+    
+    /**
+     * Drawing Code Vars
+     *
+     */
+    float x = 0;
+    float y = 0;
+    float z = 0;
+    float vel = 0;
+    String stat = new String();
+    LineTo xl = new LineTo();
+    LineTo y1 = new LineTo();
+    LineTo z1 = new LineTo();
+//    Path path = new Path();
 
     @FXML
     private void handleOpenFile(ActionEvent event) {
@@ -81,7 +106,7 @@ public class Main implements Initializable, Observer {
                         gcodesList.getItems().add(tmpLbl);
                         System.out.println(strLine);
                     }
-                    System.out.println("[*]File Send Complete");
+                    System.out.println("[*]File Loading Complete");
 
                 } catch (FileNotFoundException ex) {
                     System.out.println("File Not Found.");
@@ -110,6 +135,7 @@ public class Main implements Initializable, Observer {
     private void runFile(ActionEvent evt) {
         Task fileSend = fileSenderTask();
         new Thread(fileSend).start();
+        
     }
 
     public Task fileSenderTask() {
@@ -119,50 +145,42 @@ public class Main implements Initializable, Observer {
             protected Object call() throws Exception {
                 ObservableList<Label> gcodeProgramList = gcodesList.getItems();
                 gcodeProgramList = gcodesList.getItems();
-
-                final String BLOCKMSG = "[!!]System Paused.. Blocking.\n";
-                final String BUFFERFULL = "[!!]Buffer Full.. Blocking.\n";
-                final String CLEAR2SEND = "[!!]Clear.. Continuing.\n";
-
+                String line;
+                
                 for (Label l : gcodeProgramList) {
 
                     if (l.getText().startsWith("(")) {
                         continue;
                     } else {
-                        String line = new String("{\"gc\":\"" + l.getText() + "\"}" + "\n");
+                        line = new String("{\"gc\":\"" + l.getText() + "\"}" + "\n");
 
                         if (ser.getClearToSend() && !ser.isPAUSED()) {
-                            ser.write(line);
-                            Thread.sleep(60);
+                            if(ser.isConnected()){
+                                ser.write(line);        
+                            }else{
+                                console.appendText("[!]Serial Port is not Connected!\n");
+                                
+                            }
+                            
 
-                        } else if (ser.isPAUSED()) {
+                        } 
+                        
+                        else if (ser.isPAUSED()) {
 
                             while (ser.isPAUSED()) {
                                 //Infinite Loop
                             }
-                        } else {
-//                            Platform.runLater(new Runnable() {
-//
-//                                public void run() {
-//                                    // we are now back in the EventThread and can update the GUI
-//                                    console.appendText((String) BUFFERFULL);
-//                                }
-//                            });
+                            ser.write(line);
+                        } 
+                        
+                        else {
 
                             int count = 0;
                             while (!ser.getClearToSend()) {
                                 //Not ready yet
+                                Thread.sleep(1);
                             }
-//                          MSG = "[!!]Clear.. Continuing.\n";
-//                            Platform.runLater(new Runnable() {
-//
-//                                public void run() {
-//                                    // we are now back in the EventThread and can update the GUI
-//                                    console.appendText((String) CLEAR2SEND);
-//                                }
-//                            });
                             ser.write(line);
-                            Thread.sleep(60);
                         }
                     }
                 }
@@ -207,7 +225,7 @@ public class Main implements Initializable, Observer {
                 console.appendText("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
 
                 //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
-                ser.write("$ee 0\n");
+                ser.write("{\"ee\":0}\n");
                 //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
 
                 ser.write(CMD_GET_STATUS_REPORT);
@@ -240,18 +258,34 @@ public class Main implements Initializable, Observer {
             }
         };
     }
+    
+    
+
+    public void drawLine(int moveType) {
+       
+        xl.setX(Float.parseFloat(xAxisVal.getText()) + 400);
+        y1.setY(Float.parseFloat(yAxisVal.getText()) + 400);
+        LineTo tmpL = new LineTo((Float.parseFloat(xAxisVal.getText()) * 2) + 400, (Float.parseFloat(yAxisVal.getText()) * 2) + 400);
+         if(moveType == 0){
+             //G0 Move
+             
+        }else{
+             //G1 Move
+         }
+        
+        path.getElements().add(tmpL);
+
+    }
 
     private void parseJson(String line) {
         final String l = line;
         if (l.contains("msg")) {
             //Pass this on by..
         } else {
-
-
             Platform.runLater(new Runnable() {
 
                 public void run() {
-//                                    // we are now back in the EventThread and can update the GUI
+                    //We are now back in the EventThread and can update the GUI
                     try {
                         JsonRootNode json = JDOM.parse(l);
 
@@ -259,11 +293,20 @@ public class Main implements Initializable, Observer {
                         yAxisVal.setText(json.getNode("sr").getNode("posy").getText());
                         zAxisVal.setText(json.getNode("sr").getNode("posz").getText());
                         aAxisVal.setText(json.getNode("sr").getNode("posa").getText());
-
+                        
+                        if(json.getNode("sr").getNode("momo").getText().equals("0")){
+                            drawLine(0);
+                        }else{
+                            drawLine(1);
+                        }
+                        
 
                     } catch (argo.saj.InvalidSyntaxException ex) {
-                        //Json line invalid.
+                        System.out.println("[!]ParseJson Exception: " + ex.getMessage());
+                    } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex){
+                        System.out.println("[!]ParseJson Exception: " + ex.getMessage());
                     }
+                    
                 }
             });
         }
@@ -300,11 +343,21 @@ public class Main implements Initializable, Observer {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         SocketMonitor sm;
+        
+        
         Task SocketListner = this.initRemoteServer();
 //        new Thread(SocketListner).start();
 
         ser.addObserver(this);
         this.reScanSerial();//Populate our serial ports
+        
+        //Move to middle of canvas
+        MoveTo mt = new MoveTo(400, 400);
+        path.getElements().add(mt);
+        
+        
+        
+        
 
     }
 }

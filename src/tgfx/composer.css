@@ -18,6 +18,20 @@ root {
 }
 
 
+#path {
+    -fx-stroke: 
+}
+
+#canvas{
+    -fx-background-color: rgba(0,0,0,.3);
+/*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+        linear-gradient(#20262b, #591d22),
+        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-radius: 10,10,10,10;
+    -fx-padding: 50;
+}
+
+
 .bg {
     -fx-background-color:
         #090a0c,
@@ -25,6 +39,8 @@ root {
         linear-gradient(#20262b, #191d22),
         radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
 }
+
+
 
 #serialBox {
     -fx-padding: 15 10 15 10;
@@ -42,8 +58,13 @@ root {
 }
 
 #left{
-    
+  
     -fx-padding: 10 10 10 10;
+}
+
+#path {
+    -fx-stroke: rgb(255,255,255);
+    -fx-stroke-width: 1;
 }
 
 #gcodeFile {
