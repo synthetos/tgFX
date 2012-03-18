@@ -26,9 +26,11 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.FileChooser;
 
 import tgfx.external.SocketMonitor;
@@ -48,13 +50,13 @@ public class Main implements Initializable, Observer {
      * FXML UI Components
      */
     @FXML
-    private Button Con, Run, Connect;
+    private Button Con, Run, Connect, gcodeZero, btnClearScreen;
     @FXML
     TextArea console;
     @FXML
     TextField input;
     @FXML
-    private Label label, xAxisVal, yAxisVal, zAxisVal, aAxisVal;
+    private Label label, xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srStat;
     @FXML
     ListView gcodesList;
     @FXML
@@ -63,10 +65,8 @@ public class Main implements Initializable, Observer {
     Button pauseResume;
     @FXML
     Region canvas;  //Drawing Canvas
-    
     @FXML
     Path path;
-    
     /**
      * Drawing Code Vars
      *
@@ -132,10 +132,21 @@ public class Main implements Initializable, Observer {
     }
 
     @FXML
+    private void zeroSystem(ActionEvent evt) {
+        if (ser.isConnected() && ser.getClearToSend()) {
+            try {
+                ser.write("{\"gc\":\"g92x0y0z0a0\"}\n");
+                ser.write(CMD_GET_STATUS_REPORT);
+            } catch (Exception ex) {
+            }
+        }
+    }
+
+    @FXML
     private void runFile(ActionEvent evt) {
         Task fileSend = fileSenderTask();
         new Thread(fileSend).start();
-        
+
     }
 
     public Task fileSenderTask() {
@@ -146,7 +157,7 @@ public class Main implements Initializable, Observer {
                 ObservableList<Label> gcodeProgramList = gcodesList.getItems();
                 gcodeProgramList = gcodesList.getItems();
                 String line;
-                
+
                 for (Label l : gcodeProgramList) {
 
                     if (l.getText().startsWith("(")) {
@@ -155,25 +166,21 @@ public class Main implements Initializable, Observer {
                         line = new String("{\"gc\":\"" + l.getText() + "\"}" + "\n");
 
                         if (ser.getClearToSend() && !ser.isPAUSED()) {
-                            if(ser.isConnected()){
-                                ser.write(line);        
-                            }else{
+                            if (ser.isConnected()) {
+                                ser.write(line);
+                            } else {
                                 console.appendText("[!]Serial Port is not Connected!\n");
-                                
-                            }
-                            
 
-                        } 
-                        
-                        else if (ser.isPAUSED()) {
+                            }
+
+
+                        } else if (ser.isPAUSED()) {
 
                             while (ser.isPAUSED()) {
                                 //Infinite Loop
                             }
                             ser.write(line);
-                        } 
-                        
-                        else {
+                        } else {
 
                             int count = 0;
                             while (!ser.getClearToSend()) {
@@ -242,6 +249,15 @@ public class Main implements Initializable, Observer {
     }
 
     @FXML
+    private void clearScreen(ActionEvent evt) {
+        console.appendText("[+]Clearning Screen...\n");
+        path.getElements().clear();
+        MoveTo mt = new MoveTo(400, 400);
+        path.getElements().add(mt);
+
+    }
+
+    @FXML
     private void handleEnter(ActionEvent event) throws Exception {
         ser.write(input.getText() + "\n");
         System.out.println("Entered");
@@ -258,21 +274,20 @@ public class Main implements Initializable, Observer {
             }
         };
     }
-    
-    
 
-    public void drawLine(int moveType) {
-       
+    public void drawLine(int moveType, float vel) {
+
         xl.setX(Float.parseFloat(xAxisVal.getText()) + 400);
         y1.setY(Float.parseFloat(yAxisVal.getText()) + 400);
-        LineTo tmpL = new LineTo((Float.parseFloat(xAxisVal.getText()) * 2) + 400, (Float.parseFloat(yAxisVal.getText()) * 2) + 400);
-         if(moveType == 0){
-             //G0 Move
-             
-        }else{
-             //G1 Move
-         }
-        
+        LineTo tmpL = new LineTo();
+
+        if (moveType == 0) {
+            //G0 Move
+        } else {
+            //G1 Move
+        }
+        tmpL.setX(xl.getX());
+        tmpL.setY(y1.getY());
         path.getElements().add(tmpL);
 
     }
@@ -284,6 +299,9 @@ public class Main implements Initializable, Observer {
         } else {
             Platform.runLater(new Runnable() {
 
+                String momo;
+                String stat;
+
                 public void run() {
                     //We are now back in the EventThread and can update the GUI
                     try {
@@ -293,20 +311,52 @@ public class Main implements Initializable, Observer {
                         yAxisVal.setText(json.getNode("sr").getNode("posy").getText());
                         zAxisVal.setText(json.getNode("sr").getNode("posz").getText());
                         aAxisVal.setText(json.getNode("sr").getNode("posa").getText());
-                        
-                        if(json.getNode("sr").getNode("momo").getText().equals("0")){
-                            drawLine(0);
-                        }else{
-                            drawLine(1);
+
+
+                        //Set running state
+                        stat = json.getNode("sr").getNode("stat").getText();
+                        //[stat] machine_state      - 0=reset, 2=stop, 3=end, 4=run, 5=hold, 6=homing 
+
+                        if (stat.equals("0")) {
+                            srStat.setText("RESET");
+                        } else if (stat.equals("2")) {
+                            srStat.setText("STOP");
+                        } else if (stat.equals("3")) {
+                            srStat.setText("END");
+                        } else if (stat.equals("4")) {
+                            srStat.setText("RUN");
+                        } else if (stat.equals("5")) {
+                            srStat.setText("HOLD");
+                        } else if (stat.equals("6")) {
+                            srStat.setText("HOMING");
                         }
-                        
+
+
+                        momo = json.getNode("sr").getNode("momo").getText();
+                        //Set the motion mode
+                        if (momo.equals("0")) {
+                            srMomo.setText("TRAVERSE");
+                        } else if (momo.equals("1")) {
+                            srMomo.setText("STRAIGHT");
+                        } else if (momo.equals("2")) {
+                            srMomo.setText("CW ARC");
+                        } else {
+                            srMomo.setText("CCW ARC");
+                        }
+
+
+                        //Parse the veloicity 
+
+
+                        drawLine(Integer.parseInt(momo), Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
+
 
                     } catch (argo.saj.InvalidSyntaxException ex) {
                         System.out.println("[!]ParseJson Exception: " + ex.getMessage());
-                    } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex){
+                    } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex) {
                         System.out.println("[!]ParseJson Exception: " + ex.getMessage());
                     }
-                    
+
                 }
             });
         }
@@ -343,21 +393,23 @@ public class Main implements Initializable, Observer {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         SocketMonitor sm;
-        
-        
+
+
         Task SocketListner = this.initRemoteServer();
 //        new Thread(SocketListner).start();
 
         ser.addObserver(this);
         this.reScanSerial();//Populate our serial ports
-        
+
         //Move to middle of canvas
         MoveTo mt = new MoveTo(400, 400);
+
+
         path.getElements().add(mt);
-        
-        
-        
-        
+
+
+
+
 
     }
 }

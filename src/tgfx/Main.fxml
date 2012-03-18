@@ -4,13 +4,15 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.shape.Path?>
 
+
 <BorderPane id="bg" prefHeight="800" prefWidth="1280" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
+   
+   
+<!--    #######################TOP###########################-->
     <top>
-       
-       
-                
         <BorderPane fx:id="serialBox">
             <left>
                 <HBox>
@@ -21,60 +23,56 @@
                 
             </left>
             <right>
-                
-                <GridPane fx:id="serialgp" hgap="5">
+                <VBox fx:id="test">
                     <children>
-                        <Label fx:id="serialTitle" text="Serial Ports: "
-                               GridPane.columnIndex="0"
-                               GridPane.rowIndex="0"/>
-                        <ChoiceBox fx:id="serialPorts"
-                                   GridPane.columnIndex="1"
-                                   GridPane.rowIndex="0"/>
-                        <Button fx:id="Connect" text="Connect" onAction="#handleConnect" 
-                                GridPane.columnIndex="2"
-                                GridPane.rowIndex="0"/> 
-                        <Button fx:id="reScan" text="Re-Scan" onAction="#FXreScanSerial"
-                                GridPane.columnIndex="3"
-                                GridPane.rowIndex="0"/>
+                        <HBox>
+                            <children>
+                                <GridPane fx:id="serialgp" hgap="5">
+                                    <children>
+                                        <Label fx:id="serialTitle" text="Serial Ports: "
+                                               GridPane.columnIndex="0"
+                                               GridPane.rowIndex="0"/>
+                                        <ChoiceBox fx:id="serialPorts"
+                                                   GridPane.columnIndex="1"
+                                                   GridPane.rowIndex="0"/>
+                                        <Button fx:id="Connect" text="Connect" onAction="#handleConnect" 
+                                                GridPane.columnIndex="2"
+                                                GridPane.rowIndex="0"/> 
+                                        <Button fx:id="reScan" text="Re-Scan" onAction="#FXreScanSerial"
+                                                GridPane.columnIndex="3"
+                                                GridPane.rowIndex="0"/>
                     
+                                    </children>
+                                </GridPane>
+  
+                            </children>
+                        </HBox>
+                        
+                       
                     </children>
-                </GridPane>
-             
+                </VBox>
             </right>
-            
-            
         </BorderPane>
     </top>
     
     
+    
+    
+<!--    #######################CENTER###########################-->
     <center>
-<!--        <HBox>
-            
-            <children>-->
-               
-        <BorderPane>
+        <BorderPane fx:id="canvasSpacer">
             <center>
-                
+               
                 <HBox  alignment="center" fx:id="canvas">
                     
                     <children>
                         <Path fx:id="path"/>
+<!--                        <SVGPath fx:id="path"/>-->
+      
                     </children>
                 </HBox>
             </center>
         </BorderPane>
-               
-   
-                   
-                       
-                
-                
-                 
-
-            
-<!--            </children>
-            
-        </HBox>-->
     </center>
     
    
@@ -83,13 +81,19 @@
                 
         <VBox fx:id="right">
             <children>
-                <ListView prefHeight="400"  fx:id="gcodesList"></ListView>
-                <HBox fx:id="gcodeFile">
+                <ListView prefHeight="600"  fx:id="gcodesList"></ListView>
+                <HBox fx:id="gcodeFile" alignment="top_center">
                     <children> 
                         <Button text="Open File" onAction="#handleOpenFile"></Button>
                         <Button text="Run File" onAction="#runFile"></Button>
                         <Button fx:id="pauseResume" text="Pause" onAction="#pauseResumeAct"></Button>
 <!--                                <Button text="Run File" onAction="#pauseFile"></Button>-->
+                    </children>
+                </HBox>
+                <HBox fx:id="gcodeFile">
+                    <children>
+                        <Button text="Zero" fx:id="gcodeZero" onAction="#zeroSystem"/>
+                        <Button text="Clear Screen" fx:id="btnClearScreen" onAction="#clearScreen"/>
                     </children>
                 </HBox>
             </children>
@@ -102,8 +106,6 @@
     </right>
     
     <bottom>
-       
-       
         <VBox>
             <children>
                 <TextArea prefHeight="100" editable="false" fx:id="console"></TextArea>
@@ -118,8 +120,6 @@
                             
             </children>
         </VBox>  
-       
-       
     </bottom>
     
     
@@ -162,8 +162,13 @@
                                GridPane.rowIndex="3"/>
                     </children>
                 </GridPane>
-        
-        
+                <VBox fx:id="motionModeHBox" alignment="top_center">
+                    <children>
+                        <Label fx:id="srMomo" id="srText" text="STRAIGHT"/>
+                        <Label fx:id="srStat" id="srText" text="STOP"/>
+                    </children>
+                </VBox>
+                
             </children>
         </VBox>
     </left>

@@ -19,14 +19,15 @@ root {
 
 
 #path {
-    -fx-stroke: 
+    -fx-stroke: 2;
 }
 
+
 #canvas{
-    -fx-background-color: rgba(0,0,0,.3);
-/*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
-        linear-gradient(#20262b, #591d22),
-        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-color: rgba(0,0,0,.7);
+    /*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #591d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
     -fx-background-radius: 10,10,10,10;
     -fx-padding: 50;
 }
@@ -52,14 +53,38 @@ root {
     -fx-background-color: #38424b;
 } 
 
+#test {
+    -fx-alignment: "center";
+}
+
+#canvasSpacer {
+    -fx-padding: 10;
+    /*    -fx-background-color: #18424b;*/
+}
+
+#srText {
+    -fx-padding: 1 2 1 2;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-overrun: clip;
+    -fx-text-fill: linear-gradient(white, #d0d0d0);
+    /*    -fx-background-color: #98424b;*/
+}
+
+#motionModeHBox {
+    -fx-padding: 10 5 10 5;
+    /*    -fx-background-color: #98424b;*/
+} 
+
 #right{
     -fx-spacing: 10;
     -fx-padding: 10 10 10 10;
 }
 
 #left{
-  
-    -fx-padding: 10 10 10 10;
+
+    -fx-padding: 20 10 10 10;
 }
 
 #path {
@@ -73,7 +98,7 @@ root {
 
 
 #gp {
-/*    -fx-padding: 15 10 15 10;*/
+    /*    -fx-padding: 15 10 15 10;*/
 }
 
 
