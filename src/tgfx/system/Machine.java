@@ -4,7 +4,6 @@
  */
 package tgfx.system;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,31 +11,18 @@ import java.util.List;
  *
  * @author ril3y
  */
-
 public class Machine {
-    
-    
+
     /**
-     *  [fc]  config_version             0.00
-        [fv]  firmware_version           0.93
-        [fv]  firmware_build           329.38
-        [ln]  line_number       0
-        [ms]  machine_state 0
-        [vl]  velocity    0.000  mm/min
-        [gi]  gcode_inches_mode         G21 [20,21]
-        [gs]  gcode_select_plane        G17 [17,18,19]
-        [gp]  gcode_path_control        G64.0 [61,61.1,64]
-        [ga]  gcode_absolute_mode       G90 [90,91]
-        [ea]  enable_acceleration         1 [0,1]
-        [ja]  corner_acceleration    200000 mm
-        [ml]  min_line_segment            0.080 mm
-        [ma]  min_arc_segment             0.100 mm
-        [mt]  min_segment_time        10000 uSec
-        [ic]  ignore_CR (on RX)           0 [0,1]
-        [il]  ignore_LF (on RX)           0 [0,1]
-        [ec]  enable_CR (on TX)           0 [0,1]
-        [ee]  enable_echo                 1 [0,1]
-        [ex]  enable_xon_xoff             1 [0,1]
+     * [fc] config_version 0.00 [fv] firmware_version 0.93 [fv] firmware_build
+     * 329.38 [ln] line_number 0 [ms] machine_state 0 [vl] velocity 0.000 mm/min
+     * [gi] gcode_inches_mode G21 [20,21] [gs] gcode_select_plane G17 [17,18,19]
+     * [gp] gcode_path_control G64.0 [61,61.1,64] [ga] gcode_absolute_mode G90
+     * [90,91] [ea] enable_acceleration 1 [0,1] [ja] corner_acceleration 200000
+     * mm [ml] min_line_segment 0.080 mm [ma] min_arc_segment 0.100 mm [mt]
+     * min_segment_time 10000 uSec [ic] ignore_CR (on RX) 0 [0,1] [il] ignore_LF
+     * (on RX) 0 [0,1] [ec] enable_CR (on TX) 0 [0,1] [ee] enable_echo 1 [0,1]
+     * [ex] enable_xon_xoff 1 [0,1]
      */
     //TG Specific
     private float config_version;
@@ -44,10 +30,29 @@ public class Machine {
     private float firmware_build;
     private int status_report_interval;
     private int line_number;
-    private int machine_state;
+    
+    public static motion_modes motion_mode;
+    public static enum motion_modes {
+//        [momo] motion_mode        - 0=traverse, 1=straight feed, 2=cw arc, 3=ccw arc
+        traverse, straight, cw_arc, ccw_arc, invalid
+    }
+    
+    public static enum machine_states {
+
+        reset, nop, stop, end, run, hold, homing
+    }
+    public static machine_states machine_state;
     private float velocity;
-    private enum unit_mode{ INCHES, MM };
-    private enum selection_plane{G17, G18, G19};
+
+    private enum unit_mode {
+
+        INCHES, MM
+    };
+
+    private enum selection_plane {
+
+        G17, G18, G19
+    };
     private boolean enable_acceleration;
     private int corner_acceleration;
     private float min_line_segment;
@@ -59,24 +64,39 @@ public class Machine {
     private boolean enable_CR;
     private boolean enable_echo;
     private boolean enable_xon_xoff;
-    
     private String flow = "OK"; //Internal tracking for the msg OK
-    
-    
-    
     private List<Motor> motors = new ArrayList<Motor>();
     private List<Axis> axis = new ArrayList<Axis>();
 
-    public List<Motor> getMotors(){
-        return(this.motors);
+    public List<Motor> getMotors() {
+        return (this.motors);
     }
-    
     //TG Composer Specific
     private String machineName;
 
     public String getMachineName() {
         return machineName;
     }
+
+    public void setMotionMode(int mode) {
+//        machine_state = machine_state.reset;
+        if (mode == 0) {
+            motion_mode = motion_mode.traverse;
+        } else if (mode == 1) {
+            motion_mode = motion_mode.straight;
+        } else if (mode == 2) {
+            motion_mode = motion_mode.cw_arc;
+        } else if (mode == 3) {
+            motion_mode = motion_mode.ccw_arc;
+        }else{
+            motion_mode = motion_mode.invalid;
+        }
+    }
+
+  public motion_modes getMotionMode() {
+        return motion_mode;
+    }
+
 
     public int getStatus_report_interval() {
         return status_report_interval;
@@ -94,13 +114,14 @@ public class Machine {
         return config_version;
     }
 
-    public synchronized void setFlow(String f){
+    public synchronized void setFlow(String f) {
         this.flow = f;
     }
-    
-    public synchronized String getFlow(){
+
+    public synchronized String getFlow() {
         return this.flow;
     }
+
     public void setConfig_version(float config_version) {
         this.config_version = config_version;
     }
@@ -185,12 +206,26 @@ public class Machine {
         this.line_number = line_number;
     }
 
-    public int getMachine_state() {
-        return machine_state;
+    public machine_states getMachineState() {
+        return this.machine_state;
     }
 
-    public void setMachine_state(int machine_state) {
-        this.machine_state = machine_state;
+    public void setMachineState(int state) {
+        if (state == 0) {
+            machine_state = machine_state.reset;
+        } else if (state == 1) {
+            machine_state = machine_state.nop;
+        } else if (state == 2) {
+            machine_state = machine_state.stop;
+        } else if (state == 3) {
+            machine_state = machine_state.end;
+        } else if (state == 4) {
+            machine_state = machine_state.run;
+        } else if (state == 5) {
+            machine_state = machine_state.hold;
+        } else if (state == 6) {
+            machine_state = machine_state.homing;
+        }
     }
 
     public float getMin_arc_segment() {
@@ -221,60 +256,54 @@ public class Machine {
         return velocity;
     }
 
-    public void setVelocity(float velocity) {
-        this.velocity = velocity;
+    public void setVelocity(float vel) {
+        velocity = vel;
     }
-    
-    
-    
-    public Machine(){
+
+    public Machine() {
         this.setFlow("OK");
-        for(int i = 0; i < 3; i++){
+        for (int i = 0; i < 3; i++) {
             Motor m = new Motor(i);
             motors.add(m);
         }
-            Axis x = new Axis(Axis.AXIS.X);
-            Axis y = new Axis(Axis.AXIS.Y);
-            Axis z = new Axis(Axis.AXIS.Z);
-            Axis a = new Axis(Axis.AXIS.A);
-            
-            axis.add(x);
-            axis.add(y);
-            axis.add(z);
-            axis.add(a);
+        Axis x = new Axis(Axis.AXIS.X);
+        Axis y = new Axis(Axis.AXIS.Y);
+        Axis z = new Axis(Axis.AXIS.Z);
+        Axis a = new Axis(Axis.AXIS.A);
+
+        axis.add(x);
+        axis.add(y);
+        axis.add(z);
+        axis.add(a);
     }
 
-    
-    public Axis getAxisByName(String name){
-        for(Axis a : axis){
-            if(a.getAxis_name() == name){
-                return(a);
+    public Axis getAxisByName(String name) {
+        for (Axis a : axis) {
+            if (a.getAxis_name() == name) {
+                return (a);
             }
         }
         return null;
     }
-    
-    public void parseStatusReport(String line){
-        
+
+    public void parseStatusReport(String line) {
     }
-    
-    public Motor getMotorByNumber(int i){
-        for(Motor m : motors){
-            if(m.getId_number() == i){
-                return(m);
+
+    public Motor getMotorByNumber(int i) {
+        for (Motor m : motors) {
+            if (m.getId_number() == i) {
+                return (m);
             }
         }
         return null;
     }
-    
-    public int getMotorAxis(Motor m){
+
+    public int getMotorAxis(Motor m) {
         return m.getId_number();
     }
-    
-    public void setMotorAxis(int motorNumber, int x){
+
+    public void setMotorAxis(int motorNumber, int x) {
         Motor m = getMotorByNumber(motorNumber);
         m.setMapToAxis(x);
     }
-            
-
 }

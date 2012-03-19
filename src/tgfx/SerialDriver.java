@@ -20,7 +20,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SerialDriver extends Observable implements SerialPortEventListener {
 
-    
     private final Lock accessLock = new ReentrantLock();
     private final Condition canWrite = accessLock.newCondition();
     private final Condition canRead = accessLock.newCondition();
@@ -42,15 +41,15 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
 
     public synchronized void priorityWrite(String str) throws Exception {
         //This is for sending control characters.. Pause Resume Reset.. etc
+        //This does not check for the buffer being full it just sends
+        //whatever your str is.  This SHOULD NOT be abused.  There are only
+        //a few valid places where this is used.
         this.output.write(str.getBytes());
     }
 
     private SerialDriver() {
     }
 
-    //    public static asdf getInstance() {
-//        return asdf.asdfHolder.INSTANCE;
-//    }
     public static SerialDriver getInstance() {
         return SerialDriverHolder.INSTANCE;
     }
@@ -60,101 +59,6 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
         private static final SerialDriver INSTANCE = new SerialDriver();
     }
 
-//    public void read() throws Exception {
-//
-//        int available = this.input.available();
-//        if (available > 0) {
-//            byte chunk[] = new byte[available];
-//            this.input.read(chunk, 0, available);
-//            buf = new String(chunk);
-//            String[] lines = buf.split("\n");
-//            for (String l : lines) {
-//                if (l.contains("msg")) {
-//                    this.setClearToSend(true);
-//                }
-//            }
-//        }
-//        Thread.sleep(100);
-//    }
-//            System.out.println("*****NOT CLEAR*****");
-//        }else{
-//            System.out.println("$$$$$$$$$$$$$RECURSION$$$$$$$$$$$$$");
-//            this.write(str); //recurrsion...
-//            Thread.sleep(100);
-//        }
-//        if (CLEAR_TO_TRANSMIT.get()) {
-//            this.output.write(str.getBytes());
-//            System.out.println("Writing...." + str + "\n");
-//        } else {
-//        }
-//        this.output.write(str.getBytes());
-//        if (this.input.available() > 0) {
-//            int available = input.available();
-//            int leftOffAtBuffer;
-//            byte chunk[] = new byte[available];
-//
-//        }
-//        input.read(chunk, 0, available);
-//
-//        String res = new String(chunk); //Convert the byte[] to a string
-//        for (String line : res.split("\n")) {
-//            if (line.contains("ok")) {
-//                continue;
-//
-//            } else {
-//                //This occurs when there the recv tinyg buffer is full. 
-//                //It should wait here and continue to read until the buffer is 
-//                //ready to recv again.
-//                while (!res.contains("ok")) {
-//
-//                    leftOffAtBuffer = available;
-//                    available = input.available();
-//                    byte chunk2[] = new byte[available];
-//
-//                    input.read(chunk2, leftOffAtBuffer, available);
-//                    res = res + new String(chunk);
-//                }
-//                String[] lines = res.split("\n");
-//                for (String l : lines) {
-//                    setChanged();
-//                    notifyObservers(l + "\n");
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//            if (res.contains("ok")) {
-//                String[] lines = res.split("\n");
-//                for (String l : lines) {
-//                    setChanged();
-//                    notifyObservers(l + "\n");
-//
-//                }
-//            } else {
-//                //This occurs when there the recv tinyg buffer is full. 
-//                //It should wait here and continue to read until the buffer is 
-//                //ready to recv again.
-//                while (!res.contains("ok")) {
-//
-//                    leftOffAtBuffer = available;
-//                    available = input.available();
-//                    byte chunk2[] = new byte[available];
-//
-//                    input.read(chunk2, leftOffAtBuffer, available);
-//                    res = res + new String(chunk);
-//                }
-//                String[] lines = res.split("\n");
-//                for (String l : lines) {
-//                    setChanged();
-//                    notifyObservers(l + "\n");
-//                }
-//            }
-//        }
-//
-//        System.out.println("SERIALPORT: Writing " + str);
-//        //Thread.sleep(CMD_DELAY);
-//    }
     public void disconnect() {
 
         if (serialPort != null) {
@@ -207,6 +111,14 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
                 String res = new String(chunk);   //Convert the byte[] to a string
                 if (res.contains("msg")) {
                     this.setClearToSend(true);
+                } else if (res.contains("####")) {  //When TinyG is reset you will get this message
+                    /**
+                     * #### TinyG version 0.93 (build 334.01) "Fanny Pack" ####
+                     * #### Zen Toolworks 7x12 Profile #### Type h for help
+                     * tinyg[mm] ok>
+                     */
+                    //Machine was reset... Let the GUI know about the machine being reset.
+                    this.priorityWrite(TinygDriver.CMD_GET_STATUS_REPORT);
                 }
 
                 //Spilt the data into lines
@@ -300,11 +212,6 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
         super.notifyObservers();
     }
 
-//    @Override
-//    protected synchronized void setChanged() {
-//        super.setChanged();
-//    }
-
     public static String[] listSerialPorts() {
         Enumeration ports = CommPortIdentifier.getPortIdentifiers();
         ArrayList portList = new ArrayList();
@@ -355,8 +262,8 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
             System.out.println("[+]Opened " + port + " successfully.");
             setConnected(true); //Register that this is connectionState.
             setClearToSend(true);
-
             return true;
+
         } catch (PortInUseException ex) {
             System.out.println("[*] Port In Use Error: " + ex.getMessage());
             return false;

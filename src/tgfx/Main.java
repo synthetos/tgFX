@@ -5,7 +5,6 @@
 package tgfx;
 
 import argo.jdom.JdomParser;
-import argo.jdom.JsonRootNode;
 import java.io.*;
 import java.net.URL;
 import java.util.Observable;
@@ -17,23 +16,19 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.input.InputEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.SVGPath;
 import javafx.stage.FileChooser;
-
 import tgfx.external.SocketMonitor;
+import tgfx.render.Draw2d;
 import tgfx.system.Machine;
 
 /**
@@ -41,11 +36,12 @@ import tgfx.system.Machine;
  * @author ril3y
  */
 public class Main implements Initializable, Observer {
-
-    private static final String CMD_GET_STATUS_REPORT = "{\"sr\":\"\"}\n";
-    public Machine m = new Machine();
-    private JdomParser JDOM = new JdomParser(); //JSON Object Parser
-    private SerialDriver ser = SerialDriver.getInstance();
+    
+    private static final String CMD_GET_stateUS_REPORT = "{\"sr\":\"\"}\n";
+//    public Machine m = new Machine();
+    private JdomParser JDOM = new JdomParser(); //JSON Object Parser1
+    private TinygDriver tg = TinygDriver.getInstance();
+    //private SerialDriver ser = SerialDriver.getInstance();
     /**
      * FXML UI Components
      */
@@ -56,7 +52,7 @@ public class Main implements Initializable, Observer {
     @FXML
     TextField input;
     @FXML
-    private Label label, xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srStat;
+    private Label label, xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo;
     @FXML
     ListView gcodesList;
     @FXML
@@ -64,32 +60,37 @@ public class Main implements Initializable, Observer {
     @FXML
     Button pauseResume;
     @FXML
-    Region canvas;  //Drawing Canvas
+    Group canvsGroup;  //Drawing Canvas
     @FXML
-    Path path;
+    VBox bottomConsoleHBox;
+    @FXML
+    HBox canvas;
     /**
      * Drawing Code Vars
      *
      */
-    float x = 0;
-    float y = 0;
-    float z = 0;
-    float vel = 0;
-    String stat = new String();
-    LineTo xl = new LineTo();
-    LineTo y1 = new LineTo();
-    LineTo z1 = new LineTo();
+    double xPrevious = 0;
+    double yPrevious = 0;
+    double magnification = 1;
+//    float x = 0;
+//    float y = 0;
+//    float z = 0;
+//    float vel = 0;
+//    String state = new String();
+//    LineTo xl = new LineTo();
+//    LineTo y1 = new LineTo();
+//    LineTo z1 = new LineTo();
 //    Path path = new Path();
 
     @FXML
     private void handleOpenFile(ActionEvent event) {
-
+        
         Platform.runLater(new Runnable() {
-
+            
             public void run() {
-
+                
                 try {
-
+                    
                     FileChooser fc = new FileChooser();
                     fc.setTitle("Open GCode File");
                     fc.setInitialDirectory(new File("c:\\"));
@@ -98,16 +99,17 @@ public class Main implements Initializable, Observer {
                     DataInputStream in = new DataInputStream((fstream));
                     BufferedReader br = new BufferedReader(new InputStreamReader(in));
                     String strLine;
-
-                    boolean flag = true;
+                    
+                    gcodesList.getItems().clear();
+                    //Clear the list if there was a previous file loaded
+                    
                     while ((strLine = br.readLine()) != null) {
-
                         final Label tmpLbl = new Label(strLine);
                         gcodesList.getItems().add(tmpLbl);
                         System.out.println(strLine);
                     }
                     System.out.println("[*]File Loading Complete");
-
+                    
                 } catch (FileNotFoundException ex) {
                     System.out.println("File Not Found.");
                 } catch (Exception ex) {
@@ -116,104 +118,164 @@ public class Main implements Initializable, Observer {
             }
         });
     }
-
+    
     @FXML
     private void pauseResumeAct(ActionEvent evt) throws Exception {
         if ("Pause".equals(pauseResume.getText())) {
             pauseResume.setText("Resume");
-            ser.setPAUSED(true);
-            ser.priorityWrite("!\n");
+            tg.setPAUSED(true);
+            
         } else {
             pauseResume.setText("Pause");
-            ser.priorityWrite("~\n");
-            ser.setPAUSED(false);
-
+            tg.setPAUSED(false);
         }
     }
+    
+    @FXML
+    void onMouseScroll(ScrollEvent evt) {
+        //
+        double minVal = .1;
+        double oldStroke;
+        
+        double oldMag = magnification;
+        if (evt.getDeltaX() == 0 && evt.getDeltaY() == 40) {
+            //Mouse Wheel Up
+            magnification = magnification + minVal;
+//            console.appendText("[+]Zooming in " + String.valueOf(magnification) + "\n");
+            //Draw2d.setStrokeWeight(magnification - oldMag);
+            
+        } else if (evt.getDeltaX() == 0 && evt.getDeltaY() == -40) {
+            //Mouse Wheel Down
+            magnification = magnification - minVal;
+            if (magnification == 0) {
+//                console.appendText("[!]Maximum Zoom Out Level reached...");
+                magnification = minVal;
+                //Draw2d.setStrokeWeight((magnification-oldMag)*2);
+            }
+//            console.appendText("[+]Zooming out " + String.valueOf(magnification) + "\n");
+        }
+        
+        
+        
+//        for (Node n : canvsGroup.getChildren()) {
+//            Line nd = (Line) n;
+//            nd.setStrokeWidth(Draw2d.getStrokeWeight());
+//        }
+//        console.appendText("[+]2d Preview Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight())+"\n");
+        canvsGroup.setScaleX(magnification);
+        canvsGroup.setScaleY(magnification);
 
+//        canvsGroup.setTranslateX(magnification);
+//        canvsGroup.setTranslateY(magnification);
+
+        
+        
+    }
+    
     @FXML
     private void zeroSystem(ActionEvent evt) {
-        if (ser.isConnected() && ser.getClearToSend()) {
+        if (tg.isConnected() && tg.getClearToSend()) {
             try {
-                ser.write("{\"gc\":\"g92x0y0z0a0\"}\n");
-                ser.write(CMD_GET_STATUS_REPORT);
+                tg.write("{\"gc\":\"g92x0y0z0a0\"}\n");
+                tg.write(CMD_GET_stateUS_REPORT);
             } catch (Exception ex) {
             }
         }
     }
-
+    
     @FXML
     private void runFile(ActionEvent evt) {
         Task fileSend = fileSenderTask();
         new Thread(fileSend).start();
-
+        
     }
-
+    
     public Task fileSenderTask() {
         return new Task() {
-
+            
             @Override
             protected Object call() throws Exception {
                 ObservableList<Label> gcodeProgramList = gcodesList.getItems();
                 gcodeProgramList = gcodesList.getItems();
                 String line;
-
+                
                 for (Label l : gcodeProgramList) {
-
+                    
                     if (l.getText().startsWith("(")) {
                         continue;
                     } else {
                         line = new String("{\"gc\":\"" + l.getText() + "\"}" + "\n");
-
-                        if (ser.getClearToSend() && !ser.isPAUSED()) {
-                            if (ser.isConnected()) {
-                                ser.write(line);
+                        
+                        if (tg.getClearToSend() && !tg.isPAUSED()) {
+                            if (tg.isConnected()) {
+                                tg.write(line);
                             } else {
                                 console.appendText("[!]Serial Port is not Connected!\n");
-
                             }
-
-
-                        } else if (ser.isPAUSED()) {
-
-                            while (ser.isPAUSED()) {
+                            
+                            
+                        } else if (tg.isPAUSED()) {
+                            
+                            while (tg.isPAUSED()) {
                                 //Infinite Loop
                             }
-                            ser.write(line);
+                            tg.write(line);
                         } else {
-
+                            
                             int count = 0;
-                            while (!ser.getClearToSend()) {
+                            while (!tg.getClearToSend()) {
                                 //Not ready yet
                                 Thread.sleep(1);
                             }
-                            ser.write(line);
+                            tg.write(line);
                         }
                     }
                 }
                 console.appendText("[+] Sending File Complete\n");
                 return true;
-
+                
             }
         };
     }
-
+    
     @FXML
     private void FXreScanSerial(ActionEvent event) {
         this.reScanSerial();
     }
-
+    
     private void reScanSerial() {
         serialPorts.getItems().clear();
         String portArray[] = null;
-        portArray = ser.listSerialPorts();
-
-
+        portArray = tg.listSerialPorts();
+        
+        
         for (String p : portArray) {
             serialPorts.getItems().add(p);
         }
     }
 
+    /**
+     * These are the actions that need to be ran upon successful serial port
+     * connection. If you have something that you want to "auto run" on connect.
+     * This is the place to do so. This method is called in handleConnect.
+     */
+    private void onConnectActions() {
+        try {
+            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
+            tg.write(tg.CMD_DISABLE_LOCAL_ECHO);
+            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
+            tg.write("{\"ex\":0}\n");
+            tg.write(tg.CMD_SET_STATUS_UPDATE_INTERVAL); //Set to every 50ms
+            tg.write(tg.CMD_GET_STATUS_REPORT);  //If TinyG current positions are other than zero
+            //this will poll for the new values and update the GUI
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+
+        } catch (Exception ex) {
+            console.appendText("[!]Error: " + ex.getMessage());
+            System.out.println(ex.getMessage());
+        }
+    }
+    
     @FXML
     private void handleConnect(ActionEvent event) throws Exception {
         //Get a list of serial ports on the system.
@@ -224,48 +286,91 @@ public class Main implements Initializable, Observer {
         }
         if (Connect.getText().equals("Connect") && serialPorts.getSelectionModel().getSelectedItem() != (null)) {
             String serialPortSelected = serialPorts.getSelectionModel().getSelectedItem().toString();
-
+            
             System.out.println("[+]Connecting...");
-            ser.initialize(serialPortSelected, 115200);
-            if (ser.isConnected()) {
-
+            tg.initialize(serialPortSelected, 115200);
+            if (tg.isConnected()) {
+                
                 console.appendText("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
-
-                //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
-                ser.write("{\"ee\":0}\n");
-                //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
-
-                ser.write(CMD_GET_STATUS_REPORT);
                 Connect.setText("Disconnect");
+                onConnectActions();
             }
         } else {
-            ser.disconnect();
-            if (!ser.isConnected()) {
-                console.appendText("[+]Disconnected from " + ser.serialPort.getName() + " Serial Port Successfully.\n");
+            tg.disconnect();
+            if (!tg.isConnected()) {
+                console.appendText("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
                 Connect.setText("Connect");
             }
-
+            
         }
     }
-
+    
     @FXML
     private void clearScreen(ActionEvent evt) {
         console.appendText("[+]Clearning Screen...\n");
-        path.getElements().clear();
-        MoveTo mt = new MoveTo(400, 400);
-        path.getElements().add(mt);
+        canvsGroup.getChildren().clear();
+
+
+
+//        path.getElements().clear();
+//        MoveTo mt = new MoveTo(400, 400);
+//        path.getElements().add(mt);
 
     }
+    
+    private void handleTilda() {
+        //                ==============HIDE CONSOLE CODE==============
+        System.out.println("TILDA");
+        
+        if (bottomConsoleHBox.isVisible()) {
+            bottomConsoleHBox.setVisible(false);
+            
+            
+        } else {
+            bottomConsoleHBox.setVisible(true);
+        }
+//        String cmd = input.getText();
+//        cmd = cmd.replace('`', ' ');  //Remove the tilda from the input box
+//        input.setText(cmd);
+// 
+    }
+    
+    @FXML
+    private void handleKeyInput(final InputEvent event) {
+        if (event instanceof KeyEvent) {
+            final KeyEvent keyEvent = (KeyEvent) event;
+            if (keyEvent.getCode() == KeyCode.BACK_QUOTE) {
+                
+                handleTilda();
+                
+            } else if (keyEvent.getCode() == KeyCode.F5) {
+                String msg = new String("F5 Key Pressed - Getting Machine Settings\n");
+                console.appendText(msg);
+                System.out.println(msg);
+                try {
+//                    tg.requestStatusUpdate();
+//                    tg.getMachineSettings();
+                    tg.getMotorSettings(1);
+                    tg.getMotorSettings(2);
+                    tg.getMotorSettings(3);
+//                    tg.getMotorSettings(3);
 
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
+        }
+    }
+    
     @FXML
     private void handleEnter(ActionEvent event) throws Exception {
-        ser.write(input.getText() + "\n");
+        tg.write(input.getText() + "\n");
         System.out.println("Entered");
     }
-
+    
     private Task initRemoteServer() {
         return new Task() {
-
+            
             @Override
             protected Object call() throws Exception {
                 SocketMonitor sm = new SocketMonitor();
@@ -274,89 +379,67 @@ public class Main implements Initializable, Observer {
             }
         };
     }
+    
+    public void drawLine(Machine.motion_modes moveType, float vel) {
+        double newX = Double.valueOf(tg.m.getAxisByName("X").getWork_position() );// + magnification;
+        double newY = Double.valueOf(tg.m.getAxisByName("Y").getWork_position() );// + magnification;
 
-    public void drawLine(int moveType, float vel) {
-
-        xl.setX(Float.parseFloat(xAxisVal.getText()) + 400);
-        y1.setY(Float.parseFloat(yAxisVal.getText()) + 400);
-        LineTo tmpL = new LineTo();
-
-        if (moveType == 0) {
+        Line l = new Line(xPrevious, yPrevious, newX, newY);
+        l.setStroke(Draw2d.getLineColorFromVelocity(vel));
+        
+        if (moveType == Machine.motion_modes.traverse) {
             //G0 Move
+            l.setStrokeWidth(Draw2d.getStrokeWeight()/2);
+            l.setStroke(Draw2d.TRAVERSE);
         } else {
-            //G1 Move
+            l.setStrokeWidth(Draw2d.getStrokeWeight());
         }
-        tmpL.setX(xl.getX());
-        tmpL.setY(y1.getY());
-        path.getElements().add(tmpL);
-
+        xPrevious = newX;
+        yPrevious = newY;
+        
+        canvsGroup.getChildren().add(l);
+        
     }
-
-    private void parseJson(String line) {
+    
+    private void updateGuiState(String line) {
         final String l = line;
         if (l.contains("msg")) {
             //Pass this on by..
-        } else {
+        } else if (line.equals("STATUS_REPORT")) {
             Platform.runLater(new Runnable() {
-
-                String momo;
-                String stat;
-
+                
+                float vel;
+                
                 public void run() {
                     //We are now back in the EventThread and can update the GUI
                     try {
-                        JsonRootNode json = JDOM.parse(l);
+                        
+                        xAxisVal.setText(String.valueOf(tg.m.getAxisByName("X").getWork_position())); //json.getNode("sr").getNode("posx").getText());
+                        yAxisVal.setText(String.valueOf(tg.m.getAxisByName("Y").getWork_position()));
+                        zAxisVal.setText(String.valueOf(tg.m.getAxisByName("Z").getWork_position()));
+                        aAxisVal.setText(String.valueOf(tg.m.getAxisByName("A").getWork_position()));
 
-                        xAxisVal.setText(json.getNode("sr").getNode("posx").getText());
-                        yAxisVal.setText(json.getNode("sr").getNode("posy").getText());
-                        zAxisVal.setText(json.getNode("sr").getNode("posz").getText());
-                        aAxisVal.setText(json.getNode("sr").getNode("posa").getText());
-
-
-                        //Set running state
-                        stat = json.getNode("sr").getNode("stat").getText();
-                        //[stat] machine_state      - 0=reset, 2=stop, 3=end, 4=run, 5=hold, 6=homing 
-
-                        if (stat.equals("0")) {
-                            srStat.setText("RESET");
-                        } else if (stat.equals("2")) {
-                            srStat.setText("STOP");
-                        } else if (stat.equals("3")) {
-                            srStat.setText("END");
-                        } else if (stat.equals("4")) {
-                            srStat.setText("RUN");
-                        } else if (stat.equals("5")) {
-                            srStat.setText("HOLD");
-                        } else if (stat.equals("6")) {
-                            srStat.setText("HOMING");
-                        }
-
-
-                        momo = json.getNode("sr").getNode("momo").getText();
+                        //Update State... running stop homing etc.
+                        srState.setText(tg.m.getMachineState().toString().toUpperCase());
+                        
+                        
+                        srMomo.setText(tg.m.getMotionMode().toString().replace("_", " ").toUpperCase());
                         //Set the motion mode
-                        if (momo.equals("0")) {
-                            srMomo.setText("TRAVERSE");
-                        } else if (momo.equals("1")) {
-                            srMomo.setText("STRAIGHT");
-                        } else if (momo.equals("2")) {
-                            srMomo.setText("CW ARC");
-                        } else {
-                            srMomo.setText("CCW ARC");
-                        }
+
 
 
                         //Parse the veloicity 
-
-
-                        drawLine(Integer.parseInt(momo), Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
-
-
-                    } catch (argo.saj.InvalidSyntaxException ex) {
-                        System.out.println("[!]ParseJson Exception: " + ex.getMessage());
-                    } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex) {
-                        System.out.println("[!]ParseJson Exception: " + ex.getMessage());
+                        vel = tg.m.getVelocity();
+                        srVelo.setText(String.valueOf(vel));
+                        
+                        drawLine(tg.m.getMotionMode(), vel);
+                        
+                        
+                    } catch (Exception ex) {
+                        System.out.println("$$$$$$$$$$$$$EXCEPTION$$$$$$$$$$$$$$");
+                        System.out.println(ex.getMessage());
                     }
-
+                    
                 }
             });
         }
@@ -370,46 +453,48 @@ public class Main implements Initializable, Observer {
      */
     @Override
     public synchronized void update(Observable o, Object arg) {
-        final String[] MSG = (String[]) arg;
+        final String ROUTING_KEY = (String) arg;
 
         //We have to run the updates likes this.
         //https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
         Platform.runLater(new Runnable() {
-
+            
             public void run() {
                 // we are now back in the EventThread and can update the GUI
-                if (MSG[0] == "PLAIN") {
-                    console.appendText((String) MSG[1] + "\n");
-
-                } else if (MSG[0] == "JSON") {
+                if (ROUTING_KEY == "PLAIN") {
+                    console.appendText((String) ROUTING_KEY + "\n");
+                    
+                } else if (ROUTING_KEY == "STATUS_REPORT") {
 //                    console.setText((String) MSG[1] + "\n");
-                    parseJson(MSG[1]);
+                    updateGuiState(ROUTING_KEY);
+                }else if(ROUTING_KEY.contains("ERROR")){
+                    console.appendText(ROUTING_KEY);
                 }
-
+                
             }
         });
     }
-
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         SocketMonitor sm;
-
-
+        
+        
         Task SocketListner = this.initRemoteServer();
 //        new Thread(SocketListner).start();
 
-        ser.addObserver(this);
+        tg.addObserver(this);
         this.reScanSerial();//Populate our serial ports
 
         //Move to middle of canvas
-        MoveTo mt = new MoveTo(400, 400);
+//        MoveTo mt = new MoveTo(400, 400);
 
 
-        path.getElements().add(mt);
+//        path.getElements().add(mt);
 
-
-
-
-
+        
+        
+        
+        
     }
 }

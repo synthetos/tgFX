@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.Path?>
 
 
-<BorderPane id="bg" prefHeight="800" prefWidth="1280" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
+<BorderPane id="bg" prefHeight="800" prefWidth="1280" onKeyPressed="#handleKeyInput" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
    
    
 <!--    #######################TOP###########################-->
@@ -63,11 +63,12 @@
         <BorderPane fx:id="canvasSpacer">
             <center>
                
-                <HBox  alignment="center" fx:id="canvas">
+                <HBox  onScroll="#onMouseScroll" alignment="center" fx:id="canvas">
                     
                     <children>
-                        <Path fx:id="path"/>
-<!--                        <SVGPath fx:id="path"/>-->
+                        <Group onScroll="#onMouseScroll" fx:id="canvsGroup"></Group>
+<!--                        <Path fx:id="path"/>-->
+                        <!--<SVGPath fx:id="path"/>-->
       
                     </children>
                 </HBox>
@@ -90,10 +91,11 @@
 <!--                                <Button text="Run File" onAction="#pauseFile"></Button>-->
                     </children>
                 </HBox>
-                <HBox fx:id="gcodeFile">
+                <HBox fx:id="gcodeFile" alignment="top_center">
                     <children>
                         <Button text="Zero" fx:id="gcodeZero" onAction="#zeroSystem"/>
                         <Button text="Clear Screen" fx:id="btnClearScreen" onAction="#clearScreen"/>
+                        
                     </children>
                 </HBox>
             </children>
@@ -104,24 +106,6 @@
            
         
     </right>
-    
-    <bottom>
-        <VBox>
-            <children>
-                <TextArea prefHeight="100" editable="false" fx:id="console"></TextArea>
-                <HBox  alignment="bottom_left" fx:id="consoleBox"> 
-                    <children>
-                        <Label   fx:id="cmdLabel" prefWidth="75" text="CMD>"/>
-                        <TextField fx:id="input"  prefWidth="960"  onAction="#handleEnter"></TextField>
-                    </children>
-                </HBox>
-                            
-                            
-                            
-            </children>
-        </VBox>  
-    </bottom>
-    
     
     <left>
         <VBox fx:id="left">
@@ -165,11 +149,49 @@
                 <VBox fx:id="motionModeHBox" alignment="top_center">
                     <children>
                         <Label fx:id="srMomo" id="srText" text="STRAIGHT"/>
-                        <Label fx:id="srStat" id="srText" text="STOP"/>
+                        <Label fx:id="srState" id="srText" text="STOP"/>
+                        <Label fx:id="srVelo" id="srText" text="VEL"/>
                     </children>
                 </VBox>
                 
             </children>
         </VBox>
     </left>
+    
+    <bottom>
+        <VBox onKeyPressed="#handleKeyInput" fx:id="bottomConsoleHBox">
+            <children>
+                
+                <TextArea prefHeight="100" focusTraversable="false" editable="false" fx:id="console"/>
+                   
+<!--                <GridPane vgap="5" hgrow="true" fx:id="asdfas">
+                    <children>
+                        <Label   fx:id="cmdLabel" prefWidth="75" text="CMD>"
+                                  GridPane.columnIndex="0"
+                                  GridPane.rowIndex="0"/>
+                         
+                        <TextField fx:id="input"    onAction="#handleEnter"
+                                     GridPane.columnIndex="1"
+                                     GridPane.rowIndex="0"/>
+                    </children>-->
+                    
+<!--            </GridPane>-->
+                <HBox  alignment="top_center" fx:id="consoleBox"> 
+                    <children>
+                        <Label fx:id="cmdLabel" prefWidth="75" text="CMD>"/>
+                    
+                        <HBox>
+                            <children>
+                            
+                                <TextField fx:id="input"    onAction="#handleEnter"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+                            
+                            
+                            
+            </children>
+        </VBox>  
+    </bottom>
 </BorderPane>

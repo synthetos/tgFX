@@ -48,9 +48,17 @@ root {
     -fx-background-color: #38424b;
 }   
 
+/*#####################Drawing 2d Line Colors########################*/
+
+#traverseLine {
+    -fx-stroke: #d0d0d0;
+    -fx-stroke-width: 2;
+}
+
 #consoleBox {
-    -fx-padding: 0 10 15 10;
-    -fx-background-color: #38424b;
+    -fx-padding: 5 10 15 10;
+/*    -fx-background-color: #38424b;*/
+    
 } 
 
 #test {
@@ -60,6 +68,10 @@ root {
 #canvasSpacer {
     -fx-padding: 10;
     /*    -fx-background-color: #18424b;*/
+}
+
+#bottomConsoleHBox{
+    -fx-padding: 15 15 15 15;
 }
 
 #srText {
