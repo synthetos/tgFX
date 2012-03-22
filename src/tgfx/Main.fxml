@@ -63,12 +63,15 @@
         <BorderPane fx:id="canvasSpacer">
             <center>
                
-                <HBox  onScroll="#onMouseScroll" alignment="center" fx:id="canvas">
+                <HBox onScroll="#handleMouseScroll" onKeyPressed="#handleKeyInput" alignment="center" fx:id="canvas">
                     
                     <children>
-                        <Group onScroll="#onMouseScroll" fx:id="canvsGroup"></Group>
-<!--                        <Path fx:id="path"/>-->
-                        <!--<SVGPath fx:id="path"/>-->
+                        <Group  autoSizeChildren="true" onScroll="#handleMouseScroll" fx:id="canvsGroup">
+<!--                            <children>
+-->                                <Label scaleX="20" alignment="top_right" text="TESTING"/><!--
+                            </children>
+                            -->
+                        </Group>
       
                     </children>
                 </HBox>
@@ -82,13 +85,13 @@
                 
         <VBox fx:id="right">
             <children>
-                <ListView prefHeight="600"  fx:id="gcodesList"></ListView>
+                <ListView prefHeight="600"  onMouseClicked="#gcodeProgramClicks" fx:id="gcodesList"></ListView>
                 <HBox fx:id="gcodeFile" alignment="top_center">
                     <children> 
                         <Button text="Open File" onAction="#handleOpenFile"></Button>
                         <Button text="Run File" onAction="#runFile"></Button>
-                        <Button fx:id="pauseResume" text="Pause" onAction="#pauseResumeAct"></Button>
-<!--                                <Button text="Run File" onAction="#pauseFile"></Button>-->
+                        <Button fx:id="pauseResume" text="Pause" onAction="#handlePauseResumeAct"></Button>
+                        <!--<Button text="Run File" onAction="#pauseFile"></Button>-->
                     </children>
                 </HBox>
                 <HBox fx:id="gcodeFile" alignment="top_center">

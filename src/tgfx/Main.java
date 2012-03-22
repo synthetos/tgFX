@@ -14,15 +14,14 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.InputEvent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
@@ -36,7 +35,7 @@ import tgfx.system.Machine;
  * @author ril3y
  */
 public class Main implements Initializable, Observer {
-    
+
     private static final String CMD_GET_stateUS_REPORT = "{\"sr\":\"\"}\n";
 //    public Machine m = new Machine();
     private JdomParser JDOM = new JdomParser(); //JSON Object Parser1
@@ -84,13 +83,13 @@ public class Main implements Initializable, Observer {
 
     @FXML
     private void handleOpenFile(ActionEvent event) {
-        
+
         Platform.runLater(new Runnable() {
-            
+
             public void run() {
-                
+
                 try {
-                    
+
                     FileChooser fc = new FileChooser();
                     fc.setTitle("Open GCode File");
                     fc.setInitialDirectory(new File("c:\\"));
@@ -99,17 +98,51 @@ public class Main implements Initializable, Observer {
                     DataInputStream in = new DataInputStream((fstream));
                     BufferedReader br = new BufferedReader(new InputStreamReader(in));
                     String strLine;
-                    
+
                     gcodesList.getItems().clear();
                     //Clear the list if there was a previous file loaded
-                    
+
                     while ((strLine = br.readLine()) != null) {
-                        final Label tmpLbl = new Label(strLine);
+                        final TextField tmpLbl = new TextField(strLine);
+                        tmpLbl.setEditable(false);
+                        Tooltip tp = new Tooltip();
+                        tp.setText("To edit a value double click the cell.\nClick enter to apply the new value.");
+                        tmpLbl.setTooltip(tp);
+
+
+                        tmpLbl.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+                            public void handle(MouseEvent me) {
+                                if (me.getButton() == me.getButton().PRIMARY && me.getClickCount() == 2) {
+                                    String tmpValue = tmpLbl.getText();
+                                    tmpLbl.setEditable(true);
+
+
+                                }
+                            }
+                        });
+
+                        tmpLbl.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+                            public void handle(KeyEvent kevt) {
+                                if (kevt.getCode() == KeyCode.ENTER) {
+                                    tmpLbl.setEditable(false);
+                                    System.out.println("[+]Applied new gcode value");
+                                }
+//                                else if(kevt.getCode()== KeyCode.ESCAPE){
+//                                    tmpLbl.setText(tmpValue);
+//                                }
+                            }
+                        });
+
+
+                        //final Label tmpLbl = new Label(strLine);
                         gcodesList.getItems().add(tmpLbl);
+
                         System.out.println(strLine);
                     }
                     System.out.println("[*]File Loading Complete");
-                    
+
                 } catch (FileNotFoundException ex) {
                     System.out.println("File Not Found.");
                 } catch (Exception ex) {
@@ -118,60 +151,49 @@ public class Main implements Initializable, Observer {
             }
         });
     }
-    
+
     @FXML
-    private void pauseResumeAct(ActionEvent evt) throws Exception {
+    private void handlePauseResumeAct(ActionEvent evt) throws Exception {
         if ("Pause".equals(pauseResume.getText())) {
             pauseResume.setText("Resume");
             tg.setPAUSED(true);
-            
+
         } else {
             pauseResume.setText("Pause");
             tg.setPAUSED(false);
         }
     }
-    
+
     @FXML
-    void onMouseScroll(ScrollEvent evt) {
+    void handleMouseScroll(ScrollEvent evt) {
         //
-        double minVal = .1;
-        double oldStroke;
-        
-        double oldMag = magnification;
+
         if (evt.getDeltaX() == 0 && evt.getDeltaY() == 40) {
             //Mouse Wheel Up
-            magnification = magnification + minVal;
-//            console.appendText("[+]Zooming in " + String.valueOf(magnification) + "\n");
-            //Draw2d.setStrokeWeight(magnification - oldMag);
-            
+            Draw2d.setMagnification(true);
+
+            console.appendText("[+]Zooming in " + String.valueOf(Draw2d.getMagnification()) + "\n");
+
+
         } else if (evt.getDeltaX() == 0 && evt.getDeltaY() == -40) {
             //Mouse Wheel Down
-            magnification = magnification - minVal;
-            if (magnification == 0) {
-//                console.appendText("[!]Maximum Zoom Out Level reached...");
-                magnification = minVal;
-                //Draw2d.setStrokeWeight((magnification-oldMag)*2);
-            }
-//            console.appendText("[+]Zooming out " + String.valueOf(magnification) + "\n");
+            Draw2d.setMagnification(false);
+
+            console.appendText("[+]Zooming out " + String.valueOf(Draw2d.getMagnification()) + "\n");
         }
-        
-        
-        
-//        for (Node n : canvsGroup.getChildren()) {
-//            Line nd = (Line) n;
-//            nd.setStrokeWidth(Draw2d.getStrokeWeight());
-//        }
-//        console.appendText("[+]2d Preview Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight())+"\n");
-        canvsGroup.setScaleX(magnification);
-        canvsGroup.setScaleY(magnification);
 
-//        canvsGroup.setTranslateX(magnification);
-//        canvsGroup.setTranslateY(magnification);
-
-        
-        
+        canvsGroup.setScaleX(Draw2d.getMagnification());
+        canvsGroup.setScaleY(Draw2d.getMagnification());
     }
-    
+
+    private void reDrawPreview() {
+        for (Node n : canvsGroup.getChildren()) {
+            Line nd = (Line) n;
+            nd.setStrokeWidth(Draw2d.getStrokeWeight());
+        }
+//        console.appendText("[+]2d Preview Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
+    }
+
     @FXML
     private void zeroSystem(ActionEvent evt) {
         if (tg.isConnected() && tg.getClearToSend()) {
@@ -182,46 +204,46 @@ public class Main implements Initializable, Observer {
             }
         }
     }
-    
+
     @FXML
     private void runFile(ActionEvent evt) {
         Task fileSend = fileSenderTask();
         new Thread(fileSend).start();
-        
+
     }
-    
+
     public Task fileSenderTask() {
         return new Task() {
-            
+
             @Override
             protected Object call() throws Exception {
-                ObservableList<Label> gcodeProgramList = gcodesList.getItems();
+                ObservableList<TextField> gcodeProgramList = gcodesList.getItems();
                 gcodeProgramList = gcodesList.getItems();
                 String line;
-                
-                for (Label l : gcodeProgramList) {
-                    
-                    if (l.getText().startsWith("(")) {
+
+                for (TextField tf : gcodeProgramList) {
+
+                    if (tf.getText().startsWith("(") || tf.getText().equals("")) {
                         continue;
                     } else {
-                        line = new String("{\"gc\":\"" + l.getText() + "\"}" + "\n");
-                        
+                        line = new String("{\"gc\":\"" + tf.getText() + "\"}" + "\n");
+
                         if (tg.getClearToSend() && !tg.isPAUSED()) {
                             if (tg.isConnected()) {
                                 tg.write(line);
                             } else {
                                 console.appendText("[!]Serial Port is not Connected!\n");
                             }
-                            
-                            
+
+
                         } else if (tg.isPAUSED()) {
-                            
+
                             while (tg.isPAUSED()) {
                                 //Infinite Loop
                             }
                             tg.write(line);
                         } else {
-                            
+
                             int count = 0;
                             while (!tg.getClearToSend()) {
                                 //Not ready yet
@@ -233,22 +255,22 @@ public class Main implements Initializable, Observer {
                 }
                 console.appendText("[+] Sending File Complete\n");
                 return true;
-                
+
             }
         };
     }
-    
+
     @FXML
     private void FXreScanSerial(ActionEvent event) {
         this.reScanSerial();
     }
-    
+
     private void reScanSerial() {
         serialPorts.getItems().clear();
         String portArray[] = null;
         portArray = tg.listSerialPorts();
-        
-        
+
+
         for (String p : portArray) {
             serialPorts.getItems().add(p);
         }
@@ -275,7 +297,7 @@ public class Main implements Initializable, Observer {
             System.out.println(ex.getMessage());
         }
     }
-    
+
     @FXML
     private void handleConnect(ActionEvent event) throws Exception {
         //Get a list of serial ports on the system.
@@ -286,11 +308,11 @@ public class Main implements Initializable, Observer {
         }
         if (Connect.getText().equals("Connect") && serialPorts.getSelectionModel().getSelectedItem() != (null)) {
             String serialPortSelected = serialPorts.getSelectionModel().getSelectedItem().toString();
-            
+
             System.out.println("[+]Connecting...");
             tg.initialize(serialPortSelected, 115200);
             if (tg.isConnected()) {
-                
+
                 console.appendText("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
                 Connect.setText("Disconnect");
                 onConnectActions();
@@ -301,10 +323,10 @@ public class Main implements Initializable, Observer {
                 console.appendText("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
                 Connect.setText("Connect");
             }
-            
+
         }
     }
-    
+
     @FXML
     private void clearScreen(ActionEvent evt) {
         console.appendText("[+]Clearning Screen...\n");
@@ -317,15 +339,15 @@ public class Main implements Initializable, Observer {
 //        path.getElements().add(mt);
 
     }
-    
+
     private void handleTilda() {
         //                ==============HIDE CONSOLE CODE==============
         System.out.println("TILDA");
-        
+
         if (bottomConsoleHBox.isVisible()) {
             bottomConsoleHBox.setVisible(false);
-            
-            
+
+
         } else {
             bottomConsoleHBox.setVisible(true);
         }
@@ -334,15 +356,15 @@ public class Main implements Initializable, Observer {
 //        input.setText(cmd);
 // 
     }
-    
+
     @FXML
     private void handleKeyInput(final InputEvent event) {
         if (event instanceof KeyEvent) {
             final KeyEvent keyEvent = (KeyEvent) event;
             if (keyEvent.getCode() == KeyCode.BACK_QUOTE) {
-                
+
                 handleTilda();
-                
+
             } else if (keyEvent.getCode() == KeyCode.F5) {
                 String msg = new String("F5 Key Pressed - Getting Machine Settings\n");
                 console.appendText(msg);
@@ -358,19 +380,65 @@ public class Main implements Initializable, Observer {
                 } catch (Exception ex) {
                     System.out.println(ex.getMessage());
                 }
+
+
+            } else if (keyEvent.getCode() == KeyCode.F12) {
+                System.out.println("Writing DEBUG file");
+                try {
+                    BufferedWriter out = new BufferedWriter(new FileWriter("debugTest.txt"));
+                    out.write(SerialDriver.getInstance().getDebugFileString());
+                    out.close();
+                } catch (IOException e) {
+                    System.out.println("Exception ");
+                }
+            } else if (keyEvent.getCode() == KeyCode.F1) {
+                Draw2d.incrementSetStrokeWeight();
+                reDrawPreview();
+                console.appendText("[+]Increasing Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
+            } else if (keyEvent.getCode() == KeyCode.F2) {
+                Draw2d.decrementSetStrokeWeight();
+                reDrawPreview();
+                console.appendText("[+]Decreasing Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
             }
         }
     }
-    
+
+    @FXML
+    private void gcodeProgramClicks(MouseEvent me) {
+        TextField tField = (TextField) gcodesList.getSelectionModel().getSelectedItem();
+        if (me.getButton() == me.getButton().SECONDARY) {
+//            tg.write("{\"gc\":\"" + lbl.getText() + "\"}\n");
+            System.out.println("RIGHT CLICKED");
+
+
+        } else if (me.getButton() == me.getButton().PRIMARY && me.getClickCount() == 2) {
+            System.out.println("double clicked");
+            tField.setEditable(true);
+
+            //if (lbl.getParent().getStyleClass().contains("breakpoint")) {
+//                lbl.getParent().getStyleClass().remove("breakpoint");
+//                console.appendText("BREAKPOINT REMOVED: " + lbl.getText() + "\n");
+//                System.out.println("BREAKPOINT REMOVED");
+//            } else {
+//
+//                System.out.println("DOUBLE CLICKED");
+//                lbl.getStyleClass().removeAll(null);
+//                lbl.getParent().getStyleClass().add("breakpoint");
+//                System.out.println("BREAKPOINT SET");
+//                console.appendText("BREAKPOINT SET: " + lbl.getText() + "\n");
+//            };
+        }
+    }
+
     @FXML
     private void handleEnter(ActionEvent event) throws Exception {
         tg.write(input.getText() + "\n");
         System.out.println("Entered");
     }
-    
+
     private Task initRemoteServer() {
         return new Task() {
-            
+
             @Override
             protected Object call() throws Exception {
                 SocketMonitor sm = new SocketMonitor();
@@ -379,41 +447,55 @@ public class Main implements Initializable, Observer {
             }
         };
     }
-    
+
     public void drawLine(Machine.motion_modes moveType, float vel) {
-        double newX = Double.valueOf(tg.m.getAxisByName("X").getWork_position() );// + magnification;
-        double newY = Double.valueOf(tg.m.getAxisByName("Y").getWork_position() );// + magnification;
+
+        //Code to make mm's look the same size as inches
+        double unitMagnication = 1;
+//        if (tg.m.getUnitMode() == Machine.unit_modes.MM) {
+//            unitMagnication = 50.8;
+//        } else {
+//            unitMagnication = 2;
+//        }
+        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position()));// + magnification;
+        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position()));// + magnification;
 
         Line l = new Line(xPrevious, yPrevious, newX, newY);
         l.setStroke(Draw2d.getLineColorFromVelocity(vel));
-        
+
         if (moveType == Machine.motion_modes.traverse) {
             //G0 Move
-            l.setStrokeWidth(Draw2d.getStrokeWeight()/2);
+            l.setStrokeWidth(Draw2d.getStrokeWeight() / 2);
             l.setStroke(Draw2d.TRAVERSE);
+        } 
+        
+        if (tg.m.getAxisByName("Z").getWork_position() > 0) {
+            l = null;
         } else {
             l.setStrokeWidth(Draw2d.getStrokeWeight());
         }
         xPrevious = newX;
         yPrevious = newY;
-        
-        canvsGroup.getChildren().add(l);
-        
+
+        if(l != null){
+            canvsGroup.getChildren().add(l);
+        }
+
     }
-    
+
     private void updateGuiState(String line) {
         final String l = line;
         if (l.contains("msg")) {
             //Pass this on by..
         } else if (line.equals("STATUS_REPORT")) {
             Platform.runLater(new Runnable() {
-                
+
                 float vel;
-                
+
                 public void run() {
                     //We are now back in the EventThread and can update the GUI
                     try {
-                        
+
                         xAxisVal.setText(String.valueOf(tg.m.getAxisByName("X").getWork_position())); //json.getNode("sr").getNode("posx").getText());
                         yAxisVal.setText(String.valueOf(tg.m.getAxisByName("Y").getWork_position()));
                         zAxisVal.setText(String.valueOf(tg.m.getAxisByName("Z").getWork_position()));
@@ -421,8 +503,8 @@ public class Main implements Initializable, Observer {
 
                         //Update State... running stop homing etc.
                         srState.setText(tg.m.getMachineState().toString().toUpperCase());
-                        
-                        
+
+
                         srMomo.setText(tg.m.getMotionMode().toString().replace("_", " ").toUpperCase());
                         //Set the motion mode
 
@@ -431,15 +513,15 @@ public class Main implements Initializable, Observer {
                         //Parse the veloicity 
                         vel = tg.m.getVelocity();
                         srVelo.setText(String.valueOf(vel));
-                        
+
                         drawLine(tg.m.getMotionMode(), vel);
-                        
-                        
+
+
                     } catch (Exception ex) {
                         System.out.println("$$$$$$$$$$$$$EXCEPTION$$$$$$$$$$$$$$");
                         System.out.println(ex.getMessage());
                     }
-                    
+
                 }
             });
         }
@@ -458,28 +540,28 @@ public class Main implements Initializable, Observer {
         //We have to run the updates likes this.
         //https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
         Platform.runLater(new Runnable() {
-            
+
             public void run() {
                 // we are now back in the EventThread and can update the GUI
                 if (ROUTING_KEY == "PLAIN") {
                     console.appendText((String) ROUTING_KEY + "\n");
-                    
+
                 } else if (ROUTING_KEY == "STATUS_REPORT") {
 //                    console.setText((String) MSG[1] + "\n");
                     updateGuiState(ROUTING_KEY);
-                }else if(ROUTING_KEY.contains("ERROR")){
+                } else if (ROUTING_KEY.contains("ERROR")) {
                     console.appendText(ROUTING_KEY);
                 }
-                
+
             }
         });
     }
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         SocketMonitor sm;
-        
-        
+
+
         Task SocketListner = this.initRemoteServer();
 //        new Thread(SocketListner).start();
 
@@ -492,9 +574,12 @@ public class Main implements Initializable, Observer {
 
 //        path.getElements().add(mt);
 
-        
-        
-        
-        
+
+
+
+
+
+
+
     }
 }

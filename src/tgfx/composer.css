@@ -188,7 +188,7 @@ root {
         radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
 }
 
-.breakpoint {
+#breakpoint {
     -fx-background-color:#EA2A15;
     -fx-font-weight: bold;
 }

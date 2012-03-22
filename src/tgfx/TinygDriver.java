@@ -161,6 +161,9 @@ public class TinygDriver extends Observable implements Observer {
 
                 //Parse velocity out of status report
                 m.setVelocity(Float.parseFloat(json.getNode("sr").getNode("vel").getText()));
+                
+                //Parse Unit Mode
+                m.setUnits(Integer.parseInt(json.getNode("sr").getNode("unit").getText()));
 
                 //m.getAxisByName("X").setWork_position(Float.parseFloat((json.getNode("sr").getNode("xpos").getText())));
                 //m.getAxisByName("Y").setWork_position(Float.parseFloat((json.getNode("sr").getNode("ypos").getText())));
@@ -213,12 +216,12 @@ public class TinygDriver extends Observable implements Observer {
 
 
         } catch (argo.saj.InvalidSyntaxException ex) {
-            System.out.println("[!]ParseJson Exception: " + ex.getMessage());
+            System.out.println("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
             setChanged();
             notifyObservers("[!] " + ex.getMessage()+"Line Was: " + line +"\n");
         } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex) {
             //Extra } for some reason
-            System.out.println("[!]ParseJson Exception: " + ex.getMessage());
+            System.out.println("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
             setChanged();
             notifyObservers("[!] " + ex.getMessage()+"Line Was: " + line +"\n");
             

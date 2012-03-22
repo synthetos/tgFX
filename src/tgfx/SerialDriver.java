@@ -4,9 +4,9 @@
  */
 package tgfx;
 
-import argo.jdom.JdomParser;
-import argo.jdom.JsonRootNode;
 import gnu.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
@@ -32,7 +32,15 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
     public OutputStream output;
     private boolean PAUSED = false;
     private Boolean CLEAR_TO_TRANSMIT = true;
-
+    
+    
+    //DEBUG
+    public ByteArrayOutputStream bof = new ByteArrayOutputStream();
+    public String debugFileBuffer = "";
+    public byte[] debugBuffer = new byte[1024];
+    public double offsetPointer = 0;
+    //DEBUG
+    
     public synchronized void write(String str) throws Exception {
         setClearToSend(false);  //reset our flow flag "msg" for now in serialEvent 
         setChanged();
@@ -82,6 +90,10 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
         this.connectionState = c;
 
     }
+    
+    public String getDebugFileString(){
+        return(debugFileBuffer);
+    }
 
     public boolean isConnected() {
         return this.connectionState;
@@ -106,9 +118,10 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
             try {
                 int available = input.available();   //Get the size of data in the input buffer
                 byte chunk[] = new byte[available];  //Setup byte array to store the data.
-
                 input.read(chunk, 0, available);  //Read the data into the byte array
                 String res = new String(chunk);   //Convert the byte[] to a string
+                debugFileBuffer = debugFileBuffer+res;
+                
                 if (res.contains("msg")) {
                     this.setClearToSend(true);
                 } else if (res.contains("####")) {  //When TinyG is reset you will get this message

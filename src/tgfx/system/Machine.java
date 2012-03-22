@@ -37,22 +37,29 @@ public class Machine {
         traverse, straight, cw_arc, ccw_arc, invalid
     }
     
+    
     public static enum machine_states {
 
         reset, nop, stop, end, run, hold, homing
     }
     public static machine_states machine_state;
-    private float velocity;
+    
 
-    private enum unit_mode {
+    
+    public static enum unit_modes {
 
         INCHES, MM
     };
+    public unit_modes units;
+    
 
+    
     private enum selection_plane {
 
         G17, G18, G19
     };
+    
+    private float velocity;
     private boolean enable_acceleration;
     private int corner_acceleration;
     private float min_line_segment;
@@ -78,6 +85,19 @@ public class Machine {
         return machineName;
     }
 
+    
+    public void setUnits(int unitMode){
+        if(unitMode == 0){
+            units = units.INCHES;
+        }else{
+            units = units.MM;
+        }
+    }
+    
+    public unit_modes getUnitMode(){
+        return units;
+    }
+    
     public void setMotionMode(int mode) {
 //        machine_state = machine_state.reset;
         if (mode == 0) {

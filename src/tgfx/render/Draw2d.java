@@ -20,22 +20,68 @@ public class Draw2d {
     public static Paint MEDUIM = (Paint.valueOf("#c1ff66"));
     public static Paint FAST = (Paint.valueOf("#85ff22"));
     public static Paint FASTEST = (Paint.valueOf("#0fee17"));
-
     public static Paint TRAVERSE = (Paint.valueOf("#d0d0d0"));
     private float MAX_MACHINE_VELOCITY;
-    private static double stroke_weight = .5;
-    
-    public static void setStrokeWeight(double w){
-        if(w < 0){
-            w = 0.05;
-        }
-        stroke_weight = w;
+    private static double stroke_weight = 1;
+    public static double magnification = 3;
+    private static double magZoomIncrement = 2;
+    private static double strokeIncrement = .1;
+
+    public static double getMagnification() {
+        return magnification;
     }
-    
-    public static double getStrokeWeight(){
+
+    public static void setMagnification(boolean b) {
+        if (b) {
+            Draw2d.magnification = magnification + magZoomIncrement;
+        } else {
+            Draw2d.magnification = magnification - magZoomIncrement;
+        }
+    }
+
+    private static void calculateStroke() {
+        if (stroke_weight <= 5) {
+            strokeIncrement = 1;
+        }
+
+        if (stroke_weight <= 2) {
+            strokeIncrement = .5;
+        }
+
+        if (stroke_weight <= 1) {
+            strokeIncrement = .1;
+        }
+
+        if (stroke_weight <= .1) {
+            strokeIncrement = .01;
+        }
+
+        if (strokeIncrement <= .01) {
+            strokeIncrement = .001;
+        }
+    }
+
+    public static void incrementSetStrokeWeight() {
+        calculateStroke();
+        stroke_weight = stroke_weight + strokeIncrement;
+    }
+
+    public static void decrementSetStrokeWeight() {
+        calculateStroke();
+        stroke_weight = stroke_weight - strokeIncrement;
+    }
+
+//    public static void setStrokeWeight(double w) {
+//        if (w < 0) {
+//            w = 0.01;
+//        }
+//        stroke_weight = w;
+//    }
+
+    public static double getStrokeWeight() {
         return stroke_weight;
     }
-    
+
     public static Paint getLineColorFromVelocity(float vel) {
 
         if (vel > 1 && vel < 100) {
