@@ -32,6 +32,39 @@ root {
     -fx-padding: 50;
 }
 
+#testBox {
+    -fx-padding:10;
+}
+
+#z{
+    -fx-background-color: rgba(0,0,0,.7);
+    /*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #591d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-radius: 10,10,10,10;
+    -fx-padding: 50;
+}
+
+#z1{
+    -fx-background-color: rgba(0,255,0,.7);
+    /*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #591d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-radius: 10,10,10,10;
+    -fx-padding: 50;
+}
+
+#z2{
+    -fx-background-color: rgba(255,0,0,.7);
+    /*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #591d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-radius: 10,10,10,10;
+    -fx-padding: 50;
+}
+
+
+
 
 .bg {
     -fx-background-color:
@@ -57,8 +90,8 @@ root {
 
 #consoleBox {
     -fx-padding: 5 10 15 10;
-/*    -fx-background-color: #38424b;*/
-    
+    /*    -fx-background-color: #38424b;*/
+
 } 
 
 #test {
@@ -77,15 +110,16 @@ root {
 #srText {
     -fx-padding: 1 2 1 2;
     -fx-font-family: "Helvetica";
-    -fx-font-size: 20px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-text-overrun: clip;
-    -fx-text-fill: linear-gradient(white, #d0d0d0);
+    -fx-text-fill: linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%);
+    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
     /*    -fx-background-color: #98424b;*/
 }
 
 #motionModeHBox {
-    -fx-padding: 10 5 10 5;
+    -fx-padding: 25;
     /*    -fx-background-color: #98424b;*/
 } 
 
@@ -161,6 +195,20 @@ root {
     -fx-text-fill: linear-gradient(white, #d0d0d0);
 }
 
+/*#ipad {
+    -fx-background-color:
+        #a6b5c9,
+        linear-gradient(#303842 0%, #3e5577 20%, #375074 100%),
+        linear-gradient(#768aa5 0%, #849cbb 5%, #5877a2 50%, #486a9a 51%, #4a6c9b 100%);
+    -fx-background-insets: 0 0 -1 0,0,1;
+    -fx-background-radius: 5,5,4;
+    -fx-padding: 7 30 7 30;
+    -fx-text-fill: #242d35;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
+}*/
+
 #ipad {
     -fx-background-color:
         linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
@@ -212,13 +260,86 @@ root {
     -fx-font-size: 12px;
     -fx-padding: 10 20 10 20;
 }
+#motorConfigTitle {
+    -fx-font-family: "Arial";
+    -fx-text-fill: black;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+#motorConfigText {
+    -fx-font-family: "Arial";
+    -fx-text-fill: black;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+#motor1 {
+    -fx-background-color: darkgray ;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 10,10,10,10;;
+}
+
+#motor2 {
+    -fx-background-color: darkgray ;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 10,10,10,10;
+}
+
+#motor3 {
+    -fx-background-color: darkgray ;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 10,10,10,10;;
+}
+
+#motor4 {
+    -fx-background-color: darkgray ;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 10,10,10,10;;
+}
+
+#configMotorHboxTop {
+    -fx-padding: 5;
+    
+}
+#MachineLogo {
+    /*    -fx-image: "https://www.synthetos.com/blog/wp-content/themes/carrington-blog/img/grey.png";*/
+
+}
+
+#DoubleFrameConfigHBox {
+    -fx-padding: 10;
+}
+
+#MachineSettingsHBox{
+    -fx-background-color: white;
+}
+
+#ConfigurationLoaderConfigVBox {
+    -fx-background-color: red;
+}
+
+#MotorsConfigVBox{
+    -fx-padding: 20;
+/*    -fx-background-color:blue;*/
+} 
+
+#MachineSettingVBox {
+    -fx-background-color: linear-gradient(black, #38424b);
+}
 
 
+#center_left{
+    -fx-padding:10;
+}
 
-
+#center_center{
+    -fx-padding:10;
+}
 #bottom{
     -fx-padding:10;
-    -fx-background-color: linear-gradient(white, #38424b);
+    -fx-background-color: 
+        linear-gradient(#20262b, #191d22),
+        linear-gradient(white, #38424b);
 }
 
 #top{

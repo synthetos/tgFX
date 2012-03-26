@@ -67,12 +67,13 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
         private static final SerialDriver INSTANCE = new SerialDriver();
     }
 
-    public void disconnect() {
+    public synchronized void disconnect() {
 
         if (serialPort != null) {
-//            serialPort.removeEventListener();
+            //serialPort.removeEventListener();
             serialPort.close();
             setConnected(false); //Set our disconnected state
+            
 
         }
     }

@@ -10,6 +10,7 @@ import argo.saj.InvalidSyntaxException;
 import tgfx.system.Machine;
 import java.util.Observable;
 import java.util.Observer;
+import javafx.application.Platform;
 
 /**
  *
@@ -73,14 +74,16 @@ public class TinygDriver extends Observable implements Observer {
         ser.setPAUSED(p);
         if (p) { //if set to pause
             ser.priorityWrite("!\n");
-        } else{ //set to resume
+        } else { //set to resume
             ser.priorityWrite("~\n");
         }
     }
 
-    public boolean isConnected() {
-        return ser.isConnected();
+    public void setConnected(boolean choice){
+        this.ser.setConnected(choice);
     }
+    
+    
 
     public void write(String msg) throws Exception {
         ser.write(msg);
@@ -117,6 +120,11 @@ public class TinygDriver extends Observable implements Observer {
 //    
     public void disconnect() {
         this.ser.disconnect();
+        
+    }
+    
+    public boolean isConnected(){
+        return this.ser.isConnected();
     }
 
     public String getPortName() {
@@ -161,7 +169,7 @@ public class TinygDriver extends Observable implements Observer {
 
                 //Parse velocity out of status report
                 m.setVelocity(Float.parseFloat(json.getNode("sr").getNode("vel").getText()));
-                
+
                 //Parse Unit Mode
                 m.setUnits(Integer.parseInt(json.getNode("sr").getNode("unit").getText()));
 
@@ -218,13 +226,13 @@ public class TinygDriver extends Observable implements Observer {
         } catch (argo.saj.InvalidSyntaxException ex) {
             System.out.println("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
             setChanged();
-            notifyObservers("[!] " + ex.getMessage()+"Line Was: " + line +"\n");
+            notifyObservers("[!] " + ex.getMessage() + "Line Was: " + line + "\n");
         } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex) {
             //Extra } for some reason
             System.out.println("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
             setChanged();
-            notifyObservers("[!] " + ex.getMessage()+"Line Was: " + line +"\n");
-            
+            notifyObservers("[!] " + ex.getMessage() + "Line Was: " + line + "\n");
+
         } catch (Exception ex) {
             setChanged();
             notifyObservers("ERROR");
@@ -271,6 +279,32 @@ public class TinygDriver extends Observable implements Observer {
         }
     }
 
+    public void getAllMotorSettings() throws Exception {
+        Platform.runLater(new Runnable() {
+
+            float vel;
+
+            public void run() {
+                //With the sleeps in this method we wrap it in a runnable task
+                try {
+                    ser.write(CMD_GET_MOTOR_1_SETTINGS);
+//                    Thread.sleep(100);
+                    ser.write(CMD_GET_MOTOR_2_SETTINGS);
+//                    Thread.sleep(100);
+                    ser.write(CMD_GET_MOTOR_3_SETTINGS);
+//                    Thread.sleep(100);
+                    ser.write(CMD_GET_MOTOR_4_SETTINGS);
+
+                } catch (Exception ex) {
+                    System.out.println("$$$$$$$$$$$$$EXCEPTION IN GetAllMotorSettings() $$$$$$$$$$$$$$");
+                    System.out.println(ex.getMessage());
+                }
+
+            }
+        });
+    }
+
+    
     public void getMotorSettings(int motorNumber) {
         try {
             if (motorNumber == 1) {

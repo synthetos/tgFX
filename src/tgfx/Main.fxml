@@ -6,13 +6,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.shape.Path?>
+<?import javafx.scene.image.*?>
 
 
-<BorderPane id="bg" prefHeight="800" prefWidth="1280" onKeyPressed="#handleKeyInput" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
-   
-   
-<!--    #######################TOP###########################-->
-    <top>
+<VBox prefHeight="900" prefWidth="1380" onKeyPressed="#handleKeyInput" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
+    <children>
+        
         <BorderPane fx:id="serialBox">
             <left>
                 <HBox>
@@ -53,148 +52,774 @@
                 </VBox>
             </right>
         </BorderPane>
-    </top>
-    
-    
-    
-    
-<!--    #######################CENTER###########################-->
-    <center>
-        <BorderPane fx:id="canvasSpacer">
-            <center>
+        
+        <TabPane fx:id="tabPane">
+            <tabs>
+                
+                <Tab fx:id="gcodeTab" text="Gcode" closable="false">
+                    <content>
+                        <BorderPane id="bg">
+                            <center>
+                                <BorderPane fx:id="canvasSpacer">
+                                    <center>
                
-                <HBox onScroll="#handleMouseScroll" onKeyPressed="#handleKeyInput" alignment="center" fx:id="canvas">
+                                        <HBox onScroll="#handleMouseScroll" onKeyPressed="#handleKeyInput" alignment="center" fx:id="canvas">
                     
-                    <children>
-                        <Group  autoSizeChildren="true" onScroll="#handleMouseScroll" fx:id="canvsGroup">
-<!--                            <children>
--->                                <Label scaleX="20" alignment="top_right" text="TESTING"/><!--
-                            </children>
-                            -->
-                        </Group>
+                                            <children>
+                                                <Group  autoSizeChildren="true" onScroll="#handleMouseScroll" fx:id="canvsGroup">
+
+                                                </Group>
       
+                                            </children>
+                                        </HBox>
+                                    </center>
+                                </BorderPane>
+                            </center>
+    
+
+                            <!--#####LEFT PANE FOR GCODE FILES AND CONTROL#####-->
+                            <left>
+                                <VBox fx:id="right">
+                                    <children>
+                                        <HBox fx:id="gcodeFile" alignment="top_center">
+                                            <children>
+                                                <Button text="Zero" fx:id="gcodeZero" onAction="#zeroSystem"/>
+                                                <Button text="Clear Screen" fx:id="btnClearScreen" onAction="#clearScreen"/>
+                        
+                                            </children>
+                                        </HBox>
+                                        <ListView prefHeight="600"  onMouseClicked="#gcodeProgramClicks" fx:id="gcodesList"></ListView>
+                                        <HBox fx:id="gcodeFile" alignment="top_center">
+                                            <children> 
+                                                <Button text="Open File" onAction="#handleOpenFile"></Button>
+                                                <Button text="Run File" onAction="#runFile"></Button>
+                                                <Button fx:id="pauseResume" text="Pause" onAction="#handlePauseResumeAct"></Button>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </left>
+                            <!--#####END LEFT PANE FOR GCODE FILES AND CONTROL#####-->
+                            
+                            
+                            
+                            
+    
+                            <!--#####RIGHT FOR Z AXIS VIEW#####-->
+                            <right>
+                                
+<!--                                <Group fx:id="canvas">-->
+                                <GridPane vgap="10" maxHeight="590" prefWidth="200" fx:id="testBox">
+                                    <children>
+                                            
+                                        <Region maxHeight="200" prefWidth="200" prefHeight="200" fx:id="z"
+                                                GridPane.columnIndex="0"
+                                                GridPane.rowIndex="0"/>
+                                        <Region maxHeight="200" prefWidth="200" prefHeight="200" fx:id="z1"
+                                                GridPane.columnIndex="0"
+                                                GridPane.rowIndex="1"/>
+                                        <Region maxHeight="200" prefWidth="200" prefHeight="200" fx:id="z2"
+                                                GridPane.columnIndex="0"
+                                                GridPane.rowIndex="2"/>
+                                            
+                                    </children>
+                                </GridPane>
+                            
+<!--                                        
+                                </Group>-->
+                               
+                            </right>
+                            <!--#####END RIGHT FOR Z AXIS VIEW#####-->
+    
+                            
+                        </BorderPane>  
+                    </content>
+                </Tab>
+                
+                
+                
+                <Tab fx:id="tabConfig" text="Config" closable="false">
+                    <content>
+                        <VBox fx:id="MachineSettingVBox" prefHeight="800">
+                            <children>
+                                <Label text="MACHINE SETTINGS BOX"/>
+                                
+                                
+                                
+                                
+                                
+                                <HBox fx:id="MachineSettingsHBox" prefWidth="Infinity" prefHeight="300" >
+                                    <children>
+
+                                        <ImageView fitHeight="100.164" fitWidth="155" fx:id="MachineLogo">
+                                            <image>
+                                                <Image fx:id="logo" url="@tg.png"/>
+                                            </image>
+                                        </ImageView>
+                                    </children>
+                                </HBox>
+                                
+                                
+                                
+                                
+                                <GridPane fx:id="DoubleFrameConfigGridPane">
+
+                                    
+                                    <VBox style="-fx-padding: 20; -fx-background-color: orange;" 
+                                          GridPane.columnIndex="1"
+                                          GridPane.rowIndex="0">
+                                        <children>
+                                            <HBox>
+                                                <children>
+                                                    
+                                                    
+                                                     <Group fx:id="motor1Node" >
+                                                        <HBox  id="motor1" GridPane.columnIndex="1"
+                                                               GridPane.rowIndex="0">
+                                                            <children>
+                                                                <VBox  alignment="center" style="-fx-padding:0 10 0 0">
+                                                                    <children>
+                                                                        <Label fx:id="motorConfigTitle" text="Motor 1"/>
+<!--                                                                        <ImageView fx:id="MachineLogo">
+                                                                            <image>
+                                                                                <Image fx:id="logo" url="@stepper.png"/>
+                                                                            </image>
+                                                                        </ImageView>-->
+                                                                    </children>
+                                                                </VBox>
+                                                                <GridPane alignment="center" gridLinesVisible="true" vgap="5" hgap="5">
+                                                        
+                                                                    <Label fx:id="motorConfigText" text="Travel Per Rev."
+                                                                           GridPane.rowIndex="0"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <TextField maxWidth="50" fx:id="motor1ConfigTravelPerRev" text="0"
+                                                                               GridPane.rowIndex="0"
+                                                                               GridPane.columnIndex="1"/>
+                                                               
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Step Angle"
+                                                                           GridPane.rowIndex="1"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <TextField maxWidth="50" fx:id="motor1ConfigStepAngle" text="0"
+                                                                               GridPane.rowIndex="1"
+                                                                               GridPane.columnIndex="1"/>
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Map Axis"
+                                                                           GridPane.rowIndex="2"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <ChoiceBox fx:id="motor1ConfigMapAxis"
+                                                                               GridPane.rowIndex="2"
+                                                                               GridPane.columnIndex="1">
+                                                                        <String fx:value="X"/>
+                                                                        <String fx:value="Y"/>
+                                                                        <String fx:value="Z"/>
+                                                                        <String fx:value="A"/>
+                                                                    </ChoiceBox>
+                                                 
+                                                                    <Label fx:id="motorConfigText" text="Micro Steps"
+                                                                           GridPane.rowIndex="0"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+
+                                                                    <ChoiceBox  fx:id="motor1ConfigMicroSteps"
+                                                                                GridPane.columnIndex="3"
+                                                                                GridPane.rowIndex="0">
+                                                                        <String fx:value="8"/>
+                                                                        <String fx:value="16"/>
+                                                                        <String fx:value="32"/>
+                                                                    </ChoiceBox>
+                                                        
+                                                        
+                                                        
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Polarity"
+                                                                           GridPane.rowIndex="1"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+                                                                    <ChoiceBox  fx:id="motor1ConfigPolarity"
+                                                                                GridPane.rowIndex="1"
+                                                                                GridPane.columnIndex="3">
+                                                                        <String fx:value="0"/>
+                                                                        <String fx:value="1"/>
+                                                                    </ChoiceBox>
+                                                                    
+                                                                    <Label fx:id="motorConfigText" text="Power Mode"
+                                                                           GridPane.rowIndex="2"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+                                                                    <ChoiceBox fx:id="motor1ConfigPowerMode" 
+                                                                               GridPane.rowIndex="2"
+                                                                               GridPane.columnIndex="3">
+                                                                        <String fx:value="On"/>
+                                                                        <String fx:value="Off"/>
+                                                                    </ChoiceBox>
+                                                                </GridPane>
+                                                        
+                                                            </children>
+                                                        </HBox>
+                                                    </Group>
+                                                    
+                                                    
+                                                </children>
+                                                    
+                                            </HBox>
+                                            <Label text="AXIS SETTINGS BOX"/>
+                                        </children>
+                                    </VBox>
+                                    
+                                    
+                                    <VBox fx:id="ConfigurationLoaderConfigVBox" alignment="center_right" prefWidth="400" prefHeight="700"
+                                          GridPane.columnIndex="2"
+                                          GridPane.rowIndex="0">
+                                        <children>
+                                            <Label text="Configuration Loader Config VBox"/>
+                                                
+                                                    
+                                        </children>
+                                    </VBox>
+                                    
+                                    <VBox fx:id="MotorsConfigVBox" alignment="center" prefHeight="700"
+                                          GridPane.columnIndex="0"
+                                          GridPane.rowIndex="0">
+                                        <children>
+<!--                                            <VBox alignment="center" style="-fx-background-color: orange;">
+                                                <children>-->
+                                               
+                                               
+                                            <!--##################MOTOR 1 CONFIG###############-->
+                                            <HBox fx:id="configMotorHboxTop">
+                                                <children>
+                                                    <Group fx:id="motor1Node" >
+                                                        <HBox  id="motor1" GridPane.columnIndex="1"
+                                                               GridPane.rowIndex="0">
+                                                            <children>
+                                                                <VBox  alignment="center" style="-fx-padding:0 10 0 0">
+                                                                    <children>
+                                                                        <Label fx:id="motorConfigTitle" text="Motor 1"/>
+                                                                        <ImageView fx:id="MachineLogo">
+                                                                            <image>
+                                                                                <Image fx:id="logo" url="@stepper.png"/>
+                                                                            </image>
+                                                                        </ImageView>
+                                                                    </children>
+                                                                </VBox>
+                                                                <GridPane alignment="center" gridLinesVisible="true" vgap="5" hgap="5">
+                                                        
+                                                                    <Label fx:id="motorConfigText" text="Travel Per Rev."
+                                                                           GridPane.rowIndex="0"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <TextField maxWidth="50" fx:id="motor1ConfigTravelPerRev" text="0"
+                                                                               GridPane.rowIndex="0"
+                                                                               GridPane.columnIndex="1"/>
+                                                               
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Step Angle"
+                                                                           GridPane.rowIndex="1"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <TextField maxWidth="50" fx:id="motor1ConfigStepAngle" text="0"
+                                                                               GridPane.rowIndex="1"
+                                                                               GridPane.columnIndex="1"/>
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Map Axis"
+                                                                           GridPane.rowIndex="2"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <ChoiceBox fx:id="motor1ConfigMapAxis"
+                                                                               GridPane.rowIndex="2"
+                                                                               GridPane.columnIndex="1">
+                                                                        <String fx:value="X"/>
+                                                                        <String fx:value="Y"/>
+                                                                        <String fx:value="Z"/>
+                                                                        <String fx:value="A"/>
+                                                                    </ChoiceBox>
+                                                 
+                                                                    <Label fx:id="motorConfigText" text="Micro Steps"
+                                                                           GridPane.rowIndex="0"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+
+                                                                    <ChoiceBox  fx:id="motor1ConfigMicroSteps"
+                                                                                GridPane.columnIndex="3"
+                                                                                GridPane.rowIndex="0">
+                                                                        <String fx:value="8"/>
+                                                                        <String fx:value="16"/>
+                                                                        <String fx:value="32"/>
+                                                                    </ChoiceBox>
+                                                        
+                                                        
+                                                        
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Polarity"
+                                                                           GridPane.rowIndex="1"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+                                                                    <ChoiceBox  fx:id="motor1ConfigPolarity"
+                                                                                GridPane.rowIndex="1"
+                                                                                GridPane.columnIndex="3">
+                                                                        <String fx:value="0"/>
+                                                                        <String fx:value="1"/>
+                                                                    </ChoiceBox>
+                                                                    
+                                                                    <Label fx:id="motorConfigText" text="Power Mode"
+                                                                           GridPane.rowIndex="2"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+                                                                    <ChoiceBox fx:id="motor1ConfigPowerMode" 
+                                                                               GridPane.rowIndex="2"
+                                                                               GridPane.columnIndex="3">
+                                                                        <String fx:value="On"/>
+                                                                        <String fx:value="Off"/>
+                                                                    </ChoiceBox>
+                                                                </GridPane>
+                                                        
+                                                            </children>
+                                                        </HBox>
+                                                    </Group>
+                                                </children>
+                                            </HBox>
+                                            
+                                            
+                                            <!--##################END MOTOR 1 CONFIG###############-->
+                                                
+                                                
+                                                
+                                            <!--##################MOTOR 2 CONFIG###############-->
+                                            <HBox fx:id="configMotorHboxTop">
+                                                <children>
+                                                    <Group fx:id="motor2Node" >
+                                                        <HBox  id="motor2" GridPane.columnIndex="1"
+                                                               GridPane.rowIndex="0">
+                                                            <children>
+                                                                <VBox  alignment="center" style="-fx-padding:0 10 0 0">
+                                                                    <children>
+                                                                        <Label fx:id="motorConfigTitle" text="Motor 2"/>
+                                                                        <ImageView fx:id="MachineLogo" >
+                                                                            <image>
+                                                                                <Image fx:id="logo" url="@stepper.png"/>
+                                                                            </image>
+                                                                        </ImageView>
+                                                                    </children>
+                                                                </VBox>
+                                                                <GridPane alignment="center" gridLinesVisible="true" vgap="5" hgap="5">
+                                                        
+                                                                    <Label fx:id="motorConfigText" text="Travel Per Rev."
+                                                                           GridPane.rowIndex="0"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <TextField maxWidth="50" fx:id="motor2ConfigTravelPerRev" text="0"
+                                                                               GridPane.rowIndex="0"
+                                                                               GridPane.columnIndex="1"/>
+                                                               
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Step Angle"
+                                                                           GridPane.rowIndex="1"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <TextField maxWidth="50" fx:id="motor2ConfigStepAngle" text="0"
+                                                                               GridPane.rowIndex="1"
+                                                                               GridPane.columnIndex="1"/>
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Map Axis"
+                                                                           GridPane.rowIndex="2"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <ChoiceBox fx:id="motor2ConfigMapAxis"
+                                                                               GridPane.rowIndex="2"
+                                                                               GridPane.columnIndex="1">
+                                                                        <String fx:value="X"/>
+                                                                        <String fx:value="Y"/>
+                                                                        <String fx:value="Z"/>
+                                                                        <String fx:value="A"/>
+                                                                    </ChoiceBox>
+                                                 
+                                                                    <Label fx:id="motorConfigText" text="Micro Steps"
+                                                                           GridPane.rowIndex="0"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+
+                                                                    <ChoiceBox  fx:id="motor2ConfigMicroSteps"
+                                                                                GridPane.columnIndex="3"
+                                                                                GridPane.rowIndex="0">
+                                                                        <String fx:value="8"/>
+                                                                        <String fx:value="16"/>
+                                                                        <String fx:value="32"/>
+                                                                    </ChoiceBox>
+                                                        
+                                                        
+                                                        
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Polarity"
+                                                                           GridPane.rowIndex="1"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+                                                                    <ChoiceBox  fx:id="motor2ConfigPolarity"
+                                                                                GridPane.rowIndex="1"
+                                                                                GridPane.columnIndex="3">
+                                                                        <String fx:value="0"/>
+                                                                        <String fx:value="1"/>
+                                                                    </ChoiceBox>
+                                                                    
+                                                                    <Label fx:id="motorConfigText" text="Power Mode"
+                                                                           GridPane.rowIndex="2"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+                                                                    <ChoiceBox fx:id="motor2ConfigPowerMode" 
+                                                                               GridPane.rowIndex="2"
+                                                                               GridPane.columnIndex="3">
+                                                                        <String fx:value="On"/>
+                                                                        <String fx:value="Off"/>
+                                                                    </ChoiceBox>
+                                                                    
+                                                                </GridPane>
+                                                        
+                                                            </children>
+                                                        </HBox>
+                                                    </Group>
+                                                </children>
+                                            </HBox>
+                                            <!--##################END MOTOR 2 CONFIG###############-->
+                                            
+                                                
+                                                
+                                            <!--##################MOTOR 3 CONFIG###############-->
+                                            <HBox fx:id="configMotorHboxTop" >
+                                                <children>
+                                                    <Group fx:id="motor3Node" >
+                                                        <HBox  id="motor3" GridPane.columnIndex="1"
+                                                               GridPane.rowIndex="0">
+                                                            <children>
+                                                                <VBox  alignment="center" style="-fx-padding:0 10 0 0">
+                                                                    <children>
+                                                                        <Label fx:id="motorConfigTitle" text="Motor 3"/>
+                                                                        <ImageView fx:id="MachineLogo">
+                                                                            <image>
+                                                                                <Image fx:id="logo" url="@stepper.png"/>
+                                                                            </image>
+                                                                        </ImageView>
+                                                                    </children>
+                                                                </VBox>
+                                                                <GridPane alignment="center" gridLinesVisible="true" vgap="5" hgap="5">
+                                                        
+                                                                    <Label fx:id="motorConfigText" text="Travel Per Rev."
+                                                                           GridPane.rowIndex="0"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <TextField maxWidth="50" fx:id="motor3ConfigTravelPerRev" text="0"
+                                                                               GridPane.rowIndex="0"
+                                                                               GridPane.columnIndex="1"/>
+                                                               
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Step Angle"
+                                                                           GridPane.rowIndex="1"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <TextField maxWidth="50" fx:id="motor3ConfigStepAngle" text="0"
+                                                                               GridPane.rowIndex="1"
+                                                                               GridPane.columnIndex="1"/>
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Map Axis"
+                                                                           GridPane.rowIndex="2"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <ChoiceBox fx:id="motor3ConfigMapAxis"
+                                                                               GridPane.rowIndex="2"
+                                                                               GridPane.columnIndex="1">
+                                                                        <String fx:value="X"/>
+                                                                        <String fx:value="Y"/>
+                                                                        <String fx:value="Z"/>
+                                                                        <String fx:value="A"/>
+                                                                    </ChoiceBox>
+                                                 
+                                                                    <Label fx:id="motorConfigText" text="Micro Steps"
+                                                                           GridPane.rowIndex="0"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+
+                                                                    <ChoiceBox  fx:id="motor3ConfigMicroSteps"
+                                                                                GridPane.columnIndex="3"
+                                                                                GridPane.rowIndex="0">
+                                                                        <String fx:value="8"/>
+                                                                        <String fx:value="16"/>
+                                                                        <String fx:value="32"/>
+                                                                    </ChoiceBox>
+                                                        
+                                                        
+                                                        
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Polarity"
+                                                                           GridPane.rowIndex="1"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+                                                                    <ChoiceBox  fx:id="motor3ConfigPolarity"
+                                                                                GridPane.rowIndex="1"
+                                                                                GridPane.columnIndex="3">
+                                                                        <String fx:value="0"/>
+                                                                        <String fx:value="1"/>
+                                                                    </ChoiceBox>
+                                                                    
+                                                                    <Label fx:id="motorConfigText" text="Power Mode"
+                                                                           GridPane.rowIndex="2"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+                                                                    <ChoiceBox fx:id="motor3ConfigPowerMode" 
+                                                                               GridPane.rowIndex="2"
+                                                                               GridPane.columnIndex="3">
+                                                                        <String fx:value="On"/>
+                                                                        <String fx:value="Off"/>
+                                                                    </ChoiceBox>
+                                                                </GridPane>
+                                                        
+                                                            </children>
+                                                        </HBox>
+                                                    </Group>
+                                                </children>
+                                            </HBox>
+                                            <!--##################END MOTOR 3 CONFIG###############-->
+                                        
+                                                
+                                                
+                                            <!--##################MOTOR 4 CONFIG###############-->
+                                            <HBox fx:id="configMotorHboxTop" >
+                                                <children>
+                                                    <Group fx:id="motor4Node" >
+                                                        <HBox  id="motor4" GridPane.columnIndex="1"
+                                                               GridPane.rowIndex="0">
+                                                            <children>
+                                                                <VBox  alignment="center" style="-fx-padding:0 10 0 0">
+                                                                    <children>
+                                                                        <Label fx:id="motorConfigTitle" text="Motor 4"/>
+                                                                        <ImageView fx:id="MachineLogo">
+                                                                            <image>
+                                                                                <Image fx:id="logo" url="@stepper.png"/>
+                                                                            </image>
+                                                                        </ImageView>
+                                                                    </children>
+                                                                </VBox>
+                                                                <GridPane alignment="center" gridLinesVisible="true" vgap="5" hgap="5">
+                                                        
+                                                                    <Label fx:id="motorConfigText" text="Travel Per Rev."
+                                                                           GridPane.rowIndex="0"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <TextField maxWidth="50" fx:id="motor4ConfigTravelPerRev" text="0"
+                                                                               GridPane.rowIndex="0"
+                                                                               GridPane.columnIndex="1"/>
+                                                               
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Step Angle"
+                                                                           GridPane.rowIndex="1"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <TextField maxWidth="50" fx:id="motor4ConfigStepAngle" text="0"
+                                                                               GridPane.rowIndex="1"
+                                                                               GridPane.columnIndex="1"/>
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Map Axis"
+                                                                           GridPane.rowIndex="2"
+                                                                           GridPane.columnIndex="0"/>
+                                                        
+                                                                    <ChoiceBox fx:id="motor4ConfigMapAxis"
+                                                                               GridPane.rowIndex="2"
+                                                                               GridPane.columnIndex="1">
+                                                                        <String fx:value="X"/>
+                                                                        <String fx:value="Y"/>
+                                                                        <String fx:value="Z"/>
+                                                                        <String fx:value="A"/>
+                                                                    </ChoiceBox>
+                                                 
+                                                                    <Label fx:id="motorConfigText" text="Micro Steps"
+                                                                           GridPane.rowIndex="0"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+
+                                                                    <ChoiceBox  fx:id="motor4ConfigMicroSteps"
+                                                                                GridPane.columnIndex="3"
+                                                                                GridPane.rowIndex="0">
+                                                                        <String fx:value="8"/>
+                                                                        <String fx:value="16"/>
+                                                                        <String fx:value="32"/>
+                                                                    </ChoiceBox>
+                                                        
+                                                        
+                                                        
+                                                               
+                                                                    <Label fx:id="motorConfigText" text="Polarity"
+                                                                           GridPane.rowIndex="1"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+                                                                    <ChoiceBox  fx:id="motor4ConfigPolarity"
+                                                                                GridPane.rowIndex="1"
+                                                                                GridPane.columnIndex="3">
+                                                                        <String fx:value="0"/>
+                                                                        <String fx:value="1"/>
+                                                                    </ChoiceBox>
+                                                                    
+                                                                    <Label fx:id="motorConfigText" text="Power Mode"
+                                                                           GridPane.rowIndex="2"
+                                                                           GridPane.columnIndex="2"/>
+                                                        
+                                                                    <ChoiceBox fx:id="motor4ConfigPowerMode" 
+                                                                               GridPane.rowIndex="2"
+                                                                               GridPane.columnIndex="3">
+                                                                        <String fx:value="On"/>
+                                                                        <String fx:value="Off"/>
+                                                                    </ChoiceBox>
+                                                                </GridPane>
+                                                        
+                                                            </children>
+                                                        </HBox>
+                                                    </Group>
+                                                </children>
+                                            </HBox>
+                                            <!--##################END MOTOR 4 CONFIG###############-->
+                                          
+                                        </children>
+                                    </VBox>
+                                            
+<!--                                            <VBox prefWidth="-Infinity" style="-fx-background-color: yellow;">
+                                                <children>
+                                                    
+                                                </children>
+                                            </VBox>
+                                                    
+                                        </children>
+                                    </HBox>-->
+                 
+                                </GridPane>
+                                        
+                            </children>
+                        </VBox>
+                                
+                                
+                                
+                                
+                   
+                    
+<!--                      ###END OF VBOX CONFIG CONTAINER###-->
+      
+      
+                    </content>
+                    
+                </Tab>
+            </tabs>
+        </TabPane>
+            
+        
+                
+       
+   
+               
+               
+               
+                <!--#######BOTTOM CONSOLE##########-->
+        <BorderPane maxHeight="150" prefHeight="150" maxWidth="Infinity" prefWidth="Infinity" fx:id="bottom">
+<!--        <HBox maxHeight="180"  maxWidth="Infinity" minHeight="180" prefWidth="Infinity" fx:id="bottom">-->
+            <left>
+                
+                <VBox fx:id="center_left" onKeyPressed="#handleKeyInput" prefWidth="700"   >
+                    <children>
+                        <TextArea  minHeight="50" focusTraversable="false" editable="false" fx:id="console"/>
+                        <HBox  alignment="center_left"  fx:id="consoleBox"> 
+                            <children>
+                                <Label fx:id="cmdLabel"  text="CMD>"/>
+                    
+                                <HBox>
+                                    <children>
+                            
+                                        <TextField fx:id="input"  minHeight="25" prefHeight="25"  onAction="#handleEnter"/>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </HBox>  
+                    </children>
+                </VBox> 
+                
+                
+            </left>
+            <center>
+                
+                
+                       
+                        
+               
+                <HBox fx:id="center_center" alignment="center_right">
+                    <children>
+                        <VBox fx:id="motionModeHBox"> 
+                            <children>
+                                <GridPane  alignment="center_left" hgap="5" vgap="5" fx:id="adfsf" gridLinesVisible="true">
+                                    <children>
+                                        <Label fx:id="srMomoLbl" id="srText" text="Motion Mode"
+                                               GridPane.columnIndex="0"
+                                               GridPane.rowIndex="0"/>
+                                        <Label fx:id="srMomo" id="srText" text="STRAIGHT"
+                                               GridPane.columnIndex="1"
+                                               GridPane.rowIndex="0"/>
+
+                                        <Label fx:id="srStateLbl" id="srText" text="State"
+                                               GridPane.columnIndex="0"
+                                               GridPane.rowIndex="1"/>
+                                        <Label fx:id="srState" id="srText" text="STOP"
+                                               GridPane.columnIndex="1"
+                                               GridPane.rowIndex="1"/>
+                                        
+                                        <Label fx:id="srVeloLbl" id="srText" text="Velocity"
+                                               GridPane.columnIndex="0"
+                                               GridPane.rowIndex="2"/>
+                                        <Label fx:id="srVelo" alignment="center_left" id="srText" text="0"
+                                               GridPane.columnIndex="1"
+                                               GridPane.rowIndex="2"/>
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+                        <GridPane fx:id="gp" alignment="top_right" hgap="10" vgap="10">
+                            <children>
+                                <Label fx:id="xAxis" id="ipad" text="X AXIS"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="0"/>
+
+                                <Label fx:id="xAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="0"/>
+
+                                <Label fx:id="yAxis" id="ipad"  text="Y AXIS"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="1"/>
+
+                                <Label fx:id="yAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="1"/>
+
+                                <Label fx:id="zAxis" id="ipad" text="Z AXIS"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="2"/>
+
+                                <Label fx:id="zAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="2"/>
+
+                                <Label fx:id="aAxis" id="ipad" text="A AXIS"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="3"/>
+
+                                <Label fx:id="aAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="3"/>
+                              
+                            </children>
+                        </GridPane>
                     </children>
                 </HBox>
+               
             </center>
         </BorderPane>
-    </center>
-    
-   
-    <right >
        
                 
-        <VBox fx:id="right">
-            <children>
-                <ListView prefHeight="600"  onMouseClicked="#gcodeProgramClicks" fx:id="gcodesList"></ListView>
-                <HBox fx:id="gcodeFile" alignment="top_center">
-                    <children> 
-                        <Button text="Open File" onAction="#handleOpenFile"></Button>
-                        <Button text="Run File" onAction="#runFile"></Button>
-                        <Button fx:id="pauseResume" text="Pause" onAction="#handlePauseResumeAct"></Button>
-                        <!--<Button text="Run File" onAction="#pauseFile"></Button>-->
-                    </children>
-                </HBox>
-                <HBox fx:id="gcodeFile" alignment="top_center">
-                    <children>
-                        <Button text="Zero" fx:id="gcodeZero" onAction="#zeroSystem"/>
-                        <Button text="Clear Screen" fx:id="btnClearScreen" onAction="#clearScreen"/>
-                        
-                    </children>
-                </HBox>
-            </children>
-        </VBox>
-                
-                
-                
-           
-        
-    </right>
-    
-    <left>
-        <VBox fx:id="left">
-            <children>
-                
-                <GridPane fx:id="gp" alignment="top_center" hgap="10" vgap="10">
-                    <children>
-                        <Label fx:id="xAxis" id="ipad" text="X AXIS"
-                               GridPane.columnIndex="0"
-                               GridPane.rowIndex="0"/>
-
-                        <Label fx:id="xAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
-                               GridPane.columnIndex="1"
-                               GridPane.rowIndex="0"/>
-
-                        <Label fx:id="yAxis" id="ipad"  text="Y AXIS"
-                               GridPane.columnIndex="0"
-                               GridPane.rowIndex="1"/>
-
-                        <Label fx:id="yAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
-                               GridPane.columnIndex="1"
-                               GridPane.rowIndex="1"/>
-
-                        <Label fx:id="zAxis" id="ipad" text="Z AXIS"
-                               GridPane.columnIndex="0"
-                               GridPane.rowIndex="2"/>
-
-                        <Label fx:id="zAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
-                               GridPane.columnIndex="1"
-                               GridPane.rowIndex="2"/>
-
-                        <Label fx:id="aAxis" id="ipad" text="A AXIS"
-                               GridPane.columnIndex="0"
-                               GridPane.rowIndex="3"/>
-
-                        <Label fx:id="aAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
-                               GridPane.columnIndex="1"
-                               GridPane.rowIndex="3"/>
-                    </children>
-                </GridPane>
-                <VBox fx:id="motionModeHBox" alignment="top_center">
-                    <children>
-                        <Label fx:id="srMomo" id="srText" text="STRAIGHT"/>
-                        <Label fx:id="srState" id="srText" text="STOP"/>
-                        <Label fx:id="srVelo" id="srText" text="VEL"/>
-                    </children>
-                </VBox>
-                
-            </children>
-        </VBox>
-    </left>
-    
-    <bottom>
-        <VBox onKeyPressed="#handleKeyInput" fx:id="bottomConsoleHBox">
-            <children>
-                
-                <TextArea prefHeight="100" focusTraversable="false" editable="false" fx:id="console"/>
-                   
-<!--                <GridPane vgap="5" hgrow="true" fx:id="asdfas">
-                    <children>
-                        <Label   fx:id="cmdLabel" prefWidth="75" text="CMD>"
-                                  GridPane.columnIndex="0"
-                                  GridPane.rowIndex="0"/>
-                         
-                        <TextField fx:id="input"    onAction="#handleEnter"
-                                     GridPane.columnIndex="1"
-                                     GridPane.rowIndex="0"/>
-                    </children>-->
-                    
-<!--            </GridPane>-->
-                <HBox  alignment="top_center" fx:id="consoleBox"> 
-                    <children>
-                        <Label fx:id="cmdLabel" prefWidth="75" text="CMD>"/>
-                    
-                        <HBox>
-                            <children>
-                            
-                                <TextField fx:id="input"    onAction="#handleEnter"/>
-                            </children>
-                        </HBox>
-                    </children>
-                </HBox>
-                            
-                            
-                            
-            </children>
-        </VBox>  
-    </bottom>
-</BorderPane>
+            
+    </children>
+</VBox>
