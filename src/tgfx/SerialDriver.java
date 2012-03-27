@@ -31,6 +31,7 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
     public InputStream input;
     public OutputStream output;
     private boolean PAUSED = false;
+    private boolean CANCELLED = false;
     private Boolean CLEAR_TO_TRANSMIT = true;
     
     
@@ -42,9 +43,11 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
     //DEBUG
     
     public synchronized void write(String str) throws Exception {
-        setClearToSend(false);  //reset our flow flag "msg" for now in serialEvent 
-        setChanged();
         this.output.write(str.getBytes());
+        setClearToSend(false); 
+        setChanged();
+//        notifyObservers("TEST");
+        
     }
 
     public synchronized void priorityWrite(String str) throws Exception {
@@ -78,13 +81,21 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
         }
     }
 
-    public boolean isPAUSED() {
-        return PAUSED;
+    public boolean isCANCELLED(){
+        return CANCELLED;
     }
+    
+    public void setCANCELLED(boolean choice){
+        this.CANCELLED = choice;
+    }
+    
+//    public boolean isPAUSED() {
+//        return PAUSED;
+//    }
 
-    public void setPAUSED(boolean PAUSED) {
-        this.PAUSED = PAUSED;
-    }
+//    public void setPAUSED(boolean PAUSED) {
+//        this.PAUSED = PAUSED;
+//    }
 
     public void setConnected(boolean c) {
 

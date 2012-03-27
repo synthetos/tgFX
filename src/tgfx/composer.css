@@ -250,7 +250,10 @@ root {
     -fx-background-color:#EA2A15;
 }*/
 
-
+#cancelBtn{
+    -fx-background-color: red;
+    -fx-text-fill: white;
+}
 #GcodeProgramTitle {
 
     -fx-text-fill: white;

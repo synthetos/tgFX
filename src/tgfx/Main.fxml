@@ -92,8 +92,9 @@
                                         <HBox fx:id="gcodeFile" alignment="top_center">
                                             <children> 
                                                 <Button text="Open File" onAction="#handleOpenFile"></Button>
-                                                <Button text="Run File" onAction="#runFile"></Button>
-                                                <Button fx:id="pauseResume" text="Pause" onAction="#handlePauseResumeAct"></Button>
+                                                <Button text="Run" fx:id="runBtn" onAction="#runFile"></Button>
+                                                <Button text="Cancel" fx:id="cancelBtn" onAction="#CancelFile"></Button>
+                                                <Button text="Pause" fx:id="pauseResume"  onAction="#handlePauseResumeAct"></Button>
                                             </children>
                                         </HBox>
                                     </children>

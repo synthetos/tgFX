@@ -282,7 +282,7 @@ public class Machine {
 
     public Machine() {
         this.setFlow("OK");
-        for (int i = 0; i < 3; i++) {
+        for (int i = 1; i < 5; i++) {
             Motor m = new Motor(i);
             motors.add(m);
         }

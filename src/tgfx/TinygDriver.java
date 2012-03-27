@@ -26,6 +26,7 @@ public class TinygDriver extends Observable implements Observer {
      */
     public static final String CMD_GET_OK_PROMPT = "{\"gc\":\"?\"}\n";
     public static final String CMD_GET_STATUS_REPORT = "{\"sr\":\"\"}\n";
+    public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":\"g92x0y0z0a0\"}\n";
     public static final String CMD_DISABLE_LOCAL_ECHO = "{\"ee\":0}\n";
     public static final String CMD_SET_STATUS_UPDATE_INTERVAL = "{\"si\":50}\n";
     private static final String CMD_GET_MACHINE_SETTINGS = "{\"sys\":null}\n";
@@ -40,8 +41,19 @@ public class TinygDriver extends Observable implements Observer {
     private static final String CMD_GET_MOTOR_3_SETTINGS = "{\"3\":null}\n";
     private static final String CMD_GET_MOTOR_4_SETTINGS = "{\"4\":null}\n";
     private static final String STATUS_REPORT = "\"sr\":";
+    
+    private static final String CMD_PAUSE = "!\n";
+    private static final String CMD_RESUME = "~\n";
+    
     private SerialDriver ser = SerialDriver.getInstance();
     private String buf; //Buffer to store parital json lines
+    private boolean PAUSED = false;
+    
+    /**
+     * DEBUG VARS
+     */
+    public String lastMessage = "";
+    
 
     /**
      * Singleton Code for the Serial Port Object
@@ -61,29 +73,39 @@ public class TinygDriver extends Observable implements Observer {
     @Override
     public void update(Observable o, Object o1) {
         String[] MSG = (String[]) o1;
+        lastMessage = MSG[1];
         if (MSG[0] == "JSON") {
             parseJSON(MSG[1]);
         }
     }
 
-    public boolean isPAUSED() {
-        return ser.isPAUSED();
+    public boolean isCANCELLED() {
+        return ser.isCANCELLED();
     }
 
-    public void setPAUSED(boolean p) throws Exception {
-        ser.setPAUSED(p);
-        if (p) { //if set to pause
-            ser.priorityWrite("!\n");
+    public void setCANCELLED(boolean choice) {
+        ser.setCANCELLED(choice);
+    }
+
+    public boolean isPAUSED() {
+        return PAUSED;
+    }
+
+    public void setPAUSED(boolean choice) throws Exception {
+        if (choice) { //if set to pause
+            ser.priorityWrite(CMD_PAUSE);
+            PAUSED = choice;
         } else { //set to resume
-            ser.priorityWrite("~\n");
+            ser.priorityWrite(CMD_GET_OK_PROMPT);
+            ser.priorityWrite(CMD_RESUME);
+            ser.priorityWrite(CMD_GET_OK_PROMPT);
+            PAUSED = false;
         }
     }
 
-    public void setConnected(boolean choice){
+    public void setConnected(boolean choice) {
         this.ser.setConnected(choice);
     }
-    
-    
 
     public void write(String msg) throws Exception {
         ser.write(msg);
@@ -120,10 +142,10 @@ public class TinygDriver extends Observable implements Observer {
 //    
     public void disconnect() {
         this.ser.disconnect();
-        
+
     }
-    
-    public boolean isConnected(){
+
+    public boolean isConnected() {
         return this.ser.isConnected();
     }
 
@@ -304,7 +326,6 @@ public class TinygDriver extends Observable implements Observer {
         });
     }
 
-    
     public void getMotorSettings(int motorNumber) {
         try {
             if (motorNumber == 1) {

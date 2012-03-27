@@ -36,7 +36,7 @@ import tgfx.system.Motor;
  */
 public class Main implements Initializable, Observer {
 
-    private static final String CMD_GET_stateUS_REPORT = "{\"sr\":\"\"}\n";
+    //private static final String CMD_GET_stateUS_REPORT = "{\"sr\":\"\"}\n";
 //    public Machine m = new Machine();
     private JdomParser JDOM = new JdomParser(); //JSON Object Parser1
     private TinygDriver tg = TinygDriver.getInstance();
@@ -182,6 +182,12 @@ public class Main implements Initializable, Observer {
     }
 
     @FXML
+    private void CancelFile(ActionEvent evt) throws Exception {
+        console.appendText("[!]Canceling File Sending Task...");
+        tg.setCANCELLED(true);
+    }
+
+    @FXML
     private void handlePauseResumeAct(ActionEvent evt) throws Exception {
         if ("Pause".equals(pauseResume.getText())) {
             pauseResume.setText("Resume");
@@ -227,8 +233,13 @@ public class Main implements Initializable, Observer {
     private void zeroSystem(ActionEvent evt) {
         if (tg.isConnected() && tg.getClearToSend()) {
             try {
-                tg.write("{\"gc\":\"g92x0y0z0a0\"}\n");
-                tg.write(CMD_GET_stateUS_REPORT);
+                tg.write(tg.CMD_ZERO_ALL_AXIS);
+                //G92 does not invoke a status report... So we need to generate one to have
+                //Our GUI update the coordinates to zero
+                tg.write(tg.CMD_GET_STATUS_REPORT);
+                //We need to set these to 0 so we do not draw a line from the last place we were to 0,0
+                xPrevious = 0;
+                yPrevious = 0;
             } catch (Exception ex) {
             }
         }
@@ -249,6 +260,7 @@ public class Main implements Initializable, Observer {
                 ObservableList<TextField> gcodeProgramList = gcodesList.getItems();
                 gcodeProgramList = gcodesList.getItems();
                 String line;
+                tg.setCANCELLED(false);  //Clear this flag if was canceled in a previous job
                 while (tg.isConnected()) {
 
 
@@ -259,6 +271,10 @@ public class Main implements Initializable, Observer {
                             //break;
                         }
 
+                        //###############CRITICAL SECTION#########################
+                        //If this code is changed be very careful as there is much logic here
+                        //to screw up.  This code makes it so that when you send a file and disconnect or
+                        //press stop this filesending task dies.  
                         if (l.getText().startsWith("(") || l.getText().equals("")) {
                             //Skip these lines as they will not illicit a "OK" 
                             //From tinyg
@@ -266,15 +282,26 @@ public class Main implements Initializable, Observer {
                         } else {
                             line = new String("{\"gc\":\"" + l.getText() + "\"}" + "\n");
 
-                            if (tg.getClearToSend() && !tg.isPAUSED()) {
+                            if (tg.getClearToSend() && !tg.isPAUSED() && !tg.isCANCELLED()) {
                                 tg.write(line);
+                            } else if (tg.isCANCELLED()) {
+                                console.appendText("[!]Canceling the file sending task...\n");
+                                return false;
+
                             } else if (tg.isPAUSED()) {
 
                                 while (tg.isPAUSED()) {
                                     //Infinite Loop
+                                    //Not ready yet
+                                    Thread.sleep(1);
                                 }
+                                //This breaks out of the while loop and does some more checking to eliminate any race conditions
+                                //That might have occured duing waiting for to unpause.
                                 if (!tg.isConnected()) {
                                     console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
+                                    return false;
+                                } else if (tg.isCANCELLED()) {
+                                    console.appendText("[!]Canceling the file sending task...");
                                     return false;
                                 }
                                 tg.write(line);
@@ -284,15 +311,23 @@ public class Main implements Initializable, Observer {
                                     Thread.sleep(1);
                                     //We have to check again while in the sleeping thread that sometime
                                     //during waiting for the clearbuffer the serialport has not been disconnected.
+                                    //And cancel has not been called
                                     if (!tg.isConnected()) {
                                         console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
                                         return false;
+                                    } else if (tg.isCANCELLED()) {
+                                        console.appendText("[!]Canceling the file sending task...");
+                                        return false;
                                     }
                                 }
+
+                                //This looks like its not needed since the same check above in the while block.
+                                //However I am pretty confident that this is.
                                 if (!tg.isConnected()) {
                                     console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
                                     return false;
                                 }
+                                //Finally write the line everything is Good to go.
                                 tg.write(line);
                             }
                         }
@@ -305,6 +340,7 @@ public class Main implements Initializable, Observer {
             }
         };
     }
+    //###############CRITICAL SECTION#########################
 
     @FXML
     private void FXreScanSerial(ActionEvent event) {
@@ -331,17 +367,19 @@ public class Main implements Initializable, Observer {
         try {
             //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
             tg.write(tg.CMD_DISABLE_LOCAL_ECHO);
-            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
-            tg.write("{\"ex\":0}\n");
-            tg.write(tg.CMD_SET_STATUS_UPDATE_INTERVAL); //Set to every 50ms
-
-            //this will poll for the new values and update the GUI
-
-            //Updates the Config GUI from settings currently applied on the TinyG board
-            tg.getAllMotorSettings();
-
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
-            tg.write(tg.CMD_GET_STATUS_REPORT);  //If TinyG current positions are other than zero
+//            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
+//            tg.write("{\"ex\":0}\n");
+//            tg.write(tg.CMD_SET_STATUS_UPDATE_INTERVAL); //Set to every 50ms
+//            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+//            //this will poll for the new values and update the GUI
+//
+//            //Updates the Config GUI from settings currently applied on the TinyG board
+//            tg.getAllMotorSettings();
+//
+//            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+//            tg.write(tg.CMD_GET_STATUS_REPORT);  //If TinyG current positions are other than zero
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 
         } catch (Exception ex) {
             console.appendText("[!]Error: " + ex.getMessage());
@@ -679,18 +717,6 @@ public class Main implements Initializable, Observer {
 
         tg.addObserver(this);
         this.reScanSerial();//Populate our serial ports
-
-        //Move to middle of canvas
-//        MoveTo mt = new MoveTo(400, 400);
-
-
-//        path.getElements().add(mt);
-
-
-
-
-
-
 
 
     }
