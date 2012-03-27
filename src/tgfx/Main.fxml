@@ -67,10 +67,7 @@
                     
                     <children>
                         <Group  autoSizeChildren="true" onScroll="#handleMouseScroll" fx:id="canvsGroup">
-<!--                            <children>
--->                                <Label scaleX="20" alignment="top_right" text="TESTING"/><!--
-                            </children>
-                            -->
+
                         </Group>
       
                     </children>
