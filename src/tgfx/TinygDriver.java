@@ -40,20 +40,16 @@ public class TinygDriver extends Observable implements Observer {
     private static final String CMD_GET_MOTOR_2_SETTINGS = "{\"2\":null}\n";
     private static final String CMD_GET_MOTOR_3_SETTINGS = "{\"3\":null}\n";
     private static final String CMD_GET_MOTOR_4_SETTINGS = "{\"4\":null}\n";
-    private static final String STATUS_REPORT = "\"sr\":";
-    
+    private static final String STATUS_REPORT = "{\"sr\":{";
     private static final String CMD_PAUSE = "!\n";
     private static final String CMD_RESUME = "~\n";
-    
     private SerialDriver ser = SerialDriver.getInstance();
     private String buf; //Buffer to store parital json lines
     private boolean PAUSED = false;
-    
     /**
      * DEBUG VARS
      */
     public String lastMessage = "";
-    
 
     /**
      * Singleton Code for the Serial Port Object
@@ -205,20 +201,21 @@ public class TinygDriver extends Observable implements Observer {
             } else if (line.startsWith("{\"sys\":")) {
                 System.out.println("[#]Parsing Machine Settings JSON");
                 //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
-                m.setFirmware_version(Float.parseFloat((json.getNode("fv").getText())));
-                m.setFirmware_build(Float.parseFloat((json.getNode("fb").getText())));
-                m.setStatus_report_interval(Integer.parseInt((json.getNode("si").getText())));
+                m.setFirmware_version(Float.parseFloat(json.getNode("sys").getNode("fv").getText()));
+                m.setFirmware_build(Float.parseFloat(json.getNode("sys").getNode("fb").getText()));
+                m.setStatus_report_interval(Integer.parseInt((json.getNode("sys").getNode("si").getText())));
 //                m.setEnable_acceleration(Boolean.parseBoolean((json.getNode("ea").getText())));
 //                m.setCorner_acceleration(Integer.parseInt((json.getNode("ja").getText())));
-                m.setMin_line_segment(Float.parseFloat((json.getNode("ml").getText())));
-                m.setMin_segment_time(Integer.parseInt((json.getNode("mt").getText())));
-                m.setMin_arc_segment(Float.parseFloat((json.getNode("ma").getText())));
-                m.setIgnore_CR(Boolean.parseBoolean((json.getNode("ic").getText())));
-                m.setIgnore_LF(Boolean.parseBoolean((json.getNode("il").getText())));
-                m.setEnable_CR(Boolean.parseBoolean((json.getNode("ec").getText())));
-                m.setEnable_echo(Boolean.parseBoolean((json.getNode("ee").getText())));
-                m.setEnable_xon_xoff(Boolean.parseBoolean((json.getNode("ex").getText())));
-
+                m.setMin_line_segment(Float.parseFloat((json.getNode("sys").getNode("ml").getText())));
+                m.setMin_segment_time(Double.parseDouble(json.getNode("sys").getNode("mt").getText()));
+                m.setMin_arc_segment(Float.parseFloat((json.getNode("sys").getNode("ma").getText())));
+                m.setIgnore_CR(Boolean.parseBoolean((json.getNode("sys").getNode("ic").getText())));
+                m.setIgnore_LF(Boolean.parseBoolean((json.getNode("sys").getNode("il").getText())));
+                m.setEnable_CR(Boolean.parseBoolean((json.getNode("sys").getNode("ec").getText())));
+                m.setEnable_echo(Boolean.parseBoolean((json.getNode("sys").getNode("ee").getText())));
+                m.setEnable_xon_xoff(Boolean.parseBoolean((json.getNode("sys").getNode("ex").getText())));
+                setChanged();
+                notifyObservers("CMD_GET_MACHINE_SETTINGS");
 
             } else if (line.startsWith("{\"1\":") && !line.contains("null")) {
                 int motor = 1;
@@ -246,9 +243,27 @@ public class TinygDriver extends Observable implements Observer {
 
 
         } catch (argo.saj.InvalidSyntaxException ex) {
+            //This will happen from time to time depending on the file that is being sent to TinyG
+            //This is an issue mostly when the lines are very very small and there are many of them
+            //and you are running at a high feedrate.
             System.out.println("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
             setChanged();
             notifyObservers("[!] " + ex.getMessage() + "Line Was: " + line + "\n");
+
+            //UGLY BUG FIX WORKAROUND FOR NOW
+            //Code to fix a possible JSON TinyG Error
+            if (line.contains("msg")) {
+                try {
+
+                    this.ser.setClearToSend(true);
+                } catch (Exception ex1) {
+                    System.out.println("EXCEPTION IN BUG FIX CODE TINYGDRIVER" + ex1.getMessage());
+                }
+            }
+            //UGLY BUG FIX WORKAROUND FOR NOW
+            
+            
+            
         } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex) {
             //Extra } for some reason
             System.out.println("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);

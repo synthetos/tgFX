@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Observable;
 import java.util.Observer;
+import tgfx.TinygDriver;
 
 /**
  *
@@ -66,12 +67,19 @@ class ConnectionHandler implements Runnable, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        final String line = (String) arg;
-        try {
-            this.write(line);
-        } catch (Exception ex) {
-            System.out.println("[!]Error in update on ConnectionHandler");
-            System.out.println("\tERRMSG: " + ex.getMessage());
+
+        String[] MSG = (String[]) arg;
+
+        if (MSG[0] == "JSON") {
+            final String line = MSG[1];
+//             System.out.println("UPDATE: "+MSG[1]);
+            try {
+                this.write(MSG[1] + "\n");
+            } catch (Exception ex) {
+                //
+                System.out.println(ex.getMessage());
+            }
+
         }
 
 
@@ -101,25 +109,37 @@ class ConnectionHandler implements Runnable, Observer {
                 this.write("[+]Connected to tgFX\n");
             } catch (Exception ex) {
             }
-
+            TinygDriver tg = TinygDriver.getInstance();
+            String line = "";
             while (true) {
                 try {
-
-                    String l = new String("::HEARTBEAT::\n");
-                    if (ser.isConnected()) {
-                        this.write(l);
-                        ser.write("{\"sys\":null}\n");
-                    }else{
-                        this.write("[+]Serial Port Not Connected\n");
-                    }
-                    
-
-                    Thread.sleep(4000);
+                    line = stdIn.readLine() + "\n";
+                    this.write("Writing: "+ line );
+                    tg.write(line);
+                    Thread.sleep(100);
                 } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
                 }
-
+                
             }
+
+//            while (true) {
+//                try {
+//
+//                    String l = new String("::HEARTBEAT::\n");
+//                    if (ser.isConnected()) {
+//                        this.write(l);
+////                        ser.write("{\"sys\":null}\n");
+//                    }else{
+//                        this.write("[+]Serial Port Not Connected\n");
+//                    }
+//                    
+//
+//                    Thread.sleep(50);
+//                } catch (Exception ex) {
+//                    System.out.println(ex.getMessage());
+//                }
+//
+//            }
 
         } catch (IOException e) {
             e.printStackTrace();

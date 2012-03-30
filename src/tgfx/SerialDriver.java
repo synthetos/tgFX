@@ -33,21 +33,20 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
     private boolean PAUSED = false;
     private boolean CANCELLED = false;
     private Boolean CLEAR_TO_TRANSMIT = true;
-    
-    
     //DEBUG
     public ByteArrayOutputStream bof = new ByteArrayOutputStream();
     public String debugFileBuffer = "";
     public byte[] debugBuffer = new byte[1024];
+    public ArrayList<String> lastRes = new ArrayList();
     public double offsetPointer = 0;
     //DEBUG
-    
+
     public synchronized void write(String str) throws Exception {
         this.output.write(str.getBytes());
-        setClearToSend(false); 
+        setClearToSend(false);
         setChanged();
 //        notifyObservers("TEST");
-        
+
     }
 
     public synchronized void priorityWrite(String str) throws Exception {
@@ -76,35 +75,33 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
             //serialPort.removeEventListener();
             serialPort.close();
             setConnected(false); //Set our disconnected state
-            
+
 
         }
     }
 
-    public boolean isCANCELLED(){
+    public boolean isCANCELLED() {
         return CANCELLED;
     }
-    
-    public void setCANCELLED(boolean choice){
+
+    public void setCANCELLED(boolean choice) {
         this.CANCELLED = choice;
     }
-    
+
 //    public boolean isPAUSED() {
 //        return PAUSED;
 //    }
-
 //    public void setPAUSED(boolean PAUSED) {
 //        this.PAUSED = PAUSED;
 //    }
-
     public void setConnected(boolean c) {
 
         this.connectionState = c;
 
     }
-    
-    public String getDebugFileString(){
-        return(debugFileBuffer);
+
+    public String getDebugFileString() {
+        return (debugFileBuffer);
     }
 
     public boolean isConnected() {
@@ -132,8 +129,8 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
                 byte chunk[] = new byte[available];  //Setup byte array to store the data.
                 input.read(chunk, 0, available);  //Read the data into the byte array
                 String res = new String(chunk);   //Convert the byte[] to a string
-                debugFileBuffer = debugFileBuffer+res;
-                
+                debugFileBuffer = debugFileBuffer + res;
+                lastRes.add(res);
                 if (res.contains("msg")) {
                     this.setClearToSend(true);
                 } else if (res.contains("####")) {  //When TinyG is reset you will get this message
@@ -186,27 +183,43 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
         String[] lines = res.split("\n");
         //This code strings together lines that do not start with valid json objects
         for (String l : lines) {
-            if (l.startsWith("{") && l.endsWith("}")) {
+//            if (l.equals("{")) {
+//                System.out.println("l");
+//            }
+            if (l.startsWith("{\"") && l.endsWith("}}") && buf.equals("")) {  //The buf check makes sure
+                //The serial event didn't not cut off at the perfect spot and send something like this:
+                //"{"gc":{"gc":"F300.0","st":0,"msg":"OK"}}  
+                //Which is missing the front part of that line "{"gc":
                 MSG[1] = l;
                 buf = "";  //Valid line clear the buffer
                 getOKcheck(l);
                 setChanged();
                 notifyObservers(MSG);
 
-            } else if (l.startsWith("{")) {
+            } else if (l.startsWith("{\"") && l.endsWith("}")) {
+                //This is a input command
+                //{"ee":"1"}
+                buf = "";
+                continue;
+            } else if (l.startsWith("{\"")) {
                 //System.out.println("!! GCODE LINE STARTS WITH { !!" + l);
                 buf = l;
 
 
-            } else if (l.endsWith("}")) {
+            } else if (l.endsWith("}}")) {
                 //System.out.println("!! GCODE LINE ENDS WITH { !!" + l);
                 buf = buf + l;
-                if (buf.startsWith("{") && buf.endsWith("}")) {
+                if (buf.startsWith("{\"") && buf.endsWith("}}")) {
                     getOKcheck(buf);
                     buf = "";
                 } else {
+                    System.out.println("SERIAL DRIVER CODE: SHOULD NOT HIT THIS");
                     System.out.println(buf);
                 }
+            } else {
+                //If we happen to get a single { as a line this code puts it into the buf var.
+                //
+                buf = l;
             }
         }
     }

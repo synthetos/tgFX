@@ -64,7 +64,7 @@ public class Machine {
     private int corner_acceleration;
     private float min_line_segment;
     private float min_arc_segment;
-    private int min_segment_time;
+    private double min_segment_time;
     
     private boolean ignore_CR;
     private boolean ignore_LF;
@@ -264,11 +264,11 @@ public class Machine {
         this.min_line_segment = min_line_segment;
     }
 
-    public int getMin_segment_time() {
+    public double getMin_segment_time() {
         return min_segment_time;
     }
 
-    public void setMin_segment_time(int min_segment_time) {
+    public void setMin_segment_time(double min_segment_time) {
         this.min_segment_time = min_segment_time;
     }
 

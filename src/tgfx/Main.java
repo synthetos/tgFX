@@ -370,15 +370,15 @@ public class Main implements Initializable, Observer {
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 //            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
 //            tg.write("{\"ex\":0}\n");
-//            tg.write(tg.CMD_SET_STATUS_UPDATE_INTERVAL); //Set to every 50ms
-//            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+            tg.write(tg.CMD_SET_STATUS_UPDATE_INTERVAL); //Set to every 50ms
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 //            //this will poll for the new values and update the GUI
 //
 //            //Updates the Config GUI from settings currently applied on the TinyG board
-//            tg.getAllMotorSettings();
+            tg.getAllMotorSettings();
 //
-//            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
-//            tg.write(tg.CMD_GET_STATUS_REPORT);  //If TinyG current positions are other than zero
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+            tg.write(tg.CMD_GET_STATUS_REPORT);  //If TinyG current positions are other than zero
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 
         } catch (Exception ex) {
@@ -689,15 +689,16 @@ public class Main implements Initializable, Observer {
 
             public void run() {
                 // we are now back in the EventThread and can update the GUI
-                if (ROUTING_KEY == "PLAIN") {
+                if (ROUTING_KEY.equals("PLAIN")) {
                     console.appendText((String) ROUTING_KEY + "\n");
 
-                } else if (ROUTING_KEY == "STATUS_REPORT") {
+                } else if (ROUTING_KEY.equals("STATUS_REPORT")) {
 //                    console.setText((String) MSG[1] + "\n");
                     updateGuiState(ROUTING_KEY);
+                    
                 } else if (ROUTING_KEY.contains("ERROR")) {
                     console.appendText(ROUTING_KEY);
-                } else if (ROUTING_KEY == "CMD_GET_MACHINE_SETTINGS") {
+                } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
                     System.out.println("UPDATE: MACHINE SETTINGS");
                     updateGUIConfigState();
 
@@ -713,7 +714,7 @@ public class Main implements Initializable, Observer {
 
 
         Task SocketListner = this.initRemoteServer();
-//        new Thread(SocketListner).start();
+        new Thread(SocketListner).start();
 
         tg.addObserver(this);
         this.reScanSerial();//Populate our serial ports
