@@ -200,6 +200,28 @@ public class Main implements Initializable, Observer {
     }
 
     @FXML
+    void handleMotorQuery(ActionEvent evt){
+        
+    }
+    
+    @FXML
+    void handleMotorApply(ActionEvent evt){
+        
+    }
+    
+//    @FXML
+//    void handleMotorQuery(ActionEvent evt){
+//        
+//    }
+//    
+//    @FXML
+//    void handleMotorQuery(ActionEvent evt){
+//        
+//    }
+    
+    
+    
+    @FXML
     void handleMouseScroll(ScrollEvent evt) {
         //
 
@@ -563,11 +585,16 @@ public class Main implements Initializable, Observer {
             l.setStroke(Draw2d.TRAVERSE);
         }
 
-        if (tg.m.getAxisByName("Z").getWork_position() > 0) {
-            l = null;
-        } else {
-            l.setStrokeWidth(Draw2d.getStrokeWeight());
-        }
+        
+        //CODE TO ONLY DRAW CUTTING MOVEMENTS
+//        if (tg.m.getAxisByName("Z").getWork_position() > 0) {
+//            l = null;
+//        } else {
+//            l.setStrokeWidth(Draw2d.getStrokeWeight());
+//        }
+        
+        l.setStrokeWidth(Draw2d.getStrokeWeight());
+        
         xPrevious = newX;
         yPrevious = newY;
 

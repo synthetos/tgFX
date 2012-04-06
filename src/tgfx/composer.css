@@ -29,7 +29,7 @@ root {
             linear-gradient(#20262b, #591d22),
             radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
     -fx-background-radius: 10,10,10,10;
-    -fx-padding: 50;
+    -fx-padding: 25;
 }
 
 #testBox {
@@ -77,7 +77,7 @@ root {
 
 
 #serialBox {
-    -fx-padding: 15 10 15 10;
+    -fx-padding: 5 5 5 5;
     -fx-background-color: #38424b;
 }   
 
@@ -113,8 +113,7 @@ root {
     -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-text-overrun: clip;
-    -fx-text-fill: linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%);
-    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
+   
     /*    -fx-background-color: #98424b;*/
 }
 
@@ -210,12 +209,15 @@ root {
 }*/
 
 #ipad {
+	/*
     -fx-background-color:
         linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
         linear-gradient(#020b02, #3a3a3a),
         linear-gradient(#b9b9b9 0%, #c2c2c2 20%, #afafaf 80%, #c8c8c8 100%),
         linear-gradient(#f5f5f5 0%, #dbdbdb 50%, #cacaca 51%, #d7d7d7 100%);
-    /*    -fx-background-insets: 0,1,4,5;*/
+    
+	/*    -fx-background-insets: 0,1,4,5;*/
+	-fx-background-color: white;
     -fx-background-radius: 9,8,5,4;
     -fx-padding: 5 10 5 10;
     -fx-font-family: "Helvetica";
