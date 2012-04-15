@@ -146,7 +146,7 @@
                               <tabs>
                                 <Tab closable="false" text="Motor 1">
                                   <content>
-                                    <GridPane fx:id="motorConfigBox" hgap="15.0" style="-fx-padding: 10" vgap="15.0">
+                                    <GridPane hgap="15.0" style="-fx-padding: 10" vgap="15.0">
                                       <children>
                                         <Label id="lblMotor1Map" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                         <ChoiceBox id="motor1ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -201,12 +201,7 @@
                                           </children>
                                         </HBox>
                                       </children>
-                                      <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                                      </columnConstraints>
-                                      <rowConstraints>
-                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                      </rowConstraints>
+                                    
                                     </GridPane>
                                   </content>
                                 </Tab>
@@ -267,12 +262,7 @@
                                           </children>
                                         </HBox>
                                       </children>
-                                      <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                                      </columnConstraints>
-                                      <rowConstraints>
-                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                      </rowConstraints>
+                                    
                                     </GridPane>
                                   </content>
                                 </Tab>
