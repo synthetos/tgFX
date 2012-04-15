@@ -75,6 +75,7 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
             //serialPort.removeEventListener();
             serialPort.close();
             setConnected(false); //Set our disconnected state
+            
 
 
         }
@@ -196,7 +197,17 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
                 setChanged();
                 notifyObservers(MSG);
 
-            } else if (l.startsWith("{\"") && l.endsWith("}")) {
+            }else if (l.startsWith(TinygDriver.RESPONSE_FIRMWARE_BUILD) ||
+                    l.startsWith(TinygDriver.RESPONSE_FIRMWARE_VERSION) && l.endsWith("}")) {
+                //Firmware Build Value
+                MSG[1] = l;
+                buf = "";
+                getOKcheck(l);
+                setChanged();
+                notifyObservers(MSG);
+            } 
+            
+            else if (l.startsWith("{\"") && l.endsWith("}")) {
                 //This is a input command
                 //{"ee":"1"}
                 buf = "";

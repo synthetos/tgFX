@@ -51,7 +51,8 @@ public class Main implements Initializable, Observer {
     @FXML
     TextField input;
     @FXML
-    private Label label, xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo;
+    private Label  xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
+            srVer, srUnits;
     @FXML
     ListView gcodesList;
     @FXML
@@ -409,6 +410,12 @@ public class Main implements Initializable, Observer {
             tg.write(tg.CMD_GET_STATUS_REPORT);  //If TinyG current positions are other than zero
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 
+            tg.write(tg.CMD_GET_HARDWARE_BUILD_NUMBER);  //If TinyG current positions are other than zero
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+//            
+            tg.write(tg.CMD_GET_HARDWARE_FIRMWARE_NUMBER);  //If TinyG current positions are other than zero
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+
         } catch (Exception ex) {
             console.appendText("[!]Error: " + ex.getMessage());
             System.out.println(ex.getMessage());
@@ -439,9 +446,20 @@ public class Main implements Initializable, Observer {
             if (!tg.isConnected()) {
                 console.appendText("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
                 Connect.setText("Connect");
+                onDisconnectActions();
             }
 
         }
+    }
+    
+    public void onDisconnectActions(){
+        srBuild.setText("?");
+        srVer.setText("?");
+        srMomo.setText("?");
+        srVelo.setText("?");
+        srState.setText("?");
+        
+        
     }
 
     @FXML
@@ -457,7 +475,7 @@ public class Main implements Initializable, Observer {
             topvbox.getChildren().remove(bottom);
 
         } else {
-            topvbox.getChildren().add(topvbox.getChildren().size()-1, bottom);
+            topvbox.getChildren().add(topvbox.getChildren().size() - 1, bottom);
         }
 //        String cmd = input.getText();
 //        cmd = cmd.replace('`', ' ');  //Remove the tilda from the input box
@@ -605,6 +623,24 @@ public class Main implements Initializable, Observer {
         final String l = line;
         if (l.contains("msg")) {
             //Pass this on by..
+        } else if (line.equals("BUILD_UPDATE")) {
+            Platform.runLater(new Runnable() {
+
+                float vel;
+
+                public void run() {
+                    //We are now back in the EventThread and can update the GUI
+                    try {
+                        srBuild.setText(String.valueOf(tg.m.getFirmware_build()));
+                        srVer.setText(String.valueOf(tg.m.getFirmware_version()));
+                    } catch (Exception ex) {
+                        System.out.println("$$$$$$$$$$$$$EXCEPTION$$$$$$$$$$$$$$");
+                        System.out.println(ex.getMessage());
+                    }
+
+                }
+            });
+
         } else if (line.equals("STATUS_REPORT")) {
             Platform.runLater(new Runnable() {
 
@@ -621,7 +657,7 @@ public class Main implements Initializable, Observer {
 
                         //Update State... running stop homing etc.
                         srState.setText(tg.m.getMachineState().toString().toUpperCase());
-
+                        srUnits.setText(tg.m.getUnitMode().toString());
 
                         srMomo.setText(tg.m.getMotionMode().toString().replace("_", " ").toUpperCase());
                         //Set the motion mode
@@ -655,6 +691,7 @@ public class Main implements Initializable, Observer {
                 //Right now this is how I am doing this.  However I think there can be a more optimized way
                 //Perhaps by passing a routing message as to which motor was updated then not all have to be updated
                 //every time one is.
+
                 try {
                     for (Motor m : tg.m.getMotors()) {
                         if (m.getId_number() == 1) {
@@ -716,6 +753,8 @@ public class Main implements Initializable, Observer {
                 if (ROUTING_KEY.equals("PLAIN")) {
                     console.appendText((String) ROUTING_KEY + "\n");
 
+                } else if (ROUTING_KEY.equals("BUILD_UPDATE")) {
+                    updateGuiState(ROUTING_KEY);
                 } else if (ROUTING_KEY.equals("STATUS_REPORT")) {
 //                    console.setText((String) MSG[1] + "\n");
                     updateGuiState(ROUTING_KEY);

@@ -24,6 +24,8 @@ public class TinygDriver extends Observable implements Observer {
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
+    public static final String CMD_GET_HARDWARE_BUILD_NUMBER = "{\"fb\":\"\"}\n";
+    public static final String CMD_GET_HARDWARE_FIRMWARE_NUMBER = "{\"fv\":\"\"}\n";
     public static final String CMD_GET_OK_PROMPT = "{\"gc\":\"?\"}\n";
     public static final String CMD_GET_STATUS_REPORT = "{\"sr\":\"\"}\n";
     public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":\"g92x0y0z0a0\"}\n";
@@ -43,6 +45,15 @@ public class TinygDriver extends Observable implements Observer {
     private static final String STATUS_REPORT = "{\"sr\":{";
     private static final String CMD_PAUSE = "!\n";
     private static final String CMD_RESUME = "~\n";
+    
+    /**
+     * TinyG Parsing Strings
+     */
+    public static final String RESPONSE_FIRMWARE_BUILD = "{\"fb";
+    public static final String RESPONSE_FIRMWARE_VERSION = "{\"fv";
+    
+    
+    
     private SerialDriver ser = SerialDriver.getInstance();
     private String buf; //Buffer to store parital json lines
     private boolean PAUSED = false;
@@ -178,7 +189,10 @@ public class TinygDriver extends Observable implements Observer {
                 m.getAxisByName("Y").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posy").getText()));
                 m.getAxisByName("Z").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posz").getText()));
                 m.getAxisByName("A").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
-
+                
+//                m.getAxisByName("B").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
+//                m.getAxisByName("C").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
+                
                 //Parse state out of status report.
                 m.setMachineState(Integer.valueOf(json.getNode("sr").getNode("stat").getText()));
 
@@ -198,7 +212,21 @@ public class TinygDriver extends Observable implements Observer {
                 setChanged();
                 notifyObservers("STATUS_REPORT");
 
-            } else if (line.startsWith("{\"sys\":")) {
+            } else if (line.startsWith(this.RESPONSE_FIRMWARE_BUILD)) {
+                System.out.println("[#]Parsing Build Number...");
+                m.setFirmware_build(Float.parseFloat(json.getNode("fb").getText()));
+                setChanged();
+                notifyObservers("BUILD_UPDATE");
+            
+            
+            } else if (line.startsWith(this.RESPONSE_FIRMWARE_VERSION)) {
+                System.out.println("[#]Parsing Version...");
+                m.setFirmware_version(Float.parseFloat(json.getNode("fv").getText()));
+                setChanged();
+                notifyObservers("BUILD_UPDATE");
+            }
+            
+            else if (line.startsWith("{\"sys\":")) {
                 System.out.println("[#]Parsing Machine Settings JSON");
                 //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
                 m.setFirmware_version(Float.parseFloat(json.getNode("sys").getNode("fv").getText()));
@@ -261,9 +289,9 @@ public class TinygDriver extends Observable implements Observer {
                 }
             }
             //UGLY BUG FIX WORKAROUND FOR NOW
-            
-            
-            
+
+
+
         } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex) {
             //Extra } for some reason
             System.out.println("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
