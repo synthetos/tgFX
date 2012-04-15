@@ -13,8 +13,9 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.shape.Path?>
 <?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.*?>
 
-<VBox onKeyPressed="#handleKeyInput" prefHeight="900.0" prefWidth="1380.0" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
+<VBox fx:id="topvbox" onKeyPressed="#handleKeyInput" prefHeight="900.0" prefWidth="1380.0" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
   <children>
     <BorderPane fx:id="serialBox" maxHeight="-Infinity" prefHeight="93.0" prefWidth="1380.0" VBox.vgrow="NEVER">
       <left>
@@ -44,13 +45,13 @@
         </HBox>
       </left>
       <right>
-        <VBox fx:id="test" maxHeight="-Infinity" prefHeight="45.0" prefWidth="311.0" BorderPane.alignment="CENTER">
+        <VBox fx:id="test" maxHeight="-Infinity" prefHeight="45.0" prefWidth="340.0" BorderPane.alignment="CENTER">
           <children>
-            <HBox alignment="CENTER" VBox.vgrow="ALWAYS">
+            <HBox alignment="CENTER" prefHeight="45.0" prefWidth="340.0" VBox.vgrow="ALWAYS">
               <children>
-                <GridPane fx:id="serialgp" hgap="5.0" HBox.hgrow="NEVER">
+                <GridPane fx:id="serialgp" hgap="5.0" prefHeight="45.0" prefWidth="332.0" HBox.hgrow="NEVER">
                   <children>
-                    <Label fx:id="serialTitle" text="Serial Ports: " GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label fx:id="serialTitle" prefHeight="27.0" prefWidth="131.0" text="Serial Ports: " GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <ChoiceBox fx:id="serialPorts" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                     <Button fx:id="Connect" onAction="#handleConnect" text="Connect" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                     <Button fx:id="reScan" onAction="#FXreScanSerial" text="Re-Scan" GridPane.columnIndex="3" GridPane.rowIndex="0" />
@@ -86,7 +87,7 @@
                                 <Label id="ipad" fx:id="aAxisVal" maxWidth="60.0" minWidth="60.0" text="0.000" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                               </children>
                             </GridPane>
-                            <Group fx:id="canvsGroup" depthTest="ENABLE" onScroll="#handleMouseScroll" scaleX="9.999999747378752E-5" scaleY="9.999999747378752E-5" StackPane.alignment="CENTER" />
+                            <Group fx:id="canvsGroup" depthTest="ENABLE" onScroll="#handleMouseScroll" StackPane.alignment="CENTER" />
                           </children>
                         </StackPane>
                       </children>
@@ -101,7 +102,7 @@
                     <HBox fx:id="gcodeFile" alignment="TOP_CENTER">
                       <children>
                         <Button fx:id="gcodeZero" onAction="#zeroSystem" text="Zero" />
-                        <Button fx:id="btnClearScreen" onAction="#clearScreen" text="Clear Screen" />
+                        <Button fx:id="btnClearScreen" onAction="#handleClearScreen" text="Clear Screen" />
                       </children>
                     </HBox>
                     <ListView fx:id="gcodesList" onMouseClicked="#gcodeProgramClicks" VBox.vgrow="ALWAYS" />
@@ -998,101 +999,39 @@
         </Tab>
         <Tab id="tab2" closable="false" text="tgFX Settings">
           <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #38424b;">
               <children>
-                <VBox fx:id="MachineSettingVBox" prefHeight="800.0">
-                  <children>
-                    <Label text="MACHINE SETTINGS BOX" />
-                    <HBox fx:id="MachineSettingsHBox" prefHeight="106.0" prefWidth="1380.0" />
-                    <GridPane fx:id="DoubleFrameConfigGridPane" alignment="CENTER" hgap="10.0" prefHeight="593.0" prefWidth="1380.0" VBox.vgrow="ALWAYS">
-                      <VBox alignment="TOP_CENTER" style="-fx-padding: 20; -fx-background-color: orange;" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                        <children>
-                          <HBox>
-                            <children>
-                              <GridPane hgap="5.0" style="-fx-padding: 10" vgap="5.0">
-                                <children>
-                                  <Label id="lblAxisXMode" text="Axis Mode" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                  <ChoiceBox id="cbAxisXMode" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <items>
-                                      <FXCollections fx:factory="observableArrayList">
-                                        <String fx:value="Disabled" />
-                                        <String fx:value="Standard" />
-                                        <String fx:value="Inhibited" />
-                                      </FXCollections>
-                                    </items>
-                                  </ChoiceBox>
-                                  <Label id="lblAxisXMode" text="Limit Switches" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                  <ChoiceBox id="cbAxisXLimitSwitch" GridPane.columnIndex="4" GridPane.rowIndex="0">
-                                    <items>
-                                      <FXCollections fx:factory="observableArrayList">
-                                        <String fx:value="Disabled" />
-                                        <String fx:value="Homing only" />
-                                        <String fx:value="Homing and limit" />
-                                      </FXCollections>
-                                    </items>
-                                  </ChoiceBox>
-                                  <Label text="Maximum Feed Rate" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                  <TextField id="tbAxisXMaxFeed" maxWidth="-Infinity" prefWidth="85.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                  <Label text="Maximum Seek Rate" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                  <TextField id="tbAxisXMaxSeek" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-                                  <Label text="Maximum Travel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                  <TextField id="tbAxisXMaxTravel" maxWidth="-Infinity" prefWidth="85.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                  <Label text="Maximum Jerk" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                  <TextField id="tbAxisXMaxJerk" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                                  <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                  <TextField id="tbAxisXJunction" maxWidth="-Infinity" prefWidth="85.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                  <Label text="Radius" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                                  <TextField id="tbAxisXRadius" GridPane.columnIndex="4" GridPane.rowIndex="3" />
-                                  <Label text="Homing search velocity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                  <TextField id="tbAxisXHomeSearch" maxWidth="-Infinity" prefWidth="85.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                  <Label text="Homing latch velocity" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                                  <TextField id="tbAxisXHomeLatch" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-                                  <Label text="Homing zero offset" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                                  <TextField id="tbAxisXHomeZero" maxWidth="-Infinity" prefWidth="85.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                </children>
-                              </GridPane>
-                            </children>
-                          </HBox>
-                        </children>
-                      </VBox>
-                      <VBox fx:id="ConfigurationLoaderConfigVBox" alignment="CENTER_RIGHT" prefHeight="700.0" prefWidth="400.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                        <children>
-                          <Label text="Configuration Loader Config VBox" />
-                        </children>
-                      </VBox>
-                      <!--                                            <VBox prefWidth="-Infinity" style="-fx-background-color: yellow;">
-                                                <children>
-                                                    
-                                                </children>
-                                            </VBox>
-                                                    
-                                        </children>
-                                    </HBox>-->
-                      <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                      </columnConstraints>
-                      <padding>
-                        <Insets top="22.0" />
-                      </padding>
-                      <rowConstraints>
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                      </rowConstraints>
-                      <stylesheets>
-                        <URL value="@composer.css" />
-                      </stylesheets>
-                      <VBox.margin>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                      </VBox.margin>
-                    </GridPane>
-                  </children>
-                </VBox>
+                <Button id="button4" fx:id="btnRemoteListener" layoutX="156.0" layoutY="33.0" onAction="#handleRemoteListener" text="Enable" />
+                <Label id="label1" labelFor="$btnRemoteListener" layoutX="31.0" layoutY="33.0" text="Remote Listener" textFill="WHITE">
+                  <font>
+                    <Font name="System Bold" size="15.0" />
+                  </font>
+                  <maxHeight>
+                    <Integer fx:value="-1" />
+                  </maxHeight>
+                  <maxWidth>
+                    <Integer fx:value="-1" />
+                  </maxWidth>
+                  <minHeight>
+                    <Integer fx:value="-1" />
+                  </minHeight>
+                  <minWidth>
+                    <Integer fx:value="-1" />
+                  </minWidth>
+                  <prefHeight>
+                    <Integer fx:value="-1" />
+                  </prefHeight>
+                  <prefWidth>
+                    <Integer fx:value="-1" />
+                  </prefWidth>
+                </Label>
               </children>
             </AnchorPane>
           </content>
         </Tab>
       </tabs>
     </TabPane>
-    <HBox id="hBox1" fx:id="bottom" alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0">
+    <HBox id="hBox1" fx:id="bottom" alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
       <children>
         <VBox fx:id="center_left" alignment="TOP_CENTER" maxHeight="130.0" maxWidth="-Infinity" onKeyPressed="#handleKeyInput" prefHeight="110.0" prefWidth="2000.0" style="-fx-background-color: black;">
           <children>

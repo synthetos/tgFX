@@ -19,6 +19,7 @@ import tgfx.TinygDriver;
  */
 public class SocketMonitor {
 
+    private SerialDriver ser = SerialDriver.getInstance();
     private final int LISTENER_PORT = 4444;
     private ServerSocket server;
     private int clientCount = 0;
@@ -46,24 +47,31 @@ public class SocketMonitor {
     public void handleConnections() {
         System.out.println("[+]Remote Monitor Listening for Connections....");
 
-        while (true) {
+        while (ser.isConnected()) {
             try {
-                Socket socket = server.accept();
+                final Socket socket = server.accept();
                 new ConnectionHandler(socket);
+
             } catch (IOException ex) {
                 System.out.println("[!]Error: " + ex.getMessage());
+
             }
+
         }
+
+    }
+
+    public SocketMonitor(ServerSocket server) {
+        this.server = server;
     }
 }
-
 /*
  * New Class Here
  */
+
 class ConnectionHandler implements Runnable, Observer {
 
-    private SerialDriver ser = SerialDriver.getInstance();
-    private Socket socket;
+    public Socket socket;
 
     @Override
     public void update(Observable o, Object arg) {
@@ -89,6 +97,8 @@ class ConnectionHandler implements Runnable, Observer {
 
     public ConnectionHandler(Socket socket) {
         this.socket = socket;
+        
+        SerialDriver ser = SerialDriver.getInstance();
         ser.addObserver(this);
         Thread t = new Thread(this);
         t.start();
@@ -111,16 +121,21 @@ class ConnectionHandler implements Runnable, Observer {
             }
             TinygDriver tg = TinygDriver.getInstance();
             String line = "";
-            while (true) {
+            SerialDriver ser = SerialDriver.getInstance();
+            while (ser.isConnected()) {
                 try {
                     line = stdIn.readLine() + "\n";
-                    this.write("Writing: "+ line );
+                    this.write("Writing: " + line);
                     tg.write(line);
                     Thread.sleep(100);
                 } catch (Exception ex) {
                 }
-                
+
+
+
             }
+            System.out.println("[+]Closing Remote Listener Socket");
+            socket.close();
 
 //            while (true) {
 //                try {

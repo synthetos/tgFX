@@ -45,7 +45,7 @@ public class Main implements Initializable, Observer {
      * FXML UI Components
      */
     @FXML
-    private Button Con, Run, Connect, gcodeZero, btnClearScreen;
+    private Button Con, Run, Connect, gcodeZero, btnClearScreen, btnRemoteListener, pauseResume;
     @FXML
     TextArea console;
     @FXML
@@ -56,8 +56,6 @@ public class Main implements Initializable, Observer {
     ListView gcodesList;
     @FXML
     ChoiceBox serialPorts;
-    @FXML
-    Button pauseResume;
     //##########Config FXML##############//
     @FXML
     TextField motor1ConfigTravelPerRev,
@@ -90,9 +88,11 @@ public class Main implements Initializable, Observer {
     @FXML
     Group motor1Node;
     @FXML
-    VBox bottomConsoleHBox;
+    HBox bottom;
     @FXML
     HBox canvas;
+    @FXML
+    VBox topvbox;
     /**
      * Drawing Code Vars
      *
@@ -200,27 +200,33 @@ public class Main implements Initializable, Observer {
     }
 
     @FXML
-    void handleMotorQuery(ActionEvent evt){
-        
+    void handleMotorQuery(ActionEvent evt) {
     }
-    
+
     @FXML
-    void handleMotorApply(ActionEvent evt){
-        
+    void handleMotorApply(ActionEvent evt) {
     }
-    
-//    @FXML
-//    void handleMotorQuery(ActionEvent evt){
-//        
-//    }
+
+    @FXML
+    void handleRemoteListener(ActionEvent evt) {
+
+        if (tg.isConnected()) {
+            console.appendText("[+]Remote Monitor Listening for Connections....");
+            Task SocketListner = this.initRemoteServer();
+            new Thread(SocketListner).start();
+            btnRemoteListener.setDisable(true);
+        } else {
+            System.out.println("[!] Must be connected to TinyG First.");
+            console.appendText("[!] Must be connected to TinyG First.");
+        }
+
+    }
 //    
 //    @FXML
 //    void handleMotorQuery(ActionEvent evt){
 //        
 //    }
-    
-    
-    
+
     @FXML
     void handleMouseScroll(ScrollEvent evt) {
         //
@@ -439,28 +445,19 @@ public class Main implements Initializable, Observer {
     }
 
     @FXML
-    private void clearScreen(ActionEvent evt) {
+    private void handleClearScreen(ActionEvent evt) {
         console.appendText("[+]Clearning Screen...\n");
         canvsGroup.getChildren().clear();
-
-
-
-//        path.getElements().clear();
-//        MoveTo mt = new MoveTo(400, 400);
-//        path.getElements().add(mt);
-
     }
 
     private void handleTilda() {
         //                ==============HIDE CONSOLE CODE==============
         System.out.println("TILDA");
-
-        if (bottomConsoleHBox.isVisible()) {
-            bottomConsoleHBox.setVisible(false);
-
+        if (topvbox.getChildren().contains(bottom)) {
+            topvbox.getChildren().remove(bottom);
 
         } else {
-            bottomConsoleHBox.setVisible(true);
+            topvbox.getChildren().add(topvbox.getChildren().size()-1, bottom);
         }
 //        String cmd = input.getText();
 //        cmd = cmd.replace('`', ' ');  //Remove the tilda from the input box
@@ -585,16 +582,16 @@ public class Main implements Initializable, Observer {
             l.setStroke(Draw2d.TRAVERSE);
         }
 
-        
+
         //CODE TO ONLY DRAW CUTTING MOVEMENTS
 //        if (tg.m.getAxisByName("Z").getWork_position() > 0) {
 //            l = null;
 //        } else {
 //            l.setStrokeWidth(Draw2d.getStrokeWeight());
 //        }
-        
+
         l.setStrokeWidth(Draw2d.getStrokeWeight());
-        
+
         xPrevious = newX;
         yPrevious = newY;
 
@@ -722,7 +719,7 @@ public class Main implements Initializable, Observer {
                 } else if (ROUTING_KEY.equals("STATUS_REPORT")) {
 //                    console.setText((String) MSG[1] + "\n");
                     updateGuiState(ROUTING_KEY);
-                    
+
                 } else if (ROUTING_KEY.contains("ERROR")) {
                     console.appendText(ROUTING_KEY);
                 } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
@@ -740,8 +737,7 @@ public class Main implements Initializable, Observer {
         SocketMonitor sm;
 
 
-        Task SocketListner = this.initRemoteServer();
-        new Thread(SocketListner).start();
+
 
         tg.addObserver(this);
         this.reScanSerial();//Populate our serial ports
