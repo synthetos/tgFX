@@ -51,7 +51,7 @@ public class Main implements Initializable, Observer {
     @FXML
     TextField input;
     @FXML
-    private Label  xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
+    private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
             srVer, srUnits;
     @FXML
     ListView gcodesList;
@@ -451,15 +451,15 @@ public class Main implements Initializable, Observer {
 
         }
     }
-    
-    public void onDisconnectActions(){
+
+    public void onDisconnectActions() {
         srBuild.setText("?");
         srVer.setText("?");
         srMomo.setText("?");
         srVelo.setText("?");
         srState.setText("?");
-        
-        
+
+
     }
 
     @FXML
@@ -491,7 +491,23 @@ public class Main implements Initializable, Observer {
 
                 handleTilda();
 
-            } else if (keyEvent.getCode() == KeyCode.F5) {
+            } else if (keyEvent.getCode() == KeyCode.F10) {
+                if (!tg.isConnected()) {
+                    String msg = new String("[!]Getting Status Report Aborted... Serial Port Not Connected...");
+                    console.appendText(msg);
+                    return;
+                } else {
+                    String msg = new String("F10 Key Pressed - Getting Status Report\n");
+                    console.appendText(msg);
+                    System.out.println(msg);
+                    try {
+                        tg.requestStatusUpdate();
+                    } catch (Exception ex) {
+                        System.out.println("Error in getting status report");
+                    }
+                }
+            }
+             else if (keyEvent.getCode() == KeyCode.F5) {
                 if (!tg.isConnected()) {
                     String msg = new String("[!]Getting Settings Aborted... Serial Port Not Connected...");
                     console.appendText(msg);

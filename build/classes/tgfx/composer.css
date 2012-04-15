@@ -19,17 +19,51 @@ root {
 
 
 #path {
-    -fx-stroke: 
+    -fx-stroke: 2;
 }
 
+
 #canvas{
-    -fx-background-color: rgba(0,0,0,.3);
-/*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
-        linear-gradient(#20262b, #591d22),
-        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-color: rgba(0,0,0,.7);
+    /*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #591d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-radius: 10,10,10,10;
+    -fx-padding: 25;
+}
+
+#testBox {
+    -fx-padding:10;
+}
+
+#z{
+    -fx-background-color: rgba(0,0,0,.7);
+    /*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #591d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
     -fx-background-radius: 10,10,10,10;
     -fx-padding: 50;
 }
+
+#z1{
+    -fx-background-color: rgba(0,255,0,.7);
+    /*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #591d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-radius: 10,10,10,10;
+    -fx-padding: 50;
+}
+
+#z2{
+    -fx-background-color: rgba(255,0,0,.7);
+    /*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #591d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-radius: 10,10,10,10;
+    -fx-padding: 50;
+}
+
+
 
 
 .bg {
@@ -43,13 +77,49 @@ root {
 
 
 #serialBox {
-    -fx-padding: 15 10 15 10;
+    -fx-padding: 5 5 5 5;
     -fx-background-color: #38424b;
 }   
 
+/*#####################Drawing 2d Line Colors########################*/
+
+#traverseLine {
+    -fx-stroke: #d0d0d0;
+    -fx-stroke-width: 2;
+}
+
 #consoleBox {
-    -fx-padding: 0 10 15 10;
-    -fx-background-color: #38424b;
+    -fx-padding: 5 10 15 10;
+    /*    -fx-background-color: #38424b;*/
+
+} 
+
+#test {
+    -fx-alignment: "center";
+}
+
+#canvasSpacer {
+    -fx-padding: 10;
+    /*    -fx-background-color: #18424b;*/
+}
+
+#bottomConsoleHBox{
+    -fx-padding: 15 15 15 15;
+}
+
+#srText {
+    -fx-padding: 1 2 1 2;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-overrun: clip;
+   
+    /*    -fx-background-color: #98424b;*/
+}
+
+#motionModeHBox {
+    -fx-padding: 25;
+    /*    -fx-background-color: #98424b;*/
 } 
 
 #right{
@@ -58,8 +128,8 @@ root {
 }
 
 #left{
-  
-    -fx-padding: 10 10 10 10;
+
+    -fx-padding: 20 10 10 10;
 }
 
 #path {
@@ -73,7 +143,7 @@ root {
 
 
 #gp {
-/*    -fx-padding: 15 10 15 10;*/
+    /*    -fx-padding: 15 10 15 10;*/
 }
 
 
@@ -124,13 +194,30 @@ root {
     -fx-text-fill: linear-gradient(white, #d0d0d0);
 }
 
+/*#ipad {
+    -fx-background-color:
+        #a6b5c9,
+        linear-gradient(#303842 0%, #3e5577 20%, #375074 100%),
+        linear-gradient(#768aa5 0%, #849cbb 5%, #5877a2 50%, #486a9a 51%, #4a6c9b 100%);
+    -fx-background-insets: 0 0 -1 0,0,1;
+    -fx-background-radius: 5,5,4;
+    -fx-padding: 7 30 7 30;
+    -fx-text-fill: #242d35;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
+}*/
+
 #ipad {
+	/*
     -fx-background-color:
         linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
         linear-gradient(#020b02, #3a3a3a),
         linear-gradient(#b9b9b9 0%, #c2c2c2 20%, #afafaf 80%, #c8c8c8 100%),
         linear-gradient(#f5f5f5 0%, #dbdbdb 50%, #cacaca 51%, #d7d7d7 100%);
-    /*    -fx-background-insets: 0,1,4,5;*/
+    
+	/*    -fx-background-insets: 0,1,4,5;*/
+	-fx-background-color: white;
     -fx-background-radius: 9,8,5,4;
     -fx-padding: 5 10 5 10;
     -fx-font-family: "Helvetica";
@@ -151,7 +238,7 @@ root {
         radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
 }
 
-.breakpoint {
+#breakpoint {
     -fx-background-color:#EA2A15;
     -fx-font-weight: bold;
 }
@@ -165,7 +252,10 @@ root {
     -fx-background-color:#EA2A15;
 }*/
 
-
+#cancelBtn{
+    -fx-background-color: red;
+    -fx-text-fill: white;
+}
 #GcodeProgramTitle {
 
     -fx-text-fill: white;
@@ -175,13 +265,86 @@ root {
     -fx-font-size: 12px;
     -fx-padding: 10 20 10 20;
 }
+#motorConfigTitle {
+    -fx-font-family: "Arial";
+    -fx-text-fill: black;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+#motorConfigText {
+    -fx-font-family: "Arial";
+    -fx-text-fill: black;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+#motor1 {
+    -fx-background-color: darkgray ;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 10,10,10,10;;
+}
+
+#motor2 {
+    -fx-background-color: darkgray ;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 10,10,10,10;
+}
+
+#motor3 {
+    -fx-background-color: darkgray ;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 10,10,10,10;;
+}
+
+#motor4 {
+    -fx-background-color: darkgray ;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 10,10,10,10;;
+}
+
+#configMotorHboxTop {
+    -fx-padding: 5;
+    
+}
+#MachineLogo {
+    /*    -fx-image: "https://www.synthetos.com/blog/wp-content/themes/carrington-blog/img/grey.png";*/
+
+}
+
+#DoubleFrameConfigHBox {
+    -fx-padding: 10;
+}
+
+#MachineSettingsHBox{
+    -fx-background-color: white;
+}
+
+#ConfigurationLoaderConfigVBox {
+    -fx-background-color: red;
+}
+
+#MotorsConfigVBox{
+    -fx-padding: 20;
+/*    -fx-background-color:blue;*/
+} 
+
+#MachineSettingVBox {
+    -fx-background-color: linear-gradient(black, #38424b);
+}
 
 
+#center_left{
+    -fx-padding:10;
+}
 
-
+#center_center{
+    -fx-padding:10;
+}
 #bottom{
     -fx-padding:10;
-    -fx-background-color: linear-gradient(white, #38424b);
+    -fx-background-color: 
+        linear-gradient(#20262b, #191d22),
+        linear-gradient(white, #38424b);
 }
 
 #top{

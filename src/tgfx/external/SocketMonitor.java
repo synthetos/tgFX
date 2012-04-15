@@ -56,8 +56,8 @@ public class SocketMonitor {
                 System.out.println("[!]Error: " + ex.getMessage());
 
             }
-
         }
+        System.out.println("[!]Socket Monitor Terminated...");
 
     }
 

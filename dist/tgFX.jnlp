@@ -13,7 +13,7 @@
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
     <jar href="lib/RXTXcomm.jar" size="60866" download="eager" />
     <jar href="lib/argo-2.21.jar" size="116423" download="eager" />
-    <jar href="tgFX.jar" size="42416" download="eager" />
+    <jar href="tgFX.jar" size="125646" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="tgFX" >
     <param name="requiredFXVersion" value="2.0+"/>

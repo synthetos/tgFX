@@ -17,7 +17,7 @@
 
 <VBox fx:id="topvbox" onKeyPressed="#handleKeyInput" prefHeight="900.0" prefWidth="1380.0" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
   <children>
-    <BorderPane fx:id="serialBox" maxHeight="-Infinity" prefHeight="93.0" prefWidth="1380.0" VBox.vgrow="NEVER">
+    <BorderPane fx:id="serialBox" maxHeight="-Infinity" prefHeight="93.0" prefWidth="1380.0" VBox.vgrow="ALWAYS">
       <left>
         <HBox alignment="TOP_CENTER" minHeight="100.0" minWidth="141.0" prefHeight="100.0" prefWidth="141.0" BorderPane.alignment="TOP_CENTER">
           <children>
@@ -45,13 +45,13 @@
         </HBox>
       </left>
       <right>
-        <VBox fx:id="test" maxHeight="-Infinity" prefHeight="45.0" prefWidth="340.0" BorderPane.alignment="CENTER">
+        <VBox fx:id="test" maxHeight="-Infinity" prefHeight="45.0" prefWidth="390.0" BorderPane.alignment="CENTER">
           <children>
-            <HBox alignment="CENTER" prefHeight="45.0" prefWidth="340.0" VBox.vgrow="ALWAYS">
+            <HBox alignment="CENTER" prefHeight="45.0" prefWidth="390.0" VBox.vgrow="ALWAYS">
               <children>
-                <GridPane fx:id="serialgp" hgap="5.0" prefHeight="45.0" prefWidth="332.0" HBox.hgrow="NEVER">
+                <GridPane fx:id="serialgp" hgap="5.0" prefHeight="45.0" prefWidth="373.0" HBox.hgrow="NEVER">
                   <children>
-                    <Label fx:id="serialTitle" prefHeight="27.0" prefWidth="131.0" text="Serial Ports: " GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label fx:id="serialTitle" alignment="CENTER" prefHeight="27.0" prefWidth="131.0" text="Serial Ports: " GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <ChoiceBox fx:id="serialPorts" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                     <Button fx:id="Connect" onAction="#handleConnect" text="Connect" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                     <Button fx:id="reScan" onAction="#FXreScanSerial" text="Re-Scan" GridPane.columnIndex="3" GridPane.rowIndex="0" />
