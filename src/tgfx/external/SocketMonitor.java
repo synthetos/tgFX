@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Observable;
 import java.util.Observer;
+import tgfx.TinygDriver;
 
 /**
  *
@@ -18,6 +19,7 @@ import java.util.Observer;
  */
 public class SocketMonitor {
 
+    private SerialDriver ser = SerialDriver.getInstance();
     private final int LISTENER_PORT = 4444;
     private ServerSocket server;
     private int clientCount = 0;
@@ -45,33 +47,47 @@ public class SocketMonitor {
     public void handleConnections() {
         System.out.println("[+]Remote Monitor Listening for Connections....");
 
-        while (true) {
+        while (ser.isConnected()) {
             try {
-                Socket socket = server.accept();
+                final Socket socket = server.accept();
                 new ConnectionHandler(socket);
+
             } catch (IOException ex) {
                 System.out.println("[!]Error: " + ex.getMessage());
+
             }
+
         }
+
+    }
+
+    public SocketMonitor(ServerSocket server) {
+        this.server = server;
     }
 }
-
 /*
  * New Class Here
  */
+
 class ConnectionHandler implements Runnable, Observer {
 
-    private SerialDriver ser = SerialDriver.getInstance();
-    private Socket socket;
+    public Socket socket;
 
     @Override
     public void update(Observable o, Object arg) {
-        final String line = (String) arg;
-        try {
-            this.write(line);
-        } catch (Exception ex) {
-            System.out.println("[!]Error in update on ConnectionHandler");
-            System.out.println("\tERRMSG: " + ex.getMessage());
+
+        String[] MSG = (String[]) arg;
+
+        if (MSG[0] == "JSON") {
+            final String line = MSG[1];
+//             System.out.println("UPDATE: "+MSG[1]);
+            try {
+                this.write(MSG[1] + "\n");
+            } catch (Exception ex) {
+                //
+                System.out.println(ex.getMessage());
+            }
+
         }
 
 
@@ -81,6 +97,8 @@ class ConnectionHandler implements Runnable, Observer {
 
     public ConnectionHandler(Socket socket) {
         this.socket = socket;
+        
+        SerialDriver ser = SerialDriver.getInstance();
         ser.addObserver(this);
         Thread t = new Thread(this);
         t.start();
@@ -101,25 +119,42 @@ class ConnectionHandler implements Runnable, Observer {
                 this.write("[+]Connected to tgFX\n");
             } catch (Exception ex) {
             }
-
-            while (true) {
+            TinygDriver tg = TinygDriver.getInstance();
+            String line = "";
+            SerialDriver ser = SerialDriver.getInstance();
+            while (ser.isConnected()) {
                 try {
-
-                    String l = new String("::HEARTBEAT::\n");
-                    if (ser.isConnected()) {
-                        this.write(l);
-                        ser.write("{\"sys\":null}\n");
-                    }else{
-                        this.write("[+]Serial Port Not Connected\n");
-                    }
-                    
-
-                    Thread.sleep(4000);
+                    line = stdIn.readLine() + "\n";
+                    this.write("Writing: " + line);
+                    tg.write(line);
+                    Thread.sleep(100);
                 } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
                 }
 
+
+
             }
+            System.out.println("[+]Closing Remote Listener Socket");
+            socket.close();
+
+//            while (true) {
+//                try {
+//
+//                    String l = new String("::HEARTBEAT::\n");
+//                    if (ser.isConnected()) {
+//                        this.write(l);
+////                        ser.write("{\"sys\":null}\n");
+//                    }else{
+//                        this.write("[+]Serial Port Not Connected\n");
+//                    }
+//                    
+//
+//                    Thread.sleep(50);
+//                } catch (Exception ex) {
+//                    System.out.println(ex.getMessage());
+//                }
+//
+//            }
 
         } catch (IOException e) {
             e.printStackTrace();

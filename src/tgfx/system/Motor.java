@@ -51,7 +51,27 @@ public class Motor {
     public Motor(int id){
         id_number = id;
     }
-
+    
+    
+    
+    //Small wrappers to return int's vs bools
+    public int isPolarityInt(){
+        if(isPolarity()== true){
+            return(1);
+        }else{
+            return(0);
+        }
+    }
+    //Small wrappers to return int's vs bools
+    public int isPower_managementInt(){
+        if(isPower_management()== true){
+            return(1);
+        }else{
+            return(0);
+        }
+    }
+    
+    
     
     public int getId_number() {
         return id_number;

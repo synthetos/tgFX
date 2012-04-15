@@ -30,42 +30,36 @@ public class Machine {
     private float firmware_build;
     private int status_report_interval;
     private int line_number;
-    
     public static motion_modes motion_mode;
+
     public static enum motion_modes {
 //        [momo] motion_mode        - 0=traverse, 1=straight feed, 2=cw arc, 3=ccw arc
+
         traverse, straight, cw_arc, ccw_arc, invalid
     }
-    
-    
+
     public static enum machine_states {
 
         reset, nop, stop, end, run, hold, homing
     }
     public static machine_states machine_state;
-    
 
-    
     public static enum unit_modes {
 
         INCHES, MM
     };
     public unit_modes units;
-    
 
-    
     private enum selection_plane {
 
         G17, G18, G19
     };
-    
     private float velocity;
     private boolean enable_acceleration;
     private int corner_acceleration;
     private float min_line_segment;
     private float min_arc_segment;
-    private int min_segment_time;
-    
+    private double min_segment_time;
     private boolean ignore_CR;
     private boolean ignore_LF;
     private boolean enable_CR;
@@ -85,19 +79,18 @@ public class Machine {
         return machineName;
     }
 
-    
-    public void setUnits(int unitMode){
-        if(unitMode == 0){
+    public void setUnits(int unitMode) {
+        if (unitMode == 0) {
             units = units.INCHES;
-        }else{
+        } else {
             units = units.MM;
         }
     }
-    
-    public unit_modes getUnitMode(){
+
+    public unit_modes getUnitMode() {
         return units;
     }
-    
+
     public void setMotionMode(int mode) {
 //        machine_state = machine_state.reset;
         if (mode == 0) {
@@ -108,15 +101,14 @@ public class Machine {
             motion_mode = motion_mode.cw_arc;
         } else if (mode == 3) {
             motion_mode = motion_mode.ccw_arc;
-        }else{
+        } else {
             motion_mode = motion_mode.invalid;
         }
     }
 
-  public motion_modes getMotionMode() {
+    public motion_modes getMotionMode() {
         return motion_mode;
     }
-
 
     public int getStatus_report_interval() {
         return status_report_interval;
@@ -264,11 +256,11 @@ public class Machine {
         this.min_line_segment = min_line_segment;
     }
 
-    public int getMin_segment_time() {
+    public double getMin_segment_time() {
         return min_segment_time;
     }
 
-    public void setMin_segment_time(int min_segment_time) {
+    public void setMin_segment_time(double min_segment_time) {
         this.min_segment_time = min_segment_time;
     }
 
@@ -282,7 +274,7 @@ public class Machine {
 
     public Machine() {
         this.setFlow("OK");
-        for (int i = 0; i < 3; i++) {
+        for (int i = 1; i < 8; i++) {
             Motor m = new Motor(i);
             motors.add(m);
         }
@@ -290,11 +282,42 @@ public class Machine {
         Axis y = new Axis(Axis.AXIS.Y);
         Axis z = new Axis(Axis.AXIS.Z);
         Axis a = new Axis(Axis.AXIS.A);
+        Axis b = new Axis(Axis.AXIS.A);
+        Axis c = new Axis(Axis.AXIS.A);
+
+        //This just initially sets 1 motor to 1 axis at start time
+        //The profile in tgFX will load / changes these vaules.
+        //Also on connect to your board it should update these values to 
+        //Your correct board setting.  Currently 4/5/12 it does not.
+        for (Motor m : motors) {
+
+            if (m.getId_number() == 1) {
+                x.addMotor(m);
+            }
+            if (m.getId_number() == 2) {
+                y.addMotor(m);
+            }
+            if (m.getId_number() == 3) {
+                z.addMotor(m);
+            }
+            if (m.getId_number() == 4) {
+                a.addMotor(m);
+            }
+            if (m.getId_number() == 5) {
+                b.addMotor(m);
+            }
+            if (m.getId_number() == 6) {
+                c.addMotor(m);
+            }
+
+        }
 
         axis.add(x);
         axis.add(y);
         axis.add(z);
         axis.add(a);
+        axis.add(b);
+        axis.add(c);
     }
 
     public Axis getAxisByName(String name) {
