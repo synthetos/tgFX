@@ -64,6 +64,11 @@
         </VBox>
       </right>
     </BorderPane>
+    <Label id="label2" alignment="CENTER" contentDisplay="CENTER" prefHeight="34.0" prefWidth="1380.0" style="-fx-background: black" text="tgFX is in PRE-ALPHA and is NOT FULLY TESTED USE AT YOUR OWN RISK." textFill="RED">
+      <font>
+        <Font size="25.0" />
+      </font>
+    </Label>
     <TabPane fx:id="tabPane" prefHeight="641.0" prefWidth="1380.0" style="-fx-background-color: red" VBox.vgrow="ALWAYS">
       <tabs>
         <Tab fx:id="gcodeTab" closable="false" text="Gcode">
