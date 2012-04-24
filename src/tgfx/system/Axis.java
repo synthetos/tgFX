@@ -4,6 +4,7 @@
  */
 package tgfx.system;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public class Axis {
     private float homing_zero_offset;
     private float homing_work_offset;
     private String axis_name;
-    private List<Motor> motors;
+    private List<Motor> motors = new ArrayList<Motor>();
 
     public enum AXIS {
 

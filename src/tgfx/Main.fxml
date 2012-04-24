@@ -1,197 +1,1100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.paint.*?>
 <?import javafx.scene.shape.Path?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.*?>
 
-
-<BorderPane id="bg" prefHeight="800" prefWidth="1280" onKeyPressed="#handleKeyInput" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
-   
-   
-<!--    #######################TOP###########################-->
-    <top>
-        <BorderPane fx:id="serialBox">
-            <left>
-                <HBox>
-                    <children>
-                        <Label fx:id="tgfxTitle" text="tgFX"/>
-                    </children>
-                </HBox>
-                
-            </left>
-            <right>
-                <VBox fx:id="test">
-                    <children>
-                        <HBox>
-                            <children>
-                                <GridPane fx:id="serialgp" hgap="5">
-                                    <children>
-                                        <Label fx:id="serialTitle" text="Serial Ports: "
-                                               GridPane.columnIndex="0"
-                                               GridPane.rowIndex="0"/>
-                                        <ChoiceBox fx:id="serialPorts"
-                                                   GridPane.columnIndex="1"
-                                                   GridPane.rowIndex="0"/>
-                                        <Button fx:id="Connect" text="Connect" onAction="#handleConnect" 
-                                                GridPane.columnIndex="2"
-                                                GridPane.rowIndex="0"/> 
-                                        <Button fx:id="reScan" text="Re-Scan" onAction="#FXreScanSerial"
-                                                GridPane.columnIndex="3"
-                                                GridPane.rowIndex="0"/>
-                    
-                                    </children>
-                                </GridPane>
-  
-                            </children>
-                        </HBox>
-                        
-                       
-                    </children>
-                </VBox>
-            </right>
-        </BorderPane>
-    </top>
-    
-    
-    
-    
-<!--    #######################CENTER###########################-->
-    <center>
-        <BorderPane fx:id="canvasSpacer">
-            <center>
-               
-                <HBox onScroll="#handleMouseScroll" onKeyPressed="#handleKeyInput" alignment="center" fx:id="canvas">
-                    
-                    <children>
-                        <Group  autoSizeChildren="true" onScroll="#handleMouseScroll" fx:id="canvsGroup">
-
-                        </Group>
-      
-                    </children>
-                </HBox>
-            </center>
-        </BorderPane>
-    </center>
-    
-   
-    <right >
-       
-                
-        <VBox fx:id="right">
-            <children>
-                <ListView prefHeight="600"  onMouseClicked="#gcodeProgramClicks" fx:id="gcodesList"></ListView>
-                <HBox fx:id="gcodeFile" alignment="top_center">
-                    <children> 
-                        <Button text="Open File" onAction="#handleOpenFile"></Button>
-                        <Button text="Run File" onAction="#runFile"></Button>
-                        <Button fx:id="pauseResume" text="Pause" onAction="#handlePauseResumeAct"></Button>
-                        <!--<Button text="Run File" onAction="#pauseFile"></Button>-->
-                    </children>
-                </HBox>
-                <HBox fx:id="gcodeFile" alignment="top_center">
-                    <children>
-                        <Button text="Zero" fx:id="gcodeZero" onAction="#zeroSystem"/>
-                        <Button text="Clear Screen" fx:id="btnClearScreen" onAction="#clearScreen"/>
-                        
-                    </children>
-                </HBox>
-            </children>
-        </VBox>
-                
-                
-                
-           
-        
-    </right>
-    
-    <left>
-        <VBox fx:id="left">
-            <children>
-                
-                <GridPane fx:id="gp" alignment="top_center" hgap="10" vgap="10">
-                    <children>
-                        <Label fx:id="xAxis" id="ipad" text="X AXIS"
-                               GridPane.columnIndex="0"
-                               GridPane.rowIndex="0"/>
-
-                        <Label fx:id="xAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
-                               GridPane.columnIndex="1"
-                               GridPane.rowIndex="0"/>
-
-                        <Label fx:id="yAxis" id="ipad"  text="Y AXIS"
-                               GridPane.columnIndex="0"
-                               GridPane.rowIndex="1"/>
-
-                        <Label fx:id="yAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
-                               GridPane.columnIndex="1"
-                               GridPane.rowIndex="1"/>
-
-                        <Label fx:id="zAxis" id="ipad" text="Z AXIS"
-                               GridPane.columnIndex="0"
-                               GridPane.rowIndex="2"/>
-
-                        <Label fx:id="zAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
-                               GridPane.columnIndex="1"
-                               GridPane.rowIndex="2"/>
-
-                        <Label fx:id="aAxis" id="ipad" text="A AXIS"
-                               GridPane.columnIndex="0"
-                               GridPane.rowIndex="3"/>
-
-                        <Label fx:id="aAxisVal" id="ipad" minWidth="60" maxWidth="60" text="0.000"
-                               GridPane.columnIndex="1"
-                               GridPane.rowIndex="3"/>
-                    </children>
+<VBox fx:id="topvbox" onKeyPressed="#handleKeyInput" prefHeight="900.0" prefWidth="1380.0" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
+  <children>
+    <BorderPane fx:id="serialBox" maxHeight="-Infinity" prefHeight="93.0" prefWidth="1380.0" VBox.vgrow="ALWAYS">
+      <left>
+        <HBox alignment="TOP_CENTER" minHeight="100.0" minWidth="141.0" prefHeight="100.0" prefWidth="141.0" BorderPane.alignment="TOP_CENTER">
+          <children>
+            <StackPane id="stackPane1" alignment="CENTER_LEFT" minHeight="91.0" minWidth="147.0" prefHeight="100.0" prefWidth="147.0" HBox.hgrow="NEVER">
+              <children>
+                <ImageView fx:id="MachineLogo" blendMode="SRC_OVER" fitHeight="145.08200073242188" fitWidth="232.75" opacity="0.76" scaleX="0.5" scaleY="0.5" scaleZ="0.0" StackPane.alignment="CENTER">
+                  <effect>
+                    <Reflection fraction="0.15476190476190477" />
+                  </effect>
+                  <image>
+                    <Image url="@tg.png" preserveRatio="false" smooth="false" fx:id="logo" />
+                  </image>
+                  <StackPane.margin>
+                    <Insets fx:id="x4" />
+                  </StackPane.margin>
+                </ImageView>
+                <Label fx:id="tgfxTitle" alignment="TOP_LEFT" blendMode="SRC_OVER" contentDisplay="TOP" mouseTransparent="true" text="tgFX" StackPane.alignment="CENTER">
+                  <effect>
+                    <Bloom threshold="0.07738095238095238" />
+                  </effect>
+                </Label>
+              </children>
+            </StackPane>
+          </children>
+        </HBox>
+      </left>
+      <right>
+        <VBox fx:id="test" maxHeight="-Infinity" prefHeight="45.0" prefWidth="390.0" BorderPane.alignment="CENTER">
+          <children>
+            <HBox alignment="CENTER" prefHeight="45.0" prefWidth="390.0" VBox.vgrow="ALWAYS">
+              <children>
+                <GridPane fx:id="serialgp" hgap="5.0" prefHeight="45.0" prefWidth="373.0" HBox.hgrow="NEVER">
+                  <children>
+                    <Label fx:id="serialTitle" alignment="CENTER" prefHeight="27.0" prefWidth="131.0" text="Serial Ports: " GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <ChoiceBox fx:id="serialPorts" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Button fx:id="Connect" onAction="#handleConnect" text="Connect" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                    <Button fx:id="reScan" onAction="#FXreScanSerial" text="Re-Scan" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                  </children>
                 </GridPane>
-                <VBox fx:id="motionModeHBox" alignment="top_center">
-                    <children>
-                        <Label fx:id="srMomo" id="srText" text="STRAIGHT"/>
-                        <Label fx:id="srState" id="srText" text="STOP"/>
-                        <Label fx:id="srVelo" id="srText" text="VEL"/>
-                    </children>
-                </VBox>
-                
-            </children>
+              </children>
+            </HBox>
+          </children>
         </VBox>
-    </left>
-    
-    <bottom>
-        <VBox onKeyPressed="#handleKeyInput" fx:id="bottomConsoleHBox">
-            <children>
-                
-                <TextArea prefHeight="100" focusTraversable="false" editable="false" fx:id="console"/>
-                   
-<!--                <GridPane vgap="5" hgrow="true" fx:id="asdfas">
-                    <children>
-                        <Label   fx:id="cmdLabel" prefWidth="75" text="CMD>"
-                                  GridPane.columnIndex="0"
-                                  GridPane.rowIndex="0"/>
-                         
-                        <TextField fx:id="input"    onAction="#handleEnter"
-                                     GridPane.columnIndex="1"
-                                     GridPane.rowIndex="0"/>
-                    </children>-->
-                    
-<!--            </GridPane>-->
-                <HBox  alignment="top_center" fx:id="consoleBox"> 
-                    <children>
-                        <Label fx:id="cmdLabel" prefWidth="75" text="CMD>"/>
-                    
-                        <HBox>
+      </right>
+    </BorderPane>
+    <TabPane fx:id="tabPane" prefHeight="641.0" prefWidth="1380.0" style="-fx-background-color: red" VBox.vgrow="ALWAYS">
+      <tabs>
+        <Tab fx:id="gcodeTab" closable="false" text="Gcode">
+          <content>
+            <BorderPane id="bg">
+              <center>
+                <BorderPane fx:id="canvasSpacer">
+                  <center>
+                    <HBox fx:id="canvas" alignment="TOP_RIGHT" blendMode="SRC_OVER" cache="true" cacheHint="SPEED" fillHeight="false" onKeyPressed="#handleKeyInput" onScroll="#handleMouseScroll" BorderPane.alignment="CENTER">
+                      <children>
+                        <StackPane id="stackPane2" prefHeight="538.0" prefWidth="1083.0" HBox.hgrow="ALWAYS">
+                          <children>
+                            <GridPane fx:id="gp" alignment="TOP_RIGHT" blendMode="DARKEN" hgap="10.0" vgap="10.0">
+                              <children>
+                                <Label id="ipad" fx:id="xAxis" text="X AXIS" GridPane.columnIndex="0" GridPane.hgrow="NEVER" GridPane.rowIndex="0" GridPane.vgrow="NEVER" />
+                                <Label id="ipad" fx:id="xAxisVal" maxWidth="60.0" minWidth="60.0" text="0.000" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Label id="ipad" fx:id="yAxis" text="Y AXIS" GridPane.columnIndex="0" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.vgrow="NEVER" />
+                                <Label id="ipad" fx:id="yAxisVal" maxWidth="60.0" minWidth="60.0" text="0.000" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label id="ipad" fx:id="zAxis" text="Z AXIS" GridPane.columnIndex="0" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
+                                <Label id="ipad" fx:id="zAxisVal" maxWidth="60.0" minWidth="60.0" text="0.000" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                <Label id="ipad" fx:id="aAxis" text="A AXIS" GridPane.columnIndex="0" GridPane.hgrow="NEVER" GridPane.rowIndex="3" GridPane.vgrow="NEVER" />
+                                <Label id="ipad" fx:id="aAxisVal" maxWidth="60.0" minWidth="60.0" text="0.000" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              </children>
+                            </GridPane>
+                            <Group fx:id="canvsGroup" depthTest="ENABLE" onScroll="#handleMouseScroll" StackPane.alignment="CENTER" />
+                          </children>
+                        </StackPane>
+                      </children>
+                    </HBox>
+                  </center>
+                </BorderPane>
+              </center>
+              <!--#####LEFT PANE FOR GCODE FILES AND CONTROL#####-->
+              <left>
+                <VBox fx:id="right">
+                  <children>
+                    <HBox fx:id="gcodeFile" alignment="TOP_CENTER">
+                      <children>
+                        <Button fx:id="gcodeZero" onAction="#zeroSystem" text="Zero" />
+                        <Button fx:id="btnClearScreen" onAction="#handleClearScreen" text="Clear Screen" />
+                      </children>
+                    </HBox>
+                    <ListView fx:id="gcodesList" onMouseClicked="#gcodeProgramClicks" VBox.vgrow="ALWAYS" />
+                    <HBox fx:id="gcodeFile" alignment="TOP_CENTER">
+                      <children>
+                        <Button onAction="#handleOpenFile" text="Open File" />
+                        <Button fx:id="runBtn" onAction="#runFile" text="Run" />
+                        <Button fx:id="cancelBtn" onAction="#CancelFile" text="Cancel" />
+                        <Button fx:id="pauseResume" onAction="#handlePauseResumeAct" text="Pause" />
+                      </children>
+                    </HBox>
+                  </children>
+                </VBox>
+              </left>
+              <!--#####END LEFT PANE FOR GCODE FILES AND CONTROL#####-->
+              <!--#####RIGHT FOR Z AXIS VIEW#####-->
+              <!--#####END RIGHT FOR Z AXIS VIEW#####-->
+            </BorderPane>
+          </content>
+        </Tab>
+        <Tab fx:id="tabConfig" closable="false" text="TinyG Config">
+          <content>
+            <VBox id="vBox1">
+              <children>
+                <HBox id="hBox2" focusTraversable="true" prefHeight="750.0" style="-fx-background-color:grey;" VBox.vgrow="NEVER" />
+                <VBox id="vBox1" alignment="CENTER" padding="$x6" prefHeight="750.0" style="-fx-background-color: grey;" VBox.margin="$x4">
+                  <children>
+                    <HBox id="hBox3" alignment="CENTER" style="-fx-background-color:grey;" VBox.vgrow="ALWAYS">
+                      <children>
+                        <VBox id="vBox3">
+                          <children>
+                            <HBox id="hBox4" alignment="TOP_CENTER" style="-fx-background-color: black;" VBox.vgrow="NEVER">
+                              <children>
+                                <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Motor Configuration" />
+                              </children>
+                              <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                              </padding>
+                            </HBox>
+                            <TabPane side="LEFT" VBox.vgrow="ALWAYS">
+                              <tabs>
+                                <Tab closable="false" text="Motor 1">
+                                  <content>
+                                    <GridPane hgap="15.0" style="-fx-padding: 10" vgap="15.0">
+                                      <children>
+                                        <Label id="lblMotor1Map" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="motor1ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="X" />
+                                              <String fx:value="Y" />
+                                              <String fx:value="Z" />
+                                              <String fx:value="A" />
+                                              <String fx:value="B" />
+                                              <String fx:value="C" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Micro Steps" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <ChoiceBox id="motor1ConfigMicroSteps" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="1" />
+                                              <String fx:value="2" />
+                                              <String fx:value="4" />
+                                              <String fx:value="8" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Polarity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <ChoiceBox id="motor1ConfigPolarity" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Normal" />
+                                              <String fx:value="Reverse" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Power Management" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <ChoiceBox id="motor1ConfigPowerMode" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Leave ON when stopped" />
+                                              <String fx:value="Power OFF when stopped" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Step Angle of motor" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField id="motor1ConfigStepAngle" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField id="motor1ConfigTravelPerRev" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                        <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
+                                          <children>
+                                            <Button id="queryMotor" onAction="#handleMotorQuery" text="Query" />
+                                            <Button id="queryMotor" onAction="#handleMotorApply" text="Apply" />
+                                          </children>
+                                        </HBox>
+                                      </children>
+                                    </GridPane>
+                                  </content>
+                                </Tab>
+                                <Tab id="tab3" closable="false" text="Motor 2">
+                                  <content>
+                                    <GridPane hgap="15.0" style="-fx-padding: 10" vgap="15.0">
+                                      <children>
+                                        <Label id="lblMotor2Map" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="motor2ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="X" />
+                                              <String fx:value="Y" />
+                                              <String fx:value="Z" />
+                                              <String fx:value="A" />
+                                              <String fx:value="B" />
+                                              <String fx:value="C" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Micro Steps" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <ChoiceBox id="cbMotor2MicroStepping" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="1" />
+                                              <String fx:value="2" />
+                                              <String fx:value="4" />
+                                              <String fx:value="8" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Polarity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <ChoiceBox id="motor2ConfigPolarity" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Normal" />
+                                              <String fx:value="Reverse" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Power Management" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <ChoiceBox id="motor2ConfigPowerMode" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Leave ON when stopped" />
+                                              <String fx:value="Power OFF when stopped" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Step Angle of motor" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField id="motor2ConfigStepAngle" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField id="motor2ConfigTravelPerRev" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                        <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
+                                          <children>
+                                            <Button id="queryMotor" onAction="#handleMotorQuery" text="Query" />
+                                            <Button id="queryMotor" onAction="#handleMotorApply" text="Apply" />
+                                          </children>
+                                        </HBox>
+                                      </children>
+                                    </GridPane>
+                                  </content>
+                                </Tab>
+                                <Tab closable="false" text="Motor 3">
+                                  <content>
+                                    <GridPane hgap="15.0" style="-fx-padding: 10" vgap="15.0">
+                                      <children>
+                                        <Label id="lblMotor3Map" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="motor3ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="X" />
+                                              <String fx:value="Y" />
+                                              <String fx:value="Z" />
+                                              <String fx:value="A" />
+                                              <String fx:value="B" />
+                                              <String fx:value="C" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Micro Steps" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <ChoiceBox id="cbMotor3MicroStepping" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="1" />
+                                              <String fx:value="2" />
+                                              <String fx:value="4" />
+                                              <String fx:value="8" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Polarity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <ChoiceBox id="motor3ConfigPolarity" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Normal" />
+                                              <String fx:value="Reverse" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Power Management" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <ChoiceBox id="motor3ConfigPowerMode" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Leave ON when stopped" />
+                                              <String fx:value="Power OFF when stopped" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Step Angle of motor" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField id="motor3ConfigStepAngle" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label id="" text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField id="motor3ConfigTravelPerRev" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                        <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
+                                          <children>
+                                            <Button id="queryMotor" onAction="#handleMotorQuery" text="Query" />
+                                            <Button id="queryMotor" onAction="#handleMotorApply" text="Apply" />
+                                          </children>
+                                        </HBox>
+                                      </children>
+                                    </GridPane>
+                                  </content>
+                                </Tab>
+                                <Tab closable="false" text="Motor 4">
+                                  <content>
+                                    <GridPane hgap="15.0" style="-fx-padding: 10" vgap="15.0">
+                                      <children>
+                                        <Label id="lblMotor4Map" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="motor4ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="X" />
+                                              <String fx:value="Y" />
+                                              <String fx:value="Z" />
+                                              <String fx:value="A" />
+                                              <String fx:value="B" />
+                                              <String fx:value="C" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Micro Steps" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <ChoiceBox id="cbMotor4MicroStepping" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="1" />
+                                              <String fx:value="2" />
+                                              <String fx:value="4" />
+                                              <String fx:value="8" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Polarity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <ChoiceBox id="motor4ConfigPolarity" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Normal" />
+                                              <String fx:value="Reverse" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Power Management" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <ChoiceBox id="motor4ConfigPowerMode" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Leave ON when stopped" />
+                                              <String fx:value="Power OFF when stopped" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Step Angle of motor" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField id="motor4ConfigStepAngle" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField id="motor4ConfigTravelPerRev" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                        <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
+                                          <children>
+                                            <Button id="queryMotor" onAction="#handleMotorQuery" text="Query" />
+                                            <Button id="queryMotor" onAction="#handleMotorApply" text="Apply" />
+                                          </children>
+                                        </HBox>
+                                      </children>
+                                    </GridPane>
+                                  </content>
+                                </Tab>
+                              </tabs>
+                            </TabPane>
+                          </children>
+                        </VBox>
+                        <Separator id="separatorVertical6" orientation="VERTICAL" prefHeight="200.0">
+                          <HBox.margin>
+                            <Insets bottom="20.0" left="10.0" right="10.0" top="30.0" fx:id="x5" />
+                          </HBox.margin>
+                        </Separator>
+                        <VBox id="vBox4" alignment="TOP_CENTER">
+                          <children>
+                            <HBox id="hBox4" alignment="TOP_CENTER" style="-fx-background-color: black;" VBox.vgrow="NEVER">
+                              <children>
+                                <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Axis Configuration" />
+                              </children>
+                              <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                              </padding>
+                            </HBox>
+                            <TabPane side="LEFT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                              <tabs>
+                                <Tab closable="false" text="X">
+                                  <content>
+                                    <GridPane hgap="15.0" style="-fx-padding: 10; -fx-background-color: silver;" vgap="15.0">
+                                      <children>
+                                        <Label id="lblAxisXMode" text="Axis Mode" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisXMode" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Standard" />
+                                              <String fx:value="Inhibited" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label id="lblAxisXMode" text="Limit Switches" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisXLimitSwitch" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Homing only" />
+                                              <String fx:value="Homing and limit" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Maximum Feed Rate" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisXMaxFeed" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Seek Rate" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisXMaxSeek" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Travel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisXMaxTravel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Maximum Jerk" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisXMaxJerk" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                        <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisXJunction" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label text="Radius" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisXRadius" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                        <Label text="Homing search velocity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisXHomeSearch" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Homing latch velocity" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisXHomeLatch" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                        <Label text="Homing zero offset" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField id="tbAxisXHomeZero" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                      </children>
+                                    </GridPane>
+                                  </content>
+                                </Tab>
+                                <Tab closable="false" text="Y">
+                                  <content>
+                                    <GridPane hgap="15.0" style="-fx-padding: 10; -fx-background-color: olivedrab ;" vgap="15.0">
+                                      <children>
+                                        <Label id="lblAxisYMode" text="Axis Mode" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisYMode" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Standard" />
+                                              <String fx:value="Inhibited" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label id="lblAxisYMode" text="Limit Switches" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisYLimitSwitch" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Homing only" />
+                                              <String fx:value="Homing and limit" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Maximum Feed Rate" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisYMaxFeed" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Seek Rate" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisYMaxSeek" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Travel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisYMaxTravel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Maximum Jerk" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisYMaxJerk" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                        <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisYJunction" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label text="Radius" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisYRadius" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                        <Label text="Homing search velocity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisYHomeSearch" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Homing latch velocity" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisYHomeLatch" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                        <Label text="Homing zero offset" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField id="tbAxisYHomeZero" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                      </children>
+                                    </GridPane>
+                                  </content>
+                                </Tab>
+                                <Tab closable="false" text="Z">
+                                  <content>
+                                    <GridPane hgap="15.0" style="-fx-padding: 10; -fx-background-color: lightsteelblue ;" vgap="15.0">
+                                      <children>
+                                        <Label id="lblAxisZMode" text="Axis Mode" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisZMode" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Standard" />
+                                              <String fx:value="Inhibited" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label id="lblAxisZMode" text="Limit Switches" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisZLimitSwitch" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Homing only" />
+                                              <String fx:value="Homing and limit" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Maximum Feed Rate" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisZMaxFeed" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Seek Rate" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisZMaxSeek" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Travel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisZMaxTravel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Maximum Jerk" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisZMaxJerk" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                        <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisZJunction" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label text="Radius" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisZRadius" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                        <Label text="Homing search velocity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisZHomeSearch" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Homing latch velocity" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisZHomeLatch" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                        <Label text="Homing zero offset" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField id="tbAxisZHomeZero" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                      </children>
+                                    </GridPane>
+                                  </content>
+                                </Tab>
+                                <Tab closable="false" text="A">
+                                  <content>
+                                    <GridPane hgap="15.0" style="-fx-padding: 10; -fx-background-color: cornflowerblue;" vgap="15.0">
+                                      <children>
+                                        <Label id="lblAxisAMode" text="Axis Mode" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisAMode" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Standard" />
+                                              <String fx:value="Inhibited" />
+                                              <String fx:value="Radius" />
+                                              <String fx:value="Slave X" />
+                                              <String fx:value="Slave Y" />
+                                              <String fx:value="Slave Z" />
+                                              <String fx:value="Slave XY" />
+                                              <String fx:value="Slave XZ" />
+                                              <String fx:value="Slave YZ" />
+                                              <String fx:value="Slave XYZ" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label id="lblAxisAMode" text="Limit Switches" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisALimitSwitch" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Homing only" />
+                                              <String fx:value="Homing and limit" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Maximum Feed Rate" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisAMaxFeed" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Seek Rate" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisAMaxSeek" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Travel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisAMaxTravel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Maximum Jerk" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisAMaxJerk" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                        <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisAJunction" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label text="Radius" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisARadius" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                        <Label text="Homing search velocity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisAHomeSearch" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Homing latch velocity" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisAHomeLatch" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                        <Label text="Homing zero offset" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField id="tbAxisAHomeZero" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                      </children>
+                                    </GridPane>
+                                  </content>
+                                </Tab>
+                                <Tab closable="false" text="B">
+                                  <content>
+                                    <GridPane hgap="15.0" style="-fx-padding: 10; -fx-background-color: yellowgreen ;" vgap="15.0">
+                                      <children>
+                                        <Label id="lblAxisBMode" text="Axis Mode" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisBMode" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Standard" />
+                                              <String fx:value="Inhibited" />
+                                              <String fx:value="Radius" />
+                                              <String fx:value="Slave X" />
+                                              <String fx:value="Slave Y" />
+                                              <String fx:value="Slave Z" />
+                                              <String fx:value="Slave XY" />
+                                              <String fx:value="Slave XZ" />
+                                              <String fx:value="Slave YZ" />
+                                              <String fx:value="Slave XYZ" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label id="lblAxisBMode" text="Limit Switches" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisBLimitSwitch" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Homing only" />
+                                              <String fx:value="Homing and limit" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Maximum Feed Rate" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisBMaxFeed" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Seek Rate" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisBMaxSeek" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Travel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisBMaxTravel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Maximum Jerk" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisBMaxJerk" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                        <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisBJunction" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label text="Radius" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisBRadius" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                        <Label text="Homing search velocity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisBHomeSearch" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Homing latch velocity" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisBHomeLatch" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                        <Label text="Homing zero offset" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField id="tbAxisBHomeZero" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                      </children>
+                                    </GridPane>
+                                  </content>
+                                </Tab>
+                                <Tab closable="false" text="C">
+                                  <content>
+                                    <GridPane hgap="15.0" style="-fx-padding: 10; -fx-background-color: khaki ;" vgap="15.0">
+                                      <children>
+                                        <Label id="lblAxisCMode" text="Axis Mode" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisCMode" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Standard" />
+                                              <String fx:value="Inhibited" />
+                                              <String fx:value="Radius" />
+                                              <String fx:value="Slave X" />
+                                              <String fx:value="Slave Y" />
+                                              <String fx:value="Slave Z" />
+                                              <String fx:value="Slave XY" />
+                                              <String fx:value="Slave XZ" />
+                                              <String fx:value="Slave YZ" />
+                                              <String fx:value="Slave XYZ" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label id="lblAxisCMode" text="Limit Switches" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                        <ChoiceBox id="cbAxisCLimitSwitch" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                          <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                              <String fx:value="Disabled" />
+                                              <String fx:value="Homing only" />
+                                              <String fx:value="Homing and limit" />
+                                            </FXCollections>
+                                          </items>
+                                        </ChoiceBox>
+                                        <Label text="Maximum Feed Rate" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisCMaxFeed" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Seek Rate" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                        <TextField id="tbAxisCMaxSeek" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                        <Label text="Maximum Travel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisCMaxTravel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label text="Maximum Jerk" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                        <TextField id="tbAxisCMaxJerk" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                        <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisCJunction" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label text="Radius" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                        <TextField id="tbAxisCRadius" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                        <Label text="Homing search velocity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisCHomeSearch" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                        <Label text="Homing latch velocity" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                        <TextField id="tbAxisCHomeLatch" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                        <Label text="Homing zero offset" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <TextField id="tbAxisCHomeZero" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                      </children>
+                                    </GridPane>
+                                  </content>
+                                </Tab>
+                              </tabs>
+                            </TabPane>
+                          </children>
+                        </VBox>
+                        <Separator id="separatorVertical5" minWidth="2.9998779296875" orientation="VERTICAL" prefHeight="283.0" prefWidth="2.9998779296875" HBox.margin="$x5" />
+                        <VBox id="vBox2" alignment="TOP_CENTER" style="-fx-background-color: white;" HBox.hgrow="ALWAYS">
+                          <children>
+                            <HBox id="hBox4" alignment="TOP_CENTER" style="-fx-background-color: black;" VBox.vgrow="NEVER">
+                              <children>
+                                <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Machine Config Loader" />
+                              </children>
+                              <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                              </padding>
+                            </HBox>
+                            <ListView id="listView1">
+                              <VBox.margin>
+                                <Insets left="10.0" right="10.0" top="10.0" />
+                              </VBox.margin>
+                            </ListView>
+                            <HBox id="hBox5" alignment="CENTER" spacing="10.0">
+                              <children>
+                                <Button id="button1" text="Import Config" />
+                                <Button id="button2" text="Load" />
+                                <Button id="button3" text="Defaults" />
+                              </children>
+                              <VBox.margin>
+                                <Insets bottom="5.0" top="5.0" />
+                              </VBox.margin>
+                            </HBox>
+                          </children>
+                        </VBox>
+                      </children>
+                      <VBox.margin>
+                        <Insets bottom="5.0" fx:id="x6" />
+                      </VBox.margin>
+                    </HBox>
+                  </children>
+                </VBox>
+              </children>
+            </VBox>
+            <!--                      ###END OF VBOX CONFIG CONTAINER###-->
+          </content>
+        </Tab>
+        <Tab id="tab1" closable="false" text="Coordinate System">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <VBox fx:id="MotorsConfigVBox" alignment="CENTER" layoutX="485.0" layoutY="63.0">
+                  <children>
+                    <!--                                            <VBox alignment="center" style="-fx-background-color: orange;">
+                                                <children>-->
+                    <!--##################MOTOR 1 CONFIG###############-->
+                    <HBox fx:id="configMotorHboxTop">
+                      <children>
+                        <Group fx:id="motor1Node">
+                          <HBox id="motor1">
                             <children>
-                            
-                                <TextField fx:id="input"    onAction="#handleEnter"/>
+                              <VBox alignment="CENTER" style="-fx-padding:0 10 0 0">
+                                <children>
+                                  <Label fx:id="motorConfigTitle" text="Motor 1" />
+                                  <ImageView fx:id="MachineLogo">
+                                    <image>
+                                      <Image url="@stepper.png" preserveRatio="false" smooth="false" fx:id="logo" />
+                                    </image>
+                                  </ImageView>
+                                </children>
+                              </VBox>
+                              <GridPane alignment="CENTER" hgap="5.0" vgap="5.0">
+                                <Label fx:id="motorConfigText" text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <TextField fx:id="motor1ConfigTravelPerRev" maxWidth="50.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Label fx:id="motorConfigText" text="Step Angle" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <TextField fx:id="motor1ConfigStepAngle" maxWidth="50.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label fx:id="motorConfigText" text="Map Axis" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <ChoiceBox fx:id="motor1ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                  <String fx:value="X" />
+                                  <String fx:value="Y" />
+                                  <String fx:value="Z" />
+                                  <String fx:value="A" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Micro Steps" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                <ChoiceBox fx:id="motor1ConfigMicroSteps" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                                  <String fx:value="8" />
+                                  <String fx:value="16" />
+                                  <String fx:value="32" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Polarity" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                <ChoiceBox fx:id="motor1ConfigPolarity" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                                  <String fx:value="0" />
+                                  <String fx:value="1" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Power Mode" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                <ChoiceBox fx:id="motor1ConfigPowerMode" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                                  <String fx:value="On" />
+                                  <String fx:value="Off" />
+                                </ChoiceBox>
+                              </GridPane>
                             </children>
-                        </HBox>
-                    </children>
+                          </HBox>
+                        </Group>
+                      </children>
+                    </HBox>
+                    <!--##################END MOTOR 1 CONFIG###############-->
+                    <!--##################MOTOR 2 CONFIG###############-->
+                    <HBox fx:id="configMotorHboxTop">
+                      <children>
+                        <Group fx:id="motor2Node">
+                          <HBox id="motor2">
+                            <children>
+                              <VBox alignment="CENTER" style="-fx-padding:0 10 0 0">
+                                <children>
+                                  <Label fx:id="motorConfigTitle" text="Motor 2" />
+                                  <ImageView fx:id="MachineLogo">
+                                    <image>
+                                      <Image url="@stepper.png" preserveRatio="false" smooth="false" fx:id="logo" />
+                                    </image>
+                                  </ImageView>
+                                </children>
+                              </VBox>
+                              <GridPane alignment="CENTER" hgap="5.0" vgap="5.0">
+                                <Label fx:id="motorConfigText" text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <TextField fx:id="motor2ConfigTravelPerRev" maxWidth="50.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Label fx:id="motorConfigText" text="Step Angle" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <TextField fx:id="motor2ConfigStepAngle" maxWidth="50.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label fx:id="motorConfigText" text="Map Axis" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <ChoiceBox fx:id="motor2ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                  <String fx:value="X" />
+                                  <String fx:value="Y" />
+                                  <String fx:value="Z" />
+                                  <String fx:value="A" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Micro Steps" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                <ChoiceBox fx:id="motor2ConfigMicroSteps" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                                  <String fx:value="8" />
+                                  <String fx:value="16" />
+                                  <String fx:value="32" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Polarity" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                <ChoiceBox fx:id="motor2ConfigPolarity" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                                  <String fx:value="0" />
+                                  <String fx:value="1" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Power Mode" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                <ChoiceBox fx:id="motor2ConfigPowerMode" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                                  <String fx:value="On" />
+                                  <String fx:value="Off" />
+                                </ChoiceBox>
+                              </GridPane>
+                            </children>
+                          </HBox>
+                        </Group>
+                      </children>
+                    </HBox>
+                    <!--##################END MOTOR 2 CONFIG###############-->
+                    <!--##################MOTOR 3 CONFIG###############-->
+                    <HBox fx:id="configMotorHboxTop">
+                      <children>
+                        <Group fx:id="motor3Node">
+                          <HBox id="motor3">
+                            <children>
+                              <VBox alignment="CENTER" style="-fx-padding:0 10 0 0">
+                                <children>
+                                  <Label fx:id="motorConfigTitle" text="Motor 3" />
+                                  <ImageView fx:id="MachineLogo">
+                                    <image>
+                                      <Image url="@stepper.png" preserveRatio="false" smooth="false" fx:id="logo" />
+                                    </image>
+                                  </ImageView>
+                                </children>
+                              </VBox>
+                              <GridPane alignment="CENTER" hgap="5.0" vgap="5.0">
+                                <Label fx:id="motorConfigText" text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <TextField fx:id="motor3ConfigTravelPerRev" maxWidth="50.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Label fx:id="motorConfigText" text="Step Angle" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <TextField fx:id="motor3ConfigStepAngle" maxWidth="50.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label fx:id="motorConfigText" text="Map Axis" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <ChoiceBox fx:id="motor3ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                  <String fx:value="X" />
+                                  <String fx:value="Y" />
+                                  <String fx:value="Z" />
+                                  <String fx:value="A" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Micro Steps" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                <ChoiceBox fx:id="motor3ConfigMicroSteps" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                                  <String fx:value="8" />
+                                  <String fx:value="16" />
+                                  <String fx:value="32" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Polarity" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                <ChoiceBox fx:id="motor3ConfigPolarity" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                                  <String fx:value="0" />
+                                  <String fx:value="1" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Power Mode" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                <ChoiceBox fx:id="motor3ConfigPowerMode" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                                  <String fx:value="On" />
+                                  <String fx:value="Off" />
+                                </ChoiceBox>
+                              </GridPane>
+                            </children>
+                          </HBox>
+                        </Group>
+                      </children>
+                    </HBox>
+                    <!--##################END MOTOR 3 CONFIG###############-->
+                    <!--##################MOTOR 4 CONFIG###############-->
+                    <HBox fx:id="configMotorHboxTop">
+                      <children>
+                        <Group fx:id="motor4Node">
+                          <HBox id="motor4">
+                            <children>
+                              <VBox alignment="CENTER" style="-fx-padding:0 10 0 0">
+                                <children>
+                                  <Label fx:id="motorConfigTitle" text="Motor 4" />
+                                  <ImageView fx:id="MachineLogo">
+                                    <image>
+                                      <Image url="@stepper.png" preserveRatio="false" smooth="false" fx:id="logo" />
+                                    </image>
+                                  </ImageView>
+                                </children>
+                              </VBox>
+                              <GridPane alignment="CENTER" hgap="5.0" vgap="5.0">
+                                <Label fx:id="motorConfigText" text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <TextField fx:id="motor4ConfigTravelPerRev" maxWidth="50.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Label fx:id="motorConfigText" text="Step Angle" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <TextField fx:id="motor4ConfigStepAngle" maxWidth="50.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label fx:id="motorConfigText" text="Map Axis" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <ChoiceBox fx:id="motor4ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                  <String fx:value="X" />
+                                  <String fx:value="Y" />
+                                  <String fx:value="Z" />
+                                  <String fx:value="A" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Micro Steps" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                <ChoiceBox fx:id="motor4ConfigMicroSteps" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                                  <String fx:value="8" />
+                                  <String fx:value="16" />
+                                  <String fx:value="32" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Polarity" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                <ChoiceBox fx:id="motor4ConfigPolarity" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                                  <String fx:value="0" />
+                                  <String fx:value="1" />
+                                </ChoiceBox>
+                                <Label fx:id="motorConfigText" text="Power Mode" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                <ChoiceBox fx:id="motor4ConfigPowerMode" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                                  <String fx:value="On" />
+                                  <String fx:value="Off" />
+                                </ChoiceBox>
+                              </GridPane>
+                            </children>
+                          </HBox>
+                        </Group>
+                      </children>
+                    </HBox>
+                    <!--##################END MOTOR 4 CONFIG###############-->
+                  </children>
+                  <maxHeight>
+                    <Integer fx:value="-1" />
+                  </maxHeight>
+                  <maxWidth>
+                    <Integer fx:value="-1" />
+                  </maxWidth>
+                  <minHeight>
+                    <Integer fx:value="-1" />
+                  </minHeight>
+                  <minWidth>
+                    <Integer fx:value="-1" />
+                  </minWidth>
+                  <prefHeight>
+                    <Integer fx:value="-1" />
+                  </prefHeight>
+                  <prefWidth>
+                    <Integer fx:value="-1" />
+                  </prefWidth>
+                </VBox>
+              </children>
+            </AnchorPane>
+          </content>
+        </Tab>
+        <Tab id="tab2" closable="false" text="tgFX Settings">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #38424b;">
+              <children>
+                <Button id="button4" fx:id="btnRemoteListener" layoutX="156.0" layoutY="33.0" onAction="#handleRemoteListener" text="Enable" />
+                <Label id="label1" labelFor="$btnRemoteListener" layoutX="31.0" layoutY="33.0" text="Remote Listener" textFill="WHITE">
+                  <font>
+                    <Font name="System Bold" size="15.0" />
+                  </font>
+                  <maxHeight>
+                    <Integer fx:value="-1" />
+                  </maxHeight>
+                  <maxWidth>
+                    <Integer fx:value="-1" />
+                  </maxWidth>
+                  <minHeight>
+                    <Integer fx:value="-1" />
+                  </minHeight>
+                  <minWidth>
+                    <Integer fx:value="-1" />
+                  </minWidth>
+                  <prefHeight>
+                    <Integer fx:value="-1" />
+                  </prefHeight>
+                  <prefWidth>
+                    <Integer fx:value="-1" />
+                  </prefWidth>
+                </Label>
+              </children>
+            </AnchorPane>
+          </content>
+        </Tab>
+      </tabs>
+    </TabPane>
+    <HBox id="hBox1" fx:id="bottom" alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+      <children>
+        <VBox fx:id="center_left" alignment="TOP_CENTER" maxHeight="130.0" maxWidth="-Infinity" onKeyPressed="#handleKeyInput" prefHeight="110.0" prefWidth="2000.0" style="-fx-background-color: black;">
+          <children>
+            <TextArea fx:id="console" editable="false" focusTraversable="false" minHeight="50.0" prefHeight="85.0" VBox.vgrow="NEVER" />
+            <HBox id="consoleBo" fx:id="consoleBox" alignment="CENTER_LEFT">
+              <children>
+                <Label fx:id="cmdLabel" text="CMD&gt;" />
+                <HBox>
+                  <children>
+                    <TextField fx:id="input" onAction="#handleEnter" prefHeight="20.0" prefWidth="1030.0" HBox.hgrow="ALWAYS" />
+                  </children>
                 </HBox>
-                            
-                            
-                            
-            </children>
-        </VBox>  
-    </bottom>
-</BorderPane>
+              </children>
+            </HBox>
+          </children>
+        </VBox>
+      </children>
+    </HBox>
+    <FlowPane id="flowPane1" alignment="CENTER_RIGHT" maxHeight="22.0" minHeight="22.0" prefHeight="22.0" style="-fx-background-color: black" VBox.vgrow="NEVER">
+      <children>
+        <Separator id="separatorVertical4" orientation="VERTICAL" />
+        <Label id="srText" fx:id="srUnitslbl" text="Units" textFill="WHITE" />
+        <Label id="srText" fx:id="srUnits" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?">
+          <textFill>
+            <Color blue="0.624" green="0.624" red="0.624" fx:id="x7" />
+          </textFill>
+        </Label>
+        <Separator id="separatorVertical4" orientation="VERTICAL" />
+        <Label id="srText" text="Ver" textFill="WHITE" />
+        <Label id="srText" fx:id="srVer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x7" />
+        <Separator id="separatorVertical4" orientation="VERTICAL" />
+        <Label id="srText" text="Build" textFill="WHITE" />
+        <Label id="srText" fx:id="srBuild" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x7" />
+        <Separator id="separatorVertical4" orientation="VERTICAL" />
+        <Label id="srText" fx:id="srMomoLbl" text="Motion Mode" textFill="WHITE">
+          <FlowPane.margin>
+            <Insets left="5.0" right="5.0" />
+          </FlowPane.margin>
+        </Label>
+        <Label id="srText" fx:id="srMomo" alignment="CENTER" maxWidth="78.0" prefWidth="78.0" text="?" textFill="$x7">
+          <FlowPane.margin>
+            <Insets right="5.0" fx:id="x1" />
+          </FlowPane.margin>
+        </Label>
+        <Separator id="separatorVertical1" orientation="VERTICAL" />
+        <Label id="srText" fx:id="srStateLbl" text="State" textFill="WHITE">
+          <FlowPane.margin>
+            <Insets left="5.0" fx:id="x2" />
+          </FlowPane.margin>
+        </Label>
+        <Label id="srText" fx:id="srState" alignment="CENTER" maxWidth="-Infinity" prefWidth="55.0" text="?" FlowPane.margin="$x1">
+          <textFill>
+            <Color blue="0.750" green="0.750" red="0.750" fx:id="x3" />
+          </textFill>
+        </Label>
+        <Separator id="separatorVertical2" orientation="VERTICAL" />
+        <Label id="srText" fx:id="srVeloLbl" text="Velocity" textFill="WHITE" FlowPane.margin="$x2" />
+        <Label id="srText" fx:id="srVelo" alignment="CENTER" maxWidth="-Infinity" prefWidth="70.0" text="?" textFill="$x3" FlowPane.margin="$x1" />
+        <Separator id="separatorVertical3" orientation="VERTICAL">
+          <FlowPane.margin>
+            <Insets right="20.0" />
+          </FlowPane.margin>
+        </Separator>
+      </children>
+      <VBox.margin>
+        <Insets bottom="2.0" top="2.0" />
+      </VBox.margin>
+    </FlowPane>
+  </children>
+  <stylesheets>
+    <URL value="@composer.css" />
+  </stylesheets>
+  <properties>
+    <backgroundColor>
+      <Color blue="0.125" green="0.125" red="0.125" />
+    </backgroundColor>
+  </properties>
+</VBox>

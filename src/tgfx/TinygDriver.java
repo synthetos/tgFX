@@ -10,6 +10,7 @@ import argo.saj.InvalidSyntaxException;
 import tgfx.system.Machine;
 import java.util.Observable;
 import java.util.Observer;
+import javafx.application.Platform;
 
 /**
  *
@@ -23,8 +24,11 @@ public class TinygDriver extends Observable implements Observer {
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
+    public static final String CMD_GET_HARDWARE_BUILD_NUMBER = "{\"fb\":\"\"}\n";
+    public static final String CMD_GET_HARDWARE_FIRMWARE_NUMBER = "{\"fv\":\"\"}\n";
     public static final String CMD_GET_OK_PROMPT = "{\"gc\":\"?\"}\n";
     public static final String CMD_GET_STATUS_REPORT = "{\"sr\":\"\"}\n";
+    public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":\"g92x0y0z0a0\"}\n";
     public static final String CMD_DISABLE_LOCAL_ECHO = "{\"ee\":0}\n";
     public static final String CMD_SET_STATUS_UPDATE_INTERVAL = "{\"si\":50}\n";
     private static final String CMD_GET_MACHINE_SETTINGS = "{\"sys\":null}\n";
@@ -38,9 +42,25 @@ public class TinygDriver extends Observable implements Observer {
     private static final String CMD_GET_MOTOR_2_SETTINGS = "{\"2\":null}\n";
     private static final String CMD_GET_MOTOR_3_SETTINGS = "{\"3\":null}\n";
     private static final String CMD_GET_MOTOR_4_SETTINGS = "{\"4\":null}\n";
-    private static final String STATUS_REPORT = "\"sr\":";
+    private static final String STATUS_REPORT = "{\"sr\":{";
+    private static final String CMD_PAUSE = "!\n";
+    private static final String CMD_RESUME = "~\n";
+    
+    /**
+     * TinyG Parsing Strings
+     */
+    public static final String RESPONSE_FIRMWARE_BUILD = "{\"fb";
+    public static final String RESPONSE_FIRMWARE_VERSION = "{\"fv";
+    
+    
+    
     private SerialDriver ser = SerialDriver.getInstance();
     private String buf; //Buffer to store parital json lines
+    private boolean PAUSED = false;
+    /**
+     * DEBUG VARS
+     */
+    public String lastMessage = "";
 
     /**
      * Singleton Code for the Serial Port Object
@@ -60,26 +80,38 @@ public class TinygDriver extends Observable implements Observer {
     @Override
     public void update(Observable o, Object o1) {
         String[] MSG = (String[]) o1;
+        lastMessage = MSG[1];
         if (MSG[0] == "JSON") {
             parseJSON(MSG[1]);
         }
     }
 
-    public boolean isPAUSED() {
-        return ser.isPAUSED();
+    public boolean isCANCELLED() {
+        return ser.isCANCELLED();
     }
 
-    public void setPAUSED(boolean p) throws Exception {
-        ser.setPAUSED(p);
-        if (p) { //if set to pause
-            ser.priorityWrite("!\n");
-        } else{ //set to resume
-            ser.priorityWrite("~\n");
+    public void setCANCELLED(boolean choice) {
+        ser.setCANCELLED(choice);
+    }
+
+    public boolean isPAUSED() {
+        return PAUSED;
+    }
+
+    public void setPAUSED(boolean choice) throws Exception {
+        if (choice) { //if set to pause
+            ser.priorityWrite(CMD_PAUSE);
+            PAUSED = choice;
+        } else { //set to resume
+            ser.priorityWrite(CMD_GET_OK_PROMPT);
+            ser.priorityWrite(CMD_RESUME);
+            ser.priorityWrite(CMD_GET_OK_PROMPT);
+            PAUSED = false;
         }
     }
 
-    public boolean isConnected() {
-        return ser.isConnected();
+    public void setConnected(boolean choice) {
+        this.ser.setConnected(choice);
     }
 
     public void write(String msg) throws Exception {
@@ -117,6 +149,11 @@ public class TinygDriver extends Observable implements Observer {
 //    
     public void disconnect() {
         this.ser.disconnect();
+
+    }
+
+    public boolean isConnected() {
+        return this.ser.isConnected();
     }
 
     public String getPortName() {
@@ -152,7 +189,10 @@ public class TinygDriver extends Observable implements Observer {
                 m.getAxisByName("Y").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posy").getText()));
                 m.getAxisByName("Z").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posz").getText()));
                 m.getAxisByName("A").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
-
+                
+//                m.getAxisByName("B").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
+//                m.getAxisByName("C").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
+                
                 //Parse state out of status report.
                 m.setMachineState(Integer.valueOf(json.getNode("sr").getNode("stat").getText()));
 
@@ -161,7 +201,7 @@ public class TinygDriver extends Observable implements Observer {
 
                 //Parse velocity out of status report
                 m.setVelocity(Float.parseFloat(json.getNode("sr").getNode("vel").getText()));
-                
+
                 //Parse Unit Mode
                 m.setUnits(Integer.parseInt(json.getNode("sr").getNode("unit").getText()));
 
@@ -172,23 +212,38 @@ public class TinygDriver extends Observable implements Observer {
                 setChanged();
                 notifyObservers("STATUS_REPORT");
 
-            } else if (line.startsWith("{\"sys\":")) {
+            } else if (line.startsWith(this.RESPONSE_FIRMWARE_BUILD)) {
+                System.out.println("[#]Parsing Build Number...");
+                m.setFirmware_build(Float.parseFloat(json.getNode("fb").getText()));
+                setChanged();
+                notifyObservers("BUILD_UPDATE");
+            
+            
+            } else if (line.startsWith(this.RESPONSE_FIRMWARE_VERSION)) {
+                System.out.println("[#]Parsing Version...");
+                m.setFirmware_version(Float.parseFloat(json.getNode("fv").getText()));
+                setChanged();
+                notifyObservers("BUILD_UPDATE");
+            }
+            
+            else if (line.startsWith("{\"sys\":")) {
                 System.out.println("[#]Parsing Machine Settings JSON");
                 //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
-                m.setFirmware_version(Float.parseFloat((json.getNode("fv").getText())));
-                m.setFirmware_build(Float.parseFloat((json.getNode("fb").getText())));
-                m.setStatus_report_interval(Integer.parseInt((json.getNode("si").getText())));
+                m.setFirmware_version(Float.parseFloat(json.getNode("sys").getNode("fv").getText()));
+                m.setFirmware_build(Float.parseFloat(json.getNode("sys").getNode("fb").getText()));
+                m.setStatus_report_interval(Integer.parseInt((json.getNode("sys").getNode("si").getText())));
 //                m.setEnable_acceleration(Boolean.parseBoolean((json.getNode("ea").getText())));
 //                m.setCorner_acceleration(Integer.parseInt((json.getNode("ja").getText())));
-                m.setMin_line_segment(Float.parseFloat((json.getNode("ml").getText())));
-                m.setMin_segment_time(Integer.parseInt((json.getNode("mt").getText())));
-                m.setMin_arc_segment(Float.parseFloat((json.getNode("ma").getText())));
-                m.setIgnore_CR(Boolean.parseBoolean((json.getNode("ic").getText())));
-                m.setIgnore_LF(Boolean.parseBoolean((json.getNode("il").getText())));
-                m.setEnable_CR(Boolean.parseBoolean((json.getNode("ec").getText())));
-                m.setEnable_echo(Boolean.parseBoolean((json.getNode("ee").getText())));
-                m.setEnable_xon_xoff(Boolean.parseBoolean((json.getNode("ex").getText())));
-
+                m.setMin_line_segment(Float.parseFloat((json.getNode("sys").getNode("ml").getText())));
+                m.setMin_segment_time(Double.parseDouble(json.getNode("sys").getNode("mt").getText()));
+                m.setMin_arc_segment(Float.parseFloat((json.getNode("sys").getNode("ma").getText())));
+                m.setIgnore_CR(Boolean.parseBoolean((json.getNode("sys").getNode("ic").getText())));
+                m.setIgnore_LF(Boolean.parseBoolean((json.getNode("sys").getNode("il").getText())));
+                m.setEnable_CR(Boolean.parseBoolean((json.getNode("sys").getNode("ec").getText())));
+                m.setEnable_echo(Boolean.parseBoolean((json.getNode("sys").getNode("ee").getText())));
+                m.setEnable_xon_xoff(Boolean.parseBoolean((json.getNode("sys").getNode("ex").getText())));
+                setChanged();
+                notifyObservers("CMD_GET_MACHINE_SETTINGS");
 
             } else if (line.startsWith("{\"1\":") && !line.contains("null")) {
                 int motor = 1;
@@ -216,15 +271,33 @@ public class TinygDriver extends Observable implements Observer {
 
 
         } catch (argo.saj.InvalidSyntaxException ex) {
+            //This will happen from time to time depending on the file that is being sent to TinyG
+            //This is an issue mostly when the lines are very very small and there are many of them
+            //and you are running at a high feedrate.
             System.out.println("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
             setChanged();
-            notifyObservers("[!] " + ex.getMessage()+"Line Was: " + line +"\n");
+            notifyObservers("[!] " + ex.getMessage() + "Line Was: " + line + "\n");
+
+            //UGLY BUG FIX WORKAROUND FOR NOW
+            //Code to fix a possible JSON TinyG Error
+            if (line.contains("msg")) {
+                try {
+
+                    this.ser.setClearToSend(true);
+                } catch (Exception ex1) {
+                    System.out.println("EXCEPTION IN BUG FIX CODE TINYGDRIVER" + ex1.getMessage());
+                }
+            }
+            //UGLY BUG FIX WORKAROUND FOR NOW
+
+
+
         } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex) {
             //Extra } for some reason
             System.out.println("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
             setChanged();
-            notifyObservers("[!] " + ex.getMessage()+"Line Was: " + line +"\n");
-            
+            notifyObservers("[!] " + ex.getMessage() + "Line Was: " + line + "\n");
+
         } catch (Exception ex) {
             setChanged();
             notifyObservers("ERROR");
@@ -269,6 +342,31 @@ public class TinygDriver extends Observable implements Observer {
         } catch (Exception e) {
             System.out.println("ERROR Writing to Serial Port in getMachineSettings");
         }
+    }
+
+    public void getAllMotorSettings() throws Exception {
+        Platform.runLater(new Runnable() {
+
+            float vel;
+
+            public void run() {
+                //With the sleeps in this method we wrap it in a runnable task
+                try {
+                    ser.write(CMD_GET_MOTOR_1_SETTINGS);
+//                    Thread.sleep(100);
+                    ser.write(CMD_GET_MOTOR_2_SETTINGS);
+//                    Thread.sleep(100);
+                    ser.write(CMD_GET_MOTOR_3_SETTINGS);
+//                    Thread.sleep(100);
+                    ser.write(CMD_GET_MOTOR_4_SETTINGS);
+
+                } catch (Exception ex) {
+                    System.out.println("$$$$$$$$$$$$$EXCEPTION IN GetAllMotorSettings() $$$$$$$$$$$$$$");
+                    System.out.println(ex.getMessage());
+                }
+
+            }
+        });
     }
 
     public void getMotorSettings(int motorNumber) {
