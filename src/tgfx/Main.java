@@ -15,7 +15,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
@@ -29,6 +28,7 @@ import javafx.stage.FileChooser;
 import tgfx.external.SocketMonitor;
 import tgfx.render.Draw2d;
 import tgfx.system.Machine;
+import tgfx.system.Motor;
 
 /**
  *
@@ -36,7 +36,7 @@ import tgfx.system.Machine;
  */
 public class Main implements Initializable, Observer {
 
-    private static final String CMD_GET_stateUS_REPORT = "{\"sr\":\"\"}\n";
+    //private static final String CMD_GET_stateUS_REPORT = "{\"sr\":\"\"}\n";
 //    public Machine m = new Machine();
     private JdomParser JDOM = new JdomParser(); //JSON Object Parser1
     private TinygDriver tg = TinygDriver.getInstance();
@@ -45,25 +45,55 @@ public class Main implements Initializable, Observer {
      * FXML UI Components
      */
     @FXML
-    private Button Con, Run, Connect, gcodeZero, btnClearScreen;
+    private Button Con, Run, Connect, gcodeZero, btnClearScreen, btnRemoteListener, pauseResume;
     @FXML
     TextArea console;
     @FXML
     TextField input;
     @FXML
-    private Label label, xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo;
+    private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
+            srVer, srUnits;
     @FXML
     ListView gcodesList;
     @FXML
     ChoiceBox serialPorts;
+    //##########Config FXML##############//
     @FXML
-    Button pauseResume;
+    TextField motor1ConfigTravelPerRev,
+            motor2ConfigTravelPerRev,
+            motor3ConfigTravelPerRev,
+            motor4ConfigTravelPerRev,
+            motor1ConfigStepAngle,
+            motor2ConfigStepAngle,
+            motor3ConfigStepAngle,
+            motor4ConfigStepAngle;
+    @FXML
+    ChoiceBox motor1ConfigMapAxis,
+            motor2ConfigMapAxis,
+            motor3ConfigMapAxis,
+            motor4ConfigMapAxis,
+            motor1ConfigMicroSteps,
+            motor2ConfigMicroSteps,
+            motor3ConfigMicroSteps,
+            motor4ConfigMicroSteps,
+            motor1ConfigPolarity,
+            motor2ConfigPolarity,
+            motor3ConfigPolarity,
+            motor4ConfigPolarity,
+            motor1ConfigPowerMode,
+            motor2ConfigPowerMode,
+            motor3ConfigPowerMode,
+            motor4ConfigPowerMode;
     @FXML
     Group canvsGroup;  //Drawing Canvas
     @FXML
-    VBox bottomConsoleHBox;
+    Group motor1Node;
+    @FXML
+    HBox bottom;
     @FXML
     HBox canvas;
+    @FXML
+    VBox topvbox;
     /**
      * Drawing Code Vars
      *
@@ -153,6 +183,12 @@ public class Main implements Initializable, Observer {
     }
 
     @FXML
+    private void CancelFile(ActionEvent evt) throws Exception {
+        console.appendText("[!]Canceling File Sending Task...");
+        tg.setCANCELLED(true);
+    }
+
+    @FXML
     private void handlePauseResumeAct(ActionEvent evt) throws Exception {
         if ("Pause".equals(pauseResume.getText())) {
             pauseResume.setText("Resume");
@@ -163,6 +199,34 @@ public class Main implements Initializable, Observer {
             tg.setPAUSED(false);
         }
     }
+
+    @FXML
+    void handleMotorQuery(ActionEvent evt) {
+    }
+
+    @FXML
+    void handleMotorApply(ActionEvent evt) {
+    }
+
+    @FXML
+    void handleRemoteListener(ActionEvent evt) {
+
+        if (tg.isConnected()) {
+            console.appendText("[+]Remote Monitor Listening for Connections....");
+            Task SocketListner = this.initRemoteServer();
+            new Thread(SocketListner).start();
+            btnRemoteListener.setDisable(true);
+        } else {
+            System.out.println("[!] Must be connected to TinyG First.");
+            console.appendText("[!] Must be connected to TinyG First.");
+        }
+
+    }
+//    
+//    @FXML
+//    void handleMotorQuery(ActionEvent evt){
+//        
+//    }
 
     @FXML
     void handleMouseScroll(ScrollEvent evt) {
@@ -198,8 +262,13 @@ public class Main implements Initializable, Observer {
     private void zeroSystem(ActionEvent evt) {
         if (tg.isConnected() && tg.getClearToSend()) {
             try {
-                tg.write("{\"gc\":\"g92x0y0z0a0\"}\n");
-                tg.write(CMD_GET_stateUS_REPORT);
+                tg.write(tg.CMD_ZERO_ALL_AXIS);
+                //G92 does not invoke a status report... So we need to generate one to have
+                //Our GUI update the coordinates to zero
+                tg.write(tg.CMD_GET_STATUS_REPORT);
+                //We need to set these to 0 so we do not draw a line from the last place we were to 0,0
+                xPrevious = 0;
+                yPrevious = 0;
             } catch (Exception ex) {
             }
         }
@@ -220,45 +289,87 @@ public class Main implements Initializable, Observer {
                 ObservableList<TextField> gcodeProgramList = gcodesList.getItems();
                 gcodeProgramList = gcodesList.getItems();
                 String line;
+                tg.setCANCELLED(false);  //Clear this flag if was canceled in a previous job
+                while (tg.isConnected()) {
 
-                for (TextField tf : gcodeProgramList) {
 
-                    if (tf.getText().startsWith("(") || tf.getText().equals("")) {
-                        continue;
-                    } else {
-                        line = new String("{\"gc\":\"" + tf.getText() + "\"}" + "\n");
+                    for (TextField l : gcodeProgramList) {
+                        if (!tg.isConnected()) {
+                            console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
+                            return false;
+                            //break;
+                        }
 
-                        if (tg.getClearToSend() && !tg.isPAUSED()) {
-                            if (tg.isConnected()) {
+                        //###############CRITICAL SECTION#########################
+                        //If this code is changed be very careful as there is much logic here
+                        //to screw up.  This code makes it so that when you send a file and disconnect or
+                        //press stop this filesending task dies.  
+                        if (l.getText().startsWith("(") || l.getText().equals("")) {
+                            //Skip these lines as they will not illicit a "OK" 
+                            //From tinyg
+                            continue;
+                        } else {
+                            line = new String("{\"gc\":\"" + l.getText() + "\"}" + "\n");
+
+                            if (tg.getClearToSend() && !tg.isPAUSED() && !tg.isCANCELLED()) {
+                                tg.write(line);
+                            } else if (tg.isCANCELLED()) {
+                                console.appendText("[!]Canceling the file sending task...\n");
+                                return false;
+
+                            } else if (tg.isPAUSED()) {
+
+                                while (tg.isPAUSED()) {
+                                    //Infinite Loop
+                                    //Not ready yet
+                                    Thread.sleep(1);
+                                }
+                                //This breaks out of the while loop and does some more checking to eliminate any race conditions
+                                //That might have occured duing waiting for to unpause.
+                                if (!tg.isConnected()) {
+                                    console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
+                                    return false;
+                                } else if (tg.isCANCELLED()) {
+                                    console.appendText("[!]Canceling the file sending task...");
+                                    return false;
+                                }
                                 tg.write(line);
                             } else {
-                                console.appendText("[!]Serial Port is not Connected!\n");
+                                while (!tg.getClearToSend()) {
+                                    //Not ready yet
+                                    Thread.sleep(1);
+                                    //We have to check again while in the sleeping thread that sometime
+                                    //during waiting for the clearbuffer the serialport has not been disconnected.
+                                    //And cancel has not been called
+                                    if (!tg.isConnected()) {
+                                        console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
+                                        return false;
+                                    } else if (tg.isCANCELLED()) {
+                                        console.appendText("[!]Canceling the file sending task...");
+                                        return false;
+                                    }
+                                }
+
+                                //This looks like its not needed since the same check above in the while block.
+                                //However I am pretty confident that this is.
+                                if (!tg.isConnected()) {
+                                    console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
+                                    return false;
+                                }
+                                //Finally write the line everything is Good to go.
+                                tg.write(line);
                             }
-
-
-                        } else if (tg.isPAUSED()) {
-
-                            while (tg.isPAUSED()) {
-                                //Infinite Loop
-                            }
-                            tg.write(line);
-                        } else {
-
-                            int count = 0;
-                            while (!tg.getClearToSend()) {
-                                //Not ready yet
-                                Thread.sleep(1);
-                            }
-                            tg.write(line);
                         }
                     }
-                }
-                console.appendText("[+] Sending File Complete\n");
-                return true;
+                    console.appendText("[+] Sending File Complete\n");
+                    return true;
 
+                }
+                return true;
             }
         };
     }
+    //###############CRITICAL SECTION#########################
 
     @FXML
     private void FXreScanSerial(ActionEvent event) {
@@ -285,11 +396,24 @@ public class Main implements Initializable, Observer {
         try {
             //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
             tg.write(tg.CMD_DISABLE_LOCAL_ECHO);
-            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
-            tg.write("{\"ex\":0}\n");
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+//            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
+//            tg.write("{\"ex\":0}\n");
             tg.write(tg.CMD_SET_STATUS_UPDATE_INTERVAL); //Set to every 50ms
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+//            //this will poll for the new values and update the GUI
+//
+//            //Updates the Config GUI from settings currently applied on the TinyG board
+            tg.getAllMotorSettings();
+//
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
             tg.write(tg.CMD_GET_STATUS_REPORT);  //If TinyG current positions are other than zero
-            //this will poll for the new values and update the GUI
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+
+            tg.write(tg.CMD_GET_HARDWARE_BUILD_NUMBER);  //If TinyG current positions are other than zero
+            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+//            
+            tg.write(tg.CMD_GET_HARDWARE_FIRMWARE_NUMBER);  //If TinyG current positions are other than zero
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 
         } catch (Exception ex) {
@@ -322,34 +446,36 @@ public class Main implements Initializable, Observer {
             if (!tg.isConnected()) {
                 console.appendText("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
                 Connect.setText("Connect");
+                onDisconnectActions();
             }
 
         }
     }
 
+    public void onDisconnectActions() {
+        srBuild.setText("?");
+        srVer.setText("?");
+        srMomo.setText("?");
+        srVelo.setText("?");
+        srState.setText("?");
+
+
+    }
+
     @FXML
-    private void clearScreen(ActionEvent evt) {
+    private void handleClearScreen(ActionEvent evt) {
         console.appendText("[+]Clearning Screen...\n");
         canvsGroup.getChildren().clear();
-
-
-
-//        path.getElements().clear();
-//        MoveTo mt = new MoveTo(400, 400);
-//        path.getElements().add(mt);
-
     }
 
     private void handleTilda() {
         //                ==============HIDE CONSOLE CODE==============
         System.out.println("TILDA");
-
-        if (bottomConsoleHBox.isVisible()) {
-            bottomConsoleHBox.setVisible(false);
-
+        if (topvbox.getChildren().contains(bottom)) {
+            topvbox.getChildren().remove(bottom);
 
         } else {
-            bottomConsoleHBox.setVisible(true);
+            topvbox.getChildren().add(topvbox.getChildren().size() - 1, bottom);
         }
 //        String cmd = input.getText();
 //        cmd = cmd.replace('`', ' ');  //Remove the tilda from the input box
@@ -365,7 +491,28 @@ public class Main implements Initializable, Observer {
 
                 handleTilda();
 
-            } else if (keyEvent.getCode() == KeyCode.F5) {
+            } else if (keyEvent.getCode() == KeyCode.F10) {
+                if (!tg.isConnected()) {
+                    String msg = new String("[!]Getting Status Report Aborted... Serial Port Not Connected...");
+                    console.appendText(msg);
+                    return;
+                } else {
+                    String msg = new String("F10 Key Pressed - Getting Status Report\n");
+                    console.appendText(msg);
+                    System.out.println(msg);
+                    try {
+                        tg.requestStatusUpdate();
+                    } catch (Exception ex) {
+                        System.out.println("Error in getting status report");
+                    }
+                }
+            }
+             else if (keyEvent.getCode() == KeyCode.F5) {
+                if (!tg.isConnected()) {
+                    String msg = new String("[!]Getting Settings Aborted... Serial Port Not Connected...");
+                    console.appendText(msg);
+                    return;
+                }
                 String msg = new String("F5 Key Pressed - Getting Machine Settings\n");
                 console.appendText(msg);
                 System.out.println(msg);
@@ -375,7 +522,7 @@ public class Main implements Initializable, Observer {
                     tg.getMotorSettings(1);
                     tg.getMotorSettings(2);
                     tg.getMotorSettings(3);
-//                    tg.getMotorSettings(3);
+                    tg.getMotorSettings(4);
 
                 } catch (Exception ex) {
                     System.out.println(ex.getMessage());
@@ -467,17 +614,22 @@ public class Main implements Initializable, Observer {
             //G0 Move
             l.setStrokeWidth(Draw2d.getStrokeWeight() / 2);
             l.setStroke(Draw2d.TRAVERSE);
-        } 
-        
-        if (tg.m.getAxisByName("Z").getWork_position() > 0) {
-            l = null;
-        } else {
-            l.setStrokeWidth(Draw2d.getStrokeWeight());
         }
+
+
+        //CODE TO ONLY DRAW CUTTING MOVEMENTS
+//        if (tg.m.getAxisByName("Z").getWork_position() > 0) {
+//            l = null;
+//        } else {
+//            l.setStrokeWidth(Draw2d.getStrokeWeight());
+//        }
+
+        l.setStrokeWidth(Draw2d.getStrokeWeight());
+
         xPrevious = newX;
         yPrevious = newY;
 
-        if(l != null){
+        if (l != null) {
             canvsGroup.getChildren().add(l);
         }
 
@@ -487,6 +639,24 @@ public class Main implements Initializable, Observer {
         final String l = line;
         if (l.contains("msg")) {
             //Pass this on by..
+        } else if (line.equals("BUILD_UPDATE")) {
+            Platform.runLater(new Runnable() {
+
+                float vel;
+
+                public void run() {
+                    //We are now back in the EventThread and can update the GUI
+                    try {
+                        srBuild.setText(String.valueOf(tg.m.getFirmware_build()));
+                        srVer.setText(String.valueOf(tg.m.getFirmware_version()));
+                    } catch (Exception ex) {
+                        System.out.println("$$$$$$$$$$$$$EXCEPTION$$$$$$$$$$$$$$");
+                        System.out.println(ex.getMessage());
+                    }
+
+                }
+            });
+
         } else if (line.equals("STATUS_REPORT")) {
             Platform.runLater(new Runnable() {
 
@@ -503,12 +673,10 @@ public class Main implements Initializable, Observer {
 
                         //Update State... running stop homing etc.
                         srState.setText(tg.m.getMachineState().toString().toUpperCase());
-
+                        srUnits.setText(tg.m.getUnitMode().toString());
 
                         srMomo.setText(tg.m.getMotionMode().toString().replace("_", " ").toUpperCase());
                         //Set the motion mode
-
-
 
                         //Parse the veloicity 
                         vel = tg.m.getVelocity();
@@ -524,7 +692,62 @@ public class Main implements Initializable, Observer {
 
                 }
             });
+
         }
+    }
+
+    private void updateGUIConfigState() {
+        //Update the GUI for config settings
+        Platform.runLater(new Runnable() {
+
+            float vel;
+
+            public void run() {
+                //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
+                //Right now this is how I am doing this.  However I think there can be a more optimized way
+                //Perhaps by passing a routing message as to which motor was updated then not all have to be updated
+                //every time one is.
+
+                try {
+                    for (Motor m : tg.m.getMotors()) {
+                        if (m.getId_number() == 1) {
+
+                            motor1ConfigMapAxis.getSelectionModel().select((tg.m.getMotorByNumber(1).getMapToAxis()));
+                            motor1ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(1).getMicrosteps());
+                            motor1ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(1).isPolarityInt());
+                            motor1ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(1).isPower_managementInt());
+                            motor1ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(1).getStep_angle()));
+                            motor1ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(1).getTravel_per_revolution()));
+                        } else if (m.getId_number() == 2) {
+                            motor2ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(2).getMapToAxis());
+                            motor2ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(2).getMicrosteps());
+                            motor2ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(2).isPolarityInt());
+                            motor2ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(2).isPower_managementInt());
+                            motor2ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(2).getStep_angle()));
+                            motor2ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(2).getTravel_per_revolution()));
+                        } else if (m.getId_number() == 3) {
+                            motor3ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(3).getMapToAxis());
+                            motor3ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(3).getMicrosteps());
+                            motor3ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(3).isPolarityInt());
+                            motor3ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(3).isPower_managementInt());
+                            motor3ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(3).getStep_angle()));
+                            motor3ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(3).getTravel_per_revolution()));
+                        } else if (m.getId_number() == 4) {
+                            motor4ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(4).getMapToAxis());
+                            motor4ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(4).getMicrosteps());
+                            motor4ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(4).isPolarityInt());
+                            motor4ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(4).isPower_managementInt());
+                            motor4ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(4).getStep_angle()));
+                            motor4ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(4).getTravel_per_revolution()));
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.out.println("$$$$$$$$$$$$$EXCEPTION in CMD_SETTINGS_UPDATE$$$$$$$$$$$$$$");
+                    System.out.println(ex.getMessage());
+                }
+
+            }
+        });
     }
 
     /**
@@ -543,14 +766,21 @@ public class Main implements Initializable, Observer {
 
             public void run() {
                 // we are now back in the EventThread and can update the GUI
-                if (ROUTING_KEY == "PLAIN") {
+                if (ROUTING_KEY.equals("PLAIN")) {
                     console.appendText((String) ROUTING_KEY + "\n");
 
-                } else if (ROUTING_KEY == "STATUS_REPORT") {
+                } else if (ROUTING_KEY.equals("BUILD_UPDATE")) {
+                    updateGuiState(ROUTING_KEY);
+                } else if (ROUTING_KEY.equals("STATUS_REPORT")) {
 //                    console.setText((String) MSG[1] + "\n");
                     updateGuiState(ROUTING_KEY);
+
                 } else if (ROUTING_KEY.contains("ERROR")) {
                     console.appendText(ROUTING_KEY);
+                } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
+                    System.out.println("UPDATE: MACHINE SETTINGS");
+                    updateGUIConfigState();
+
                 }
 
             }
@@ -562,23 +792,10 @@ public class Main implements Initializable, Observer {
         SocketMonitor sm;
 
 
-        Task SocketListner = this.initRemoteServer();
-//        new Thread(SocketListner).start();
+
 
         tg.addObserver(this);
         this.reScanSerial();//Populate our serial ports
-
-        //Move to middle of canvas
-//        MoveTo mt = new MoveTo(400, 400);
-
-
-//        path.getElements().add(mt);
-
-
-
-
-
-
 
 
     }
