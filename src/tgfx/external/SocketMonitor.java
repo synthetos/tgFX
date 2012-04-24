@@ -115,17 +115,17 @@ class ConnectionHandler implements Runnable, Observer {
 
 
 //            System.out.println("GOT: " + stdIn.readLine());
-            try {
-                this.write("[+]Connected to tgFX\n");
-            } catch (Exception ex) {
-            }
+//            try {
+//                this.write("[+]Connected to tgFX\n");
+//            } catch (Exception ex) {
+//            }
             TinygDriver tg = TinygDriver.getInstance();
             String line = "";
             SerialDriver ser = SerialDriver.getInstance();
             while (ser.isConnected()) {
                 try {
                     line = stdIn.readLine() + "\n";
-                    this.write("Writing: " + line);
+//                    this.write("Writing: " + line);
                     tg.write(line);
                     Thread.sleep(100);
                 } catch (Exception ex) {
