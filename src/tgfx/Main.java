@@ -17,6 +17,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -24,6 +25,8 @@ import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import tgfx.external.SocketMonitor;
 import tgfx.render.Draw2d;
@@ -54,7 +57,9 @@ public class Main implements Initializable, Observer {
     private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
             srVer, srUnits;
     @FXML
-    ListView gcodesList;
+    TextArea gcodesList;
+    @FXML
+    WebView html;
     @FXML
     ChoiceBox serialPorts;
     //##########Config FXML##############//
@@ -119,7 +124,7 @@ public class Main implements Initializable, Observer {
             public void run() {
 
                 try {
-
+                    console.appendText("[+]Loading a gcode file.....\n");
                     FileChooser fc = new FileChooser();
                     fc.setTitle("Open GCode File");
                     fc.setInitialDirectory(new File("c:\\"));
@@ -129,47 +134,13 @@ public class Main implements Initializable, Observer {
                     BufferedReader br = new BufferedReader(new InputStreamReader(in));
                     String strLine;
 
-                    gcodesList.getItems().clear();
+                    gcodesList.clear();
                     //Clear the list if there was a previous file loaded
 
                     while ((strLine = br.readLine()) != null) {
-                        final TextField tmpLbl = new TextField(strLine);
-                        tmpLbl.setEditable(false);
-                        Tooltip tp = new Tooltip();
-                        tp.setText("To edit a value double click the cell.\nClick enter to apply the new value.");
-                        tmpLbl.setTooltip(tp);
-
-
-                        tmpLbl.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-                            public void handle(MouseEvent me) {
-                                if (me.getButton() == me.getButton().PRIMARY && me.getClickCount() == 2) {
-                                    String tmpValue = tmpLbl.getText();
-                                    tmpLbl.setEditable(true);
-
-
-                                }
-                            }
-                        });
-
-                        tmpLbl.setOnKeyPressed(new EventHandler<KeyEvent>() {
-
-                            public void handle(KeyEvent kevt) {
-                                if (kevt.getCode() == KeyCode.ENTER) {
-                                    tmpLbl.setEditable(false);
-                                    System.out.println("[+]Applied new gcode value");
-                                }
-//                                else if(kevt.getCode()== KeyCode.ESCAPE){
-//                                    tmpLbl.setText(tmpValue);
-//                                }
-                            }
-                        });
-
-
-                        //final Label tmpLbl = new Label(strLine);
-                        gcodesList.getItems().add(tmpLbl);
-
-                        System.out.println(strLine);
+                        gcodesList.appendText(strLine+"\n");
+//
+//                        System.out.println(strLine);
                     }
                     System.out.println("[*]File Loading Complete");
 
@@ -286,14 +257,15 @@ public class Main implements Initializable, Observer {
 
             @Override
             protected Object call() throws Exception {
-                ObservableList<TextField> gcodeProgramList = gcodesList.getItems();
-                gcodeProgramList = gcodesList.getItems();
+                //ObservableList<TextField> gcodeProgramList = gcodesList.getText();
+                //gcodeProgramList = gcodesList.getItems();
+                String[] gcodeProgramList = gcodesList.getText().split("\n");
                 String line;
                 tg.setCANCELLED(false);  //Clear this flag if was canceled in a previous job
                 while (tg.isConnected()) {
 
 
-                    for (TextField l : gcodeProgramList) {
+                    for (String l : gcodeProgramList) {
                         if (!tg.isConnected()) {
                             console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
                             return false;
@@ -304,12 +276,12 @@ public class Main implements Initializable, Observer {
                         //If this code is changed be very careful as there is much logic here
                         //to screw up.  This code makes it so that when you send a file and disconnect or
                         //press stop this filesending task dies.  
-                        if (l.getText().startsWith("(") || l.getText().equals("")) {
+                        if (l.startsWith("(") || l.equals("")) {
                             //Skip these lines as they will not illicit a "OK" 
                             //From tinyg
                             continue;
                         } else {
-                            line = new String("{\"gc\":\"" + l.getText() + "\"}" + "\n");
+                            line = new String("{\"gc\":\"" + l + "\"}" + "\n");
 
                             if (tg.getClearToSend() && !tg.isPAUSED() && !tg.isCANCELLED()) {
                                 tg.write(line);
@@ -506,8 +478,7 @@ public class Main implements Initializable, Observer {
                         System.out.println("Error in getting status report");
                     }
                 }
-            }
-             else if (keyEvent.getCode() == KeyCode.F5) {
+            } else if (keyEvent.getCode() == KeyCode.F5) {
                 if (!tg.isConnected()) {
                     String msg = new String("[!]Getting Settings Aborted... Serial Port Not Connected...");
                     console.appendText(msg);
@@ -550,37 +521,62 @@ public class Main implements Initializable, Observer {
         }
     }
 
-    @FXML
-    private void gcodeProgramClicks(MouseEvent me) {
-        TextField tField = (TextField) gcodesList.getSelectionModel().getSelectedItem();
-        if (me.getButton() == me.getButton().SECONDARY) {
-//            tg.write("{\"gc\":\"" + lbl.getText() + "\"}\n");
-            System.out.println("RIGHT CLICKED");
-
-
-        } else if (me.getButton() == me.getButton().PRIMARY && me.getClickCount() == 2) {
-            System.out.println("double clicked");
-            tField.setEditable(true);
-
-            //if (lbl.getParent().getStyleClass().contains("breakpoint")) {
-//                lbl.getParent().getStyleClass().remove("breakpoint");
-//                console.appendText("BREAKPOINT REMOVED: " + lbl.getText() + "\n");
-//                System.out.println("BREAKPOINT REMOVED");
-//            } else {
+//    @FXML
+//    private void gcodeProgramClicks(MouseEvent me) {
+//        TextField tField = (TextField) gcodesList.getSelectionModel().getSelectedItem();
+//        if (me.getButton() == me.getButton().SECONDARY) {
+////            tg.write("{\"gc\":\"" + lbl.getText() + "\"}\n");
+//            System.out.println("RIGHT CLICKED");
 //
-//                System.out.println("DOUBLE CLICKED");
-//                lbl.getStyleClass().removeAll(null);
-//                lbl.getParent().getStyleClass().add("breakpoint");
-//                System.out.println("BREAKPOINT SET");
-//                console.appendText("BREAKPOINT SET: " + lbl.getText() + "\n");
-//            };
-        }
-    }
-
+//
+//        } else if (me.getButton() == me.getButton().PRIMARY && me.getClickCount() == 2) {
+//            System.out.println("double clicked");
+//            tField.setEditable(true);
+//
+//            //if (lbl.getParent().getStyleClass().contains("breakpoint")) {
+////                lbl.getParent().getStyleClass().remove("breakpoint");
+////                console.appendText("BREAKPOINT REMOVED: " + lbl.getText() + "\n");
+////                System.out.println("BREAKPOINT REMOVED");
+////            } else {
+////
+////                System.out.println("DOUBLE CLICKED");
+////                lbl.getStyleClass().removeAll(null);
+////                lbl.getParent().getStyleClass().add("breakpoint");
+////                System.out.println("BREAKPOINT SET");
+////                console.appendText("BREAKPOINT SET: " + lbl.getText() + "\n");
+////            };
+//        }
+//    }
     @FXML
-    private void handleEnter(ActionEvent event) throws Exception {
-        tg.write(input.getText() + "\n");
-        System.out.println("Entered");
+    private void handleEnter(final InputEvent event) throws Exception {
+        //private void handleEnter(ActionEvent event) throws Exception {
+        final KeyEvent keyEvent = (KeyEvent) event;
+
+        String PROMPT = "tinyg>";
+        if (keyEvent.getCode() == KeyCode.ENTER) {
+            System.out.println("Entered");
+            if (tg.isConnected()) {
+
+                String command = (input.getText() + "\n");
+                //This will send the command to get a OK prompt if the buffer is empty.
+                if (command == "") {
+                    tg.write(TinygDriver.CMD_GET_OK_PROMPT);
+                } else {
+                    //Execute whatever you placed in the input box
+                    tg.write(command);
+                    console.appendText(command);
+                    input.clear();
+                    input.setPromptText(PROMPT);
+                }
+
+            } else {
+                System.out.println("TinyG is not connected....\n");
+                console.appendText("[!]TinyG is not connected....\n");
+                input.setPromptText(PROMPT);
+
+            }
+
+        }
     }
 
     private Task initRemoteServer() {
@@ -790,6 +786,9 @@ public class Main implements Initializable, Observer {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         SocketMonitor sm;
+
+        WebEngine webEngine = html.getEngine();
+        webEngine.load("http://www.synthetos.com/wiki/index.php?title=Projects:TinyG");
 
 
 

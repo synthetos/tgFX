@@ -14,6 +14,7 @@
 <?import javafx.scene.shape.Path?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.*?>
+<?import javafx.scene.web.*?>
 
 <VBox fx:id="topvbox" onKeyPressed="#handleKeyInput" prefHeight="900.0" prefWidth="1380.0" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
   <children>
@@ -63,6 +64,11 @@
         </VBox>
       </right>
     </BorderPane>
+    <Label id="label2" alignment="CENTER" contentDisplay="CENTER" prefHeight="34.0" prefWidth="1380.0" style="-fx-background: black" text="tgFX is in PRE-ALPHA and is NOT FULLY TESTED USE AT YOUR OWN RISK." textFill="RED">
+      <font>
+        <Font size="25.0" />
+      </font>
+    </Label>
     <TabPane fx:id="tabPane" prefHeight="641.0" prefWidth="1380.0" style="-fx-background-color: red" VBox.vgrow="ALWAYS">
       <tabs>
         <Tab fx:id="gcodeTab" closable="false" text="Gcode">
@@ -75,7 +81,7 @@
                       <children>
                         <StackPane id="stackPane2" prefHeight="538.0" prefWidth="1083.0" HBox.hgrow="ALWAYS">
                           <children>
-                            <GridPane fx:id="gp" alignment="TOP_RIGHT" blendMode="DARKEN" hgap="10.0" vgap="10.0">
+                            <GridPane fx:id="gp" alignment="TOP_RIGHT" blendMode="DARKEN" hgap="10.0" prefHeight="567.0" prefWidth="1042.0" vgap="10.0">
                               <children>
                                 <Label id="ipad" fx:id="xAxis" text="X AXIS" GridPane.columnIndex="0" GridPane.hgrow="NEVER" GridPane.rowIndex="0" GridPane.vgrow="NEVER" />
                                 <Label id="ipad" fx:id="xAxisVal" maxWidth="60.0" minWidth="60.0" text="0.000" GridPane.columnIndex="1" GridPane.rowIndex="0" />
@@ -97,7 +103,7 @@
               </center>
               <!--#####LEFT PANE FOR GCODE FILES AND CONTROL#####-->
               <left>
-                <VBox fx:id="right">
+                <VBox id="right" fx:id="gcodeFrame">
                   <children>
                     <HBox fx:id="gcodeFile" alignment="TOP_CENTER">
                       <children>
@@ -105,7 +111,7 @@
                         <Button fx:id="btnClearScreen" onAction="#handleClearScreen" text="Clear Screen" />
                       </children>
                     </HBox>
-                    <ListView fx:id="gcodesList" onMouseClicked="#gcodeProgramClicks" VBox.vgrow="ALWAYS" />
+                    <TextArea id="textArea1" fx:id="gcodesList" prefWidth="200.0" text="gcode file..." />
                     <HBox fx:id="gcodeFile" alignment="TOP_CENTER">
                       <children>
                         <Button onAction="#handleOpenFile" text="Open File" />
@@ -1017,23 +1023,23 @@
             </AnchorPane>
           </content>
         </Tab>
+        <Tab id="docs" text="Documentation">
+          <content>
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <children>
+                <WebView id="webView" fx:id="html" prefHeight="510.0" prefWidth="1181.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+              </children>
+            </AnchorPane>
+          </content>
+        </Tab>
       </tabs>
     </TabPane>
-    <HBox id="hBox1" fx:id="bottom" alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+    <HBox id="hBox1" fx:id="bottom" alignment="TOP_CENTER" prefHeight="120.0" prefWidth="200.0" VBox.vgrow="NEVER">
       <children>
         <VBox fx:id="center_left" alignment="TOP_CENTER" maxHeight="130.0" maxWidth="-Infinity" onKeyPressed="#handleKeyInput" prefHeight="110.0" prefWidth="2000.0" style="-fx-background-color: black;">
           <children>
-            <TextArea fx:id="console" editable="false" focusTraversable="false" minHeight="50.0" prefHeight="85.0" VBox.vgrow="NEVER" />
-            <HBox id="consoleBo" fx:id="consoleBox" alignment="CENTER_LEFT">
-              <children>
-                <Label fx:id="cmdLabel" text="CMD&gt;" />
-                <HBox>
-                  <children>
-                    <TextField fx:id="input" onAction="#handleEnter" prefHeight="20.0" prefWidth="1030.0" HBox.hgrow="ALWAYS" />
-                  </children>
-                </HBox>
-              </children>
-            </HBox>
+            <TextArea fx:id="console" focusTraversable="false" onKeyPressed="#handleEnter" prefHeight="70.0" VBox.vgrow="NEVER" />
+            <TextField id="textField1" fx:id="input" onKeyPressed="#handleEnter" promptText="tinyg&gt;" VBox.vgrow="ALWAYS" />
           </children>
         </VBox>
       </children>
