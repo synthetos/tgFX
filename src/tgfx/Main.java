@@ -1,6 +1,7 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright Synthetos LLC
+ * Rileyporter@gmail.com
+ * www.synthetos.com
  */
 package tgfx;
 
