@@ -5,10 +5,10 @@
 package tgfx.external;
 
 import tgfx.SerialDriver;
-import gnu.io.SerialPort;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.channels.ClosedChannelException;
 import java.util.Observable;
 import java.util.Observer;
 import tgfx.TinygDriver;
@@ -100,6 +100,7 @@ class ConnectionHandler implements Runnable, Observer {
         this.socket = socket;
         
         SerialDriver ser = SerialDriver.getInstance();
+        System.out.println("[+]Opening Remote Listener Socket");
         ser.addObserver(this);
         Thread t = new Thread(this);
         t.start();
@@ -129,6 +130,8 @@ class ConnectionHandler implements Runnable, Observer {
 //                    this.write("Writing: " + line);
                     tg.write(line);
                     Thread.sleep(100);
+                } catch (IOException ex) {
+                    disconnect = true;
                 } catch (Exception ex) {
                     System.out.println("run(): " + ex.getMessage());
                 }
