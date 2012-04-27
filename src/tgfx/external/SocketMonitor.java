@@ -70,7 +70,7 @@ public class SocketMonitor {
  */
 
 class ConnectionHandler implements Runnable, Observer {
-
+    private boolean disconnect = false;
     public Socket socket;
 
     @Override
@@ -83,9 +83,10 @@ class ConnectionHandler implements Runnable, Observer {
 //             System.out.println("UPDATE: "+MSG[1]);
             try {
                 this.write(MSG[1] + "\n");
+            } catch (IOException ex) {
+                disconnect = true;
             } catch (Exception ex) {
-                //
-                System.out.println(ex.getMessage());
+                System.out.println("update(): " + ex.getMessage());
             }
 
         }
@@ -115,24 +116,22 @@ class ConnectionHandler implements Runnable, Observer {
 
 
 //            System.out.println("GOT: " + stdIn.readLine());
-            try {
-                this.write("[+]Connected to tgFX\n");
-            } catch (Exception ex) {
-            }
+//            try {
+//                this.write("[+]Connected to tgFX\n");
+//            } catch (Exception ex) {
+//            }
             TinygDriver tg = TinygDriver.getInstance();
             String line = "";
             SerialDriver ser = SerialDriver.getInstance();
-            while (ser.isConnected()) {
+            while (ser.isConnected() && !disconnect) {
                 try {
                     line = stdIn.readLine() + "\n";
-                    this.write("Writing: " + line);
+//                    this.write("Writing: " + line);
                     tg.write(line);
                     Thread.sleep(100);
                 } catch (Exception ex) {
+                    System.out.println("run(): " + ex.getMessage());
                 }
-
-
-
             }
             System.out.println("[+]Closing Remote Listener Socket");
             socket.close();
