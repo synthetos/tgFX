@@ -54,7 +54,7 @@ public class Main implements Initializable, Observer {
     @FXML
     TextArea console;
     @FXML
-    TextField input;
+    TextField input, listenerPort;
     @FXML
     private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
             srVer, srUnits;
@@ -186,7 +186,7 @@ public class Main implements Initializable, Observer {
 
         if (tg.isConnected()) {
             console.appendText("[+]Remote Monitor Listening for Connections....");
-            Task SocketListner = this.initRemoteServer();
+            Task SocketListner = this.initRemoteServer(listenerPort.getText());
             new Thread(SocketListner).start();
             btnRemoteListener.setDisable(true);
         } else {
@@ -581,12 +581,13 @@ public class Main implements Initializable, Observer {
         }
     }
 
-    private Task initRemoteServer() {
+    private Task initRemoteServer(String port) {
+        final String Port = port;
         return new Task() {
 
             @Override
             protected Object call() throws Exception {
-                SocketMonitor sm = new SocketMonitor();
+                SocketMonitor sm = new SocketMonitor(Port);
                 System.out.println("[+]Trying to start remote monitor.");
                 return true;
             }

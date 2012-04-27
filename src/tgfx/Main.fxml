@@ -18,7 +18,7 @@
 
 <VBox fx:id="topvbox" onKeyPressed="#handleKeyInput" prefHeight="900.0" prefWidth="1380.0" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
   <children>
-    <BorderPane fx:id="serialBox" maxHeight="-Infinity" prefHeight="93.0" prefWidth="1380.0" VBox.vgrow="ALWAYS">
+    <BorderPane fx:id="serialBox" minHeight="110.0" prefHeight="93.0" prefWidth="1380.0" VBox.vgrow="ALWAYS">
       <left>
         <HBox alignment="TOP_CENTER" minHeight="100.0" minWidth="141.0" prefHeight="100.0" prefWidth="141.0" BorderPane.alignment="TOP_CENTER">
           <children>
@@ -64,11 +64,6 @@
         </VBox>
       </right>
     </BorderPane>
-    <Label id="label2" alignment="CENTER" contentDisplay="CENTER" prefHeight="34.0" prefWidth="1380.0" style="-fx-background: black" text="tgFX is in PRE-ALPHA and is NOT FULLY TESTED USE AT YOUR OWN RISK." textFill="RED">
-      <font>
-        <Font size="25.0" />
-      </font>
-    </Label>
     <TabPane fx:id="tabPane" prefHeight="641.0" prefWidth="1380.0" style="-fx-background-color: red" VBox.vgrow="ALWAYS">
       <tabs>
         <Tab fx:id="gcodeTab" closable="false" text="Gcode">
@@ -129,7 +124,7 @@
             </BorderPane>
           </content>
         </Tab>
-<!--        <Tab fx:id="tabConfig" closable="false" text="TinyG Config">
+        <!--        <Tab fx:id="tabConfig" closable="false" text="TinyG Config">
           <content>
             <VBox id="vBox1">
               <children>
@@ -755,13 +750,7 @@
                                   ###END OF VBOX CONFIG CONTAINER###
           </content>
         </Tab>-->
-        
-        
-        
-        
-        
-        
-<!--        <Tab id="tab1" closable="false" text="Coordinate System">
+        <!--        <Tab id="tab1" closable="false" text="Coordinate System">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
               <children>
@@ -999,37 +988,130 @@
         </Tab>-->
         <Tab id="tab2" closable="false" text="tgFX Settings">
           <content>
-            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #38424b;">
+            <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" style="-fx-background-color: #38424b;">
               <children>
-                <Button id="button4" fx:id="btnRemoteListener" layoutX="156.0" layoutY="33.0" onAction="#handleRemoteListener" text="Enable" />
-                <Label id="label1" labelFor="$btnRemoteListener" layoutX="31.0" layoutY="33.0" text="Remote Listener" textFill="WHITE">
-                  <font>
-                    <Font name="System Bold" size="15.0" />
-                  </font>
-                  <maxHeight>
-                    <Integer fx:value="-1" />
-                  </maxHeight>
-                  <maxWidth>
-                    <Integer fx:value="-1" />
-                  </maxWidth>
-                  <minHeight>
-                    <Integer fx:value="-1" />
-                  </minHeight>
-                  <minWidth>
-                    <Integer fx:value="-1" />
-                  </minWidth>
-                  <prefHeight>
-                    <Integer fx:value="-1" />
-                  </prefHeight>
-                  <prefWidth>
-                    <Integer fx:value="-1" />
-                  </prefWidth>
-                </Label>
+                <VBox id="vBox1" fillWidth="false" layoutX="37.0" layoutY="30.0" prefHeight="150.0" prefWidth="237.0" style="-fx-background-color: #38424b;-fx-border-color: white;">
+                  <children>
+                    <Label id="label2" text="External Listener" textFill="WHITE">
+                      <font>
+                        <Font name="System Bold" size="20.0" />
+                      </font>
+                      <VBox.margin>
+                        <Insets left="5.0" fx:id="x2" />
+                      </VBox.margin>
+                    </Label>
+                    <HBox id="hBox2" alignment="CENTER" spacing="50.0">
+                      <children>
+                        <Label id="label1" text="Remote Listener:" textFill="WHITE">
+                          <font>
+                            <Font name="System Bold" size="15.0" fx:id="x5" />
+                          </font>
+                          <labelFor>
+                            <Button id="button4" fx:id="btnRemoteListener" onAction="#handleRemoteListener" text="Enable" />
+                          </labelFor>
+                          <maxHeight>
+                            <Integer fx:value="-1" />
+                          </maxHeight>
+                          <maxWidth>
+                            <Integer fx:value="-1" />
+                          </maxWidth>
+                          <minHeight>
+                            <Integer fx:value="-1" />
+                          </minHeight>
+                          <minWidth>
+                            <Integer fx:value="-1" />
+                          </minWidth>
+                          <prefHeight>
+                            <Integer fx:value="-1" />
+                          </prefHeight>
+                          <prefWidth>
+                            <Integer fx:value="-1" />
+                          </prefWidth>
+                        </Label>
+                        <fx:reference source="btnRemoteListener" />
+                      </children>
+                      <padding>
+                        <Insets left="5.0" right="5.0" fx:id="x6" />
+                      </padding>
+                      <VBox.margin>
+                        <Insets bottom="10.0" fx:id="x8" />
+                      </VBox.margin>
+                    </HBox>
+                    <HBox id="hBox2" alignment="CENTER" spacing="50.0">
+                      <children>
+                        <Label id="label1" font="$x5" text="Network Port:" textFill="WHITE">
+                          <labelFor>
+                            <Button id="button4" onAction="#handleRemoteListener" text="Enable" />
+                          </labelFor>
+                          <maxHeight>
+                            <Integer fx:value="-1" />
+                          </maxHeight>
+                          <maxWidth>
+                            <Integer fx:value="-1" />
+                          </maxWidth>
+                          <minHeight>
+                            <Integer fx:value="-1" />
+                          </minHeight>
+                          <minWidth>
+                            <Integer fx:value="-1" />
+                          </minWidth>
+                          <prefHeight>
+                            <Integer fx:value="-1" />
+                          </prefHeight>
+                          <prefWidth>
+                            <Integer fx:value="-1" />
+                          </prefWidth>
+                          <HBox.margin>
+                            <Insets right="19.0" />
+                          </HBox.margin>
+                        </Label>
+                        <TextField id="networkPort" fx:id="listenerPort" prefHeight="22.0" prefWidth="56.0" text="4444" />
+                      </children>
+                      <padding>
+                        <Insets bottom="10.0" left="5.0" right="5.0" />
+                      </padding>
+                    </HBox>
+                    <HBox id="hBox2" alignment="CENTER" padding="$x6" spacing="50.0" VBox.margin="$x8">
+                      <children>
+                        <Label id="label1" text="Current Connections:" textFill="WHITE">
+                          <font>
+                            <Font name="System Bold" size="12.0" />
+                          </font>
+                          <labelFor>
+                            <Button id="button4" onAction="#handleRemoteListener" text="Enable" />
+                          </labelFor>
+                          <maxHeight>
+                            <Integer fx:value="-1" />
+                          </maxHeight>
+                          <maxWidth>
+                            <Integer fx:value="-1" />
+                          </maxWidth>
+                          <minHeight>
+                            <Integer fx:value="-1" />
+                          </minHeight>
+                          <minWidth>
+                            <Integer fx:value="-1" />
+                          </minWidth>
+                          <prefHeight>
+                            <Integer fx:value="-1" />
+                          </prefHeight>
+                          <prefWidth>
+                            <Integer fx:value="-1" />
+                          </prefWidth>
+                          <HBox.margin>
+                            <Insets right="19.0" />
+                          </HBox.margin>
+                        </Label>
+                      </children>
+                    </HBox>
+                    <TextField id="textField2" fx:id="externalConnections" alignment="CENTER" prefHeight="22.0" prefWidth="225.0" promptText="No connections.." VBox.margin="$x6" />
+                  </children>
+                </VBox>
               </children>
             </AnchorPane>
           </content>
         </Tab>
-        <Tab closable="false" id="docs" text="Documentation">
+        <Tab id="docs" closable="false" text="Documentation">
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
               <children>
@@ -1045,7 +1127,7 @@
         <VBox fx:id="center_left" alignment="TOP_CENTER" maxHeight="130.0" maxWidth="-Infinity" onKeyPressed="#handleKeyInput" prefHeight="110.0" prefWidth="2000.0" style="-fx-background-color: black;">
           <children>
             <TextArea fx:id="console" focusTraversable="false" onKeyPressed="#handleEnter" prefHeight="70.0" VBox.vgrow="NEVER" />
-            <TextField id="textField1" fx:id="input" onKeyPressed="#handleEnter" promptText="tinyg&gt;" VBox.vgrow="ALWAYS" />
+            <TextField id="textField1" fx:id="input" minHeight="22.0" onKeyPressed="#handleEnter" promptText="tinyg&gt;" VBox.vgrow="ALWAYS" />
           </children>
         </VBox>
       </children>
@@ -1068,7 +1150,7 @@
         <Separator id="separatorVertical4" orientation="VERTICAL" />
         <Label id="srText" fx:id="srMomoLbl" text="Motion Mode" textFill="WHITE">
           <FlowPane.margin>
-            <Insets left="5.0" right="5.0" />
+            <Insets left="5.0" right="5.0" fx:id="x6" />
           </FlowPane.margin>
         </Label>
         <Label id="srText" fx:id="srMomo" alignment="CENTER" maxWidth="78.0" prefWidth="78.0" text="?" textFill="$x7">
