@@ -129,7 +129,6 @@ public class Main implements Initializable, Observer {
                     console.appendText("[+]Loading a gcode file.....\n");
                     FileChooser fc = new FileChooser();
                     fc.setTitle("Open GCode File");
-                    fc.setInitialDirectory(new File("c:\\"));
                     File f = fc.showOpenDialog(null);
                     FileInputStream fstream = new FileInputStream(f);
                     DataInputStream in = new DataInputStream((fstream));
