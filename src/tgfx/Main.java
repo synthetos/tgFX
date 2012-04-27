@@ -2,7 +2,8 @@
  * Copyright Synthetos LLC
  * Rileyporter@gmail.com
  * www.synthetos.com
- */
+ * 
+  */
 package tgfx;
 
 import argo.jdom.JdomParser;
@@ -775,8 +776,8 @@ public class Main implements Initializable, Observer {
                 } else if (ROUTING_KEY.contains("ERROR")) {
                     console.appendText(ROUTING_KEY);
                 } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
-                    System.out.println("UPDATE: MACHINE SETTINGS");
-                    updateGUIConfigState();
+//                    System.out.println("UPDATE: MACHINE SETTINGS");
+//                    updateGUIConfigState();
 
                 }
 
