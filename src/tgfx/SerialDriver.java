@@ -33,6 +33,7 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
     private boolean PAUSED = false;
     private boolean CANCELLED = false;
     private Boolean CLEAR_TO_TRANSMIT = true;
+    
     //DEBUG
     public ByteArrayOutputStream bof = new ByteArrayOutputStream();
     public String debugFileBuffer = "";
@@ -130,8 +131,8 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
                 byte chunk[] = new byte[available];  //Setup byte array to store the data.
                 input.read(chunk, 0, available);  //Read the data into the byte array
                 String res = new String(chunk);   //Convert the byte[] to a string
-                debugFileBuffer = debugFileBuffer + res;
-                lastRes.add(res);
+//                debugFileBuffer = debugFileBuffer + res;
+//                lastRes.add(res);
                 if (res.contains("msg")) {
                     this.setClearToSend(true);
                 } else if (res.contains("####")) {  //When TinyG is reset you will get this message

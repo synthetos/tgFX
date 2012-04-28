@@ -30,7 +30,7 @@ public class TinygDriver extends Observable implements Observer {
     public static final String CMD_GET_STATUS_REPORT = "{\"sr\":\"\"}\n";
     public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":\"g92x0y0z0a0\"}\n";
     public static final String CMD_DISABLE_LOCAL_ECHO = "{\"ee\":0}\n";
-    public static final String CMD_SET_STATUS_UPDATE_INTERVAL = "{\"si\":50}\n";
+    public static final String CMD_SET_STATUS_UPDATE_INTERVAL = "{\"si\":150}\n";
     private static final String CMD_GET_MACHINE_SETTINGS = "{\"sys\":null}\n";
     private static final String CMD_GET_X_AXIS = "{\"x\":null}\n";
     private static final String CMD_GET_Y_AXIS = "{\"y\":null}\n";
