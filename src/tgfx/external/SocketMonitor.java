@@ -20,11 +20,13 @@ import tgfx.TinygDriver;
 public class SocketMonitor {
 
     private SerialDriver ser = SerialDriver.getInstance();
-    private final int LISTENER_PORT = 4444;
+    
+    private int LISTENER_PORT;
     private ServerSocket server;
     private int clientCount = 0;
 
-    public SocketMonitor() {
+    public SocketMonitor(String tmpport) {
+        LISTENER_PORT = Integer.parseInt(tmpport);
         this.initServer();
         this.handleConnections();
 
