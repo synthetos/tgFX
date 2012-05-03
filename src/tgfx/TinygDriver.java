@@ -42,13 +42,13 @@ public class TinygDriver extends Observable implements Observer {
     private static final String CMD_GET_MOTOR_2_SETTINGS = "{\"2\":null}\n";
     private static final String CMD_GET_MOTOR_3_SETTINGS = "{\"3\":null}\n";
     private static final String CMD_GET_MOTOR_4_SETTINGS = "{\"4\":null}\n";
-    private static final String STATUS_REPORT = "{\"sr\":{";
     private static final String CMD_PAUSE = "!\n";
     private static final String CMD_RESUME = "~\n";
     
     /**
      * TinyG Parsing Strings
      */
+    private static final String RESPONSE_STATUS_REPORT = "{\"sr\":{";
     public static final String RESPONSE_FIRMWARE_BUILD = "{\"fb";
     public static final String RESPONSE_FIRMWARE_VERSION = "{\"fv";
     
@@ -182,7 +182,7 @@ public class TinygDriver extends Observable implements Observer {
             //Create our JSON Parsing Object
             JsonRootNode json = JDOM.parse(line);
 
-            if (line.contains(STATUS_REPORT)) {
+            if (line.contains(RESPONSE_STATUS_REPORT)) {
                 //Parse Status Report
                 //"{"sr":{"line":0,"xpos":1.567,"ypos":0.548,"zpos":0.031,"apos":0.000,"vel":792.463,"unit":"mm","stat":"run"}}"
                 m.getAxisByName("X").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posx").getText()));
