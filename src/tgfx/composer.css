@@ -22,9 +22,17 @@ root {
     -fx-stroke: 2;
 }
 
+#gcodeFrame{
+    -fx-background-color: rgba(0,0,0,.2);
+    /*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #591d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-radius: 10,10,10,10;
+    -fx-padding: 25;
+}
 
 #canvas{
-    -fx-background-color: rgba(0,0,0,.7);
+    -fx-background-color: rgba(0,0,0,.2);
     /*        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
             linear-gradient(#20262b, #591d22),
             radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
@@ -78,7 +86,8 @@ root {
 
 #serialBox {
     -fx-padding: 5 5 5 5;
-    -fx-background-color: #38424b;
+    -fx-background-color: black; 
+/*    #38424b;*/
 }   
 
 /*#####################Drawing 2d Line Colors########################*/
@@ -221,7 +230,7 @@ root {
     -fx-background-radius: 9,8,5,4;
     -fx-padding: 5 10 5 10;
     -fx-font-family: "Helvetica";
-    -fx-font-size: 12px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-text-overrun: clip;
 
@@ -347,10 +356,10 @@ root {
         linear-gradient(white, #38424b);
 }
 
-#top{
+/*#top{
     -fx-padding:10;
     -fx-background-color: linear-gradient(white, #38424b);
-}
+}*/
 
 #gcodeControls{
     -fx-padding:10;

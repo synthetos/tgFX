@@ -18,7 +18,7 @@
 
 <VBox fx:id="topvbox" onKeyPressed="#handleKeyInput" prefHeight="900.0" prefWidth="1380.0" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
   <children>
-    <BorderPane fx:id="serialBox" minHeight="110.0" prefHeight="93.0" prefWidth="1380.0" VBox.vgrow="ALWAYS">
+    <BorderPane fx:id="serialBox" maxHeight="110.0" minHeight="110.0" prefHeight="93.0" prefWidth="1380.0" VBox.vgrow="ALWAYS">
       <left>
         <HBox alignment="TOP_CENTER" minHeight="100.0" minWidth="141.0" prefHeight="100.0" prefWidth="141.0" BorderPane.alignment="TOP_CENTER">
           <children>
@@ -98,7 +98,7 @@
               </center>
               <!--#####LEFT PANE FOR GCODE FILES AND CONTROL#####-->
               <left>
-                <VBox id="right" fx:id="gcodeFrame">
+                <VBox id="right" fx:id="gcodeFrame" style="-fx-background-color: black">
                   <children>
                     <HBox fx:id="gcodeFile" alignment="TOP_CENTER">
                       <children>
@@ -990,7 +990,7 @@
           <content>
             <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" style="-fx-background-color: #38424b;">
               <children>
-                <VBox id="vBox1" fillWidth="false" layoutX="37.0" layoutY="30.0" prefHeight="150.0" prefWidth="237.0" style="-fx-background-color: #38424b;-fx-border-color: white;">
+                <VBox id="vBox1" fx:id="externalListenerVbox" alignment="BASELINE_LEFT" fillWidth="false" layoutX="14.0" layoutY="449.0" prefHeight="150.0" prefWidth="237.0" style="-fx-background-color: #38424b;-fx-border-color: white;">
                   <children>
                     <Label id="label2" text="External Listener" textFill="WHITE">
                       <font>
@@ -1104,7 +1104,7 @@
                         </Label>
                       </children>
                     </HBox>
-                    <TextField id="textField2" fx:id="externalConnections" alignment="CENTER" prefHeight="22.0" prefWidth="225.0" promptText="No connections.." VBox.margin="$x6" />
+                    <TextField id="textField2" fx:id="externalConnections" alignment="CENTER" editable="false" prefHeight="22.0" prefWidth="225.0" promptText="No connections.." VBox.margin="$x6" />
                   </children>
                 </VBox>
               </children>

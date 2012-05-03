@@ -65,7 +65,6 @@ public class Machine {
     private boolean enable_CR;
     private boolean enable_echo;
     private boolean enable_xon_xoff;
-    private String flow = "OK"; //Internal tracking for the msg OK
     private List<Motor> motors = new ArrayList<Motor>();
     private List<Axis> axis = new ArrayList<Axis>();
 
@@ -88,7 +87,7 @@ public class Machine {
     }
 
     public unit_modes getUnitMode() {
-        
+
         return units;
     }
 
@@ -127,14 +126,13 @@ public class Machine {
         return config_version;
     }
 
-    public synchronized void setFlow(String f) {
-        this.flow = f;
-    }
-
-    public synchronized String getFlow() {
-        return this.flow;
-    }
-
+//    public synchronized void setFlow(String f) {
+//        this.flow = f;
+//    }
+//
+//    public synchronized String getFlow() {
+//        return this.flow;
+//    }
     public void setConfig_version(float config_version) {
         this.config_version = config_version;
     }
@@ -274,17 +272,19 @@ public class Machine {
     }
 
     public Machine() {
-        this.setFlow("OK");
+//        this.setFlow("OK");
         for (int i = 1; i < 8; i++) {
             Motor m = new Motor(i);
             motors.add(m);
         }
-        Axis x = new Axis(Axis.AXIS.X);
-        Axis y = new Axis(Axis.AXIS.Y);
-        Axis z = new Axis(Axis.AXIS.Z);
-        Axis a = new Axis(Axis.AXIS.A);
-        Axis b = new Axis(Axis.AXIS.A);
-        Axis c = new Axis(Axis.AXIS.A);
+        //DO NOT TRY TO SET XYZ to anything BUT LINEAR
+        //This is a hardware limitation.
+        Axis x = new Axis(Axis.AXIS.X, Axis.AXIS_TYPE.LINEAR);
+        Axis y = new Axis(Axis.AXIS.Y, Axis.AXIS_TYPE.LINEAR);
+        Axis z = new Axis(Axis.AXIS.Z, Axis.AXIS_TYPE.LINEAR);
+        Axis a = new Axis(Axis.AXIS.A, Axis.AXIS_TYPE.ROTATIONAL);
+        Axis b = new Axis(Axis.AXIS.B, Axis.AXIS_TYPE.ROTATIONAL);
+        Axis c = new Axis(Axis.AXIS.C, Axis.AXIS_TYPE.ROTATIONAL);
 
         //This just initially sets 1 motor to 1 axis at start time
         //The profile in tgFX will load / changes these vaules.
@@ -310,7 +310,6 @@ public class Machine {
             if (m.getId_number() == 6) {
                 c.addMotor(m);
             }
-
         }
 
         axis.add(x);
@@ -321,16 +320,17 @@ public class Machine {
         axis.add(c);
     }
 
+    public List<Axis> getAllAxis() {
+        return axis;
+    }
+
     public Axis getAxisByName(String name) {
-        for (Axis a : axis) {
-            if (a.getAxis_name() == name) {
-                return (a);
+        for (Axis tmpAxis : axis) {
+            if (tmpAxis.getAxis_name().equals(name.toUpperCase())) {
+                return (tmpAxis);
             }
         }
         return null;
-    }
-
-    public void parseStatusReport(String line) {
     }
 
     public Motor getMotorByNumber(int i) {

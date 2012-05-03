@@ -22,7 +22,7 @@ public class Draw2d {
     public static Paint FASTEST = (Paint.valueOf("#0fee17"));
     public static Paint TRAVERSE = (Paint.valueOf("#d0d0d0"));
     private float MAX_MACHINE_VELOCITY;
-    private static double stroke_weight = 1;
+    private static double stroke_weight = .5;
     public static double magnification = 3;
     private static double magZoomIncrement = 2;
     private static double strokeIncrement = .1;

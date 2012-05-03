@@ -3,7 +3,7 @@
  * Rileyporter@gmail.com
  * www.synthetos.com
  * 
-  */
+ */
 package tgfx;
 
 import argo.jdom.JdomParser;
@@ -19,6 +19,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Rectangle2D;
+import javafx.geometry.Rectangle2DBuilder;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -27,6 +29,8 @@ import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
@@ -139,7 +143,7 @@ public class Main implements Initializable, Observer {
                     //Clear the list if there was a previous file loaded
 
                     while ((strLine = br.readLine()) != null) {
-                        gcodesList.appendText(strLine+"\n");
+                        gcodesList.appendText(strLine + "\n");
 //
 //                        System.out.println(strLine);
                     }
@@ -186,6 +190,7 @@ public class Main implements Initializable, Observer {
         if (tg.isConnected()) {
             console.appendText("[+]Remote Monitor Listening for Connections....");
             Task SocketListner = this.initRemoteServer(listenerPort.getText());
+
             new Thread(SocketListner).start();
             btnRemoteListener.setDisable(true);
         } else {
@@ -310,7 +315,7 @@ public class Main implements Initializable, Observer {
                             } else {
                                 while (!tg.getClearToSend()) {
                                     //Not ready yet
-                                    Thread.sleep(1);
+                                    Thread.sleep(10);
                                     //We have to check again while in the sleeping thread that sometime
                                     //during waiting for the clearbuffer the serialport has not been disconnected.
                                     //And cancel has not been called
@@ -368,26 +373,40 @@ public class Main implements Initializable, Observer {
     private void onConnectActions() {
         try {
             //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
+            tg.write(tg.CMD_GET_OK_PROMPT);
             tg.write(tg.CMD_DISABLE_LOCAL_ECHO);
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 //            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
-//            tg.write("{\"ex\":0}\n");
-            tg.write(tg.CMD_SET_STATUS_UPDATE_INTERVAL); //Set to every 50ms
+
+//            tg.write(tg.CMD_SET_STATUS_UPDATE_INTERVAL); //Set to every X ms
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
-//            //this will poll for the new values and update the GUI
-//
-//            //Updates the Config GUI from settings currently applied on the TinyG board
+            //this will poll for the new values and update the GUI
+
+            //Updates the Config GUI from settings currently applied on the TinyG board
             tg.getAllMotorSettings();
-//
+            tg.getAllAxisSettings();
+
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
             tg.write(tg.CMD_GET_STATUS_REPORT);  //If TinyG current positions are other than zero
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 
             tg.write(tg.CMD_GET_HARDWARE_BUILD_NUMBER);  //If TinyG current positions are other than zero
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
-//            
+            
             tg.write(tg.CMD_GET_HARDWARE_FIRMWARE_NUMBER);  //If TinyG current positions are other than zero
             tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+
+            /**
+             * Draw the workspace area in the preview
+             */
+            Float width = Float.valueOf(tg.m.getAxisByName("X").getTravel_maximum());
+            Float height = Float.valueOf(tg.m.getAxisByName("Y").getTravel_maximum());
+            Label hLabel = new Label("Table Width: " + width);
+
+            //Rectangle rect1 = RectangleBuilder.create().strokeDashOffset(5).opacity(100).width(width).height(height).build();
+            //canvsGroup.getChildren().add(rect1);
+            //canvsGroup.getChildren().add(hLabel);
+
 
         } catch (Exception ex) {
             console.appendText("[!]Error: " + ex.getMessage());
@@ -409,12 +428,13 @@ public class Main implements Initializable, Observer {
             System.out.println("[+]Connecting...");
             tg.initialize(serialPortSelected, 115200);
             if (tg.isConnected()) {
-
+                
                 console.appendText("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
                 Connect.setText("Disconnect");
                 onConnectActions();
             }
         } else {
+            tg.write(tg.CMD_GET_OK_PROMPT);
             tg.disconnect();
             if (!tg.isConnected()) {
                 console.appendText("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
@@ -587,6 +607,7 @@ public class Main implements Initializable, Observer {
             @Override
             protected Object call() throws Exception {
                 SocketMonitor sm = new SocketMonitor(Port);
+
                 System.out.println("[+]Trying to start remote monitor.");
                 return true;
             }
@@ -778,7 +799,9 @@ public class Main implements Initializable, Observer {
                 } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
 //                    System.out.println("UPDATE: MACHINE SETTINGS");
 //                    updateGUIConfigState();
-
+                } else {
+                    console.appendText(ROUTING_KEY);
+                    System.out.println(ROUTING_KEY);
                 }
 
             }

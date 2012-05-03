@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * tgFX Socket Monitor Class
+ * Copyright Synthetos.com
  */
 package tgfx.external;
 
@@ -20,7 +20,6 @@ import tgfx.TinygDriver;
 public class SocketMonitor {
 
     private SerialDriver ser = SerialDriver.getInstance();
-    
     private int LISTENER_PORT;
     private ServerSocket server;
     private int clientCount = 0;
@@ -29,7 +28,6 @@ public class SocketMonitor {
         LISTENER_PORT = Integer.parseInt(tmpport);
         this.initServer();
         this.handleConnections();
-
     }
 
     int countClientConnections() {
@@ -41,22 +39,19 @@ public class SocketMonitor {
             server = new ServerSocket(LISTENER_PORT);
             return (true);
         } catch (IOException e) {
-            System.out.println("Could not listen on port: 4444");
+            System.out.println("Could not listen on port: " + String.valueOf(LISTENER_PORT));
             return (false);
         }
     }
 
     public void handleConnections() {
         System.out.println("[+]Remote Monitor Listening for Connections....");
-
         while (ser.isConnected()) {
             try {
                 final Socket socket = server.accept();
                 new ConnectionHandler(socket);
-
             } catch (IOException ex) {
                 System.out.println("[!]Error: " + ex.getMessage());
-
             }
         }
         System.out.println("[!]Socket Monitor Terminated...");
@@ -72,6 +67,7 @@ public class SocketMonitor {
  */
 
 class ConnectionHandler implements Runnable, Observer {
+
     private boolean disconnect = false;
     public Socket socket;
 
@@ -82,7 +78,6 @@ class ConnectionHandler implements Runnable, Observer {
 
         if (MSG[0] == "JSON") {
             final String line = MSG[1];
-//             System.out.println("UPDATE: "+MSG[1]);
             try {
                 this.write(MSG[1] + "\n");
             } catch (IOException ex) {
@@ -90,17 +85,12 @@ class ConnectionHandler implements Runnable, Observer {
             } catch (Exception ex) {
                 System.out.println("update(): " + ex.getMessage());
             }
-
         }
-
-
-//        System.out.println("Got and UPDATE in ConnectionHandler");
-
     }
 
     public ConnectionHandler(Socket socket) {
         this.socket = socket;
-        
+
         SerialDriver ser = SerialDriver.getInstance();
         System.out.println("[+]Opening Remote Listener Socket");
         ser.addObserver(this);
@@ -116,8 +106,6 @@ class ConnectionHandler implements Runnable, Observer {
     public void run() {
         try {
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-
 //            System.out.println("GOT: " + stdIn.readLine());
 //            try {
 //                this.write("[+]Connected to tgFX\n");
@@ -129,36 +117,17 @@ class ConnectionHandler implements Runnable, Observer {
             while (ser.isConnected() && !disconnect) {
                 try {
                     line = stdIn.readLine() + "\n";
-//                    this.write("Writing: " + line);
                     tg.write(line);
                     Thread.sleep(100);
                 } catch (IOException ex) {
                     disconnect = true;
                 } catch (Exception ex) {
                     System.out.println("run(): " + ex.getMessage());
+                    break;
                 }
             }
             System.out.println("[+]Closing Remote Listener Socket");
             socket.close();
-
-//            while (true) {
-//                try {
-//
-//                    String l = new String("::HEARTBEAT::\n");
-//                    if (ser.isConnected()) {
-//                        this.write(l);
-////                        ser.write("{\"sys\":null}\n");
-//                    }else{
-//                        this.write("[+]Serial Port Not Connected\n");
-//                    }
-//                    
-//
-//                    Thread.sleep(50);
-//                } catch (Exception ex) {
-//                    System.out.println(ex.getMessage());
-//                }
-//
-//            }
 
         } catch (IOException e) {
             e.printStackTrace();

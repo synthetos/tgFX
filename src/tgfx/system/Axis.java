@@ -20,55 +20,166 @@ import java.util.List;
  */
 public class Axis {
 
+    public enum AXIS_TYPE {
+
+        LINEAR, ROTATIONAL;
+    }
+    private AXIS_TYPE axis_type;
+    private float latch_velocity;
+    private float latch_backoff;
+    private float zero_backoff;
     private float machine_position;
     private float work_position;
-    private boolean axis_mode;
+    private AXIS_MODES axis_mode;
     private float feed_rate_maximum;
     private float velocity_maximum;
     private float travel_maximum;
-    private float jerk_maximum;
+    private double jerk_maximum;
     private float junction_devation;
     private int switch_mode;
-    private float homing_travel;
-    private float homing_search_velocity;
-    private float homing_latch_velocity;
-    private float homing_zero_offset;
-    private float homing_work_offset;
+//    private float homing_travel;
+//    private float homing_search_velocity;
+//    private float homing_latch_velocity;
+//    private float homing_zero_offset;
+//    private float homing_work_offset;
     private String axis_name;
     private List<Motor> motors = new ArrayList<Motor>();
 
+    public enum AXIS_MODES {
+
+        DISABLE,
+        STANDARD,
+        INHIBITED,
+        RADIUS,
+        SLAVE_X,
+        SLAVE_Y,
+        SLAVE_Z,
+        SLAVE_XY,
+        SLAVE_XZ,
+        SLAVE_YZ,
+        SLAVE_XYZ
+    }
+
     public enum AXIS {
 
-        X, Y, Z, A;
+        X, Y, Z, A, B, C
     }
 
     public Axis() {
         //
     }
 
-    public Axis(String name) {
-        this.setAxis_name(name);
+    public float getLatch_backoff() {
+        return latch_backoff;
     }
 
-    public Axis(AXIS ax) {
-        if (ax == AXIS.A) {
-            this.setAxis_name("A");
-        } else if (ax == AXIS.Z) {
-            this.setAxis_name("Z");
+    public void setLatch_backoff(float latch_backoff) {
+        this.latch_backoff = latch_backoff;
+    }
+
+    public float getLatch_velocity() {
+        return latch_velocity;
+    }
+
+    public void setLatch_velocity(float latch_velocity) {
+        this.latch_velocity = latch_velocity;
+    }
+
+    public float getZero_backoff() {
+        return zero_backoff;
+    }
+
+    public void setZero_backoff(float zero_backoff) {
+        this.zero_backoff = zero_backoff;
+    }
+
+    public void setRadius(float r) {
+        this.setRadius(r);
+    }
+
+    public void setAxisType(AXIS_TYPE at) {
+        this.axis_type = at;
+    }
+
+    public AXIS_TYPE getAxisType() {
+        return (this.axis_type);
+    }
+
+    public Axis(AXIS ax, AXIS_TYPE at) {
+        if (ax == AXIS.X) {
+            this.setAxis_name("X");
+            this.setAxisType(at);
+
         } else if (ax == AXIS.Y) {
             this.setAxis_name("Y");
+            this.setAxisType(at);
+
+        } else if (ax == AXIS.Z) {
+            this.setAxis_name("Z");
+            this.setAxisType(at);
+
+        } else if (ax == AXIS.A) {
+            this.setAxis_name("A");
+            this.setAxisType(at);
+
+        } else if (ax == AXIS.B) {
+            this.setAxis_name("B");
+            this.setAxisType(at);
+
+        } else if (ax == AXIS.C) {
+            this.setAxis_name("C");
+            this.setAxisType(at);
         } else {
-            this.setAxis_name("X");
+            System.out.println("[!]Invalide Axis Name Specified.\n");
         }
     }
-    
- 
-    public boolean isAxis_mode() {
+
+    public AXIS_MODES getAxis_mode() {
         return axis_mode;
     }
 
-    public void setAxis_mode(boolean axis_mode) {
-        this.axis_mode = axis_mode;
+    public void setAxis_mode(int axMode) {
+        
+        switch(axMode){
+            case 0:
+                this.axis_mode = AXIS_MODES.DISABLE;
+                break;
+            case 1:
+                this.axis_mode = AXIS_MODES.STANDARD;
+                break;
+            case 2:
+                this.axis_mode = AXIS_MODES.INHIBITED;
+                break;
+            case 3:
+                this.axis_mode = AXIS_MODES.RADIUS;
+                break;
+            case 4:
+                this.axis_mode = AXIS_MODES.SLAVE_X;
+                break;
+            case 5:
+                this.axis_mode = AXIS_MODES.SLAVE_Y;
+                break;
+            case 6:
+                this.axis_mode = AXIS_MODES.SLAVE_Z;
+                break;
+            case 7:
+                this.axis_mode = AXIS_MODES.SLAVE_XY;
+                break;
+            case 8:
+                this.axis_mode = AXIS_MODES.SLAVE_XZ;
+                break;
+            case 9:
+                this.axis_mode = AXIS_MODES.SLAVE_YZ;
+                break;
+            case 10:
+                this.axis_mode = AXIS_MODES.SLAVE_XYZ;
+                break;
+        }
+//        if (axMode == 0) {
+//            this.axis_mode =AXIS_MODES.DISABLE;
+//        }else if( axMode == 1){
+//            this.axis_mode = AXIS_MODES.
+//        }
     }
 
     public String getAxis_name() {
@@ -87,51 +198,51 @@ public class Axis {
         this.feed_rate_maximum = feed_rate_maximum;
     }
 
-    public float getHoming_latch_velocity() {
-        return homing_latch_velocity;
-    }
+//    public float getHoming_latch_velocity() {
+//        return homing_latch_velocity;
+//    }
+//
+//    public void setHoming_latch_velocity(float homing_latch_velocity) {
+//        this.homing_latch_velocity = homing_latch_velocity;
+//    }
+//
+//    public float getHoming_search_velocity() {
+//        return homing_search_velocity;
+//    }
+//
+//    public void setHoming_search_velocity(float homing_search_velocity) {
+//        this.homing_search_velocity = homing_search_velocity;
+//    }
+//
+//    public float getHoming_travel() {
+//        return homing_travel;
+//    }
+//
+//    public void setHoming_travel(float homing_travel) {
+//        this.homing_travel = homing_travel;
+//    }
 
-    public void setHoming_latch_velocity(float homing_latch_velocity) {
-        this.homing_latch_velocity = homing_latch_velocity;
-    }
+//    public float getHoming_work_offset() {
+//        return homing_work_offset;
+//    }
+//
+//    public void setHoming_work_offset(float homing_work_offset) {
+//        this.homing_work_offset = homing_work_offset;
+//    }
+//
+//    public float getHoming_zero_offset() {
+//        return homing_zero_offset;
+//    }
+//
+//    public void setHoming_zero_offset(float homing_zero_offset) {
+//        this.homing_zero_offset = homing_zero_offset;
+//    }
 
-    public float getHoming_search_velocity() {
-        return homing_search_velocity;
-    }
-
-    public void setHoming_search_velocity(float homing_search_velocity) {
-        this.homing_search_velocity = homing_search_velocity;
-    }
-
-    public float getHoming_travel() {
-        return homing_travel;
-    }
-
-    public void setHoming_travel(float homing_travel) {
-        this.homing_travel = homing_travel;
-    }
-
-    public float getHoming_work_offset() {
-        return homing_work_offset;
-    }
-
-    public void setHoming_work_offset(float homing_work_offset) {
-        this.homing_work_offset = homing_work_offset;
-    }
-
-    public float getHoming_zero_offset() {
-        return homing_zero_offset;
-    }
-
-    public void setHoming_zero_offset(float homing_zero_offset) {
-        this.homing_zero_offset = homing_zero_offset;
-    }
-
-    public float getJerk_maximum() {
+    public double getJerk_maximum() {
         return jerk_maximum;
     }
 
-    public void setJerk_maximum(float jerk_maximum) {
+    public void setJerk_maximum(double jerk_maximum) {
         this.jerk_maximum = jerk_maximum;
     }
 
