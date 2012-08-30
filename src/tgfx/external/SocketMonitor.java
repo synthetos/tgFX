@@ -92,9 +92,9 @@ class ConnectionHandler implements Runnable, Observer {
         this.socket = socket;
 
         SerialDriver ser = SerialDriver.getInstance();
-        ser.addObserver(this);
+//        ser.addObserver(this);
         Thread t = new Thread(this);
-        t.start();
+//        t.start();
     }
 
     private void write(String l) throws Exception {
