@@ -33,7 +33,6 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
     private boolean PAUSED = false;
     private boolean CANCELLED = false;
     private Boolean CLEAR_TO_TRANSMIT = true;
-    
     //DEBUG
     public ByteArrayOutputStream bof = new ByteArrayOutputStream();
     public String debugFileBuffer = "";
@@ -76,7 +75,7 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
             //serialPort.removeEventListener();
             serialPort.close();
             setConnected(false); //Set our disconnected state
-            
+
 
 
         }
@@ -142,7 +141,7 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
                      * tinyg[mm] ok>
                      */
                     //Machine was reset... Let the GUI know about the machine being reset.
-                    this.priorityWrite(TinygDriver.CMD_GET_STATUS_REPORT);
+                    this.priorityWrite(TinygDriver.CMD_QUERY_STATUS_REPORT);
                 }
 
                 //Spilt the data into lines
@@ -153,6 +152,15 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
             }
 
         }
+    }
+
+    public static int calculateHash(String input) {
+        int h = 0;
+        int len = input.length();
+        for (int i = 0; i < len; i++) {
+            h = 31 * h + input.charAt(i);
+        }
+        return h;
     }
 
     void buildString(String res) throws Exception {
@@ -184,10 +192,42 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
         MSG[0] = "JSON";
         String[] lines = res.split("\n");
         //This code strings together lines that do not start with valid json objects
+        Integer hashCode, calculatedHashCode;
         for (String l : lines) {
-//            if (l.equals("{")) {
-//                System.out.println("l");
-//            }
+
+            if (TinygDriver.getInstance().m.isEnable_hashcode()) {
+                //This code will execute if the hash code is enabled in the machine class.
+                String[] lineAndHash = l.split("\\|");
+                l = lineAndHash[0];
+                if (lineAndHash.length == 2 && buf.equals("")) {
+                    //The response from TinyG was not broken into 2 lines.
+                    //We will calculate the hashCode.
+                    calculatedHashCode = calculateHash(lineAndHash[0]);
+                    hashCode = Integer.valueOf(lineAndHash[1]);
+                    if (hashCode.compareTo(calculatedHashCode) != 0) {
+                        calculatedHashCode = 0; //reset code
+                        //hashcode is invalid... We are tossing this response
+                        //by not processing the rest of this line.
+                        continue;
+                    }
+                } else if (!buf.equals("")) {
+                    //This will occur when a line was interrupted in a serial event.
+                    //It takes the string in buf and adds on the next line then calculates the
+                    //the checksum.  I foresee this could be a problem if the line was broken 2x 
+                    //in the same response from tinyg.
+                    calculatedHashCode = calculateHash(buf + lineAndHash[0]);
+                    hashCode = Integer.valueOf(lineAndHash[1]);
+                    if (hashCode.compareTo(calculatedHashCode) != 0) {
+                        calculatedHashCode = 0; //reset code
+                        //hashcode is invalid... We are tossing this response
+                        //by not processing the rest of this line.
+                        continue;
+                    }
+                }
+            }
+
+
+
             if (l.startsWith("{\"") && l.endsWith("}}") && buf.equals("")) {  //The buf check makes sure
                 //The serial event didn't not cut off at the perfect spot and send something like this:
                 //"{"gc":{"gc":"F300.0","st":0,"msg":"OK"}}  
@@ -198,17 +238,15 @@ public class SerialDriver extends Observable implements SerialPortEventListener 
                 setChanged();
                 notifyObservers(MSG);
 
-            }else if (l.startsWith(TinygDriver.RESPONSE_FIRMWARE_BUILD) ||
-                    l.startsWith(TinygDriver.RESPONSE_FIRMWARE_VERSION) && l.endsWith("}")) {
+            } else if (l.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_BUILD)
+                    || l.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_VERSION) && l.endsWith("}")) {
                 //Firmware Build Value
                 MSG[1] = l;
                 buf = "";
                 getOKcheck(l);
                 setChanged();
                 notifyObservers(MSG);
-            } 
-            
-            else if (l.startsWith("{\"") && l.endsWith("}")) {
+            } else if (l.startsWith("{\"") && l.endsWith("}")) {
                 //This is a input command
                 //{"ee":"1"}
                 buf = "";

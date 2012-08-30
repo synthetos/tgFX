@@ -25,12 +25,41 @@ public class Machine {
      * [ex] enable_xon_xoff 1 [0,1]
      */
     //TG Specific
-    private float config_version;
-    private float firmware_version;
+    //Machine EEPROM Values
     private float firmware_build;
+    private float firmware_version;
     private int status_report_interval;
+    public Gcode_startup_unit_modes gcode_units;
+    public Gcode_startup_select_plane gcode_select_plane;
+    public Gcode_startup_coord_system gcode_select_coord_system;
+    public Gcode_startup_path_control gcode_path_control;
+    public Gcode_startup_distance_mode gcode_distance_mode;
+    private boolean enable_acceleration;
+    private float junction_acceleration;
+    private float min_line_segment;
+    private float min_arc_segment;
+    private double min_segment_time;
+    public Ignore_CR_LF_ON_RX ignore_cr_lf_RX;
+    private boolean enable_CR_on_TX;
+    private boolean enable_echo;
+    private boolean enable_xon_xoff;
+    private boolean enable_hashcode;
+    //Misc
     private int line_number;
     public static motion_modes motion_mode;
+    private float velocity;
+    private List<Motor> motors = new ArrayList<Motor>();
+    private List<Axis> axis = new ArrayList<Axis>();
+    private Axis x = new Axis(Axis.AXIS.X, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
+    private Axis y = new Axis(Axis.AXIS.Y, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
+    private Axis z = new Axis(Axis.AXIS.Z, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
+    private Axis a = new Axis(Axis.AXIS.A, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
+    private Axis b = new Axis(Axis.AXIS.B, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
+    private Axis c = new Axis(Axis.AXIS.C, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
+    private Motor Motor1 = new Motor(1);
+    private Motor Motor2 = new Motor(2);
+    private Motor Motor3 = new Motor(3);
+    private Motor Motor4 = new Motor(4);
 
     public static enum motion_modes {
 //        [momo] motion_mode        - 0=traverse, 1=straight feed, 2=cw arc, 3=ccw arc
@@ -38,35 +67,118 @@ public class Machine {
         traverse, straight, cw_arc, ccw_arc, invalid
     }
 
+    public static enum coordinate_systems {
+
+        g54, g55, g56, g57, g58, g59
+    }
+    public static coordinate_systems coordinate_system;
+
+//    public static enum motion_modes {
+////        [momo] motion_mode        - 0=traverse, 1=straight feed, 2=cw arc, 3=ccw arc
+//
+//        traverse, straight, cw_arc, ccw_arc, invalid
+//    }
     public static enum machine_states {
 
         reset, nop, stop, end, run, hold, homing
     }
     public static machine_states machine_state;
 
-    public static enum unit_modes {
+    public Ignore_CR_LF_ON_RX getIgnore_cr_lf_TX() {
+        return ignore_cr_lf_RX;
+    }
 
-        INCHES, MM
+    public void setIgnore_cr_lf_TX(Ignore_CR_LF_ON_RX ignore_cr_lf_TX) {
+        
+        this.ignore_cr_lf_RX = ignore_cr_lf_TX;
+    }
+    
+    public void setIgnore_cr_lf_RX(int ignore_cr_lf_RX) {
+        //Send a int
+        switch (ignore_cr_lf_RX){
+            case 0:
+                this.ignore_cr_lf_RX = Ignore_CR_LF_ON_RX.OFF;
+                break;
+            case 1:
+                this.ignore_cr_lf_RX = Ignore_CR_LF_ON_RX.CR;
+                break;
+            case 2:
+                this.ignore_cr_lf_RX = Ignore_CR_LF_ON_RX.LF;
+                break;
+        }
+    }
+    
+
+    public static enum Ignore_CR_LF_ON_RX {
+        //OFF means neither is ignored on RX
+
+        OFF, CR, LF
+    }
+
+    public static enum Gcode_startup_unit_modes {
+        //gun
+
+        INCHES, //G21
+        MM      //G20
     };
-    public unit_modes units;
+
+    public static enum Gcode_startup_select_plane {
+        //gpl
+
+        XY, //G17
+        XZ, //G18
+        YZ  //G19
+    }
+
+    public static enum Gcode_startup_distance_mode {
+        //gdi
+
+        G61,
+        G61POINT1,
+        G64
+    }
+
+    public static enum Gcode_startup_path_control {
+        //gpl
+
+        ABSOLUTE, //G90
+        INCREMENTAL   //91
+    }
+
+    public static enum Gcode_startup_coord_system {
+        //gco
+
+        G54, G55, G56, G57, G58, G59
+    }
 
     private enum selection_plane {
 
         G17, G18, G19
     };
-    private float velocity;
-    private boolean enable_acceleration;
-    private int corner_acceleration;
-    private float min_line_segment;
-    private float min_arc_segment;
-    private double min_segment_time;
-    private boolean ignore_CR;
-    private boolean ignore_LF;
-    private boolean enable_CR;
-    private boolean enable_echo;
-    private boolean enable_xon_xoff;
-    private List<Motor> motors = new ArrayList<Motor>();
-    private List<Axis> axis = new ArrayList<Axis>();
+
+    public boolean isEnable_CR_on_TX() {
+        return enable_CR_on_TX;
+    }
+
+    public void setEnable_CR_on_TX(boolean enable_CR_on_TX) {
+        this.enable_CR_on_TX = enable_CR_on_TX;
+    }
+
+    public boolean isEnable_hashcode() {
+        return enable_hashcode;
+    }
+
+    public void setEnable_hashcode(boolean enable_hashcode) {
+        this.enable_hashcode = enable_hashcode;
+    }
+
+    public float getJunction_acceleration() {
+        return junction_acceleration;
+    }
+
+    public void setJunction_acceleration(float junction_acceleration) {
+        this.junction_acceleration = junction_acceleration;
+    }
 
     public List<Motor> getMotors() {
         return (this.motors);
@@ -80,15 +192,15 @@ public class Machine {
 
     public void setUnits(int unitMode) {
         if (unitMode == 0) {
-            units = units.INCHES;
+            gcode_units = gcode_units.INCHES;
         } else {
-            units = units.MM;
+            gcode_units = gcode_units.MM;
         }
     }
 
-    public unit_modes getUnitMode() {
+    public Gcode_startup_unit_modes getUnitMode() {
 
-        return units;
+        return gcode_units;
     }
 
     public void setMotionMode(int mode) {
@@ -120,37 +232,6 @@ public class Machine {
 
     public void setMachineName(String machineName) {
         this.machineName = machineName;
-    }
-
-    public float getConfig_version() {
-        return config_version;
-    }
-
-//    public synchronized void setFlow(String f) {
-//        this.flow = f;
-//    }
-//
-//    public synchronized String getFlow() {
-//        return this.flow;
-//    }
-    public void setConfig_version(float config_version) {
-        this.config_version = config_version;
-    }
-
-    public int getCorner_acceleration() {
-        return corner_acceleration;
-    }
-
-    public void setCorner_acceleration(int corner_acceleration) {
-        this.corner_acceleration = corner_acceleration;
-    }
-
-    public boolean isEnable_CR() {
-        return enable_CR;
-    }
-
-    public void setEnable_CR(boolean enable_CR) {
-        this.enable_CR = enable_CR;
     }
 
     public boolean isEnable_acceleration() {
@@ -193,22 +274,6 @@ public class Machine {
         this.firmware_version = firmware_version;
     }
 
-    public boolean isIgnore_CR() {
-        return ignore_CR;
-    }
-
-    public void setIgnore_CR(boolean ignore_CR) {
-        this.ignore_CR = ignore_CR;
-    }
-
-    public boolean isIgnore_LF() {
-        return ignore_LF;
-    }
-
-    public void setIgnore_LF(boolean ignore_LF) {
-        this.ignore_LF = ignore_LF;
-    }
-
     public int getLine_number() {
         return line_number;
     }
@@ -219,6 +284,41 @@ public class Machine {
 
     public machine_states getMachineState() {
         return this.machine_state;
+    }
+
+    public coordinate_systems getCoordinateSystem() {
+        return (this.coordinate_system);
+    }
+
+    public void setCoordinate_mode(double m) {
+        int c = (int) (m); //Convert this to a int
+        setCoordinate_mode(c);
+    }
+
+    public void setCoordinate_mode(int c) {
+        switch (c) {
+            case 1:
+                Machine.coordinate_system = coordinate_systems.g54;
+                break;
+            case 2:
+                Machine.coordinate_system = coordinate_systems.g55;
+                break;
+            case 3:
+                Machine.coordinate_system = coordinate_systems.g56;
+                break;
+            case 4:
+                Machine.coordinate_system = coordinate_systems.g57;
+                break;
+            case 5:
+                Machine.coordinate_system = coordinate_systems.g58;
+                break;
+            case 6:
+                Machine.coordinate_system = coordinate_systems.g59;
+                break;
+            default:
+                Machine.coordinate_system = coordinate_systems.g54;
+                break;
+        }
     }
 
     public void setMachineState(int state) {
@@ -271,46 +371,22 @@ public class Machine {
         velocity = vel;
     }
 
+    public static Machine getInstance() {
+        return MachineHolder.INSTANCE;
+    }
+
+    private static class MachineHolder {
+
+        private static final Machine INSTANCE = new Machine();
+    }
+
     public Machine() {
-//        this.setFlow("OK");
-        for (int i = 1; i < 8; i++) {
-            Motor m = new Motor(i);
-            motors.add(m);
-        }
-        //DO NOT TRY TO SET XYZ to anything BUT LINEAR
-        //This is a hardware limitation.
-        Axis x = new Axis(Axis.AXIS.X, Axis.AXIS_TYPE.LINEAR);
-        Axis y = new Axis(Axis.AXIS.Y, Axis.AXIS_TYPE.LINEAR);
-        Axis z = new Axis(Axis.AXIS.Z, Axis.AXIS_TYPE.LINEAR);
-        Axis a = new Axis(Axis.AXIS.A, Axis.AXIS_TYPE.ROTATIONAL);
-        Axis b = new Axis(Axis.AXIS.B, Axis.AXIS_TYPE.ROTATIONAL);
-        Axis c = new Axis(Axis.AXIS.C, Axis.AXIS_TYPE.ROTATIONAL);
 
-        //This just initially sets 1 motor to 1 axis at start time
-        //The profile in tgFX will load / changes these vaules.
-        //Also on connect to your board it should update these values to 
-        //Your correct board setting.  Currently 4/5/12 it does not.
-        for (Motor m : motors) {
+        motors.add(Motor1);
+        motors.add(Motor2);
+        motors.add(Motor3);
+        motors.add(Motor4);
 
-            if (m.getId_number() == 1) {
-                x.addMotor(m);
-            }
-            if (m.getId_number() == 2) {
-                y.addMotor(m);
-            }
-            if (m.getId_number() == 3) {
-                z.addMotor(m);
-            }
-            if (m.getId_number() == 4) {
-                a.addMotor(m);
-            }
-            if (m.getId_number() == 5) {
-                b.addMotor(m);
-            }
-            if (m.getId_number() == 6) {
-                c.addMotor(m);
-            }
-        }
 
         axis.add(x);
         axis.add(y);
@@ -318,8 +394,54 @@ public class Machine {
         axis.add(a);
         axis.add(b);
         axis.add(c);
-    }
 
+    }
+//        this.setFlow("OK");
+//        for (int i = 1; i < 8; i++) {
+//            Motor m = new Motor(i);
+//            motors.add(m);
+//        }
+    //DO NOT TRY TO SET XYZ to anything BUT LINEAR
+    //This is a hardware limitation.
+//        Axis x = new Axis(Axis.AXIS.X, Axis.AXIS_TYPE.LINEAR);
+//        Axis y = new Axis(Axis.AXIS.Y, Axis.AXIS_TYPE.LINEAR);
+//        Axis z = new Axis(Axis.AXIS.Z, Axis.AXIS_TYPE.LINEAR);
+//        Axis a = new Axis(Axis.AXIS.A, Axis.AXIS_TYPE.ROTATIONAL);
+//        Axis b = new Axis(Axis.AXIS.B, Axis.AXIS_TYPE.ROTATIONAL);
+//        Axis c = new Axis(Axis.AXIS.C, Axis.AXIS_TYPE.ROTATIONAL);
+
+    //This just initially sets 1 motor to 1 axis at start time
+    //The profile in tgFX will load / changes these vaules.
+    //Also on connect to your board it should update these values to 
+    //Your correct board setting.  Currently 4/5/12 it does not.
+//        for (Motor m : motors) {
+//
+//            if (m.getId_number() == 1) {
+//                x.addMotor(m);
+//            }
+//            if (m.getId_number() == 2) {
+//                y.addMotor(m);
+//            }
+//            if (m.getId_number() == 3) {
+//                z.addMotor(m);
+//            }
+//            if (m.getId_number() == 4) {
+//                a.addMotor(m);
+//            }
+//            if (m.getId_number() == 5) {
+//                b.addMotor(m);
+//            }
+//            if (m.getId_number() == 6) {
+//                c.addMotor(m);
+//            }
+//        }
+//        axis.add(x);
+//        axis.add(y);
+//        axis.add(z);
+//        axis.add(a);
+//        axis.add(b);
+//        axis.add(c);
+//    }
     public List<Axis> getAllAxis() {
         return axis;
     }

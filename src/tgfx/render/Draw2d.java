@@ -6,6 +6,8 @@ package tgfx.render;
 
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.paint.*;
+
 
 /**
  *
@@ -14,13 +16,14 @@ import javafx.scene.paint.Paint;
 public class Draw2d {
 
     static Paint retPaint;
-    public static Paint SLOWEST = (Paint.valueOf("#ee1a0f"));
-    public static Paint SLOW = (Paint.valueOf("#ff9933"));
-    public static Paint MEDIUM_SLOW = (Paint.valueOf("#eed00f"));
-    public static Paint MEDUIM = (Paint.valueOf("#c1ff66"));
-    public static Paint FAST = (Paint.valueOf("#85ff22"));
-    public static Paint FASTEST = (Paint.valueOf("#0fee17"));
-    public static Paint TRAVERSE = (Paint.valueOf("#d0d0d0"));
+    
+    public static Paint SLOWEST = Color.web("#ee1a0f");
+    public static Paint SLOW = Color.web("#ff9933");
+    public static Paint MEDIUM_SLOW = Color.web("#eed00f");
+    public static Paint MEDUIM = Color.web("#c1ff66");
+    public static Paint FAST = Color.web("#85ff22");
+    public static Paint FASTEST = Color.web("#0fee17");
+    public static Paint TRAVERSE = Color.web("#d0d0d0");
     private float MAX_MACHINE_VELOCITY;
     private static double stroke_weight = .5;
     public static double magnification = 3;

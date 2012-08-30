@@ -1,0 +1,64 @@
+/* 
+    Document   : new_main.css
+    Created on : Aug 3, 2012, 5:41:35 PM
+    Author     : ril3y
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+    display: block;
+}
+
+#srText {
+    -fx-padding: 1 2 1 2;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-overrun: clip;
+
+    /*    -fx-background-color: #98424b;*/
+}
+
+#tgfxTitle{
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    
+}
+#serialTitle{
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(white, #d0d0d0);
+}
+
+
+#droTitle {
+    /*
+        This is the Digital Readout Style
+    */  
+    -fx-background-radius: 9,8,5,4;
+    -fx-padding: 5 10 5 10;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 54px;
+    -fx-font-weight: bold;
+    -fx-text-overrun: clip;
+    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
+}
+
+
+#dro {
+    /*
+        This is the Digital Readout Style
+    */  
+    -fx-background-color: white;
+    -fx-background-radius: 9,8,5,4;
+    -fx-padding: 5 10 5 10;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 54px;
+    -fx-font-weight: bold;
+    -fx-text-overrun: clip;
+    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
+}

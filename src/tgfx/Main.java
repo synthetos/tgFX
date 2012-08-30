@@ -9,19 +9,17 @@ package tgfx;
 import argo.jdom.JdomParser;
 import java.io.*;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
+import java.util.Scanner;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Rectangle2D;
-import javafx.geometry.Rectangle2DBuilder;
-import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -29,13 +27,12 @@ import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import tgfx.external.SocketMonitor;
 import tgfx.render.Draw2d;
+import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
 
@@ -46,13 +43,15 @@ import tgfx.system.Motor;
 public class Main implements Initializable, Observer {
 
     //private static final String CMD_GET_stateUS_REPORT = "{\"sr\":\"\"}\n";
-//    public Machine m = new Machine();
+    //public Machine m = new Machine();
     private JdomParser JDOM = new JdomParser(); //JSON Object Parser1
     private TinygDriver tg = TinygDriver.getInstance();
     //private SerialDriver ser = SerialDriver.getInstance();
     /**
      * FXML UI Components
      */
+    @FXML
+    private TabPane motorTabPane, axisTabPane;
     @FXML
     private Button Con, Run, Connect, gcodeZero, btnClearScreen, btnRemoteListener, pauseResume;
     @FXML
@@ -61,7 +60,7 @@ public class Main implements Initializable, Observer {
     TextField input, listenerPort;
     @FXML
     private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
-            srVer, srUnits;
+            srVer, srUnits, srCoord;
     @FXML
     TextArea gcodesList;
     @FXML
@@ -70,31 +69,26 @@ public class Main implements Initializable, Observer {
     ChoiceBox serialPorts;
     //##########Config FXML##############//
     @FXML
-    TextField motor1ConfigTravelPerRev,
-            motor2ConfigTravelPerRev,
-            motor3ConfigTravelPerRev,
-            motor4ConfigTravelPerRev,
-            motor1ConfigStepAngle,
-            motor2ConfigStepAngle,
-            motor3ConfigStepAngle,
-            motor4ConfigStepAngle;
+    TextField motor1ConfigTravelPerRev, motor2ConfigTravelPerRev, motor3ConfigTravelPerRev, motor4ConfigTravelPerRev,
+            motor1ConfigStepAngle, motor2ConfigStepAngle, motor3ConfigStepAngle, motor4ConfigStepAngle,
+            axisAmaxFeedRate, axisBmaxFeedRate, axisCmaxFeedRate, axisXmaxFeedRate, axisYmaxFeedRate, axisZmaxFeedRate,
+            axisAmaxTravel, axisBmaxTravel, axisCmaxTravel, axisXmaxTravel, axisYmaxTravel, axisZmaxTravel,
+            axisAjunctionDeviation, axisBjunctionDeviation, axisCjunctionDeviation, axisXjunctionDeviation, axisYjunctionDeviation, axisZjunctionDeviation,
+            axisAsearchVelocity, axisBsearchVelocity, axisCsearchVelocity,
+            axisXsearchVelocity, axisYsearchVelocity, axisZsearchVelocity,
+            axisAzeroOffset, axisBzeroOffset, axisCzeroOffset, axisXzeroOffset, axisYzeroOffset, axisZzeroOffset,
+            axisAmaxVelocity, axisBmaxVelocity, axisCmaxVelocity, axisXmaxVelocity, axisYmaxVelocity, axisZmaxVelocity,
+            axisAmaxJerk, axisBmaxJerk, axisCmaxJerk, axisXmaxJerk, axisYmaxJerk, axisZmaxJerk,
+            axisAradius, axisBradius, axisCradius, axisXradius, axisYradius, axisZradius,
+            axisAlatchVelocity, axisBlatchVelocity, axisClatchVelocity, axisXlatchVelocity, axisYlatchVelocity, axisZlatchVelocity, externalConnections,
+            materialThickness, gcodeLoaded;
     @FXML
-    ChoiceBox motor1ConfigMapAxis,
-            motor2ConfigMapAxis,
-            motor3ConfigMapAxis,
-            motor4ConfigMapAxis,
-            motor1ConfigMicroSteps,
-            motor2ConfigMicroSteps,
-            motor3ConfigMicroSteps,
-            motor4ConfigMicroSteps,
-            motor1ConfigPolarity,
-            motor2ConfigPolarity,
-            motor3ConfigPolarity,
-            motor4ConfigPolarity,
-            motor1ConfigPowerMode,
-            motor2ConfigPowerMode,
-            motor3ConfigPowerMode,
-            motor4ConfigPowerMode;
+    ChoiceBox motor1ConfigMapAxis, motor2ConfigMapAxis, motor3ConfigMapAxis, motor4ConfigMapAxis,
+            motor1ConfigMicroSteps, motor2ConfigMicroSteps, motor3ConfigMicroSteps, motor4ConfigMicroSteps,
+            motor1ConfigPolarity, motor2ConfigPolarity, motor3ConfigPolarity, motor4ConfigPolarity,
+            motor1ConfigPowerMode, motor2ConfigPowerMode, motor3ConfigPowerMode, motor4ConfigPowerMode,
+            axisAmode, axisBmode, axisCmode, axisXmode, axisYmode, axisZmode,
+            axisAlimitSwitchMode, axisBlimitSwitchMode, axisClimitSwitchMode, axisXlimitSwitchMode, axisYlimitSwitchMode, axisZlimitSwitchMode;
     @FXML
     Group canvsGroup;  //Drawing Canvas
     @FXML
@@ -178,11 +172,83 @@ public class Main implements Initializable, Observer {
     }
 
     @FXML
-    void handleMotorQuery(ActionEvent evt) {
+    void handleQueryMotor(ActionEvent evt) {
+        System.out.println("[+]Querying Motor Config...");
+        //Detect what motor tab is "active"...
+        try {
+//            updateGuiAxisSettings();
+            if (motorTabPane.getSelectionModel().getSelectedItem().getText().equals("Motor 1")) {
+                tg.queryHardwareSingleMotorSettings(1);
+            } else if (motorTabPane.getSelectionModel().getSelectedItem().getText().equals("Motor 2")) {
+                tg.queryHardwareSingleMotorSettings(2);
+            } else if (motorTabPane.getSelectionModel().getSelectedItem().getText().equals("Motor 3")) {
+                tg.queryHardwareSingleMotorSettings(3);
+            } else if (motorTabPane.getSelectionModel().getSelectedItem().getText().equals("Motor 4")) {
+                tg.queryHardwareSingleMotorSettings(4);
+            }
+        } catch (Exception ex) {
+            System.out.println("[!]Error Querying Single Motor....");
+        }
+    }
+
+    @FXML
+    private void handleApplyAxisSettings(ActionEvent evt) {
+        console.appendText("[+]Applying Axis.......\n");
+        try {
+
+            tg.applyHardwareAxisSettings(axisTabPane.getSelectionModel().getSelectedItem());
+
+            //TODO:  Breakout Individual response messages vs having to call queryHardwareAllAxisSettings
+            //something like if {"1po":1} then parse and update only the polarity setting
+//            Thread.sleep(TinygDriver.CONFIG_DELAY);
+//            tg.queryHardwareAllAxisSettings();
+        
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            System.out.println("ERROR IN HANDLEAPPLYAXISSETTINGS");
+        }
+
+    }
+
+    @FXML
+    private void handleQueryAxisSettings(ActionEvent evt) throws Exception {
+        String _axisSelected = axisTabPane.getSelectionModel().getSelectedItem().getText().toLowerCase();
+        console.appendText("[+]Querying Axis: " + _axisSelected + "\n");
+//        tg.queryHardwareAllAxisSettings();
+        try {
+            tg.queryHardwareSingleAxisSettings(_axisSelected);
+            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
+
+        } catch (Exception ex) {
+            System.out.println("[!]Error Querying Axis: " + _axisSelected);
+        }
+    }
+
+    @FXML
+    private void handleAxisEnter(final InputEvent event) throws Exception {
+        //private void handleEnter(ActionEvent event) throws Exception {
+        final KeyEvent keyEvent = (KeyEvent) event;
+        if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+            Axis _axis = Machine.getInstance().getAxisByName(axisTabPane.getSelectionModel().getSelectedItem().getText().toLowerCase());
+            if (event.getSource().toString().startsWith("TextField")) {
+                //Object Returned is a TextField Object
+                TextField tf = (TextField) event.getSource();
+                tg.applyHardwareAxisSettings(_axis, tf);
+                console.appendText("[+]Applying Axis.......\n");
+
+            }
+        }
     }
 
     @FXML
     void handleMotorApply(ActionEvent evt) {
+        console.appendText("[+]Applying Motor.......\n");
+        try {
+            tg.applyHardwareMotorSettings(motorTabPane.getSelectionModel().getSelectedItem());
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            System.out.println("ERROR IN HANDLEAPPLYAXISSETTINGS");
+        }
     }
 
     @FXML
@@ -240,10 +306,10 @@ public class Main implements Initializable, Observer {
     private void zeroSystem(ActionEvent evt) {
         if (tg.isConnected() && tg.getClearToSend()) {
             try {
-                tg.write(tg.CMD_ZERO_ALL_AXIS);
+                tg.write(tg.CMD_APPLY_ZERO_ALL_AXIS);
                 //G92 does not invoke a status report... So we need to generate one to have
                 //Our GUI update the coordinates to zero
-                tg.write(tg.CMD_GET_STATUS_REPORT);
+                tg.write(tg.CMD_QUERY_STATUS_REPORT);
                 //We need to set these to 0 so we do not draw a line from the last place we were to 0,0
                 xPrevious = 0;
                 yPrevious = 0;
@@ -359,11 +425,7 @@ public class Main implements Initializable, Observer {
         serialPorts.getItems().clear();
         String portArray[] = null;
         portArray = tg.listSerialPorts();
-
-
-        for (String p : portArray) {
-            serialPorts.getItems().add(p);
-        }
+        serialPorts.getItems().addAll(Arrays.asList(portArray));
     }
 
     /**
@@ -374,41 +436,40 @@ public class Main implements Initializable, Observer {
     private void onConnectActions() {
         try {
             //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
-            tg.write(tg.CMD_GET_OK_PROMPT);
-            tg.write(tg.CMD_DISABLE_LOCAL_ECHO);
-            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
+            tg.write(TinygDriver.CMD_APPLY_DISABLE_HASHCODE);
+            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
+            tg.write(TinygDriver.CMD_APPLY_DISABLE_LOCAL_ECHO);
+            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 //            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
 
 //            tg.write(tg.CMD_SET_STATUS_UPDATE_INTERVAL); //Set to every X ms
-            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
             //this will poll for the new values and update the GUI
 
             //Updates the Config GUI from settings currently applied on the TinyG board
             tg.getAllMotorSettings();
             tg.getAllAxisSettings();
 
-            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
-            tg.write(tg.CMD_GET_STATUS_REPORT);  //If TinyG current positions are other than zero
-            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+            tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero
+            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 
-            tg.write(tg.CMD_GET_HARDWARE_BUILD_NUMBER);  //If TinyG current positions are other than zero
-            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
-            
-            tg.write(tg.CMD_GET_HARDWARE_FIRMWARE_NUMBER);  //If TinyG current positions are other than zero
-            tg.write(tg.CMD_GET_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+            tg.write(TinygDriver.CMD_QUERY_MACHINE_SETTINGS);  //On command to rule them all.
+            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
+
+            tg.queryHardwareAllAxisSettings();
+
 
             /**
              * Draw the workspace area in the preview
              */
-            Float width = Float.valueOf(tg.m.getAxisByName("X").getTravel_maximum());
-            Float height = Float.valueOf(tg.m.getAxisByName("Y").getTravel_maximum());
-            Label hLabel = new Label("Table Width: " + width);
-
+//            Float width = Float.valueOf(tg.m.getAxisByName("X").getTravel_maximum());
+//            Float height = Float.valueOf(tg.m.getAxisByName("Y").getTravel_maximum());
+//            Label hLabel = new Label("Table Width: " + width);
             //Rectangle rect1 = RectangleBuilder.create().strokeDashOffset(5).opacity(100).width(width).height(height).build();
             //canvsGroup.getChildren().add(rect1);
             //canvsGroup.getChildren().add(hLabel);
-
-
         } catch (Exception ex) {
             console.appendText("[!]Error: " + ex.getMessage());
             System.out.println(ex.getMessage());
@@ -429,13 +490,13 @@ public class Main implements Initializable, Observer {
             System.out.println("[+]Connecting...");
             tg.initialize(serialPortSelected, 115200);
             if (tg.isConnected()) {
-                
+
                 console.appendText("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
                 Connect.setText("Disconnect");
                 onConnectActions();
             }
         } else {
-            tg.write(tg.CMD_GET_OK_PROMPT);
+            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
             tg.disconnect();
             if (!tg.isConnected()) {
                 console.appendText("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
@@ -577,25 +638,88 @@ public class Main implements Initializable, Observer {
         String PROMPT = "tinyg>";
         if (keyEvent.getCode() == KeyCode.ENTER) {
             System.out.println("Entered");
-            if (tg.isConnected()) {
-
-                String command = (input.getText() + "\n");
-                //This will send the command to get a OK prompt if the buffer is empty.
-                if (command == "") {
-                    tg.write(TinygDriver.CMD_GET_OK_PROMPT);
-                } else {
-                    //Execute whatever you placed in the input box
-                    tg.write(command);
-                    console.appendText(command);
-                    input.clear();
-                    input.setPromptText(PROMPT);
-                }
-
-            } else {
+            if (!tg.isConnected()) {
                 System.out.println("TinyG is not connected....\n");
                 console.appendText("[!]TinyG is not connected....\n");
                 input.setPromptText(PROMPT);
+                return;
+            }
+            //TinyG is connected... Proceed with processing command.
+            String command = (input.getText() + "\n");
+            //This will send the command to get a OK prompt if the buffer is empty.
+            if ("".equals(command)) {
+                tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
+            } else {
+                if (command.contains("$")) {
+                    if (command.contains("defaults")) {
+                        //If someone resets TinyG's defaults we need to completely refresh the system.
+                        console.appendText("[#]Restoring TinyG Defaults... Please Wait.....\n");
+                        Thread.sleep(50); // Let the console update before we start to pause the UI thread.
+                        tg.write(TinygDriver.CMD_APPLY_RESTORE_DEFAULTS);
+                        Thread.sleep(4000);  //This takes a bit of time to run on TinyG.  We might want to 
+                        //make this into a runnable or something of the sort.  For now we pause in the main event loop :(
+                        onConnectActions();
+                        console.appendText("[#]Restore Complete...\n");
+                        input.clear();
+                        input.setPromptText(PROMPT);
+                        return;
+                    } else if (!command.contains("=")) {
+                        console.appendText("[!]Please use = in your $ command.\n");
+                        console.appendText("[!]Example: $xsr=1200\n");
+                        return;
+                    }
 
+                    //Command line setting detected
+
+                    String cmd = command.split("=")[0].replace("$", ""); //Grabs the command... xfr in the example above...
+                    String value = command.split("=")[1].replace("\n", "");  //Grabs the value... so 1200 in the example..
+                    Scanner scanner = new Scanner(value);
+                    if (scanner.hasNextDouble()) {
+                        tg.write("{\"" + cmd + "\":" + value + "}\n");
+                    } else {
+                        tg.write("{\"" + cmd + "\":\"" + value + "\"}\n");
+                    }
+
+                    console.appendText("$Command: " + command + "\n");
+                    
+                    
+                    
+                    //TODO: Clean this up to only refresh the axis or motor or machine group vs all of the settings
+                    tg.write(TinygDriver.CMD_QUERY_MACHINE_SETTINGS);
+                    tg.getAllAxisSettings();
+                    tg.getAllMotorSettings();
+                    
+                    
+                    input.clear();
+                    input.setPromptText(PROMPT);
+                } else {
+                    //Catch if a unit mode command was sent... Update the status bar if it was..
+                    if (command.toLowerCase().contains("g20") || command.toLowerCase().contains("g21")) {
+                        tg.write(command);
+                        console.appendText(command);
+                        input.clear();
+                        input.setPromptText(PROMPT);
+                        onConnectActions(); //Do this to get updated values in INCHES or MM
+                        srUnits.setText(tg.getInstance().m.getUnitMode().toString());
+                        console.appendText("[+]Unit Mode Change Detected... Units set to: " + tg.getInstance().m.getUnitMode().toString() + "\n");
+                    } else if (command.toLowerCase().contains("g54") || command.toLowerCase().contains("g55") || command.toLowerCase().contains("g56")
+                            || command.toLowerCase().contains("g57") || command.toLowerCase().contains("g58") || command.toLowerCase().contains("g59")) {
+                        tg.write(command);
+                        console.appendText(command);
+                        input.clear();
+                        input.setPromptText(PROMPT);
+                        Thread.sleep(TinygDriver.CONFIG_DELAY);
+                        tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT); //the coord is a field that is enabled by default in status reports.
+                        srUnits.setText(tg.getInstance().m.getCoordinateSystem().toString());
+                        console.appendText("[+]Coordinate Mode Change Detected... Coordniate Mode set to: " + tg.getInstance().m.getCoordinateSystem().toString() + "\n");
+                    } else {
+                        //Execute whatever you placed in the input box
+                        tg.write(command);
+                        console.appendText(command);
+                        input.clear();
+                        input.setPromptText(PROMPT);
+                    }
+                }
             }
 
         }
@@ -670,7 +794,7 @@ public class Main implements Initializable, Observer {
                         srBuild.setText(String.valueOf(tg.m.getFirmware_build()));
                         srVer.setText(String.valueOf(tg.m.getFirmware_version()));
                     } catch (Exception ex) {
-                        System.out.println("$$$$$$$$$$$$$EXCEPTION$$$$$$$$$$$$$$");
+                        System.out.println("[!]Exception in UpdateGUI State()");
                         System.out.println(ex.getMessage());
                     }
 
@@ -702,11 +826,11 @@ public class Main implements Initializable, Observer {
                         vel = tg.m.getVelocity();
                         srVelo.setText(String.valueOf(vel));
 
-                        drawLine(tg.m.getMotionMode(), vel);
+//                        drawLine(tg.m.getMotionMode(), vel);
 
 
                     } catch (Exception ex) {
-                        System.out.println("$$$$$$$$$$$$$EXCEPTION$$$$$$$$$$$$$$");
+                        System.out.println("[!]Error in UpdateGuiState -> STATUS_REPORT");
                         System.out.println(ex.getMessage());
                     }
 
@@ -770,39 +894,298 @@ public class Main implements Initializable, Observer {
         });
     }
 
-    /**
-     * Observer Methods
-     *
-     * @param o
-     * @param arg
-     */
+    private void updateGuiStatusReport(String line) {
+        final String l = line;
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+                float vel;
+                //We are now back in the EventThread and can update the GUI
+                try {
+                    Machine m = TinygDriver.getInstance().m;
+                    xAxisVal.setText(String.valueOf(m.getAxisByName("X").getWork_position())); //json.getNode("sr").getNode("posx").getText());
+                    yAxisVal.setText(String.valueOf(m.getAxisByName("Y").getWork_position()));
+                    zAxisVal.setText(String.valueOf(m.getAxisByName("Z").getWork_position()));
+                    //zAxisVal2.setText(String.valueOf(m.getAxisByName("Z").getWork_position())); //Dedicated Z depth preview label
+                    aAxisVal.setText(String.valueOf(m.getAxisByName("A").getWork_position()));
+                    
+                    
+                    
+                    //Update State... running stop homing etc.
+                    srState.setText(m.getMachineState().toString().toUpperCase());
+                    srUnits.setText(m.getUnitMode().toString());
+                    srCoord.setText(m.getCoordinateSystem().toString());    
+                    srMomo.setText(m.getMotionMode().toString().replace("_", " ").toUpperCase());
+                    
+
+                    //Parse the veloicity 
+                    vel = m.getVelocity();
+                    srVelo.setText(String.valueOf(vel));
+
+                    //drawLine(m.getMotionMode(), vel, zAxisVal.getText());
+//                        renderZ();
+                } catch (Exception ex) {
+                    System.out.println("[!] Exception in UpdateGuiStatusReport...");
+                    System.out.println(ex.getMessage());
+                }
+            }
+        });
+
+    }
+
+    private void updateGuiMachineSettings(String line) {
+        final String l = line;
+        Platform.runLater(new Runnable() {
+
+            public void run() {
+                //We are now back in the EventThread and can update the GUI
+                try {
+                    Machine m = TinygDriver.getInstance().m;
+                    srBuild.setText(String.valueOf(m.getFirmware_build()));
+                    srVer.setText(String.valueOf(m.getFirmware_version()));
+                    if (m.getCoordinateSystem() != null) {
+                        srCoord.setText(TinygDriver.getInstance().m.getCoordinateSystem().toString());
+                    }
+                } catch (Exception ex) {
+                    System.out.println("[!] Exception in updateGuiMachineSettings");
+                    System.out.println(ex.getMessage());
+                }
+            }
+        });
+
+    }
+
     @Override
     public synchronized void update(Observable o, Object arg) {
         final String ROUTING_KEY = (String) arg;
-
-        //We have to run the updates likes this.
-        //https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
+//        We have to run the updates likes this.
+//        https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
         Platform.runLater(new Runnable() {
 
             public void run() {
                 // we are now back in the EventThread and can update the GUI
-                if (ROUTING_KEY.equals("PLAIN")) {
-                    console.appendText((String) ROUTING_KEY + "\n");
-
-                } else if (ROUTING_KEY.equals("BUILD_UPDATE")) {
-                    updateGuiState(ROUTING_KEY);
-                } else if (ROUTING_KEY.equals("STATUS_REPORT")) {
-//                    console.setText((String) MSG[1] + "\n");
-                    updateGuiState(ROUTING_KEY);
-
-                } else if (ROUTING_KEY.contains("ERROR")) {
-                    console.appendText(ROUTING_KEY);
+                if (ROUTING_KEY.equals("STATUS_REPORT")) {
+                    updateGuiStatusReport(ROUTING_KEY);
+                    //updateStatusReport(ROUTING_KEY);
+                } else if (ROUTING_KEY.equals("CMD_GET_AXIS_SETTINGS")) {
+                    updateGuiAxisSettings();
                 } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
-//                    System.out.println("UPDATE: MACHINE SETTINGS");
-//                    updateGUIConfigState();
+                    updateGuiMachineSettings(ROUTING_KEY);
+                } else if (ROUTING_KEY.contains("CMD_GET_MOTOR_SETTINGS")) {
+                    updateGuiMotorSettings();
+                } else if (ROUTING_KEY.equals("NETWORK_MESSAGE")) {  //unused
+                    //updateExternal();
+                } else if (ROUTING_KEY.equals("MACHINE_UPDATE")) {
+                    updateGuiMachineSettings(ROUTING_KEY);
                 } else {
-                    console.appendText(ROUTING_KEY);
-                    System.out.println(ROUTING_KEY);
+                    System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
+                }
+            }
+        });
+    }
+
+    private void updateGuiMotorSettings() {
+        //Update the GUI for config settings
+        Platform.runLater(new Runnable() {
+
+            public void run() {
+                //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
+                //Right now this is how I am doing this.  However I think there can be a more optimized way
+                //Perhaps by passing a routing message as to which motor was updated then not all have to be updated
+                //every time one is.
+                try {
+                    for (Motor m : tg.m.getMotors()) {
+                        if (m.getId_number() == 1) {
+                            motor1ConfigMapAxis.getSelectionModel().select((tg.m.getMotorByNumber(1).getMapToAxis()));
+                            motor1ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(1).getMicrosteps());
+                            motor1ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(1).isPolarityInt());
+                            motor1ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(1).isPower_managementInt());
+                            motor1ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(1).getStep_angle()));
+                            motor1ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(1).getTravel_per_revolution()));
+                        } else if (m.getId_number() == 2) {
+                            motor2ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(2).getMapToAxis());
+                            motor2ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(2).getMicrosteps());
+                            motor2ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(2).isPolarityInt());
+                            motor2ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(2).isPower_managementInt());
+                            motor2ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(2).getStep_angle()));
+                            motor2ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(2).getTravel_per_revolution()));
+                        } else if (m.getId_number() == 3) {
+                            motor3ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(3).getMapToAxis());
+                            motor3ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(3).getMicrosteps());
+                            motor3ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(3).isPolarityInt());
+                            motor3ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(3).isPower_managementInt());
+                            motor3ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(3).getStep_angle()));
+                            motor3ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(3).getTravel_per_revolution()));
+                        } else if (m.getId_number() == 4) {
+                            motor4ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(4).getMapToAxis());
+                            motor4ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(4).getMicrosteps());
+                            motor4ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(4).isPolarityInt());
+                            motor4ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(4).isPower_managementInt());
+                            motor4ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(4).getStep_angle()));
+                            motor4ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(4).getTravel_per_revolution()));
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.out.println("[!]Exception in updateGuiMotorSettings...");
+                    System.out.println(ex.getMessage());
+                }
+
+            }
+        });
+    }
+
+//    
+//    @Override
+//    public synchronized void update(Observable o, Object arg) {
+//        final String ROUTING_KEY = (String) arg;
+//
+//        //We have to run the updates likes this.
+//        //https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
+//        Platform.runLater(new Runnable() {
+//
+//            public void run() {
+//                // we are now back in the EventThread and can update the GUI
+//                if (ROUTING_KEY.equals("PLAIN")) {
+//                    console.appendText((String) ROUTING_KEY + "\n");
+//
+//                } else if (ROUTING_KEY.equals("BUILD_UPDATE")) {
+//                    updateGuiState(ROUTING_KEY);
+//                } else if (ROUTING_KEY.equals("STATUS_REPORT")) {
+////                    console.setText((String) MSG[1] + "\n");
+//                    updateGuiState(ROUTING_KEY);
+//
+//                } else if (ROUTING_KEY.contains("ERROR")) {
+//                    console.appendText(ROUTING_KEY);
+//                } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
+////                    System.out.println("UPDATE: MACHINE SETTINGS");
+//                    updateGUIConfigState();
+//                } else {
+//                    console.appendText(ROUTING_KEY);
+//                    System.out.println(ROUTING_KEY);
+//                }
+//
+//            }
+//        });
+//    }
+    private void updateGuiAxisSettings() {
+        //Update the GUI for config settings
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+                //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
+                //Right now this is how I am doing this.  However I think there can be a more optimized way
+                //Perhaps by passing a routing message as to which motor was updated then not all have to be updated
+                //every time one is.
+                try {
+                    for (Axis ax : tg.m.getAllAxis()) {
+//                        Thread.sleep(10);;
+                        switch (ax.getAxis_name().toLowerCase()) {
+                            case "a":
+                                axisAmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
+                                axisAmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
+                                axisAmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
+                                axisAjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
+                                axisAsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
+                                axisAzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
+                                axisAlimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode());
+                                axisAmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                                axisAmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+//                                axisAmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
+                                axisAradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
+                                //axisAradius.setText(String.valueOf(ax.getRadius()));
+                                axisAlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                                break;
+                            case "b":
+                                axisBmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
+                                axisBmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
+                                axisBmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
+                                axisBjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
+                                axisBsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
+                                axisBzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
+                                axisBlimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode());
+                                axisBmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                                axisBmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+                                //                                axisBmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
+                                //axisBradius.setText(String.valueOf(ax.getRadius()));
+                                axisBradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
+                                axisBlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                                break;
+                            case "c":
+                                axisCmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
+                                axisCmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
+                                axisCmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
+                                axisCjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
+                                axisCsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
+                                axisCzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
+                                axisClimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode());
+                                axisCmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                                axisCmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+//                                axisCmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
+                                axisCradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
+                                axisClatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                                break;
+                            case "x":
+                                axisXradius.setText("NA");
+                                axisXradius.setStyle("-fx-text-fill: red");
+                                axisXradius.setDisable(true);
+                                axisXradius.setEditable(false);
+                                axisXmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
+                                axisXmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
+                                axisXmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
+                                axisXjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
+                                axisXsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
+                                axisXzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
+                                axisXlimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode());
+                                axisXmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                                axisXmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+//                                axisXmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
+                                //axisXradius.setText(String.valueOf(ax.getRadius()));
+                                axisXlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                                break;
+                            case "y":
+                                axisYradius.setText("NA");
+                                axisYradius.setStyle("-fx-text-fill: red");
+                                axisYradius.setDisable(true);
+                                axisYradius.setEditable(false);
+                                axisYmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
+                                axisYmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
+                                axisYmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
+                                axisYjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
+                                axisYsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
+                                axisYzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
+                                axisYlimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode());
+                                axisYmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                                axisYmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+//                                axisYmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
+                                // axisYradius.setText(String.valueOf(ax.getRadius()));
+                                axisYlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                                break;
+                            case "z":
+                                axisZradius.setText("NA");
+                                axisZradius.setStyle("-fx-text-fill: red");
+                                axisZradius.setDisable(true);
+                                axisZradius.setEditable(false);
+                                axisZmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
+                                axisZmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
+                                axisZmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
+                                axisZjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
+                                axisZsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
+                                axisZzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
+                                axisZlimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode());
+                                axisZmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                                axisZmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+//                                axisZmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
+                                //axisZradius.setText(String.valueOf(ax.getRadius()));
+                                axisZlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                                break;
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.out.println("[!]EXCEPTION in updateGuiAxisSettings");
+                    System.out.println("LINE: ");
+                    System.out.println(ex.getMessage());
                 }
 
             }
