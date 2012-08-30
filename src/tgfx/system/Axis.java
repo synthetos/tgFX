@@ -39,7 +39,7 @@ public class Axis {
     private double travel_maximum;
     private double jerk_maximum;
     private double junction_devation;
-    private int switch_mode;
+    private SWITCH_MODES switch_mode;
 //    private float homing_travel;
 //    private float homing_search_velocity;
 //    private float homing_latch_velocity;
@@ -47,6 +47,15 @@ public class Axis {
 //    private float homing_work_offset;
     private String axis_name;
     private List<Motor> motors = new ArrayList<Motor>();
+
+    public enum SWITCH_MODES {
+
+        DISABLED,
+        NO_HOMING_ONLY,
+        NO_HOMING_AND_LIMIT,
+        NC_HOMING_ONLY,
+        NC_HOMING_AND_LIMIT
+    }
 
     public enum AXIS_MODES {
 
@@ -135,15 +144,15 @@ public class Axis {
                         return;
                     }
                 }
-            this.setAxis_mode(val);
-            System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _axisMode);
-            return;
-        }
+                this.setAxis_mode(val);
+                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _axisMode);
+                return;
+            }
 
 
-    
 
-case "vm": {
+
+            case "vm": {
                 int val = (int) Double.parseDouble(value);
                 this.setVelocity_maximum(val);
                 System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Velocity Max to: " + this.getVelocity_maximum());
@@ -334,32 +343,35 @@ case "vm": {
         //Generic command parser when a single axis command has been given.
         //IE: $xsr=1200
         //cmd would be sr and value would be 1200
-        if (cmd.equals("am")) {
-            int val = (int) Double.parseDouble(value);
-            return (this.setAxis_mode(val));
-        } else if (cmd.equals("vm")) {
-            return (this.setVelocity_maximum(Float.valueOf(value)));
-        } else if (cmd.equals("fr")) {
-            return (this.setFeed_rate_maximum(Float.valueOf(value)));
-        } else if (cmd.equals("tm")) {
-            return (this.setTravel_maximum(Float.valueOf(value)));
-        } else if (cmd.equals("jm")) {
-            return (this.setJerk_maximum(Double.valueOf(value)));
-        } else if (cmd.equals("jd")) {
-            return (this.setJunction_devation(Float.valueOf(value)));
-        } else if (cmd.equals("sm")) {
-            int val = (int) Double.parseDouble(value);
-            return (this.setSwitch_mode(val));
-        } else if (cmd.equals("sv")) {
-            return (this.setSearch_velocity(Double.parseDouble(value)));
-        } else if (cmd.equals("lv")) {
-            return (this.setLatch_velocity(Float.parseFloat(value)));
-        } else if (cmd.equals("lb")) {
-            return (this.setLatch_backoff(Float.parseFloat(value)));
-        } else if (cmd.equals("zb")) {
-            return (this.setZero_backoff(Float.parseFloat(value)));
-        } else {
-            return false;
+        switch (cmd) {
+            case "am": {
+                int val = (int) Double.parseDouble(value);
+                return (this.setAxis_mode(val));
+            }
+            case "vm":
+                return (this.setVelocity_maximum(Float.valueOf(value)));
+            case "fr":
+                return (this.setFeed_rate_maximum(Float.valueOf(value)));
+            case "tm":
+                return (this.setTravel_maximum(Float.valueOf(value)));
+            case "jm":
+                return (this.setJerk_maximum(Double.valueOf(value)));
+            case "jd":
+                return (this.setJunction_devation(Float.valueOf(value)));
+            case "sm": {
+                int val = (int) Double.parseDouble(value);
+                return (this.setSwitch_mode(val));
+            }
+            case "sv":
+                return (this.setSearch_velocity(Double.parseDouble(value)));
+            case "lv":
+                return (this.setLatch_velocity(Float.parseFloat(value)));
+            case "lb":
+                return (this.setLatch_backoff(Float.parseFloat(value)));
+            case "zb":
+                return (this.setZero_backoff(Float.parseFloat(value)));
+            default:
+                return false;
         }
     }
 
@@ -507,13 +519,31 @@ case "vm": {
         this.motors = motors;
     }
 
-    public int getSwitch_mode() {
+    public SWITCH_MODES getSwitch_mode() {
         return switch_mode;
     }
 
-    public boolean setSwitch_mode(int switch_mode) {
-        this.switch_mode = switch_mode;
-        return true;
+    public Boolean setSwitch_mode(int _sw_mode) {
+
+        switch (_sw_mode) {
+            case 0:
+                switch_mode = SWITCH_MODES.DISABLED;
+                return true;
+
+            case 1:
+                switch_mode = SWITCH_MODES.NO_HOMING_ONLY;
+                return true;
+            case 2:
+                switch_mode = SWITCH_MODES.NO_HOMING_AND_LIMIT;
+                return true;
+            case 3:
+                switch_mode = SWITCH_MODES.NC_HOMING_ONLY;
+                return true;
+            case 4:
+                switch_mode = SWITCH_MODES.NC_HOMING_AND_LIMIT;
+                return true;
+        }
+        return false;
     }
 
     public double getTravel_maximum() {
