@@ -102,50 +102,50 @@ public class ResponseParser extends Observable implements Runnable {
             if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
                 //Parse Status Report
                 //"{"sr":{"line":0,"xpos":1.567,"ypos":0.548,"zpos":0.031,"apos":0.000,"vel":792.463,"unit":"mm","stat":"run"}}"
-                TinygDriver.getInstance().m.getAxisByName("X").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posx").getText()));
-                TinygDriver.getInstance().m.getAxisByName("Y").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posy").getText()));
-                TinygDriver.getInstance().m.getAxisByName("Z").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posz").getText()));
-                TinygDriver.getInstance().m.getAxisByName("A").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
+                TinygDriver.getInstance().m.getAxisByName("X").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posx").getText()));
+                TinygDriver.getInstance().m.getAxisByName("Y").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posy").getText()));
+                TinygDriver.getInstance().m.getAxisByName("Z").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posz").getText()));
+                TinygDriver.getInstance().m.getAxisByName("A").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posa").getText()));
 
-//               TinygDriver.getInstance().m.getAxisByName("B").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
-//               TinygDriver.getInstance().m.getAxisByName("C").setWork_position(Float.parseFloat(json.getNode("sr").getNode("posa").getText()));
+//               TinygDriver.getInstance().m.getAxisByName("B").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posa").getText()));
+//               TinygDriver.getInstance().m.getAxisByName("C").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posa").getText()));
 
                 //Parse state out of status report.
-                TinygDriver.getInstance().m.setMachineState(Integer.valueOf(json.getNode("sr").getNode("stat").getText()));
+                TinygDriver.getInstance().m.setMachineState(Integer.valueOf(json.getNode("r").getNode("bd").getNode("sr").getNode("stat").getText()));
 
                 //Parse motion mode (momo) out of start report
-                TinygDriver.getInstance().m.setMotionMode(Integer.parseInt(json.getNode("sr").getNode("momo").getText()));
+                TinygDriver.getInstance().m.setMotionMode(Integer.parseInt(json.getNode("r").getNode("bd").getNode("sr").getNode("momo").getText()));
 
                 //Parse velocity out of status report
-                TinygDriver.getInstance().m.setVelocity(Float.parseFloat(json.getNode("sr").getNode("vel").getText()));
+                TinygDriver.getInstance().m.setVelocity(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("vel").getText()));
 
                 //Parse Unit Mode
-                TinygDriver.getInstance().m.setUnits(Integer.parseInt(json.getNode("sr").getNode("unit").getText()));
-                TinygDriver.getInstance().m.setCoordinate_mode(Integer.parseInt(json.getNode("sr").getNode("coor").getText()));
+                TinygDriver.getInstance().m.setUnits(Integer.parseInt(json.getNode("r").getNode("bd").getNode("sr").getNode("unit").getText()));
+                TinygDriver.getInstance().m.setCoordinate_mode(Integer.parseInt(json.getNode("r").getNode("bd").getNode("sr").getNode("coor").getText()));
 
 
-                //m.getAxisByName("X").setWork_position(Float.parseFloat((json.getNode("sr").getNode("xpos").getText())));
-                //m.getAxisByName("Y").setWork_position(Float.parseFloat((json.getNode("sr").getNode("ypos").getText())));
-                //m.getAxisByName("Z").setWork_position(Float.parseFloat((json.getNode("sr").getNode("zpos").getText())));
-                //this.A_AXIS.setWork_position(Float.parseFloat((json.getNode("sr").getNode("awp").getText())));
+                //m.getAxisByName("X").setWork_position(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sr").getNode("xpos").getText())));
+                //m.getAxisByName("Y").setWork_position(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sr").getNode("ypos").getText())));
+                //m.getAxisByName("Z").setWork_position(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sr").getNode("zpos").getText())));
+                //this.A_AXIS.setWork_position(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sr").getNode("awp").getText())));
                 setChanged();
                 notifyObservers("STATUS_REPORT");
 
             } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_BUILD)) {
                 Main.logger.info("[#]Parsing Machine Settings....");
-                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("fb").getText()));
+                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fb").getText()));
                 setChanged();
                 notifyObservers("MACHINE_UPDATE");
             } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_BUILD)) {
                 Main.logger.info("[#]Parsing Build Number...");
-                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("fb").getText()));
+                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fb").getText()));
                 setChanged();
                 notifyObservers("MACHINE_UPDATE");
 
 
             } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_VERSION)) {
                 Main.logger.info("[#]Parsing Version...");
-                TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("fv").getText()));
+                TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fv").getText()));
                 setChanged();
                 notifyObservers("MACHINE_UPDATE");
 
@@ -153,17 +153,17 @@ public class ResponseParser extends Observable implements Runnable {
             } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
                 Main.logger.info("[#]Parsing Machine Settings JSON");
                 //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
-                TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("sys").getNode("fv").getText()));
-                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("sys").getNode("fb").getText()));
-                TinygDriver.getInstance().m.setStatus_report_interval(Integer.parseInt((json.getNode("sys").getNode("si").getText())));
-                TinygDriver.getInstance().m.setEnable_acceleration(Boolean.parseBoolean((json.getNode("sys").getNode("ea").getText())));
-                TinygDriver.getInstance().m.setJunction_acceleration(Float.parseFloat((json.getNode("sys").getNode("ml").getText())));
-                TinygDriver.getInstance().m.setMin_segment_time(Double.parseDouble(json.getNode("sys").getNode("mt").getText()));
-                TinygDriver.getInstance().m.setMin_arc_segment(Float.parseFloat((json.getNode("sys").getNode("ma").getText())));
-                TinygDriver.getInstance().m.setIgnore_cr_lf_RX(Integer.parseInt(json.getNode("sys").getNode("ic").getText()));  //Check this.
-                TinygDriver.getInstance().m.setEnable_CR_on_TX(Boolean.parseBoolean((json.getNode("sys").getNode("ec").getText())));
-                TinygDriver.getInstance().m.setEnable_echo(Boolean.parseBoolean((json.getNode("sys").getNode("ee").getText())));
-                TinygDriver.getInstance().m.setEnable_xon_xoff(Boolean.parseBoolean((json.getNode("sys").getNode("ex").getText())));
+                TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sys").getNode("fv").getText()));
+                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sys").getNode("fb").getText()));
+                TinygDriver.getInstance().m.setStatus_report_interval(Integer.parseInt((json.getNode("r").getNode("bd").getNode("sys").getNode("si").getText())));
+                TinygDriver.getInstance().m.setEnable_acceleration(Boolean.parseBoolean((json.getNode("r").getNode("bd").getNode("sys").getNode("ea").getText())));
+                TinygDriver.getInstance().m.setJunction_acceleration(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sys").getNode("ml").getText())));
+                TinygDriver.getInstance().m.setMin_segment_time(Double.parseDouble(json.getNode("r").getNode("bd").getNode("sys").getNode("mt").getText()));
+                TinygDriver.getInstance().m.setMin_arc_segment(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sys").getNode("ma").getText())));
+                TinygDriver.getInstance().m.setIgnore_cr_lf_RX(Integer.parseInt(json.getNode("r").getNode("bd").getNode("sys").getNode("ic").getText()));  //Check this.
+                TinygDriver.getInstance().m.setEnable_CR_on_TX(Boolean.parseBoolean((json.getNode("r").getNode("bd").getNode("sys").getNode("ec").getText())));
+                TinygDriver.getInstance().m.setEnable_echo(Boolean.parseBoolean((json.getNode("r").getNode("bd").getNode("sys").getNode("ee").getText())));
+                TinygDriver.getInstance().m.setEnable_xon_xoff(Boolean.parseBoolean((json.getNode("r").getNode("bd").getNode("sys").getNode("ex").getText())));
                 setChanged();
                 notifyObservers("CMD_GET_MACHINE_SETTINGS");
 

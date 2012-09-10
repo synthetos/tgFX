@@ -33,6 +33,7 @@ public class TinygDriver extends Observable {
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
+    public static final String RESPONSE_HEADER ="{\"r\":{\"bd\":";
     public static final String CMD_QUERY_COORDINATE_SYSTEM = "{\"coor\":\"\"}\n";
     public static final String CMD_QUERY_HARDWARE_BUILD_NUMBER = "{\"fb\":\"\"}\n";
     public static final String CMD_QUERY_HARDWARE_FIRMWARE_NUMBER = "{\"fv\":\"\"}\n";
@@ -58,7 +59,8 @@ public class TinygDriver extends Observable {
     public static final String CMD_APPLY_DISABLE_XON_XOFF = "{\"ex\":1}\n";
     public static final String CMD_APPLY_RESTORE_DEFAULTS = "$defaults=1\n";
     public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":G920g0x0y0z0}\n";
-    public static final String RESPONSE_STATUS_REPORT = "{\"sr\":{";
+    public static final String RESPONSE_STATUS_REPORT = "{\"r\":{\"bd\":{\"sr\":{";
+    //public static final String RESPONSE_STATUS_REPORT = "{\"sr\":{";
     public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"fb";
     public static final String RESPONSE_MACHINE_FIRMWARE_VERSION = "{\"fv";
     public static final String RESPONSE_MACHINE_COORDINATE_SYSTEM = "{\"gco";

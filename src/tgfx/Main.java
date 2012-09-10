@@ -492,6 +492,7 @@ public class Main implements Initializable, Observer {
             //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
 //            tg.write(TinygDriver.CMD_ENABLE_JSON_OUTPUT_FORMAT);
 //            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
+            tg.write("{\"gc\":\"g0x10\"}\n");
             tg.write(TinygDriver.CMD_APPLY_DISABLE_HASHCODE);
             tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
             tg.write(TinygDriver.CMD_APPLY_DISABLE_LOCAL_ECHO);
