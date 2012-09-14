@@ -33,7 +33,7 @@ public class TinygDriver extends Observable {
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
-    public static final String RESPONSE_HEADER ="{\"r\":{\"bd\":";
+    public static final String RESPONSE_HEADER = "{\"r\":{\"bd\":";
     public static final String CMD_QUERY_COORDINATE_SYSTEM = "{\"coor\":\"\"}\n";
     public static final String CMD_QUERY_HARDWARE_BUILD_NUMBER = "{\"fb\":\"\"}\n";
     public static final String CMD_QUERY_HARDWARE_FIRMWARE_NUMBER = "{\"fv\":\"\"}\n";
@@ -53,7 +53,7 @@ public class TinygDriver extends Observable {
     public static final String CMD_APPLY_ZERO_ALL_AXIS = "{\"gc\":\"g92x0y0z0a0\"}\n";
     public static final String CMD_APPLY_DISABLE_LOCAL_ECHO = "{\"ee\":0}\n";
     public static final String CMD_APPLY_DISABLE_HASHCODE = "{\"eh\":0\"}\n";
-    public static final String CMD_APPLY_STATUS_UPDATE_INTERVAL = "{\"si\":125}\n";
+    public static final String CMD_APPLY_STATUS_UPDATE_INTERVAL = "{\"si\":200}\n";
     public static final String CMD_APPLY_PAUSE = "!\n";
     public static final String CMD_APPLY_RESUME = "~\n";
     public static final String CMD_APPLY_DISABLE_XON_XOFF = "{\"ex\":1}\n";
@@ -61,10 +61,22 @@ public class TinygDriver extends Observable {
     public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":G920g0x0y0z0}\n";
     public static final String RESPONSE_STATUS_REPORT = "{\"r\":{\"bd\":{\"sr\":{";
     //public static final String RESPONSE_STATUS_REPORT = "{\"sr\":{";
-    public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"fb";
-    public static final String RESPONSE_MACHINE_FIRMWARE_VERSION = "{\"fv";
-    public static final String RESPONSE_MACHINE_COORDINATE_SYSTEM = "{\"gco";
-    public static final String RESPONSE_MACHINE_SETTINGS = "{\"sys";
+    public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"r\":{\"bd\":{\"fb";
+    public static final String RESPONSE_MACHINE_FIRMWARE_VERSION = "{\"r\":{\"bd\":{\"fv";
+    public static final String RESPONSE_MACHINE_COORDINATE_SYSTEM = "{\"r\":{\"bd\":{\"gco";
+    public static final String RESPONSE_MACHINE_SETTINGS = "{\"r\":{\"bd\":{\"sys";
+    public static final String RESPONSE_MOTOR_1 = "{\"r\":{\"bd\":{\"1";
+    public static final String RESPONSE_MOTOR_2 = "{\"r\":{\"bd\":{\"2";
+    public static final String RESPONSE_MOTOR_3 = "{\"r\":{\"bd\":{\"3";
+    public static final String RESPONSE_MOTOR_4 = "{\"r\":{\"bd\":{\"4";
+    public static final String RESPONSE_MOTOR_5 = "{\"r\":{\"bd\":{\"5";
+    public static final String RESPONSE_MOTOR_6 = "{\"r\":{\"bd\":{\"6";
+    public static final String RESPONSE_AXIS_X = "{\"r\":{\"bd\":{\"x";
+    public static final String RESPONSE_AXIS_Y = "{\"r\":{\"bd\":{\"y";
+    public static final String RESPONSE_AXIS_Z = "{\"r\":{\"bd\":{\"z";
+    public static final String RESPONSE_AXIS_A = "{\"r\":{\"bd\":{\"a";
+    public static final String RESPONSE_AXIS_B = "{\"r\":{\"bd\":{\"b";
+    public static final String RESPONSE_AXIS_C = "{\"r\":{\"bd\":{\"c";
     //AXIS Mnemonics
     public static final String MNEMONIC_AXIS_AXIS_MODE = "am";
     public static final String MNEMONIC_AXIS_VELOCITY_MAXIMUM = "vm";
@@ -172,26 +184,21 @@ public class TinygDriver extends Observable {
             public void run() {
                 //With the sleeps in this method we wrap it in a runnable task
                 try {
-                    ser.write(CMD_QUERY_OK_PROMPT);
                     Thread.sleep(CONFIG_DELAY);
                     ser.write(CMD_QUERY_MOTOR_1_SETTINGS);
-                    ser.write(TinygDriver.CMD_QUERY_OK_PROMPT);
                     Main.logger.info("[+]Getting Motor 1 Settings");
 
                     Thread.sleep(CONFIG_DELAY);
                     ser.write(CMD_QUERY_MOTOR_2_SETTINGS);
                     Main.logger.info("[+]Getting Motor 2 Settings");
-                    ser.write(TinygDriver.CMD_QUERY_OK_PROMPT);
 
                     Thread.sleep(CONFIG_DELAY);
                     ser.write(CMD_QUERY_MOTOR_3_SETTINGS);
                     Main.logger.info("[+]Getting Motor 3 Settings");
-                    ser.write(TinygDriver.CMD_QUERY_OK_PROMPT);
 
                     Thread.sleep(CONFIG_DELAY);
                     ser.write(CMD_QUERY_MOTOR_4_SETTINGS);
                     Main.logger.info("[+]Getting Motor 4 Settings");
-                    ser.write(CMD_QUERY_OK_PROMPT);
 
                 } catch (Exception ex) {
                     Main.logger.error("[!]Exception in getAllMotorSettings()...");
@@ -222,39 +229,27 @@ public class TinygDriver extends Observable {
 
                     Main.logger.info("[+]Getting A AXIS Settings");
                     Thread.sleep(CONFIG_DELAY);
-                    TinygDriver.getInstance().ser.write(CMD_QUERY_OK_PROMPT);
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_A);
-                    ser.write(TinygDriver.CMD_QUERY_OK_PROMPT);
                     Thread.sleep(CONFIG_DELAY);
 
-                    TinygDriver.getInstance().write(CMD_QUERY_OK_PROMPT);
                     Main.logger.info("[+]Getting B AXIS Settings");
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_B);
-                    ser.write(TinygDriver.CMD_QUERY_OK_PROMPT);
                     Thread.sleep(CONFIG_DELAY);
 
-                    TinygDriver.getInstance().write(CMD_QUERY_OK_PROMPT);
                     Main.logger.info("[+]Getting C AXIS Settings");
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_C);
-                    ser.write(TinygDriver.CMD_QUERY_OK_PROMPT);
                     Thread.sleep(CONFIG_DELAY);
 
-                    TinygDriver.getInstance().write(CMD_QUERY_OK_PROMPT);
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_X);
                     Main.logger.info("[+]Getting X AXIS Settings");
-                    ser.write(TinygDriver.CMD_QUERY_OK_PROMPT);
                     Thread.sleep(CONFIG_DELAY);
 
-                    TinygDriver.getInstance().write(CMD_QUERY_OK_PROMPT);
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_Y);
                     Main.logger.info("[+]Getting Y AXIS Settings");
-                    ser.write(TinygDriver.CMD_QUERY_OK_PROMPT);
                     Thread.sleep(CONFIG_DELAY);
 
-                    TinygDriver.getInstance().write(CMD_QUERY_OK_PROMPT);
                     Main.logger.info("[+]Getting Z AXIS Settings");
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_Z);
-                    ser.write(TinygDriver.CMD_QUERY_OK_PROMPT);
                     Thread.sleep(CONFIG_DELAY);
 
                 } catch (Exception ex) {
@@ -299,6 +294,17 @@ public class TinygDriver extends Observable {
             } else if (_gp.getChildren().get(i).getClass().toString().contains("ChoiceBox")) {
                 //This ia a ChoiceBox... Lets get the value and apply it if it needs to be applied.
                 ChoiceBox cb = (ChoiceBox) _gp.getChildren().get(i);
+                if (cb.getId().contains("AxisMode")) {
+                    int axisMode = cb.getSelectionModel().getSelectedIndex();
+                    String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_AXIS_MODE, axisMode );
+                    this.write(configObj);
+                    continue;
+                }else if(cb.getId().contains("switchMode")){
+                    int switchMode = cb.getSelectionModel().getSelectedIndex();
+                    String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_SWITCH_MODE, switchMode );
+                    this.write(configObj);
+                }
+
             }
         }
 
@@ -427,7 +433,7 @@ public class TinygDriver extends Observable {
         int i;
 
         for (i = 0; i < size; i++) {
-            System.out.println("TEST");
+
             if (_gp.getChildren().get(i).toString().contains("TextField")) {
                 TextField tf = (TextField) _gp.getChildren().get(i);
                 try {
@@ -438,30 +444,30 @@ public class TinygDriver extends Observable {
             } else if (_gp.getChildren().get(i).toString().contains("ChoiceBox")) {
                 ChoiceBox _cb = (ChoiceBox) _gp.getChildren().get(i);
                 if (_cb.getId().contains("MapAxis")) {
-                    int axisMap;
+                    int mapAxis;
                     switch (_cb.getSelectionModel().getSelectedItem().toString()) {
                         case "X":
-                            axisMap = 0;
+                            mapAxis = 0;
                             break;
                         case "Y":
-                            axisMap = 1;
+                            mapAxis = 1;
                             break;
                         case "Z":
-                            axisMap = 2;
+                            mapAxis = 2;
                             break;
                         case "A":
-                            axisMap = 3;
+                            mapAxis = 3;
                             break;
                         case "B":
-                            axisMap = 4;
+                            mapAxis = 4;
                             break;
                         case "C":
-                            axisMap = 5;
+                            mapAxis = 5;
                             break;
                         default:
-                            axisMap = 0;  //Defaults to map to X
+                            mapAxis = 0;  //Defaults to map to X
                     }
-                    String configObj = String.format("{\"%s%s\":%s}\n", _motorNumber, MNEMONIC_AXIS_AXIS_MODE, axisMap);
+                    String configObj = String.format("{\"%s%s\":%s}\n", _motorNumber, MNEMONIC_MOTOR_MAP_AXIS, mapAxis);
                     this.write(configObj);
 
                 } else if (_cb.getId().contains("MicroStepping")) {
@@ -495,10 +501,6 @@ public class TinygDriver extends Observable {
                     String configObj = String.format("{\"%s%s\":%s}\n", _motorNumber, MNEMONIC_MOTOR_POWER_MANAGEMENT, _cb.getSelectionModel().getSelectedIndex());
                     this.write(configObj);
                 }
-
-                //_cb.getSelectionModel().getSelectedItem()
-                System.out.println("Test");
-
             }
         }
 //        Motor _motor = this.m.getAxisByName(String.valueOf(_gp.getId().charAt(0)));
@@ -655,8 +657,8 @@ public class TinygDriver extends Observable {
         // TinygDriver.getInstance().setClearToSend(false);
 
         //Flow.logger.debug("waiting for space");
-        int spaceAvailable = waitForSpace(msg);
-        Main.logger.debug("wrote " + msg.length() + " byte message, " + spaceAvailable + " bytes available in hardware buffer");
+//        int spaceAvailable = waitForSpace(msg);
+//        Main.logger.debug("wrote " + msg.length() + " byte message, " + spaceAvailable + " bytes available in hardware buffer");
         ser.write(msg);
 
         // } else {

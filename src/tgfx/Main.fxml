@@ -402,7 +402,7 @@
                                             <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
                                               <children>
                                                 <Button id="queryMotor" onAction="#handleQueryMotor" text="Query" />
-                                                <Button id="queryMotor" onAction="#handleMotorApply" text="Apply" />
+                                                <Button id="queryMotor" onAction="#handleMotorApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
                                           </children>
@@ -462,7 +462,7 @@
                                             <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
                                               <children>
                                                 <Button id="queryMotor" onAction="#handleQueryMotor" text="Query" />
-                                                <Button id="queryMotor" onAction="#handleMotorApply" text="Apply" />
+                                                <Button id="queryMotor" onAction="#handleMotorApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
                                           </children>
@@ -522,7 +522,7 @@
                                             <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
                                               <children>
                                                 <Button id="queryMotor" onAction="#handleQueryMotor" text="Query" />
-                                                <Button id="queryMotor" onAction="#handleMotorApply" text="Apply" />
+                                                <Button id="queryMotor" onAction="#handleMotorApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
                                           </children>
@@ -582,7 +582,7 @@
                                             <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
                                               <children>
                                                 <Button id="queryMotor" onAction="#handleQueryMotor" text="Query" />
-                                                <Button id="queryMotor" onAction="#handleMotorApply" text="Apply" />
+                                                <Button id="queryMotor" onAction="#handleMotorApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
                                           </children>
@@ -632,7 +632,7 @@
                                               </items>
                                             </ChoiceBox>
                                             <Label id="lblAxisXMode" text="Switch Mode" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbAxisXLimitSwitch" fx:id="axisXlimitSwitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                            <ChoiceBox id="cbAxisXswitchMode" fx:id="axisXswitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
                                                   <String fx:value="Disabled" />
@@ -680,7 +680,7 @@
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
                                                 <Button id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
-                                                <Button fx:id="applyAxisSettings" onAction="#handleApplyAxisSettings" text="Apply" />
+                                                <Button fx:id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
                                           </children>
@@ -702,7 +702,7 @@
                                               </items>
                                             </ChoiceBox>
                                             <Label id="lblAxisYMode" text="Switch Mode" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbAxisYLimitSwitch" fx:id="axisYlimitSwitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                            <ChoiceBox id="cbAxisYswitchMode" fx:id="axisYswitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
                                                   <String fx:value="Disabled" />
@@ -750,7 +750,7 @@
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
                                                 <Button id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
-                                                <Button id="applyAxisSettings" onAction="#handleApplyAxisSettings" text="Apply" />
+                                                <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
                                           </children>
@@ -772,7 +772,7 @@
                                               </items>
                                             </ChoiceBox>
                                             <Label id="lblAxisZMode" text="Switch Mode" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbAxisZLimitSwitch" fx:id="axisZlimitSwitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                            <ChoiceBox id="cbAxisZswitchMode" fx:id="axisZswitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
                                                   <String fx:value="Disabled" />
@@ -816,7 +816,7 @@
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
                                                 <Button id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
-                                                <Button id="applyAxisSettings" onAction="#handleApplyAxisSettings" text="Apply" />
+                                                <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
                                           </children>
@@ -846,7 +846,7 @@
                                               </items>
                                             </ChoiceBox>
                                             <Label id="lblAxisAMode" text="Switch Mode" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbAxisALimitSwitch" fx:id="axisAlimitSwitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                            <ChoiceBox id="cbAxisAswitchMode" fx:id="axisAswitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
                                                   <String fx:value="Disabled" />
@@ -894,7 +894,7 @@
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
                                                 <Button id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
-                                                <Button id="applyAxisSettings" onAction="#handleApplyAxisSettings" text="Apply" />
+                                                <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
                                           </children>
@@ -908,7 +908,7 @@
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
                                                 <Button fx:id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
-                                                <Button fx:id="applyAxisSettings" onAction="#handleApplyAxisSettings" text="Apply" />
+                                                <Button fx:id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
                                             <Label id="lblAxisBMode" text="Axis Mode" GridPane.columnIndex="0" GridPane.rowIndex="0" />
@@ -930,7 +930,7 @@
                                               </items>
                                             </ChoiceBox>
                                             <Label id="lblAxisBMode" text="Switch Mode" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbAxisBLimitSwitch" fx:id="axisBlimitSwitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                            <ChoiceBox id="cbAxisBswitchMode" fx:id="axisBswitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
                                                   <String fx:value="Disabled" />
@@ -1008,7 +1008,7 @@
                                               </tooltip>
                                             </ChoiceBox>
                                             <Label id="lblAxisCMode" text="Switch Mode" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbAxisCLimitSwitch" fx:id="axisClimitSwitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                            <ChoiceBox id="cbAxisCswitchMode" fx:id="axisCswitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
                                                   <String fx:value="Disabled" />
@@ -1052,7 +1052,7 @@
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
                                                 <Button id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
-                                                <Button id="applyAxisSettings" onAction="#handleApplyAxisSettings" text="Apply" />
+                                                <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
                                           </children>
@@ -1125,7 +1125,7 @@
                 </AnchorPane>
               </content>
             </Tab>
-            <Tab fx:id="settings_tab" closable="false" disable="true" text="tgFX Settings">
+            <Tab fx:id="settings_tab" closable="false"  text="tgFX Settings">
               <content>
                 <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
               </content>

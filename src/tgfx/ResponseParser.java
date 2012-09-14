@@ -73,8 +73,8 @@ public class ResponseParser extends Observable implements Runnable {
 
 
             try {
-                parseJSON((String)responseQueue.take());  //Take a line from the response queue when its ready and parse it.
-                
+                parseJSON((String) responseQueue.take());  //Take a line from the response queue when its ready and parse it.
+
             } catch (Exception ex) {
                 Main.logger.error("[!]Error in responseParser run()");
             }
@@ -92,12 +92,48 @@ public class ResponseParser extends Observable implements Runnable {
 //    }
     }
 
+    private String[] getStatusMessage(JsonRootNode json) {
+        /**
+         * This function parses all return status codes and messages before
+         * anything else
+         */
+        String statusMessage;
+        String statusCode;
+        try {
+            statusMessage = json.getNode("r").getNode("sm").getText();
+            statusCode = json.getNode("r").getNode("sc").getText();
+            String[] ret = {statusMessage, statusCode};
+            return (ret);
+        } catch (Exception ex) {
+            String[] ret = {"JSON Invalid", "-1"};
+            return (ret);
+        }
+    }
+
     public void parseJSON(String line) {
         String axis;
+        String[] statusResponse;
         int motor;
         try {
             //Create our JSON Parsing Object
             JsonRootNode json = JDOM.parse(line);
+            statusResponse = getStatusMessage(json);
+
+
+            //This is a way to catch status codes that we do not want to parse out the rest of the message
+            //40 is an Unrecognized Command
+            //-1 is an error in parsing the json
+            
+            switch (Integer.valueOf(statusResponse[1])) {
+                case -1:
+                    Main.logger.info("[!]Error Parsing JSON line: " + line);
+                    return;
+                case 40:
+                    Main.logger.info("[!]" + statusResponse[0] + " ignoring rest of JSON message..");
+                    return;
+                default:
+                    
+            }
 
             if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
                 //Parse Status Report
@@ -155,8 +191,8 @@ public class ResponseParser extends Observable implements Runnable {
                 //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
                 TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sys").getNode("fv").getText()));
                 TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sys").getNode("fb").getText()));
-                TinygDriver.getInstance().m.setStatus_report_interval(Integer.parseInt((json.getNode("r").getNode("bd").getNode("sys").getNode("si").getText())));
-                TinygDriver.getInstance().m.setEnable_acceleration(Boolean.parseBoolean((json.getNode("r").getNode("bd").getNode("sys").getNode("ea").getText())));
+                TinygDriver.getInstance().m.setStatus_report_interval(Integer.parseInt(json.getNode("r").getNode("bd").getNode("sys").getNode("si").getText()));
+                TinygDriver.getInstance().m.setEnable_acceleration(Boolean.parseBoolean(json.getNode("r").getNode("bd").getNode("sys").getNode("ex").getText()));
                 TinygDriver.getInstance().m.setJunction_acceleration(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sys").getNode("ml").getText())));
                 TinygDriver.getInstance().m.setMin_segment_time(Double.parseDouble(json.getNode("r").getNode("bd").getNode("sys").getNode("mt").getText()));
                 TinygDriver.getInstance().m.setMin_arc_segment(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sys").getNode("ma").getText())));
@@ -170,43 +206,43 @@ public class ResponseParser extends Observable implements Runnable {
             } /**
              * Start Checking for Motor Responses
              */
-            else if (line.startsWith("{\"1\":") && !line.contains("null")) {
+            else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_1) && !line.contains("null")) {
                 motor = 1;
                 parseJsonMotorSettings(line, motor);
-            } else if (line.startsWith("{\"2\":") && !line.contains("null")) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_2) && !line.contains("null")) {
                 motor = 2;
                 parseJsonMotorSettings(line, motor);
-            } else if (line.startsWith("{\"3\":") && !line.contains("null")) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_3) && !line.contains("null")) {
                 motor = 3;
                 parseJsonMotorSettings(line, motor);
-            } else if (line.startsWith("{\"4\":") && !line.contains("null")) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_4) && !line.contains("null")) {
                 motor = 4;
                 parseJsonMotorSettings(line, motor);
-            } else if (line.startsWith("{\"5\":") && !line.contains("null")) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_5) && !line.contains("null")) {
                 motor = 5;
                 parseJsonMotorSettings(line, motor);
-            } else if (line.startsWith("{\"6\":") && !line.contains("null")) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_6) && !line.contains("null")) {
                 motor = 6;
                 parseJsonMotorSettings(line, motor);
             } /**
              * Start Checking for Axis Responses
              */
-            else if (line.startsWith("{\"x\":") && !line.contains("null")) {
+            else if (line.startsWith(TinygDriver.RESPONSE_AXIS_X) && !line.contains("null")) {
                 axis = "x";
                 parseJsonAxisSettings(line, axis);
-            } else if (line.startsWith("{\"y\":") && !line.contains("null")) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_AXIS_Y) && !line.contains("null")) {
                 axis = "y";
                 parseJsonAxisSettings(line, axis);
-            } else if (line.startsWith("{\"z\":") && !line.contains("null")) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_AXIS_Z) && !line.contains("null")) {
                 axis = "z";
                 parseJsonAxisSettings(line, axis);
-            } else if (line.startsWith("{\"a\":") && !line.contains("null")) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_AXIS_A) && !line.contains("null")) {
                 axis = "a";
                 parseJsonAxisSettings(line, axis);
-            } else if (line.startsWith("{\"b\":") && !line.contains("null")) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_AXIS_B) && !line.contains("null")) {
                 axis = "b";
                 parseJsonAxisSettings(line, axis);
-            } else if (line.startsWith("{\"c\":") && !line.contains("null")) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_AXIS_C) && !line.contains("null")) {
                 axis = "c";
                 parseJsonAxisSettings(line, axis);
             }
@@ -261,11 +297,11 @@ public class ResponseParser extends Observable implements Runnable {
         Axis ax = TinygDriver.getInstance().m.getAxisByName(axis.toUpperCase());
 
         //m.getMotorByNumber(motor).setMapToAxis(Integer.valueOf((json.getNode(strMotor).getNode("ma").getText())));
-        ax.setAxis_mode(Integer.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_AXIS_MODE).getText())));
-        ax.setFeed_rate_maximum(Float.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_FEEDRATE_MAXIMUM).getText())));
-        ax.setVelocity_maximum(Float.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_VELOCITY_MAXIMUM).getText())));
-        ax.setTravel_maximum(Float.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_TRAVEL_MAXIMUM).getText())));
-        ax.setJerk_maximum(Double.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JERK_MAXIMUM).getText())));
+        ax.setAxis_mode(Integer.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_AXIS_MODE).getText())));
+        ax.setFeed_rate_maximum(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_FEEDRATE_MAXIMUM).getText())));
+        ax.setVelocity_maximum(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_VELOCITY_MAXIMUM).getText())));
+        ax.setTravel_maximum(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_TRAVEL_MAXIMUM).getText())));
+        ax.setJerk_maximum(Double.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JERK_MAXIMUM).getText())));
 
         //This is a bug fix.  This was messed up in firmware builds < 338.05
         //This will go away eventually
@@ -274,10 +310,10 @@ public class ResponseParser extends Observable implements Runnable {
         //            ax.setJunction_devation(Float.valueOf((json.getNode(axis).getNode("cd").getText())));
         //        } else {
         //            //This is the correct syntax
-        ax.setJunction_devation(Float.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JUNCTION_DEVIATION).getText())));
+        ax.setJunction_devation(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JUNCTION_DEVIATION).getText())));
         //        }
-        Boolean setSwitch_mode = ax.setSwitch_mode(Integer.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SWITCH_MODE).getText())));
-        Boolean setSearch_velocity = ax.setSearch_velocity(Float.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY).getText())));
+        Boolean setSwitch_mode = ax.setSwitch_mode(Integer.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SWITCH_MODE).getText())));
+        Boolean setSearch_velocity = ax.setSearch_velocity(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY).getText())));
 
         //This is a bug fix.  This was messed up in firmware builds < 338.05
         //This will go away eventually
@@ -285,18 +321,18 @@ public class ResponseParser extends Observable implements Runnable {
         //            ax.setLatch_velocity(Float.valueOf((json.getNode(axis).getNode("ls").getText())));
         //        } else {
         //This is the correct syntax
-        ax.setLatch_velocity(Float.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_VELOCITY).getText())));
+        ax.setLatch_velocity(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_VELOCITY).getText())));
         //        } 
 
-        ax.setLatch_backoff(Float.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_BACKOFF).getText())));
-        ax.setZero_backoff(Float.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_ZERO_BACKOFF).getText())));
+        ax.setLatch_backoff(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_BACKOFF).getText())));
+        ax.setZero_backoff(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_ZERO_BACKOFF).getText())));
         //        if (ax.getAxisType() == Axis.AXIS_TYPE.ROTATIONAL) {
         //            ax = (RotationalAxis) ax;
         //            RotationalAxis.AX.setRadius(Float.valueOf((json.getNode(axis).getNode("ra").getText())));
         //        }
 
         if (ax.getAxisType().equals(Axis.AXIS_TYPE.ROTATIONAL)) {
-            ax.setRadius(Float.valueOf((json.getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_RADIUS).getText())));
+            ax.setRadius(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_RADIUS).getText())));
         }
         setChanged();
         notifyObservers("CMD_GET_AXIS_SETTINGS");
@@ -309,12 +345,12 @@ public class ResponseParser extends Observable implements Runnable {
         String strMotor = String.valueOf(motor);
 
 
-        TinygDriver.getInstance().m.getMotorByNumber(motor).setMapToAxis(Integer.valueOf((json.getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_MAP_AXIS).getText())));
-        TinygDriver.getInstance().m.getMotorByNumber(motor).setStep_angle(Float.valueOf(json.getNode(strMotor).getNode("sa").getText()));
-        TinygDriver.getInstance().m.getMotorByNumber(motor).setTravel_per_revolution(Float.valueOf(json.getNode(strMotor).getNode("tr").getText()));
-        TinygDriver.getInstance().m.getMotorByNumber(motor).setPolarity(Integer.valueOf((json.getNode(strMotor).getNode("po").getText())));
-        TinygDriver.getInstance().m.getMotorByNumber(motor).setPower_management(Integer.valueOf((json.getNode(strMotor).getNode("pm").getText())));
-        TinygDriver.getInstance().m.getMotorByNumber(motor).setMicrosteps(Integer.valueOf(json.getNode(strMotor).getNode("mi").getText()));
+        TinygDriver.getInstance().m.getMotorByNumber(motor).setMapToAxis(Integer.valueOf((json.getNode("r").getNode("bd").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_MAP_AXIS).getText())));
+        TinygDriver.getInstance().m.getMotorByNumber(motor).setStep_angle(Float.valueOf(json.getNode("r").getNode("bd").getNode(strMotor).getNode("sa").getText()));
+        TinygDriver.getInstance().m.getMotorByNumber(motor).setTravel_per_revolution(Float.valueOf(json.getNode("r").getNode("bd").getNode(strMotor).getNode("tr").getText()));
+        TinygDriver.getInstance().m.getMotorByNumber(motor).setPolarity(Integer.valueOf((json.getNode("r").getNode("bd").getNode(strMotor).getNode("po").getText())));
+        TinygDriver.getInstance().m.getMotorByNumber(motor).setPower_management(Integer.valueOf((json.getNode("r").getNode("bd").getNode(strMotor).getNode("pm").getText())));
+        TinygDriver.getInstance().m.getMotorByNumber(motor).setMicrosteps(Integer.valueOf(json.getNode("r").getNode("bd").getNode(strMotor).getNode("mi").getText()));
 
         //TODO: Add support for new switch modes all 4 of them.
 
@@ -380,21 +416,21 @@ public class ResponseParser extends Observable implements Runnable {
             //This is a input command
             //{"ee":"1"}
             buf = "";
-            
-            
-            
-            
-            
-            
-            
+
+
+
+
+
+
+
 //            TinygDriver.getInstance().ser.setClearToSend(true); //These commands to no illicit a response with a "msg" in it.
             //We manually set it to clear to send.
-            
-            
-            
-            
-            
-            
+
+
+
+
+
+
             parseJSON(line);
 
         } else if (line.startsWith("{\"")) {
@@ -417,7 +453,6 @@ public class ResponseParser extends Observable implements Runnable {
             buf = line;
         }
     }
-
 //    private void getOKcheck(String l) throws Exception {
 //        if (l.startsWith("{\"gc\":{\"gc\":")) {
 //            //This is our "OK" buffer message.  If we get inside the code then we got a response

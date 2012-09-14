@@ -91,7 +91,7 @@ public class Main implements Initializable, Observer {
             motor1ConfigPolarity, motor2ConfigPolarity, motor3ConfigPolarity, motor4ConfigPolarity,
             motor1ConfigPowerMode, motor2ConfigPowerMode, motor3ConfigPowerMode, motor4ConfigPowerMode,
             axisAmode, axisBmode, axisCmode, axisXmode, axisYmode, axisZmode,
-            axisAlimitSwitchMode, axisBlimitSwitchMode, axisClimitSwitchMode, axisXlimitSwitchMode, axisYlimitSwitchMode, axisZlimitSwitchMode;
+            axisAswitchMode, axisBswitchMode, axisCswitchMode, axisXswitchMode, axisYswitchMode, axisZswitchMode;
     @FXML
     Group canvsGroup;  //Drawing Canvas
     @FXML
@@ -199,7 +199,7 @@ public class Main implements Initializable, Observer {
     }
 
     @FXML
-    private void handleApplyAxisSettings(ActionEvent evt) {
+    private void handleAxisApplySettings(ActionEvent evt) {
         console.appendText("[+]Applying Axis.......\n");
         try {
 
@@ -248,7 +248,7 @@ public class Main implements Initializable, Observer {
     }
 
     @FXML
-    void handleMotorApply(ActionEvent evt) {
+    void handleMotorApplySettings(ActionEvent evt) {
         console.appendText("[+]Applying Motor.......\n");
         try {
             tg.applyHardwareMotorSettings(motorTabPane.getSelectionModel().getSelectedItem());
@@ -492,11 +492,8 @@ public class Main implements Initializable, Observer {
             //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
 //            tg.write(TinygDriver.CMD_ENABLE_JSON_OUTPUT_FORMAT);
 //            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
-            tg.write("{\"gc\":\"g0x10\"}\n");
             tg.write(TinygDriver.CMD_APPLY_DISABLE_HASHCODE);
-            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
             tg.write(TinygDriver.CMD_APPLY_DISABLE_LOCAL_ECHO);
-            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 //            tg.write(TinygDriver.CMD_APPLY_STATUS_UPDATE_INTERVAL);
 //            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 
@@ -512,10 +509,8 @@ public class Main implements Initializable, Observer {
 
 //            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
             tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero
-            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 
             tg.write(TinygDriver.CMD_QUERY_MACHINE_SETTINGS);  //On command to rule them all.
-            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
 
 
 
@@ -997,6 +992,7 @@ public class Main implements Initializable, Observer {
         final String l = line;
         Platform.runLater(new Runnable() {
 
+            @Override
             public void run() {
                 //We are now back in the EventThread and can update the GUI
                 try {
@@ -1148,7 +1144,7 @@ public class Main implements Initializable, Observer {
                                 axisAjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                                 axisAsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                                 axisAzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
-                                axisAlimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
+                                axisAswitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                                 axisAmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                                 axisAmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
 //                                axisAmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
@@ -1163,7 +1159,7 @@ public class Main implements Initializable, Observer {
                                 axisBjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                                 axisBsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                                 axisBzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
-                                axisBlimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
+                                axisBswitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                                 axisBmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                                 axisBmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
                                 //                                axisBmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
@@ -1178,7 +1174,7 @@ public class Main implements Initializable, Observer {
                                 axisCjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                                 axisCsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                                 axisCzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
-                                axisClimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
+                                axisCswitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                                 axisCmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                                 axisCmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
 //                                axisCmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
@@ -1196,7 +1192,7 @@ public class Main implements Initializable, Observer {
                                 axisXjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                                 axisXsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                                 axisXzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
-                                axisXlimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
+                                axisXswitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                                 axisXmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                                 axisXmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
 //                                axisXmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
@@ -1214,7 +1210,7 @@ public class Main implements Initializable, Observer {
                                 axisYjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                                 axisYsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                                 axisYzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
-                                axisYlimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
+                                axisYswitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                                 axisYmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                                 axisYmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
 //                                axisYmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
@@ -1232,7 +1228,7 @@ public class Main implements Initializable, Observer {
                                 axisZjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                                 axisZsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                                 axisZzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
-                                axisZlimitSwitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
+                                axisZswitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                                 axisZmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                                 axisZmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
 //                                axisZmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));

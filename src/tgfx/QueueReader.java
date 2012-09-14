@@ -35,7 +35,7 @@ public class QueueReader extends Observable implements Runnable {
     public void setRun(boolean RUN) {
         this.RUN = RUN;
     }
-    private static final String commandReturn = "{\"gc\":{\"gc\":\"";
+    private static final String commandReturn = "{\"r\":{\"bd\":{\"";
 
     @Override
     public void run() {
@@ -56,35 +56,44 @@ public class QueueReader extends Observable implements Runnable {
                             if (json.equals("")) {
                                 continue;
                             } else {
-                                //Flow.logger.debug("\t QueueReader... {sr} Processed... " + json);
-                                //Flow.logger.debug("\tResponse Queue Buffer Size: " + String.valueOf(queue.size()));
-
-                                if (json.length() > commandReturn.length()) {
-                                    int differences = 0;
-                                    for (int spot = 0; spot < commandReturn.length(); ++spot) {
-                                        if (json.charAt(spot) != commandReturn.charAt(spot)) {
-                                            ++differences;
-                                        }
-                                    }
-                                    if (differences <= 2) {
-
-                                        int commandSize = TinygDriver.getInstance().commandComplete(json);
-//                                        TinygDriver.getInstance().resParse.appendJsonQueue(json);
-                                        //Flow.logger.debug("\t QueueReader Processed this JSON: " + json);
-                                        Main.logger.debug("Popped " + commandSize + " approximately " + TinygDriver.getInstance().approximateFreespace() + " bytes free " + differences + " differences from " + commandReturn);
-//                                    	                                	}
-                                    } else {
-                                        Main.logger.debug(json + "[[" + differences + "]]");
-                                    }
-                                }
                                 TinygDriver.getInstance().resParse.appendJsonQueue(json);
-                                json = "";
-
+                                json = ""; //
                             }
                         } else {
                             json = json + (String.valueOf((char) tmp[i]));
-
                         }
+//                                //Flow.logger.debug("\t QueueReader... {sr} Processed... " + json);
+//                                //Flow.logger.debug("\tResponse Queue Buffer Size: " + String.valueOf(queue.size()));
+//
+//                                if (json.length() > commandReturn.length()) {
+//                                    int differences = 0;
+//                                    for (int spot = 0; spot < commandReturn.length(); ++spot) {
+//                                        if (json.charAt(spot) != commandReturn.charAt(spot)) {
+//                                            ++differences;
+//                                        }
+//                                    }
+//                                    if (differences <= 2) {
+//
+//                                        int commandSize = TinygDriver.getInstance().commandComplete(json);
+////                                        TinygDriver.getInstance().resParse.appendJsonQueue(json);
+//                                        //Flow.logger.debug("\t QueueReader Processed this JSON: " + json);
+//                                        Main.logger.debug("Popped " + commandSize + " approximately " + TinygDriver.getInstance().approximateFreespace() + " bytes free " + differences + " differences from " + commandReturn);
+////                                    	                                	}
+//                                    } else {
+//                                        Main.logger.debug(json + "[[" + differences + "]]");
+//                                    }
+//                                }
+//                                TinygDriver.getInstance().resParse.appendJsonQueue(json);
+//                                json = "";
+//
+//                            }
+//                        } else {
+//                            json = json + (String.valueOf((char) tmp[i]));
+//
+//                        }
+//                    }
+
+
                     }
                 }
             } catch (Exception ex) {
