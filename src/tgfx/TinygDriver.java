@@ -53,11 +53,11 @@ public class TinygDriver extends Observable {
     public static final String CMD_APPLY_ZERO_ALL_AXIS = "{\"gc\":\"g92x0y0z0a0\"}\n";
     public static final String CMD_APPLY_DISABLE_LOCAL_ECHO = "{\"ee\":0}\n";
     public static final String CMD_APPLY_DISABLE_HASHCODE = "{\"eh\":0\"}\n";
+    public static final String CMD_APPLY_DEFAULT_SETTINGS = "{\"defaults\":1}\n";
     public static final String CMD_APPLY_STATUS_UPDATE_INTERVAL = "{\"si\":200}\n";
     public static final String CMD_APPLY_PAUSE = "!\n";
     public static final String CMD_APPLY_RESUME = "~\n";
     public static final String CMD_APPLY_DISABLE_XON_XOFF = "{\"ex\":1}\n";
-    public static final String CMD_APPLY_RESTORE_DEFAULTS = "$defaults=1\n";
     public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":G920g0x0y0z0}\n";
     public static final String RESPONSE_STATUS_REPORT = "{\"r\":{\"bd\":{\"sr\":{";
     //public static final String RESPONSE_STATUS_REPORT = "{\"sr\":{";

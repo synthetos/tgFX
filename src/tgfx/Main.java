@@ -258,6 +258,28 @@ public class Main implements Initializable, Observer {
         }
     }
 
+    private String checkConectedMessage() {
+        if (TinygDriver.getInstance().isConnected()) {
+            return ("true");
+        } else {
+            return ("[!]TinyG is Not Connected");
+        }
+    }
+
+    @FXML
+    void handleApplyDefaultSettings(ActionEvent evt) {
+        try {
+            if (checkConectedMessage().equals("true")) {
+                TinygDriver.getInstance().write(TinygDriver.CMD_APPLY_DEFAULT_SETTINGS);
+            }else{
+                Main.logger.error(checkConectedMessage());
+                console.appendText(checkConectedMessage());
+            }
+        } catch (Exception ex) {
+            Main.logger.error("[!]Error Applying Default Settings");
+        }
+    }
+
     @FXML
     void handleRemoteListener(ActionEvent evt) {
 //        if (tg.isConnected()) {

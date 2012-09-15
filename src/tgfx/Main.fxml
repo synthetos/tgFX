@@ -1091,7 +1091,7 @@
                                   <children>
                                     <Button id="button1" text="Import Config" />
                                     <Button id="button2" text="Load" />
-                                    <Button id="button3" text="Defaults" />
+                                    <Button id="button3" text="Defaults" onAction="#handleApplyDefaultSettings"/>
                                   </children>
                                   <VBox.margin>
                                     <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
