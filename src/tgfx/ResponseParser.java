@@ -118,6 +118,7 @@ public class ResponseParser extends Observable implements Runnable {
             //Create our JSON Parsing Object
             JsonRootNode json = JDOM.parse(line);
             statusResponse = getStatusMessage(json);
+            TinygDriver.getInstance().commandComplete(json);
 
 
             //This is a way to catch status codes that we do not want to parse out the rest of the message

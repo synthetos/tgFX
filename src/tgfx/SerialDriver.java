@@ -154,7 +154,7 @@ public class SerialDriver implements SerialPortEventListener {
 
             Main.logger.debug("[+]Opened " + port + " successfully.");
             setConnected(true); //Register that this is connectionState.
-            TinygDriver.getInstance().setClearToSend(true);
+//            TinygDriver.getInstance().setClearToSend(true);
             return true;
 
         } catch (PortInUseException ex) {

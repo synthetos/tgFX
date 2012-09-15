@@ -4,6 +4,7 @@
  */
 package tgfx;
 
+import argo.jdom.JsonRootNode;
 import java.util.ArrayList;
 import java.util.List;
 import tgfx.system.Machine;
@@ -124,13 +125,18 @@ public class TinygDriver extends Observable {
     // Hardware
     private String buf; // Buffer to store parital json lines
     private boolean PAUSED = false;
-    private AtomicBoolean ClearToSend = new AtomicBoolean(true);
+    //private AtomicBoolean ClearToSend = new AtomicBoolean(true);
     public static int processedMsgs;
-    private static final int maxbuffer = 100;
-    public static final int ERROR = -maxbuffer - 1;
-    private int freespace = maxbuffer;
-    private ArrayBlockingQueue<String> ouputBuffer = new ArrayBlockingQueue<String>(
-            maxbuffer);
+    //private static final int maxbuffer = 250; //keep space for cancel and resume
+    public static final int ERROR = -256;
+    private int freespace = 250;
+    private int waitingCommandSize = 0;
+    private int extraFree = 72;
+    private long lastCommandSent;
+    private int  lastCommandSize;
+    private int  bustedBuffer = 0;
+//    private ArrayBlockingQueue<String> ouputBuffer = new ArrayBlockingQueue<String>(
+//            maxbuffer);
     ReentrantLock lock = new ReentrantLock();
     private Condition clearToSend = lock.newCondition();
 
@@ -144,36 +150,56 @@ public class TinygDriver extends Observable {
     }
 
     public int getFreeSpace() {
-        lock.lock();
+        //lock.lock();
         int ret = freespace;
-        lock.unlock();
+        //lock.unlock();
         return ret;
     }
 
-    public int commandComplete(String jsonReturn) throws InterruptedException {
+
+    public int commandComplete(JsonRootNode jsonReturn) throws InterruptedException {
         //logger.debug("taking");
         //int completedSize = this.ouputBuffer.take();
-        String completedCommand = this.ouputBuffer.take();
-        int completedSize = completedCommand.length();
-        if (jsonReturn.contains(completedCommand.substring(0, completedSize - 2))) {
-            logger.debug("[" + jsonReturn + "] contains [" + completedCommand.substring(0, completedSize - 2) + "]");
-        } else {
-            logger.error("[" + jsonReturn + "] DOES NOT CONTAIN [" + completedCommand.substring(0, completedSize - 2) + "]");
-        }
+        //String completedCommand = this.ouputBuffer.take();
+        //int completedSize = completedCommand.length();
+        //if (jsonReturn.contains(completedCommand.substring(0, completedSize - 2))) {
+        //    logger.debug("[" + jsonReturn + "] contains [" + completedCommand.substring(0, completedSize - 2) + "]");
+        //} else {
+        //    logger.error("[" + jsonReturn + "] DOES NOT CONTAIN [" + completedCommand.substring(0, completedSize - 2) + "]");
+        //}
         //logger.debug("locking");
-        lock.lock();
-        boolean wakeUpCall = freespace <= 0;
-        //logger.debug("adding " + completedSize + " to freespace " + freespace);
-        freespace += completedSize;
-        logger.debug("checking freespace " + freespace + " >= 0");
-        if (wakeUpCall && freespace >= 0) {
-            //logger.debug("signaling sender");
-            clearToSend.signal();
+        int bufferAvailable;
+        
+        try {
+            bufferAvailable = Integer.parseInt(jsonReturn.getNode("r").getNode("buf").getText());
+            logger.debug("buffer size: " + bufferAvailable);
+        } catch(Exception ex) {
+            logger.info("could not get buffer size", ex);
+            return 0;
         }
-        //logger.debug("unlocking");
-        lock.unlock();
-        //logger.debug("returning " + completedSize);
-        return completedSize;
+        
+        lock.lock();
+        freespace = bufferAvailable;
+        
+        if( freespace < extraFree ) {
+            this.bustedBuffer++;
+            logger.error("busted buffer " + bustedBuffer);
+        }
+        try {
+            if( waitingCommandSize > 0 ) { //could something be waiting?
+                if( freespace >= waitingCommandSize ) { //is there enough to fit their message?
+                    logger.debug("signalling awaiting writer " + bufferAvailable + " > " + waitingCommandSize);
+                    clearToSend.signal();
+                } else {
+                    logger.debug("not enough space " + bufferAvailable + " < " + waitingCommandSize);
+                }
+            } else {
+                logger.debug("nothing waiting " + freespace + " > " + waitingCommandSize );
+            }
+        } finally {
+            lock.unlock();
+        }
+        return bufferAvailable;
     }
 
     public void getAllMotorSettings() throws Exception {
@@ -550,16 +576,23 @@ public class TinygDriver extends Observable {
     }
 
     private int waitForSpace(String command) {
+        int requiredSpace = command.length() + 1 + extraFree;
+        logger.debug("looking for " + requiredSpace + " bytes");
         lock.lock();
-        this.ouputBuffer.add(command);
         try {
-            freespace -= command.length();
-            while (freespace < 0) {
-                clearToSend.await();
+            if( freespace < requiredSpace ) { // if we need to wait
+                waitingCommandSize = requiredSpace; // let reader know what we are looking for
+                while( freespace < requiredSpace ) {
+                    logger.debug("waiting for " + requiredSpace + " free bytes ...");
+                    clearToSend.await(); // and wait
+                }
+                logger.debug("awake " + freespace);
+                waitingCommandSize = 0;
             }
+            freespace -= command.length() - 1; //space for newline
             return freespace;
         } catch (InterruptedException intex) {
-            intex.printStackTrace();
+            logger.error("Interrupted while waiting for availabe space", intex);
             return ERROR;
         } finally {
             lock.unlock();
@@ -568,6 +601,10 @@ public class TinygDriver extends Observable {
 
     public int approximateFreespace() {
         return freespace;
+    }
+    
+    public int getBustedBufferCount() {
+        return bustedBuffer;
     }
 
     private TinygDriver() {
@@ -657,9 +694,10 @@ public class TinygDriver extends Observable {
         // TinygDriver.getInstance().setClearToSend(false);
 
         //Flow.logger.debug("waiting for space");
-//        int spaceAvailable = waitForSpace(msg);
+        int spaceAvailable = waitForSpace(msg);
 //        Main.logger.debug("wrote " + msg.length() + " byte message, " + spaceAvailable + " bytes available in hardware buffer");
         ser.write(msg);
+        Thread.sleep(72);
 
         // } else {
         // ser.write(msg);
@@ -667,7 +705,7 @@ public class TinygDriver extends Observable {
         // Thread.sleep(10);
         // }
     }
-
+/*
     public synchronized void setClearToSend(boolean choice) throws Exception {
         ClearToSend.set(choice);
     }
@@ -675,7 +713,7 @@ public class TinygDriver extends Observable {
     public synchronized boolean getClearToSend() {
         return ClearToSend.get();
     }
-
+*/
     public void priorityWrite(String msg) throws Exception {
         ser.priorityWrite(msg);
     }

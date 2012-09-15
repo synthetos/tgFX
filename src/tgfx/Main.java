@@ -364,7 +364,7 @@ public class Main implements Initializable, Observer {
                 String[] gcodeProgramList = gcodesList.getText().split("\n");
                 String line;
                 tg.setCANCELLED(false);  //Clear this flag if was canceled in a previous job
-                TinygDriver.getInstance().setClearToSend(true);
+                //TinygDriver.getInstance().setClearToSend(true);
 
 
                 for (String l : gcodeProgramList) {
@@ -375,6 +375,8 @@ public class Main implements Initializable, Observer {
                     line = "{\"gc\":\"" + l + "\"}" + "\n";
                     tg.write(line);
                 }
+                
+                logger.debug(tg.getBustedBufferCount() + " times buffer below threshold");
 
                 return true;
             }
@@ -732,7 +734,7 @@ public class Main implements Initializable, Observer {
                         //If someone resets TinyG's defaults we need to completely refresh the system.
                         console.appendText("[#]Restoring TinyG Defaults... Please Wait.....\n");
                         Thread.sleep(50); // Let the console update before we start to pause the UI thread.
-                        tg.write(TinygDriver.CMD_APPLY_RESTORE_DEFAULTS);
+                        tg.write(TinygDriver.CMD_APPLY_DEFAULT_SETTINGS);
                         Thread.sleep(4000);  //This takes a bit of time to run on TinyG.  We might want to 
                         //make this into a runnable or something of the sort.  For now we pause in the main event loop :(
                         onConnectActions();
