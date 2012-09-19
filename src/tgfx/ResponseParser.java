@@ -24,7 +24,8 @@ public class ResponseParser extends Observable implements Runnable {
     private JdomParser JDOM = new JdomParser(); //JSON Object Parser
     boolean RUN = true;
     String buf = "";
-
+    private ResponseHeader responseHeader =  new ResponseHeader();  //our holder for ResponseHeader Data
+    
     public void appendJsonQueue(String jq) {
         try {
             this.responseQueue.put(jq);
@@ -37,16 +38,15 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
+        
     }
 
     @Override
     public void run() {
         Main.logger.info("Respone Parser Running");
         String line;
-
+       
         while (RUN) {
-            // try {
-
 
             //DEBUGGING FOR NEW STUFF
                 /*
@@ -78,59 +78,48 @@ public class ResponseParser extends Observable implements Runnable {
             } catch (Exception ex) {
                 Main.logger.error("[!]Error in responseParser run()");
             }
-
-
-            ////                Main.logger.debug("responseQueue: took <-- " + bytes.length + " bytes");
-//                parseResponseLine(bytes);
-//            } catch (InterruptedException ex) {
-//                RUN = false;
-//                Main.logger.info("[+]ResponseParser thread exiting...");
-//            } catch (Exception ex) {
-//                System.out.println("[!]Exception in run() on ResponseParser " + ex.getMessage());
-
         }
+    }
+
+//    private String[] getStatusMessage(JsonRootNode json) {
+//        /**
+//         * This function parses all return status codes and messages before
+//         * anything else
+//         */
+//        
+//        ResponseHeader responseHeader =  new ResponseHeader(json);
+//        
+//        try {
+//            
+//            
+//            String[] ret = {responseHeader, statusCode};
+//            return (ret);
+//        } catch (Exception ex) {
+//            String[] ret = {"JSON Invalid", "-1"};
+//            return (ret);
+//        }
 //    }
-    }
 
-    private String[] getStatusMessage(JsonRootNode json) {
-        /**
-         * This function parses all return status codes and messages before
-         * anything else
-         */
-        String statusMessage;
-        String statusCode;
-        try {
-            statusMessage = json.getNode("r").getNode("sm").getText();
-            statusCode = json.getNode("r").getNode("sc").getText();
-            String[] ret = {statusMessage, statusCode};
-            return (ret);
-        } catch (Exception ex) {
-            String[] ret = {"JSON Invalid", "-1"};
-            return (ret);
-        }
-    }
-
-    public void parseJSON(String line) {
+    public synchronized void parseJSON(String line) {
         String axis;
         String[] statusResponse;
         int motor;
         try {
             //Create our JSON Parsing Object
             JsonRootNode json = JDOM.parse(line);
-            statusResponse = getStatusMessage(json);
-            TinygDriver.getInstance().commandComplete(json);
-
+            responseHeader.parseResponseHeader(json);
+            TinygDriver.getInstance().commandComplete(responseHeader);
 
             //This is a way to catch status codes that we do not want to parse out the rest of the message
             //40 is an Unrecognized Command
             //-1 is an error in parsing the json
             
-            switch (Integer.valueOf(statusResponse[1])) {
+            switch (responseHeader.getStatusCode()) {
                 case -1:
                     Main.logger.info("[!]Error Parsing JSON line: " + line);
                     return;
                 case 40:
-                    Main.logger.info("[!]" + statusResponse[0] + " ignoring rest of JSON message..");
+                    Main.logger.info("[!]" + responseHeader.getStatusMessage() + " ignoring rest of JSON message..");
                     return;
                 default:
                     

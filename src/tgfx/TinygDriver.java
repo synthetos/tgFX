@@ -101,6 +101,7 @@ public class TinygDriver extends Observable {
     public static final int CONFIG_DELAY = 50; //50 milliseconds to allow hardware configs to be set
 //      // hardware configs to be set
     public ArrayList<String> connections = new ArrayList<String>();
+    private String tmpLineNumber = new String();
     /**
      * TinyG Parsing Strings
      */
@@ -133,8 +134,9 @@ public class TinygDriver extends Observable {
     private int waitingCommandSize = 0;
     private int extraFree = 72;
     private long lastCommandSent;
-    private int  lastCommandSize;
-    private int  bustedBuffer = 0;
+    private long  lastLineNumberSent;
+    private int lastCommandSize;
+    private int bustedBuffer = 0;
 //    private ArrayBlockingQueue<String> ouputBuffer = new ArrayBlockingQueue<String>(
 //            maxbuffer);
     ReentrantLock lock = new ReentrantLock();
@@ -156,45 +158,35 @@ public class TinygDriver extends Observable {
         return ret;
     }
 
+    public int commandComplete(ResponseHeader responseHeader) throws InterruptedException {
 
-    public int commandComplete(JsonRootNode jsonReturn) throws InterruptedException {
-        //logger.debug("taking");
-        //int completedSize = this.ouputBuffer.take();
-        //String completedCommand = this.ouputBuffer.take();
-        //int completedSize = completedCommand.length();
-        //if (jsonReturn.contains(completedCommand.substring(0, completedSize - 2))) {
-        //    logger.debug("[" + jsonReturn + "] contains [" + completedCommand.substring(0, completedSize - 2) + "]");
-        //} else {
-        //    logger.error("[" + jsonReturn + "] DOES NOT CONTAIN [" + completedCommand.substring(0, completedSize - 2) + "]");
-        //}
-        //logger.debug("locking");
         int bufferAvailable;
-        
+
         try {
-            bufferAvailable = Integer.parseInt(jsonReturn.getNode("r").getNode("buf").getText());
+            bufferAvailable = responseHeader.getBufferAvailable();
             logger.debug("buffer size: " + bufferAvailable);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             logger.info("could not get buffer size", ex);
             return 0;
         }
-        
+
         lock.lock();
         freespace = bufferAvailable;
-        
-        if( freespace < extraFree ) {
+
+        if (freespace < extraFree) {
             this.bustedBuffer++;
             logger.error("busted buffer " + bustedBuffer);
         }
         try {
-            if( waitingCommandSize > 0 ) { //could something be waiting?
-                if( freespace >= waitingCommandSize ) { //is there enough to fit their message?
+            if (waitingCommandSize > 0) { //could something be waiting?
+                if (freespace >= waitingCommandSize) { //is there enough to fit their message?
                     logger.debug("signalling awaiting writer " + bufferAvailable + " > " + waitingCommandSize);
                     clearToSend.signal();
                 } else {
                     logger.debug("not enough space " + bufferAvailable + " < " + waitingCommandSize);
                 }
             } else {
-                logger.debug("nothing waiting " + freespace + " > " + waitingCommandSize );
+                logger.debug("nothing waiting " + freespace + " > " + waitingCommandSize);
             }
         } finally {
             lock.unlock();
@@ -322,12 +314,12 @@ public class TinygDriver extends Observable {
                 ChoiceBox cb = (ChoiceBox) _gp.getChildren().get(i);
                 if (cb.getId().contains("AxisMode")) {
                     int axisMode = cb.getSelectionModel().getSelectedIndex();
-                    String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_AXIS_MODE, axisMode );
+                    String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_AXIS_MODE, axisMode);
                     this.write(configObj);
                     continue;
-                }else if(cb.getId().contains("switchMode")){
+                } else if (cb.getId().contains("switchMode")) {
                     int switchMode = cb.getSelectionModel().getSelectedIndex();
-                    String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_SWITCH_MODE, switchMode );
+                    String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_SWITCH_MODE, switchMode);
                     this.write(configObj);
                 }
 
@@ -580,9 +572,9 @@ public class TinygDriver extends Observable {
         logger.debug("looking for " + requiredSpace + " bytes");
         lock.lock();
         try {
-            if( freespace < requiredSpace ) { // if we need to wait
+            if (freespace < requiredSpace) { // if we need to wait
                 waitingCommandSize = requiredSpace; // let reader know what we are looking for
-                while( freespace < requiredSpace ) {
+                while (freespace < requiredSpace) {
                     logger.debug("waiting for " + requiredSpace + " free bytes ...");
                     clearToSend.await(); // and wait
                 }
@@ -602,7 +594,7 @@ public class TinygDriver extends Observable {
     public int approximateFreespace() {
         return freespace;
     }
-    
+
     public int getBustedBufferCount() {
         return bustedBuffer;
     }
@@ -696,24 +688,32 @@ public class TinygDriver extends Observable {
         //Flow.logger.debug("waiting for space");
         int spaceAvailable = waitForSpace(msg);
 //        Main.logger.debug("wrote " + msg.length() + " byte message, " + spaceAvailable + " bytes available in hardware buffer");
+        setCurrentlineNumber(msg);  //This will set the last line we sent to the tinyg serial input buffer
         ser.write(msg);
         Thread.sleep(72);
-
-        // } else {
-        // ser.write(msg);
-        // ser.write(TinygDriver.CMD_QUERY_OK_PROMPT);
-        // Thread.sleep(10);
-        // }
-    }
-/*
-    public synchronized void setClearToSend(boolean choice) throws Exception {
-        ClearToSend.set(choice);
     }
 
-    public synchronized boolean getClearToSend() {
-        return ClearToSend.get();
+    public void setCurrentlineNumber(String msg) {
+         //This will set the last line we sent to the tinyg serial input buffer
+        msg = msg.trim();
+        if (!msg.startsWith("N") && !msg.contains(":")) {
+            lastLineNumberSent = lastCommandSent + 1;  //Auto increment the line number as were not provided one by the gcode file / command.
+            Main.logger.debug("[+]No Line Number Detected... Using: " + lastLineNumberSent);
+        } else if (msg.startsWith("N")) {
+            for (int i = 1; i < msg.length(); i++) {  //We start at one because we know its a N at 0
+                char c = msg.charAt(i);
+                if (c >= '0' && c <= '9') {
+                     tmpLineNumber = tmpLineNumber + c;
+                } else {
+                   lastLineNumberSent = Long.valueOf(tmpLineNumber);
+                   Main.logger.debug("[+]Pulled Out Line Number: " + lastLineNumberSent);
+                   break; //This is not a number now... we will break this operation
+                }
+            }
+            
+        }
     }
-*/
+
     public void priorityWrite(String msg) throws Exception {
         ser.priorityWrite(msg);
     }
