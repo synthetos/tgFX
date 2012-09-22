@@ -46,14 +46,14 @@ public class SocketMonitor {
 
     public void handleConnections() {
         System.out.println("[+]Remote Monitor Listening for Connections....");
-        while (ser.isConnected()) {
+//        while (ser.isConnected()) {
             try {
                 final Socket socket = server.accept();
-                new ConnectionHandler(socket);
+            ConnectionHandler connectionHandler = new ConnectionHandler(socket);
             } catch (IOException ex) {
                 System.out.println("[!]Error: " + ex.getMessage());
             }
-        }
+//        }
         System.out.println("[!]Socket Monitor Terminated...");
 
     }

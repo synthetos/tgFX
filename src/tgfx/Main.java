@@ -20,11 +20,14 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
 import javafx.scene.web.WebEngine;
@@ -36,6 +39,12 @@ import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
 import org.apache.log4j.Logger;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.StrokeLineCap;
+
 import org.apache.log4j.BasicConfigurator;
 
 /**
@@ -55,6 +64,11 @@ public class Main implements Initializable, Observer {
      */
     @FXML
     private TabPane motorTabPane, axisTabPane;
+    @FXML
+    private Pane previewPane;
+    @FXML
+    private Canvas drawingCanvas;
+    GraphicsContext gp;
     @FXML
     private Button Con, Run, Connect, gcodeZero, btnClearScreen, btnRemoteListener, pauseResume;
     @FXML
@@ -93,21 +107,19 @@ public class Main implements Initializable, Observer {
             axisAmode, axisBmode, axisCmode, axisXmode, axisYmode, axisZmode,
             axisAswitchMode, axisBswitchMode, axisCswitchMode, axisXswitchMode, axisYswitchMode, axisZswitchMode;
     @FXML
-    Group canvsGroup;  //Drawing Canvas
-    @FXML
     Group motor1Node;
     @FXML
     HBox bottom;
     @FXML
-    HBox canvas;
+    HBox canvasHolder;
     @FXML
     VBox topvbox;
     /**
      * Drawing Code Vars
      *
      */
-    double xPrevious = 0;
-    double yPrevious = 0;
+    double xPrevious = -1;
+    double yPrevious = -1;
     double magnification = 1;
 //    float x = 0;
 //    float y = 0;
@@ -271,7 +283,7 @@ public class Main implements Initializable, Observer {
         try {
             if (checkConectedMessage().equals("true")) {
                 TinygDriver.getInstance().write(TinygDriver.CMD_APPLY_DEFAULT_SETTINGS);
-            }else{
+            } else {
                 Main.logger.error(checkConectedMessage());
                 console.appendText(checkConectedMessage());
             }
@@ -306,7 +318,7 @@ public class Main implements Initializable, Observer {
         if (evt.getDeltaX() == 0 && evt.getDeltaY() == 40) {
             //Mouse Wheel Up
             Draw2d.setMagnification(true);
-
+            
             console.appendText("[+]Zooming in " + String.valueOf(Draw2d.getMagnification()) + "\n");
 
 
@@ -317,17 +329,21 @@ public class Main implements Initializable, Observer {
             console.appendText("[+]Zooming out " + String.valueOf(Draw2d.getMagnification()) + "\n");
         }
 
-        canvsGroup.setScaleX(Draw2d.getMagnification());
-        canvsGroup.setScaleY(Draw2d.getMagnification());
+        drawingCanvas.setScaleX(Draw2d.getMagnification());
+        drawingCanvas.setScaleY(Draw2d.getMagnification());
+        
+  
+//        canvsGroup.setScaleX(Draw2d.getMagnification());
+//        canvsGroup.setScaleY(Draw2d.getMagnification());
     }
 
-    private void reDrawPreview() {
-        for (Node n : canvsGroup.getChildren()) {
-            Line nd = (Line) n;
-            nd.setStrokeWidth(Draw2d.getStrokeWeight());
-        }
-//        console.appendText("[+]2d Preview Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
-    }
+//    private void reDrawPreview() {
+//        for (Node n : canvsGroup.getChildren()) {
+//            Line nd = (Line) n;
+//            nd.setStrokeWidth(Draw2d.getStrokeWeight());
+//        }
+////        console.appendText("[+]2d Preview Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
+//    }
 
     @FXML
     private void zeroSystem(ActionEvent evt) {
@@ -373,9 +389,14 @@ public class Main implements Initializable, Observer {
                     }
                     Thread.sleep(20);
                     line = "{\"gc\":\"" + l + "\"}" + "\n";
+                    if (TinygDriver.getInstance().isPAUSED()) {
+                        while (TinygDriver.getInstance().isPAUSED()) {
+                            Thread.sleep(50);
+                        }
+                    }
                     tg.write(line);
                 }
-                
+
                 logger.debug(tg.getBustedBufferCount() + " times buffer below threshold");
 
                 return true;
@@ -513,30 +534,13 @@ public class Main implements Initializable, Observer {
      */
     private void onConnectActions() {
         try {
-            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
-//            tg.write(TinygDriver.CMD_ENABLE_JSON_OUTPUT_FORMAT);
-//            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
+
             tg.write(TinygDriver.CMD_APPLY_DISABLE_HASHCODE);
             tg.write(TinygDriver.CMD_APPLY_DISABLE_LOCAL_ECHO);
-//            tg.write(TinygDriver.CMD_APPLY_STATUS_UPDATE_INTERVAL);
-//            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
-
-//            //DISABLE LOCAL ECHO!! THIS IS A MUST OR NOTHING WORKS
-
-//            tg.write(tg.CMD_SET_STATUS_UPDATE_INTERVAL); //Set to every X ms
-//            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
-            //this will poll for the new values and update the GUI
-
-            //Updates the Config GUI from settings currently applied on the TinyG board
             tg.getAllMotorSettings();
             tg.getAllAxisSettings();
-
-//            tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //This is required as "status reports" do not return an "OK" msg
             tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero
-
             tg.write(TinygDriver.CMD_QUERY_MACHINE_SETTINGS);  //On command to rule them all.
-
-
 
             /**
              * Draw the workspace area in the preview
@@ -597,7 +601,8 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleClearScreen(ActionEvent evt) {
         console.appendText("[+]Clearning Screen...\n");
-        canvsGroup.getChildren().clear();
+        gp.clearRect(0, 0, gp.getCanvas().getWidth(), gp.getCanvas().getHeight());
+//        canvsGroup.getChildren().clear();
     }
 
     private void handleTilda() {
@@ -609,10 +614,6 @@ public class Main implements Initializable, Observer {
         } else {
             topvbox.getChildren().add(topvbox.getChildren().size() - 1, bottom);
         }
-//        String cmd = input.getText();
-//        cmd = cmd.replace('`', ' ');  //Remove the tilda from the input box
-//        input.setText(cmd);
-// 
     }
 
     @FXML
@@ -673,11 +674,11 @@ public class Main implements Initializable, Observer {
                 }
             } else if (keyEvent.getCode() == KeyCode.F1) {
                 Draw2d.incrementSetStrokeWeight();
-                reDrawPreview();
+//                reDrawPreview();
                 console.appendText("[+]Increasing Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
             } else if (keyEvent.getCode() == KeyCode.F2) {
                 Draw2d.decrementSetStrokeWeight();
-                reDrawPreview();
+//                reDrawPreview();
                 console.appendText("[+]Decreasing Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
             }
         }
@@ -804,58 +805,74 @@ public class Main implements Initializable, Observer {
         }
     }
 
-//    private Task initRemoteServer(String port) {
-//        final String Port = port;
-//        return new Task() {
-//
-//            @Override
-//            protected Object call() throws Exception {
-//                SocketMonitor sm = new SocketMonitor(Port);
-//
-//                System.out.println("[+]Trying to start remote monitor.");
-//                return true;
-//            }
-//        };
-//    }
-//    public void drawLine(Machine.motion_modes moveType, float vel) {
-//
-//        //Code to make mm's look the same size as inches
-//        double unitMagnication = 1;
-////        if (tg.m.getUnitMode() == Machine.unit_modes.MM) {
-////            unitMagnication = 50.8;
-////        } else {
-////            unitMagnication = 2;
-////        }
-//        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position()));// + magnification;
-//        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position()));// + magnification;
-//
-//        Line l = new Line(xPrevious, yPrevious, newX, newY);
-//        l.setStroke(Draw2d.getLineColorFromVelocity(vel));
-//
-//        if (moveType == Machine.motion_modes.traverse) {
-//            //G0 Move
-//            l.setStrokeWidth(Draw2d.getStrokeWeight() / 2);
-//            l.setStroke(Draw2d.TRAVERSE);
+    private Task initRemoteServer(String port) {
+        final String Port = port;
+        return new Task() {
+
+            @Override
+            protected Object call() throws Exception {
+                SocketMonitor sm = new SocketMonitor(Port);
+
+                System.out.println("[+]Trying to start remote monitor.");
+                return true;
+            }
+        };
+    }
+
+    public void drawLine(Machine.motion_modes moveType, float vel) {
+
+        //Code to make mm's look the same size as inches
+        double unitMagnication = 1;
+//        if (tg.m.getUnitMode() == Machine.unit_modes.MM) {
+//            unitMagnication = 50.8;
+//        } else {
+//            unitMagnication = 2;
 //        }
-//
-//
-//        //CODE TO ONLY DRAW CUTTING MOVEMENTS
-////        if (tg.m.getAxisByName("Z").getWork_position() > 0) {
-////            l = null;
-////        } else {
-////            l.setStrokeWidth(Draw2d.getStrokeWeight());
-////        }
-//
+        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position()));// + magnification;
+        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position()));// + magnification;
+
+        Line l = new Line(xPrevious, yPrevious, newX, newY);
+        l.setStroke(Draw2d.getLineColorFromVelocity(vel));
+
+        if (moveType == Machine.motion_modes.traverse) {
+            //G0 Move
+            l.setStrokeWidth(Draw2d.getStrokeWeight() / 2);
+            l.setStroke(Draw2d.TRAVERSE);
+        }
+
+
+        //CODE TO ONLY DRAW CUTTING MOVEMENTS
+//        if (tg.m.getAxisByName("Z").getWork_position() > 0) {
+//            l = null;
+//        } else {
+//            l.setStrokeWidth(Draw2d.getStrokeWeight());
+//        }
+
 //        l.setStrokeWidth(Draw2d.getStrokeWeight());
-//
-//        xPrevious = newX;
-//        yPrevious = newY;
-//
+
+
+
+        if (xPrevious == -1 && yPrevious == -1) {
+            //This is the initial move.
+            //Move to the center of the canvas
+            gp.moveTo(0, gp.getCanvas().getHeight());  //(0,0) = Bottom left of the canvas
+            xPrevious = gp.getCanvas().getWidth()/2;
+            yPrevious = gp.getCanvas().getHeight()/2;
+        }
+
 //        if (l != null) {
-//            canvsGroup.getChildren().add(l);
+        gp.setLineWidth(1);
+        gp.setStroke(Color.RED);
+        gp.strokeLine(xPrevious, yPrevious, newX+gp.getCanvas().getWidth()/2, newY+gp.getCanvas().getHeight()/2);  //To correct our zero of being at the bottom left of the screen
+
+
+
+        //Record our last points.
+        xPrevious = newX+gp.getCanvas().getWidth()/2;
+        yPrevious = newY+gp.getCanvas().getHeight()/2;
 //        }
-//
-//    }
+    }
+
     private void updateGuiState(String line) {
         final String l = line;
         if (l.contains("msg")) {
@@ -1001,7 +1018,8 @@ public class Main implements Initializable, Observer {
                     vel = m.getVelocity();
                     srVelo.setText(String.valueOf(vel));
 
-                    //drawLine(m.getMotionMode(), vel, zAxisVal.getText());
+                    drawLine(TinygDriver.getInstance().m.getMotionMode(), vel);
+//                    drawLine(m.getMotionMode(), vel, zAxisVal.getText());
 //                        renderZ();
                 } catch (Exception ex) {
                     System.out.println("[!] Exception in UpdateGuiStatusReport...");
@@ -1273,16 +1291,53 @@ public class Main implements Initializable, Observer {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+
+
         BasicConfigurator.configure();
         SocketMonitor sm;
-
 
 //        WebEngine webEngine = html.getEngine();
 //        webEngine.load("http://www.synthetos.com/wiki/index.php?title=Projects:TinyG");
 
 
         logger.info("[+]tgFX is starting....");
-
+        //Make our canvas as big as the hbox that holds it is.
+//        drawingCanvas.setWidth(canvasHolder.getWidth());
+       // drawingCanvas.setHeight(canvasHolder.getMaxHeight());
+        
+        drawingCanvas.setWidth(727);
+        drawingCanvas.setHeight(515);
+        
+        double HEIGHT = drawingCanvas.getHeight();
+        double WIDTH = drawingCanvas.getWidth();
+        
+        gp = drawingCanvas.getGraphicsContext2D();
+//        gp.setFill(Color.RED);
+//        gp.getCanvas().setWidth(100);
+//        gp.getCanvas().toFront();
+//        gp.setLineWidth(2);
+//        gp.setStroke(Color.AZURE);
+//        gp.strokeLine(0,0,100,100);
+//        gp.setStroke(Color.PINK);
+//        gp.strokeLine(100,100,0,100);
+//        
+//        gp.setStroke(Color.CYAN);
+//        gp.strokeLine(0,HEIGHT, WIDTH,0);
+//        gp.setStroke(Color.BLANCHEDALMOND);
+//        gp.strokeLine(gp.getCanvas().getWidth()/2,gp.getCanvas().getHeight()/2,0,0);
+////
+//        gp.setStroke(Color.ORANGE);
+//        
+//        gp.strokeLine(0, 0, 10, gp.getCanvas().getHeight()-5);
+//        gp.setStroke(Color.BLUE);
+//        gp.strokeLine(0,0,gp.getCanvas().getHeight()-5,10);
+//        
+//        
+//        gp.setFill(Color.BLUE);
+//        
+//        gp.rect(10, 5, 10, 5);
+        
         TinygDriver.getInstance().queueReader.setRun(true);
         Thread reader = new Thread(TinygDriver.getInstance().queueReader);
         reader.setName("QueueReader");
@@ -1294,9 +1349,12 @@ public class Main implements Initializable, Observer {
         Thread threadResponseParser = new Thread(tg.resParse);
         threadResponseParser.setName("ResponseParser");
         threadResponseParser.start();
+//
+//        Thread remoteListener = new Thread(initRemoteServer("8888"));
+//        remoteListener.setName("Remote Listener Thread");
+//        remoteListener.start();
 
         tg.resParse.addObserver(this);
-//        tg.addObserver(this);
         this.reScanSerial();//Populate our serial ports
 
 

@@ -11,6 +11,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import tgfx.Main;
+import tgfx.TinygDriver;
 import tgfx.system.Axis;
 
 /**
@@ -31,7 +33,7 @@ public class ResponseParser extends Observable implements Runnable {
             this.responseQueue.put(jq);
 
         } catch (Exception ex) {
-            Main.logger.error("ERROR in appendJsonQueue(): " + ex.getMessage());
+          System.err.println("ERROR in appendJsonQueue(): " + ex.getMessage());
         }
     }
 
@@ -47,31 +49,6 @@ public class ResponseParser extends Observable implements Runnable {
         String line;
        
         while (RUN) {
-
-            //DEBUGGING FOR NEW STUFF
-                /*
-             * set clear_to_send to true
-             *
-             *
-             * while(!inputQueue.isEmpty()){
-             *
-             * if(CLEAR_TO_SEND.equals(true){ grab Line out of inputQueue() push
-             * line to hardware aka wirte()
-             *
-             * //serial.read(until \n) Okrecieved = "ok" //Read hardware /*
-             *
-             *
-             * if(hardware says ok in it){ then set clear_to_send == true }else
-             * if(status_report){ push sr into messageQueue
-             *
-             * //
-             *
-             * //DEBUGGING FOR NEW STUFF
-             *
-             *
-             */
-
-
             try {
                 parseJSON((String) responseQueue.take());  //Take a line from the response queue when its ready and parse it.
 
@@ -80,25 +57,6 @@ public class ResponseParser extends Observable implements Runnable {
             }
         }
     }
-
-//    private String[] getStatusMessage(JsonRootNode json) {
-//        /**
-//         * This function parses all return status codes and messages before
-//         * anything else
-//         */
-//        
-//        ResponseHeader responseHeader =  new ResponseHeader(json);
-//        
-//        try {
-//            
-//            
-//            String[] ret = {responseHeader, statusCode};
-//            return (ret);
-//        } catch (Exception ex) {
-//            String[] ret = {"JSON Invalid", "-1"};
-//            return (ret);
-//        }
-//    }
 
     public synchronized void parseJSON(String line) {
         String axis;
@@ -109,6 +67,7 @@ public class ResponseParser extends Observable implements Runnable {
             JsonRootNode json = JDOM.parse(line);
             responseHeader.parseResponseHeader(json);
             TinygDriver.getInstance().commandComplete(responseHeader);
+            Main.logger.debug("Response Header Line Number: " + responseHeader.getLineNumber());
 
             //This is a way to catch status codes that we do not want to parse out the rest of the message
             //40 is an Unrecognized Command
@@ -292,34 +251,12 @@ public class ResponseParser extends Observable implements Runnable {
         ax.setVelocity_maximum(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_VELOCITY_MAXIMUM).getText())));
         ax.setTravel_maximum(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_TRAVEL_MAXIMUM).getText())));
         ax.setJerk_maximum(Double.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JERK_MAXIMUM).getText())));
-
-        //This is a bug fix.  This was messed up in firmware builds < 338.05
-        //This will go away eventually
-        //        if (ax.getAxis_name().equals("B")) {
-        //            //This is not correct.  This should not be "cd" but "jd"
-        //            ax.setJunction_devation(Float.valueOf((json.getNode(axis).getNode("cd").getText())));
-        //        } else {
-        //            //This is the correct syntax
         ax.setJunction_devation(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JUNCTION_DEVIATION).getText())));
-        //        }
         Boolean setSwitch_mode = ax.setSwitch_mode(Integer.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SWITCH_MODE).getText())));
         Boolean setSearch_velocity = ax.setSearch_velocity(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY).getText())));
-
-        //This is a bug fix.  This was messed up in firmware builds < 338.05
-        //This will go away eventually
-        //        if (ax.getAxis_name().equals("C")) {
-        //            ax.setLatch_velocity(Float.valueOf((json.getNode(axis).getNode("ls").getText())));
-        //        } else {
-        //This is the correct syntax
         ax.setLatch_velocity(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_VELOCITY).getText())));
-        //        } 
-
         ax.setLatch_backoff(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_BACKOFF).getText())));
         ax.setZero_backoff(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_ZERO_BACKOFF).getText())));
-        //        if (ax.getAxisType() == Axis.AXIS_TYPE.ROTATIONAL) {
-        //            ax = (RotationalAxis) ax;
-        //            RotationalAxis.AX.setRadius(Float.valueOf((json.getNode(axis).getNode("ra").getText())));
-        //        }
 
         if (ax.getAxisType().equals(Axis.AXIS_TYPE.ROTATIONAL)) {
             ax.setRadius(Float.valueOf((json.getNode("r").getNode("bd").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_RADIUS).getText())));
@@ -350,11 +287,8 @@ public class ResponseParser extends Observable implements Runnable {
     }
 
     void parseResponseLine(byte[] chunk) throws Exception {
-
         String json = "";
-
         String[] lines;
-
 
         int chunkLength = chunk.length;
         lines = (new String(chunk)).split("\n");   //Convert our byte array to a string[] that split on "\n"
@@ -362,40 +296,10 @@ public class ResponseParser extends Observable implements Runnable {
         for (String linebuffer : lines) {
             normalizeResponseLine(linebuffer);
         }
-//        for (int i = 0; i < chunkLength - 1; i++) {
-//            if (chunk[i] != 10 && i == chunkLength - 1) {
-//                linebuffer = (json + String.valueOf((char) chunk[i]));
-//
-//            } else if (chunk[i] == 10) { //10 is a new line character
-//                normalizeResponseLine(json);
-//                Main.logger.info("LINE: == " + json);
-//                json = "";
-//            } else {
-//                json = json + String.valueOf((char) chunk[i]);
-//            }
-//        }
-//        //This was an invalid json object 
-//        normalizeResponseLine(json);
-//    }
-
     }
 
     void normalizeResponseLine(String line) throws Exception {
-        //This function takes the line from the responseLine and forms it into a valid json object
-
-        /**
-         * Build JSON Lines
-         */
-        //This code strings together lines that do not start with valid json objects
-//        Integer hashCode, calculatedHashCode;
-//        if (line.contains("msg")) {
-//            try {
-//                TinygDriver.getInstance().setClearToSend();
-//            } catch (Exception ex) {
-//                Main.logger.error("[!]Error Setting Clear to Send in normalizeResponseLine()");
-//            }
-//        }  
-//        
+       
         if (line.startsWith("{\"") && line.endsWith("}}") && buf.equals("")) {  //The buf check makes sure
             //The serial event didn't not cut off at the perfect spot and send something like this:
             //"{"gc":{"gc":"F300.0","st":0,"msg":"OK"}}  
@@ -406,21 +310,6 @@ public class ResponseParser extends Observable implements Runnable {
             //This is a input command
             //{"ee":"1"}
             buf = "";
-
-
-
-
-
-
-
-//            TinygDriver.getInstance().ser.setClearToSend(true); //These commands to no illicit a response with a "msg" in it.
-            //We manually set it to clear to send.
-
-
-
-
-
-
             parseJSON(line);
 
         } else if (line.startsWith("{\"")) {
@@ -443,19 +332,4 @@ public class ResponseParser extends Observable implements Runnable {
             buf = line;
         }
     }
-//    private void getOKcheck(String l) throws Exception {
-//        if (l.startsWith("{\"gc\":{\"gc\":")) {
-//            //This is our "OK" buffer message.  If we get inside the code then we got a response
-//            //From TinyG and we are good to push more data into TinyG.
-//            TinygDriver.getInstance().ser.setClearToSend(true);  //Set the clear to send flag to True.
-//            //DEBUG
-////            setChanged();
-////            notifyObservers("[+]Clear to Send Recvd.\n");
-//            //DEBUG
-//        } else {
-////            setChanged();
-////            notifyObservers(l + "\n");
-//        }
-//
-//    }
 }

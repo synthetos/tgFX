@@ -5,8 +5,10 @@
 <?import java.util.*?>
 <?import javafx.collections.*?>
 <?import javafx.geometry.*?>
+<?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
@@ -171,30 +173,154 @@
                             <Long fx:value="250" />
                           </prefWidth>
                         </VBox>
-                        <AnchorPane id="AnchorPane" prefHeight="510.0" prefWidth="1015.0" style="-fx-background-color: grey" HBox.hgrow="ALWAYS">
+                        <AnchorPane id="AnchorPane" prefHeight="515.0" prefWidth="361.0" style="-fx-background-color: grey" HBox.hgrow="ALWAYS">
                           <children>
-                            <VBox fx:id="gcode_preview" alignment="CENTER" layoutY="14.0" style="-fx-background-color: grey&#10;" AnchorPane.rightAnchor="14.0">
+                            <HBox style="fx-background-color:black&#10;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                               <children>
-                                <HBox alignment="CENTER" style="-fx-background-color: red;&#10; -fx-background-radius: 9,8,5,4;" VBox.margin="$x6">
+                                <HBox fx:id="canvasHolder" alignment="CENTER" style="-fx-background-color: black" HBox.hgrow="ALWAYS">
                                   <children>
-                                    <Label id="droTitle" fx:id="xAxis" text="X" />
-                                    <Label id="dro" fx:id="xAxisVal" contentDisplay="CENTER" text="0.000">
-                                      <maxWidth>
+                                    <Canvas fx:id="drawingCanvas" onScroll="#handleMouseScroll" style="-fx-background-color: red&#10;" HBox.hgrow="ALWAYS">
+                                      <height>
+                                        <Long fx:value="500" />
+                                      </height>
+                                      <width>
+                                        <Long fx:value="500" />
+                                      </width>
+                                      <HBox.margin>
+                                        <Insets />
+                                      </HBox.margin>
+                                    </Canvas>
+                                  </children>
+                                  <prefHeight>
+                                    <Long fx:value="-1" />
+                                  </prefHeight>
+                                  <prefWidth>
+                                    <Long fx:value="-1" />
+                                  </prefWidth>
+                                </HBox>
+                                <VBox fx:id="gcode_preview" alignment="CENTER_RIGHT" style="-fx-background-color: grey&#10;" HBox.hgrow="NEVER">
+                                  <children>
+                                    <HBox alignment="CENTER" style="-fx-background-color: red;&#10; -fx-background-radius: 9,8,5,4;" VBox.margin="$x6">
+                                      <children>
+                                        <Label id="droTitle" fx:id="xAxis" text="X" />
+                                        <Label id="dro" fx:id="xAxisVal" contentDisplay="CENTER" text="0.000">
+                                          <maxWidth>
+                                            <Long fx:value="-1" />
+                                          </maxWidth>
+                                          <minWidth>
+                                            <Long fx:value="200" />
+                                          </minWidth>
+                                          <prefWidth>
+                                            <Long fx:value="-1" />
+                                          </prefWidth>
+                                          <HBox.margin>
+                                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
+                                          </HBox.margin>
+                                        </Label>
+                                      </children>
+                                      <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
+                                      </padding>
+                                      <prefHeight>
                                         <Long fx:value="-1" />
-                                      </maxWidth>
-                                      <minWidth>
-                                        <Long fx:value="200" />
-                                      </minWidth>
+                                      </prefHeight>
                                       <prefWidth>
                                         <Long fx:value="-1" />
                                       </prefWidth>
-                                      <HBox.margin>
-                                        <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-                                      </HBox.margin>
-                                    </Label>
+                                      <spacing>
+                                        <Long fx:value="5" />
+                                      </spacing>
+                                    </HBox>
+                                    <HBox alignment="CENTER" padding="$x6" style="-fx-background-color: orange;&#10;    -fx-background-radius: 9,8,5,4;&#10;&#10;" VBox.margin="$x6">
+                                      <children>
+                                        <Label id="droTitle" fx:id="yAxis" text="Y" />
+                                        <Label id="dro" fx:id="yAxisVal" text="0.000">
+                                          <maxWidth>
+                                            <Long fx:value="-1" />
+                                          </maxWidth>
+                                          <minWidth>
+                                            <Long fx:value="200" />
+                                          </minWidth>
+                                          <HBox.margin>
+                                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
+                                          </HBox.margin>
+                                        </Label>
+                                      </children>
+                                      <prefHeight>
+                                        <Long fx:value="-1" />
+                                      </prefHeight>
+                                      <prefWidth>
+                                        <Long fx:value="-1" />
+                                      </prefWidth>
+                                      <spacing>
+                                        <Long fx:value="5" />
+                                      </spacing>
+                                    </HBox>
+                                    <HBox alignment="CENTER" padding="$x6" style="-fx-background-color: purple;&#10; -fx-background-radius: 9,8,5,4;&#10;" VBox.margin="$x6">
+                                      <children>
+                                        <Label id="droTitle" fx:id="zAxis" text="Z" />
+                                        <Label id="dro" fx:id="zAxisVal" text="0.000">
+                                          <maxWidth>
+                                            <Long fx:value="-1" />
+                                          </maxWidth>
+                                          <minWidth>
+                                            <Long fx:value="200" />
+                                          </minWidth>
+                                          <HBox.margin>
+                                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
+                                          </HBox.margin>
+                                        </Label>
+                                      </children>
+                                      <prefHeight>
+                                        <Long fx:value="-1" />
+                                      </prefHeight>
+                                      <prefWidth>
+                                        <Long fx:value="-1" />
+                                      </prefWidth>
+                                      <spacing>
+                                        <Long fx:value="5" />
+                                      </spacing>
+                                    </HBox>
+                                    <HBox alignment="CENTER" padding="$x6" style="-fx-background-color: blue;&#10; -fx-background-radius: 9,8,5,4;" VBox.margin="$x6">
+                                      <children>
+                                        <Label id="droTitle" fx:id="aAxis" text="A" />
+                                        <Label id="dro" fx:id="aAxisVal" text="0.000">
+                                          <maxWidth>
+                                            <Long fx:value="-1" />
+                                          </maxWidth>
+                                          <minWidth>
+                                            <Long fx:value="200" />
+                                          </minWidth>
+                                          <HBox.margin>
+                                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
+                                          </HBox.margin>
+                                        </Label>
+                                      </children>
+                                      <prefHeight>
+                                        <Long fx:value="-1" />
+                                      </prefHeight>
+                                      <prefWidth>
+                                        <Long fx:value="-1" />
+                                      </prefWidth>
+                                      <spacing>
+                                        <Long fx:value="5" />
+                                      </spacing>
+                                    </HBox>
                                   </children>
+                                  <maxHeight>
+                                    <Long fx:value="515" />
+                                  </maxHeight>
+                                  <maxWidth>
+                                    <Long fx:value="283" />
+                                  </maxWidth>
+                                  <minHeight>
+                                    <Long fx:value="-1" />
+                                  </minHeight>
+                                  <minWidth>
+                                    <Long fx:value="-1" />
+                                  </minWidth>
                                   <padding>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
+                                    <Insets left="5.0" fx:id="x3" />
                                   </padding>
                                   <prefHeight>
                                     <Long fx:value="-1" />
@@ -205,99 +331,15 @@
                                   <spacing>
                                     <Long fx:value="5" />
                                   </spacing>
-                                </HBox>
-                                <HBox alignment="CENTER" padding="$x6" style="-fx-background-color: orange;&#10;    -fx-background-radius: 9,8,5,4;&#10;&#10;" VBox.margin="$x6">
-                                  <children>
-                                    <Label id="droTitle" fx:id="yAxis" text="Y" />
-                                    <Label id="dro" fx:id="yAxisVal" text="0.000">
-                                      <maxWidth>
-                                        <Long fx:value="-1" />
-                                      </maxWidth>
-                                      <minWidth>
-                                        <Long fx:value="200" />
-                                      </minWidth>
-                                      <HBox.margin>
-                                        <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-                                      </HBox.margin>
-                                    </Label>
-                                  </children>
-                                  <prefHeight>
-                                    <Long fx:value="-1" />
-                                  </prefHeight>
-                                  <prefWidth>
-                                    <Long fx:value="-1" />
-                                  </prefWidth>
-                                  <spacing>
-                                    <Long fx:value="5" />
-                                  </spacing>
-                                </HBox>
-                                <HBox alignment="CENTER" padding="$x6" style="-fx-background-color: purple;&#10; -fx-background-radius: 9,8,5,4;&#10;" VBox.margin="$x6">
-                                  <children>
-                                    <Label id="droTitle" fx:id="zAxis" text="Z" />
-                                    <Label id="dro" fx:id="zAxisVal" text="0.000">
-                                      <maxWidth>
-                                        <Long fx:value="-1" />
-                                      </maxWidth>
-                                      <minWidth>
-                                        <Long fx:value="200" />
-                                      </minWidth>
-                                      <HBox.margin>
-                                        <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-                                      </HBox.margin>
-                                    </Label>
-                                  </children>
-                                  <prefHeight>
-                                    <Long fx:value="-1" />
-                                  </prefHeight>
-                                  <prefWidth>
-                                    <Long fx:value="-1" />
-                                  </prefWidth>
-                                  <spacing>
-                                    <Long fx:value="5" />
-                                  </spacing>
-                                </HBox>
-                                <HBox alignment="CENTER" padding="$x6" style="-fx-background-color: blue;&#10; -fx-background-radius: 9,8,5,4;" VBox.margin="$x6">
-                                  <children>
-                                    <Label id="droTitle" fx:id="aAxis" text="A" />
-                                    <Label id="dro" fx:id="aAxisVal" text="0.000">
-                                      <maxWidth>
-                                        <Long fx:value="-1" />
-                                      </maxWidth>
-                                      <minWidth>
-                                        <Long fx:value="200" />
-                                      </minWidth>
-                                      <HBox.margin>
-                                        <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-                                      </HBox.margin>
-                                    </Label>
-                                  </children>
-                                  <prefHeight>
-                                    <Long fx:value="-1" />
-                                  </prefHeight>
-                                  <prefWidth>
-                                    <Long fx:value="-1" />
-                                  </prefWidth>
-                                  <spacing>
-                                    <Long fx:value="5" />
-                                  </spacing>
-                                </HBox>
+                                </VBox>
                               </children>
-                              <minHeight>
-                                <Long fx:value="-1" />
-                              </minHeight>
-                              <minWidth>
-                                <Long fx:value="-1" />
-                              </minWidth>
                               <prefHeight>
                                 <Long fx:value="-1" />
                               </prefHeight>
                               <prefWidth>
                                 <Long fx:value="-1" />
                               </prefWidth>
-                              <spacing>
-                                <Long fx:value="5" />
-                              </spacing>
-                            </VBox>
+                            </HBox>
                           </children>
                           <padding>
                             <Insets left="5.0" fx:id="x3" />
@@ -305,7 +347,7 @@
                         </AnchorPane>
                       </children>
                       <spacing>
-                        <Long fx:value="5" />
+                        <Long fx:value="0" />
                       </spacing>
                     </HBox>
                   </children>
@@ -1091,7 +1133,7 @@
                                   <children>
                                     <Button id="button1" text="Import Config" />
                                     <Button id="button2" text="Load" />
-                                    <Button id="button3" text="Defaults" onAction="#handleApplyDefaultSettings"/>
+                                    <Button id="button3" onAction="#handleApplyDefaultSettings" text="Defaults" />
                                   </children>
                                   <VBox.margin>
                                     <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
@@ -1125,7 +1167,7 @@
                 </AnchorPane>
               </content>
             </Tab>
-            <Tab fx:id="settings_tab" closable="false"  text="tgFX Settings">
+            <Tab fx:id="settings_tab" closable="false" text="tgFX Settings">
               <content>
                 <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
               </content>
@@ -1161,6 +1203,14 @@
                         <Insets left="20.0" />
                       </StackPane.margin>
                     </Text>
+                    <ImageView pickOnBounds="true" preserveRatio="true">
+                      <fitHeight>
+                        <Long fx:value="50" />
+                      </fitHeight>
+                      <fitWidth>
+                        <Long fx:value="50" />
+                      </fitWidth>
+                    </ImageView>
                   </children>
                   <prefHeight>
                     <Long fx:value="-1" />
