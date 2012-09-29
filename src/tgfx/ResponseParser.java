@@ -11,6 +11,9 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
+import org.apache.log4j.Logger;
+
 import tgfx.Main;
 import tgfx.TinygDriver;
 import tgfx.system.Axis;
@@ -28,12 +31,14 @@ public class ResponseParser extends Observable implements Runnable {
     String buf = "";
     private ResponseHeader responseHeader =  new ResponseHeader();  //our holder for ResponseHeader Data
     
+    private static Logger logger = Logger.getLogger(ResponseParser.class);
+    
     public void appendJsonQueue(String jq) {
         try {
             this.responseQueue.put(jq);
 
         } catch (Exception ex) {
-          System.err.println("ERROR in appendJsonQueue(): " + ex.getMessage());
+        	logger.error("ERROR in appendJsonQueue", ex);
         }
     }
 
@@ -45,7 +50,7 @@ public class ResponseParser extends Observable implements Runnable {
 
     @Override
     public void run() {
-        Main.logger.info("Respone Parser Running");
+        logger.info("Respone Parser Running");
         String line;
        
         while (RUN) {
@@ -53,7 +58,7 @@ public class ResponseParser extends Observable implements Runnable {
                 parseJSON((String) responseQueue.take());  //Take a line from the response queue when its ready and parse it.
 
             } catch (Exception ex) {
-                Main.logger.error("[!]Error in responseParser run()");
+                logger.error("[!]Error in responseParser run()");
             }
         }
     }
@@ -66,8 +71,9 @@ public class ResponseParser extends Observable implements Runnable {
             //Create our JSON Parsing Object
             JsonRootNode json = JDOM.parse(line);
             responseHeader.parseResponseHeader(json);
+            logger.debug("returned line " + responseHeader.getLineNumber() + ": " + line);
             TinygDriver.getInstance().commandComplete(responseHeader);
-            Main.logger.debug("Response Header Line Number: " + responseHeader.getLineNumber());
+            logger.debug("Response Header Line Number: " + responseHeader.getLineNumber());
 
             //This is a way to catch status codes that we do not want to parse out the rest of the message
             //40 is an Unrecognized Command
@@ -75,10 +81,10 @@ public class ResponseParser extends Observable implements Runnable {
             
             switch (responseHeader.getStatusCode()) {
                 case -1:
-                    Main.logger.info("[!]Error Parsing JSON line: " + line);
+                    logger.info("[!]Error Parsing JSON line: " + line);
                     return;
                 case 40:
-                    Main.logger.info("[!]" + responseHeader.getStatusMessage() + " ignoring rest of JSON message..");
+                    logger.info("[!]" + responseHeader.getStatusMessage() + " ignoring rest of JSON message..");
                     return;
                 default:
                     
@@ -117,26 +123,26 @@ public class ResponseParser extends Observable implements Runnable {
                 notifyObservers("STATUS_REPORT");
 
             } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_BUILD)) {
-                Main.logger.info("[#]Parsing Machine Settings....");
+                logger.info("[#]Parsing Machine Settings....");
                 TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fb").getText()));
                 setChanged();
                 notifyObservers("MACHINE_UPDATE");
             } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_BUILD)) {
-                Main.logger.info("[#]Parsing Build Number...");
+                logger.info("[#]Parsing Build Number...");
                 TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fb").getText()));
                 setChanged();
                 notifyObservers("MACHINE_UPDATE");
 
 
             } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_VERSION)) {
-                Main.logger.info("[#]Parsing Version...");
+                logger.info("[#]Parsing Version...");
                 TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fv").getText()));
                 setChanged();
                 notifyObservers("MACHINE_UPDATE");
 
 
             } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
-                Main.logger.info("[#]Parsing Machine Settings JSON");
+                logger.info("[#]Parsing Machine Settings JSON");
                 //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
                 TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sys").getNode("fv").getText()));
                 TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sys").getNode("fb").getText()));
@@ -204,7 +210,7 @@ public class ResponseParser extends Observable implements Runnable {
             //This will happen from time to time depending on the file that is being sent to TinyG
             //This is an issue mostly when the lines are very very small and there are many of them
             //and you are running at a high feedrate.
-            Main.logger.error("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
+            logger.error("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
             setChanged();
             notifyObservers("[!] " + ex.getMessage() + "Line Was: " + line + "\n");
 
@@ -215,7 +221,7 @@ public class ResponseParser extends Observable implements Runnable {
 //
 //                    TinygDriver.getInstance().ser.setClearToSend(true);
 //                } catch (Exception ex1) {
-//                    Main.logger.error("EXCEPTION IN BUG FIX CODE TINYGDRIVER" + ex1.getMessage());
+//                    logger.error("EXCEPTION IN BUG FIX CODE TINYGDRIVER" + ex1.getMessage());
 //                }
 //            }
             //UGLY BUG FIX WORKAROUND FOR NOW
@@ -224,15 +230,14 @@ public class ResponseParser extends Observable implements Runnable {
 
         } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex) {
             //Extra } for some reason
-            Main.logger.error("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
+            logger.error("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
             setChanged();
             notifyObservers("[!] " + ex.getMessage() + "Line Was: " + line + "\n");
 
         } catch (Exception ex) {
             setChanged();
             notifyObservers("ERROR");
-            Main.logger.error("Exception in TinygDriver");
-            Main.logger.error(ex.getMessage());
+            logger.error("Exception in TinygDriver", ex);
         }
     }
 

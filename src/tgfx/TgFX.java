@@ -4,6 +4,8 @@
  */
 package tgfx;
 
+import org.apache.log4j.PropertyConfigurator;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -19,6 +21,7 @@ import javafx.stage.Stage;
 public class TgFX extends Application {
     
     public static void main(String[] args) {
+    	PropertyConfigurator.configure("log4j.properties");
         Application.launch(TgFX.class, args);
     }
     
