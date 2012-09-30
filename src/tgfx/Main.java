@@ -46,6 +46,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
 
 import org.apache.log4j.BasicConfigurator;
+import org.omg.PortableInterceptor.USER_EXCEPTION;
 
 /**
  *
@@ -145,7 +146,8 @@ public class Main implements Initializable, Observer {
                     console.appendText("[+]Loading a gcode file.....\n");
                     FileChooser fc = new FileChooser();
                     fc.setTitle("Open GCode File");
-                    fc.setInitialDirectory(new File("c:\\"));
+                    fc.setInitialDirectory(new File(System.getenv("HOME")));
+//                    fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Gcode Files","*.gc"));
                     File f = fc.showOpenDialog(null);
                     FileInputStream fstream = new FileInputStream(f);
                     DataInputStream in = new DataInputStream((fstream));
@@ -387,7 +389,7 @@ public class Main implements Initializable, Observer {
                     if (l.startsWith("(") || l.equals("")) {
                         continue;
                     }
-                    Thread.sleep(20);
+//                    Thread.sleep(20);
                     line = "{\"gc\":\"" + l + "\"}" + "\n";
                     if (TinygDriver.getInstance().isPAUSED()) {
                         while (TinygDriver.getInstance().isPAUSED()) {
