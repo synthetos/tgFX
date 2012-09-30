@@ -6,8 +6,16 @@
  */
 package tgfx;
 
-import argo.jdom.JdomParser;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -15,24 +23,36 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point2D;
 import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.input.*;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.input.InputEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+
 import tgfx.external.SocketMonitor;
 import tgfx.render.Draw2d;
 import tgfx.system.Axis;
@@ -44,14 +64,11 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
-
+			
 import org.apache.log4j.BasicConfigurator;
 import org.omg.PortableInterceptor.USER_EXCEPTION;
+import argo.jdom.JdomParser;
 
-/**
- *
- * @author ril3y
- */
 public class Main implements Initializable, Observer {
 
     static final Logger logger = Logger.getLogger(Main.class);
@@ -380,7 +397,7 @@ public class Main implements Initializable, Observer {
                 //ObservableList<TextField> gcodeProgramList = gcodesList.getText();
                 //gcodeProgramList = gcodesList.getItems();
                 String[] gcodeProgramList = gcodesList.getText().split("\n");
-                String line;
+                StringBuilder line = new StringBuilder();
                 tg.setCANCELLED(false);  //Clear this flag if was canceled in a previous job
                 //TinygDriver.getInstance().setClearToSend(true);
 
@@ -389,14 +406,18 @@ public class Main implements Initializable, Observer {
                     if (l.startsWith("(") || l.equals("")) {
                         continue;
                     }
+<<<<<<< HEAD
 //                    Thread.sleep(20);
                     line = "{\"gc\":\"" + l + "\"}" + "\n";
                     if (TinygDriver.getInstance().isPAUSED()) {
+=======
+                    line.setLength(0);
+                    line.append("{\"gc\":\"").append(l).append("\"}\n");
+>>>>>>> a3e11f424def2b1415aeb0f9e5d17266662de8bc
                         while (TinygDriver.getInstance().isPAUSED()) {
                             Thread.sleep(50);
                         }
-                    }
-                    tg.write(line);
+                    tg.write(line.toString());
                 }
 
                 logger.debug(tg.getBustedBufferCount() + " times buffer below threshold");
