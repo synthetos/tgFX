@@ -58,12 +58,17 @@ import tgfx.render.Draw2d;
 import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
+import org.apache.log4j.Logger;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.StrokeLineCap;
+			
+import org.apache.log4j.BasicConfigurator;
+import org.omg.PortableInterceptor.USER_EXCEPTION;
 import argo.jdom.JdomParser;
 
-/**
- *
- * @author ril3y
- */
 public class Main implements Initializable, Observer {
 
     static final Logger logger = Logger.getLogger(Main.class);
@@ -158,7 +163,8 @@ public class Main implements Initializable, Observer {
                     console.appendText("[+]Loading a gcode file.....\n");
                     FileChooser fc = new FileChooser();
                     fc.setTitle("Open GCode File");
-                    fc.setInitialDirectory(new File("c:\\"));
+                    fc.setInitialDirectory(new File(System.getenv("HOME")));
+//                    fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Gcode Files","*.gc"));
                     File f = fc.showOpenDialog(null);
                     FileInputStream fstream = new FileInputStream(f);
                     DataInputStream in = new DataInputStream((fstream));
@@ -400,8 +406,14 @@ public class Main implements Initializable, Observer {
                     if (l.startsWith("(") || l.equals("")) {
                         continue;
                     }
+<<<<<<< HEAD
+//                    Thread.sleep(20);
+                    line = "{\"gc\":\"" + l + "\"}" + "\n";
+                    if (TinygDriver.getInstance().isPAUSED()) {
+=======
                     line.setLength(0);
                     line.append("{\"gc\":\"").append(l).append("\"}\n");
+>>>>>>> a3e11f424def2b1415aeb0f9e5d17266662de8bc
                         while (TinygDriver.getInstance().isPAUSED()) {
                             Thread.sleep(50);
                         }
