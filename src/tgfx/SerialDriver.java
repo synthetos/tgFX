@@ -91,7 +91,7 @@ public class SerialDriver implements SerialPortEventListener {
         return this.connectionState;
     }
 
-    public synchronized void serialEvent(SerialPortEvent oEvent) {
+    public  void serialEvent(SerialPortEvent oEvent) {
         if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try {
 
