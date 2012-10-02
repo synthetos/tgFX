@@ -406,14 +406,9 @@ public class Main implements Initializable, Observer {
                     if (l.startsWith("(") || l.equals("")) {
                         continue;
                     }
-<<<<<<< HEAD
-//                    Thread.sleep(20);
-                    line = "{\"gc\":\"" + l + "\"}" + "\n";
-                    if (TinygDriver.getInstance().isPAUSED()) {
-=======
+
                     line.setLength(0);
                     line.append("{\"gc\":\"").append(l).append("\"}\n");
->>>>>>> a3e11f424def2b1415aeb0f9e5d17266662de8bc
                         while (TinygDriver.getInstance().isPAUSED()) {
                             Thread.sleep(50);
                         }
