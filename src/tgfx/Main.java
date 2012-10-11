@@ -64,13 +64,17 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.StrokeLineCap;
-			
+
 import org.apache.log4j.BasicConfigurator;
 import org.omg.PortableInterceptor.USER_EXCEPTION;
 import argo.jdom.JdomParser;
+import javafx.scene.layout.Region;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
 
 public class Main implements Initializable, Observer {
 
+    private boolean taskActive = false;
     static final Logger logger = Logger.getLogger(Main.class);
     //private static final String CMD_GET_stateUS_REPORT = "{\"sr\":\"\"}\n";
     //public Machine m = new Machine();
@@ -85,7 +89,7 @@ public class Main implements Initializable, Observer {
     @FXML
     private Pane previewPane;
     @FXML
-    private Canvas drawingCanvas;
+    private Group drawingCanvas;
     GraphicsContext gp;
     @FXML
     private Button Con, Run, Connect, gcodeZero, btnClearScreen, btnRemoteListener, pauseResume;
@@ -163,8 +167,14 @@ public class Main implements Initializable, Observer {
                     console.appendText("[+]Loading a gcode file.....\n");
                     FileChooser fc = new FileChooser();
                     fc.setTitle("Open GCode File");
-                    fc.setInitialDirectory(new File(System.getenv("HOME")));
-//                    fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Gcode Files","*.gc"));
+
+                    String HOME_DIR = System.getenv("HOME"); //Get Home DIR in OSX
+                    if (HOME_DIR == null) {
+                        HOME_DIR = System.getProperty("user.home");  //Get Home DIR in Windows
+                    }
+
+                    fc.setInitialDirectory(new File(HOME_DIR));  //This will find osx users home dir
+                    //fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Gcode Files","*.gc"));
                     File f = fc.showOpenDialog(null);
                     FileInputStream fstream = new FileInputStream(f);
                     DataInputStream in = new DataInputStream((fstream));
@@ -194,18 +204,23 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleCancelFile(ActionEvent evt) throws Exception {
         console.appendText("[!]Canceling File Sending Task...");
-        tg.setCANCELLED(true);
+//        tg.setCANCELLED(true);
+        setTaskActive(false);
+        Byte reset = 0x18;
+        tg.getInstance().priorityWrite(reset+"\n");
     }
 
     @FXML
     private void handlePauseResumeAct(ActionEvent evt) throws Exception {
         if ("Pause".equals(pauseResume.getText())) {
             pauseResume.setText("Resume");
-            tg.setPAUSED(true);
+            tg.priorityWrite("!\n");
+//            tg.setPAUSED(true);
 
         } else {
             pauseResume.setText("Pause");
-            tg.setPAUSED(false);
+//            tg.setPAUSED(false);
+            tg.priorityWrite("~\n");
         }
     }
 
@@ -337,7 +352,7 @@ public class Main implements Initializable, Observer {
         if (evt.getDeltaX() == 0 && evt.getDeltaY() == 40) {
             //Mouse Wheel Up
             Draw2d.setMagnification(true);
-            
+
             console.appendText("[+]Zooming in " + String.valueOf(Draw2d.getMagnification()) + "\n");
 
 
@@ -350,8 +365,8 @@ public class Main implements Initializable, Observer {
 
         drawingCanvas.setScaleX(Draw2d.getMagnification());
         drawingCanvas.setScaleY(Draw2d.getMagnification());
-        
-  
+
+
 //        canvsGroup.setScaleX(Draw2d.getMagnification());
 //        canvsGroup.setScaleY(Draw2d.getMagnification());
     }
@@ -363,7 +378,6 @@ public class Main implements Initializable, Observer {
 //        }
 ////        console.appendText("[+]2d Preview Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
 //    }
-
     @FXML
     private void zeroSystem(ActionEvent evt) {
         if (tg.isConnected()) {
@@ -382,6 +396,7 @@ public class Main implements Initializable, Observer {
 
     @FXML
     private void handleRunFile(ActionEvent evt) {
+        taskActive = true; //Set the thread condition to start
         Task fileSend = fileSenderTask();
         Thread fsThread = new Thread(fileSend);
         fsThread.setName("FileSender");
@@ -394,32 +409,44 @@ public class Main implements Initializable, Observer {
 
             @Override
             protected Object call() throws Exception {
+                StringBuilder line = new StringBuilder();
+
                 //ObservableList<TextField> gcodeProgramList = gcodesList.getText();
                 //gcodeProgramList = gcodesList.getItems();
                 String[] gcodeProgramList = gcodesList.getText().split("\n");
-                StringBuilder line = new StringBuilder();
-                tg.setCANCELLED(false);  //Clear this flag if was canceled in a previous job
+                
                 //TinygDriver.getInstance().setClearToSend(true);
-
-
                 for (String l : gcodeProgramList) {
-                    if (l.startsWith("(") || l.equals("")) {
-                        continue;
+                    if(!isTaskActive()) {
+                        //Cancel Button was pushed
+                        break;
                     }
-
-                    line.setLength(0);
-                    line.append("{\"gc\":\"").append(l).append("\"}\n");
+                    else{
+                        if (l.startsWith("(") || l.equals("")) {
+                            console.appendText("GCODE COMMENT:" + l + "\n");
+                            continue;
+                        }
+                        line.setLength(0);
+                        line.append("{\"gc\":\"").append(l).append("\"}\n");
                         while (TinygDriver.getInstance().isPAUSED()) {
                             Thread.sleep(50);
                         }
-                    tg.write(line.toString());
+                        tg.write(line.toString());
+                        
+                    }
+                    logger.debug(tg.getBustedBufferCount() + " times buffer below threshold");
                 }
-
-                logger.debug(tg.getBustedBufferCount() + " times buffer below threshold");
-
                 return true;
             }
         };
+    }
+
+    public synchronized boolean isTaskActive() {
+        return taskActive;
+    }
+
+    public synchronized void setTaskActive(boolean taskActive) {
+        this.taskActive = taskActive;
     }
 
 //
@@ -619,8 +646,7 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleClearScreen(ActionEvent evt) {
         console.appendText("[+]Clearning Screen...\n");
-        gp.clearRect(0, 0, gp.getCanvas().getWidth(), gp.getCanvas().getHeight());
-//        canvsGroup.getChildren().clear();
+        drawingCanvas.getChildren().clear();
     }
 
     private void handleTilda() {
@@ -636,70 +662,70 @@ public class Main implements Initializable, Observer {
 
     @FXML
     private void handleKeyInput(final InputEvent event) {
-        if (event instanceof KeyEvent) {
-            final KeyEvent keyEvent = (KeyEvent) event;
-            if (keyEvent.getCode() == KeyCode.BACK_QUOTE) {
-
-                handleTilda();
-
-            } else if (keyEvent.getCode() == KeyCode.F10) {
-                if (!tg.isConnected()) {
-                    String msg = new String("[!]Getting Status Report Aborted... Serial Port Not Connected...");
-                    console.appendText(msg);
-                    return;
-                } else {
-                    String msg = new String("F10 Key Pressed - Getting Status Report\n");
-                    console.appendText(msg);
-                    System.out.println(msg);
-                    try {
-                        tg.requestStatusUpdate();
-                    } catch (Exception ex) {
-                        System.out.println("Error in getting status report");
-                    }
-                }
-            } else if (keyEvent.getCode() == KeyCode.F5) {
-                if (!tg.isConnected()) {
-                    String msg = new String("[!]Getting Settings Aborted... Serial Port Not Connected...");
-                    console.appendText(msg);
-                    return;
-                }
-                String msg = new String("F5 Key Pressed - Getting Machine Settings\n");
-                console.appendText(msg);
-                System.out.println(msg);
-                try {
-//                    tg.requestStatusUpdate();
-//                    tg.getMachineSettings();
-                    tg.getMotorSettings(1);
-                    tg.getMotorSettings(2);
-                    tg.getMotorSettings(3);
-                    tg.getMotorSettings(4);
-
-                } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
-                }
-
-
-            } else if (keyEvent.getCode() == KeyCode.F12) {
-                System.out.println("Writing DEBUG file");
-                try {
-                    BufferedWriter out = new BufferedWriter(new FileWriter("debugTest.txt"));
-                    DataOutputStream dos;
-                    dos = new DataOutputStream(new FileOutputStream("debug.txt", true));
-                    out.close();
-
-                } catch (Exception e) {
-                    System.out.println("Exception ");
-                }
-            } else if (keyEvent.getCode() == KeyCode.F1) {
-                Draw2d.incrementSetStrokeWeight();
-//                reDrawPreview();
-                console.appendText("[+]Increasing Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
-            } else if (keyEvent.getCode() == KeyCode.F2) {
-                Draw2d.decrementSetStrokeWeight();
-//                reDrawPreview();
-                console.appendText("[+]Decreasing Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
-            }
-        }
+//        if (event instanceof KeyEvent) {
+//            final KeyEvent keyEvent = (KeyEvent) event;
+//            if (keyEvent.getCode() == KeyCode.BACK_QUOTE) {
+//
+//                handleTilda();
+//
+//            } else if (keyEvent.getCode() == KeyCode.F10) {
+//                if (!tg.isConnected()) {
+//                    String msg = new String("[!]Getting Status Report Aborted... Serial Port Not Connected...");
+//                    console.appendText(msg);
+//                    return;
+//                } else {
+//                    String msg = new String("F10 Key Pressed - Getting Status Report\n");
+//                    console.appendText(msg);
+//                    System.out.println(msg);
+//                    try {
+//                        tg.requestStatusUpdate();
+//                    } catch (Exception ex) {
+//                        System.out.println("Error in getting status report");
+//                    }
+//                }
+//            } else if (keyEvent.getCode() == KeyCode.F5) {
+//                if (!tg.isConnected()) {
+//                    String msg = new String("[!]Getting Settings Aborted... Serial Port Not Connected...");
+//                    console.appendText(msg);
+//                    return;
+//                }
+//                String msg = new String("F5 Key Pressed - Getting Machine Settings\n");
+//                console.appendText(msg);
+//                System.out.println(msg);
+//                try {
+////                    tg.requestStatusUpdate();
+////                    tg.getMachineSettings();
+//                    tg.getMotorSettings(1);
+//                    tg.getMotorSettings(2);
+//                    tg.getMotorSettings(3);
+//                    tg.getMotorSettings(4);
+//
+//                } catch (Exception ex) {
+//                    System.out.println(ex.getMessage());
+//                }
+//
+//
+//            } else if (keyEvent.getCode() == KeyCode.F12) {
+//                System.out.println("Writing DEBUG file");
+//                try {
+//                    BufferedWriter out = new BufferedWriter(new FileWriter("debugTest.txt"));
+//                    DataOutputStream dos;
+//                    dos = new DataOutputStream(new FileOutputStream("debug.txt", true));
+//                    out.close();
+//
+//                } catch (Exception e) {
+//                    System.out.println("Exception ");
+//                }
+//            } else if (keyEvent.getCode() == KeyCode.F1) {
+//                Draw2d.incrementSetStrokeWeight();
+////                reDrawPreview();
+//                console.appendText("[+]Increasing Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
+//            } else if (keyEvent.getCode() == KeyCode.F2) {
+//                Draw2d.decrementSetStrokeWeight();
+////                reDrawPreview();
+//                console.appendText("[+]Decreasing Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
+//            }
+//        }
     }
 
 //    @FXML
@@ -839,8 +865,10 @@ public class Main implements Initializable, Observer {
 
     public void drawLine(Machine.motion_modes moveType, float vel) {
 
+
+
         //Code to make mm's look the same size as inches
-        double unitMagnication = 1;
+        double unitMagnication = 3;
 //        if (tg.m.getUnitMode() == Machine.unit_modes.MM) {
 //            unitMagnication = 50.8;
 //        } else {
@@ -850,13 +878,14 @@ public class Main implements Initializable, Observer {
         double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position()));// + magnification;
 
         Line l = new Line(xPrevious, yPrevious, newX, newY);
-        l.setStroke(Draw2d.getLineColorFromVelocity(vel));
+        l.setStroke(Color.BLUE);
+//        l.setStroke(Draw2d.getLineColorFromVelocity(vel));
 
-        if (moveType == Machine.motion_modes.traverse) {
-            //G0 Move
-            l.setStrokeWidth(Draw2d.getStrokeWeight() / 2);
-            l.setStroke(Draw2d.TRAVERSE);
-        }
+//        if (moveType == Machine.motion_modes.traverse) {
+//            //G0 Move
+//            l.setStrokeWidth(Draw2d.getStrokeWeight() / 2);
+//            l.setStroke(Draw2d.TRAVERSE);
+//        }
 
 
         //CODE TO ONLY DRAW CUTTING MOVEMENTS
@@ -866,29 +895,16 @@ public class Main implements Initializable, Observer {
 //            l.setStrokeWidth(Draw2d.getStrokeWeight());
 //        }
 
-//        l.setStrokeWidth(Draw2d.getStrokeWeight());
+        l.setStrokeWidth(3);
 
+        xPrevious = newX;
+        yPrevious = newY;
 
-
-        if (xPrevious == -1 && yPrevious == -1) {
-            //This is the initial move.
-            //Move to the center of the canvas
-            gp.moveTo(0, gp.getCanvas().getHeight());  //(0,0) = Bottom left of the canvas
-            xPrevious = gp.getCanvas().getWidth()/2;
-            yPrevious = gp.getCanvas().getHeight()/2;
+        if (l != null) {
+            drawingCanvas.getChildren().add(l);
         }
 
-//        if (l != null) {
-        gp.setLineWidth(1);
-        gp.setStroke(Color.RED);
-        gp.strokeLine(xPrevious, yPrevious, newX+gp.getCanvas().getWidth()/2, newY+gp.getCanvas().getHeight()/2);  //To correct our zero of being at the bottom left of the screen
 
-
-
-        //Record our last points.
-        xPrevious = newX+gp.getCanvas().getWidth()/2;
-        yPrevious = newY+gp.getCanvas().getHeight()/2;
-//        }
     }
 
     private void updateGuiState(String line) {
@@ -1322,15 +1338,16 @@ public class Main implements Initializable, Observer {
         logger.info("[+]tgFX is starting....");
         //Make our canvas as big as the hbox that holds it is.
 //        drawingCanvas.setWidth(canvasHolder.getWidth());
-       // drawingCanvas.setHeight(canvasHolder.getMaxHeight());
-        
-        drawingCanvas.setWidth(727);
-        drawingCanvas.setHeight(515);
-        
-        double HEIGHT = drawingCanvas.getHeight();
-        double WIDTH = drawingCanvas.getWidth();
-        
-        gp = drawingCanvas.getGraphicsContext2D();
+        // drawingCanvas.setHeight(canvasHolder.getMaxHeight());
+
+
+        //drawingCanvas.setWidth(727);
+        //drawingCanvas.setHeight(515);
+
+//        double HEIGHT = drawingCanvas.getHeight();
+//        double WIDTH = drawingCanvas.getWidth();
+
+        //gp = drawingCanvas.getGraphicsContext2D();
 //        gp.setFill(Color.RED);
 //        gp.getCanvas().setWidth(100);
 //        gp.getCanvas().toFront();
@@ -1355,7 +1372,7 @@ public class Main implements Initializable, Observer {
 //        gp.setFill(Color.BLUE);
 //        
 //        gp.rect(10, 5, 10, 5);
-        
+
         TinygDriver.getInstance().queueReader.setRun(true);
         Thread reader = new Thread(TinygDriver.getInstance().queueReader);
         reader.setName("QueueReader");
@@ -1365,6 +1382,7 @@ public class Main implements Initializable, Observer {
 
 
         Thread threadResponseParser = new Thread(tg.resParse);
+        threadResponseParser.setDaemon(true);
         threadResponseParser.setName("ResponseParser");
         threadResponseParser.start();
 //

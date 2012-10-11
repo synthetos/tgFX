@@ -5,6 +5,8 @@
 <?import java.util.*?>
 <?import javafx.collections.*?>
 <?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.Group ?>
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
@@ -14,7 +16,7 @@
 <?import javafx.scene.text.*?>
 <?import javafx.scene.web.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" onKeyPressed="#handleKeyInput" style="&#10;" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" style="&#10;" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
   <children>
     <BorderPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: grey&#10;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
@@ -175,28 +177,24 @@
                         </VBox>
                         <AnchorPane id="AnchorPane" prefHeight="515.0" prefWidth="361.0" style="-fx-background-color: grey" HBox.hgrow="ALWAYS">
                           <children>
-                            <HBox style="fx-background-color:black&#10;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <HBox padding="$x6" style="fx-background-color:yellow" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                               <children>
                                 <HBox fx:id="canvasHolder" alignment="CENTER" style="-fx-background-color: black" HBox.hgrow="ALWAYS">
                                   <children>
-                                    <Canvas fx:id="drawingCanvas" onScroll="#handleMouseScroll" style="-fx-background-color: red&#10;" HBox.hgrow="ALWAYS">
-                                      <height>
-                                        <Long fx:value="500" />
-                                      </height>
-                                      <width>
-                                        <Long fx:value="500" />
-                                      </width>
+                                    <Group fx:id="drawingCanvas" style="-fx-background-color: black" HBox.hgrow="ALWAYS">
                                       <HBox.margin>
-                                        <Insets />
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
                                       </HBox.margin>
-                                    </Canvas>
+                                    </Group>
+                                    <!--                                    <Group fx:id="drawingCanvas" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
                                   </children>
                                   <prefHeight>
                                     <Long fx:value="-1" />
                                   </prefHeight>
                                   <prefWidth>
                                     <Long fx:value="-1" />
-                                  </prefWidth>
+                                  </prefWidth>-->
+                                  </children>
                                 </HBox>
                                 <VBox fx:id="gcode_preview" alignment="CENTER_RIGHT" style="-fx-background-color: grey&#10;" HBox.hgrow="NEVER">
                                   <children>

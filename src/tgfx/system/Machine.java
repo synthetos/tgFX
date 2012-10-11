@@ -29,7 +29,8 @@ public class Machine {
     private float firmware_build;
     private float firmware_version;
     private int status_report_interval;
-    public Gcode_startup_unit_modes gcode_units;
+    public Gcode_unit_modes gcode_units;
+    public Gcode_unit_modes gcode_startup_units;
     public Gcode_startup_select_plane gcode_select_plane;
     public Gcode_startup_coord_system gcode_select_coord_system;
     public Gcode_startup_path_control gcode_path_control;
@@ -115,7 +116,7 @@ public class Machine {
         OFF, CR, LF
     }
 
-    public static enum Gcode_startup_unit_modes {
+    public static enum Gcode_unit_modes {
         //gun
 
         INCHES, //G21
@@ -198,8 +199,9 @@ public class Machine {
         }
     }
 
-    public Gcode_startup_unit_modes getUnitMode() {
-
+    
+    
+    public Gcode_unit_modes getUnitMode() {
         return gcode_units;
     }
 
