@@ -37,6 +37,12 @@ public class QueueReader extends Observable implements Runnable {
     }
     private static final String commandReturn = "{\"r\":{\"bd\":{\"";
 
+    public void emptyQueue(){
+        //This will empty the queue
+        //This is called when the tinyG board is reset.
+        queue.removeAll(queue);
+    }
+    
     @Override
     public void run() {
         //String lineBuffer = ""; //This is a buffer to store half json lines when the serial driver sent a line without ending with a /n

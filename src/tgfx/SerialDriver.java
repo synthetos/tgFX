@@ -49,6 +49,11 @@ public class SerialDriver implements SerialPortEventListener {
     public synchronized void priorityWrite(String str) throws Exception {
         this.output.write(str.getBytes());
     }
+    
+    public synchronized void priorityWrite(Byte b) throws Exception {
+        Main.logger.debug("[*] Priority Write Sent\n");
+        this.output.write(b);
+    }
 
     private SerialDriver() {
     }

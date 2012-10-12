@@ -581,6 +581,16 @@ public class TinygDriver extends Observable {
             System.out.println("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
         }
     }
+    
+    public int resetSpaceBuffer(){
+        //After we cancel a file sending task we need to free up the free space again
+        //so we can talk to the TinyG board again.  Otherwise we will just continue to wait forever.
+        
+        int returnspace = freespace;
+        freespace = 254;
+        queueReader.emptyQueue();
+        return(returnspace);
+    }
 
     private int waitForSpace(String command, long lineNumber) {
         logger.debug("creating Command(" + command + ", " + lineNumber + ")");
@@ -745,6 +755,10 @@ public class TinygDriver extends Observable {
         return lastLineNumberSent;
     }
 
+    
+    public void priorityWrite(Byte  b) throws Exception {
+        this.ser.priorityWrite(b);
+    }
     public void priorityWrite(String msg) throws Exception {
         if (!msg.contains("\n")) {
             msg = msg + "\n";

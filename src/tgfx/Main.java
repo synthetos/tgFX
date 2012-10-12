@@ -207,7 +207,10 @@ public class Main implements Initializable, Observer {
 //        tg.setCANCELLED(true);
         setTaskActive(false);
         Byte reset = 0x18;
-        tg.getInstance().priorityWrite(reset+"\n");
+        tg.resetSpaceBuffer();
+        tg.priorityWrite(reset); //This resets TinyG
+        Thread.sleep(4000); //We need to sleep a bit until TinyG comes back
+        tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //This will reset our DRO readings
     }
 
     @FXML
@@ -419,7 +422,9 @@ public class Main implements Initializable, Observer {
                 for (String l : gcodeProgramList) {
                     if(!isTaskActive()) {
                         //Cancel Button was pushed
+                        console.appendText("[!]File Sending Task Killed....\n");
                         break;
+                        
                     }
                     else{
                         if (l.startsWith("(") || l.equals("")) {
