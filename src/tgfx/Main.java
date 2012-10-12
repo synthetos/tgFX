@@ -71,6 +71,7 @@ import argo.jdom.JdomParser;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
+import tgfx.system.StatusCode;
 
 public class Main implements Initializable, Observer {
 
@@ -159,7 +160,7 @@ public class Main implements Initializable, Observer {
 
 
         Platform.runLater(new Runnable() {
-
+            @Override
             public void run() {
                 logger.debug("handleOpenFile");
 
@@ -185,10 +186,12 @@ public class Main implements Initializable, Observer {
                     //Clear the list if there was a previous file loaded
 
                     while ((strLine = br.readLine()) != null) {
-
-                        gcodesList.appendText(strLine + "\n");
+                        if (!strLine.equals("")) {
+                            //Do not add empty lines to the list
+                            gcodesList.appendText(strLine + "\n");
 //
 //                        System.out.println(strLine);
+                        }
                     }
                     System.out.println("[*]File Loading Complete");
 
@@ -203,7 +206,7 @@ public class Main implements Initializable, Observer {
 
     @FXML
     private void handleCancelFile(ActionEvent evt) throws Exception {
-        console.appendText("[!]Canceling File Sending Task...");
+        console.appendText("[!]Canceling File Sending Task...\n");
 //        tg.setCANCELLED(true);
         setTaskActive(false);
         Byte reset = 0x18;
@@ -409,7 +412,6 @@ public class Main implements Initializable, Observer {
 
     public Task fileSenderTask() {
         return new Task() {
-
             @Override
             protected Object call() throws Exception {
                 StringBuilder line = new StringBuilder();
@@ -417,18 +419,20 @@ public class Main implements Initializable, Observer {
                 //ObservableList<TextField> gcodeProgramList = gcodesList.getText();
                 //gcodeProgramList = gcodesList.getItems();
                 String[] gcodeProgramList = gcodesList.getText().split("\n");
-                
+
                 //TinygDriver.getInstance().setClearToSend(true);
                 for (String l : gcodeProgramList) {
-                    if(!isTaskActive()) {
+                    if (!isTaskActive()) {
                         //Cancel Button was pushed
                         console.appendText("[!]File Sending Task Killed....\n");
                         break;
-                        
-                    }
-                    else{
-                        if (l.startsWith("(") || l.equals("")) {
+
+                    } else {
+                        if (l.startsWith("(")) {
                             console.appendText("GCODE COMMENT:" + l + "\n");
+                            continue;
+                        } else if (l.equals("")) {
+                            //Blank Line.. Passing.. 
                             continue;
                         }
                         line.setLength(0);
@@ -437,7 +441,7 @@ public class Main implements Initializable, Observer {
                             Thread.sleep(50);
                         }
                         tg.write(line.toString());
-                        
+
                     }
                     logger.debug(tg.getBustedBufferCount() + " times buffer below threshold");
                 }
@@ -644,7 +648,7 @@ public class Main implements Initializable, Observer {
         srMomo.setText("?");
         srVelo.setText("?");
         srState.setText("?");
-
+        tg.resetSpaceBuffer();
 
     }
 
@@ -654,17 +658,16 @@ public class Main implements Initializable, Observer {
         drawingCanvas.getChildren().clear();
     }
 
-    private void handleTilda() {
-        //                ==============HIDE CONSOLE CODE==============
-        System.out.println("TILDA");
-        if (topvbox.getChildren().contains(bottom)) {
-            topvbox.getChildren().remove(bottom);
-
-        } else {
-            topvbox.getChildren().add(topvbox.getChildren().size() - 1, bottom);
-        }
-    }
-
+//    private void handleTilda() {
+//        //                ==============HIDE CONSOLE CODE==============
+//        System.out.println("TILDA");
+//        if (topvbox.getChildren().contains(bottom)) {
+//            topvbox.getChildren().remove(bottom);
+//
+//        } else {
+//            topvbox.getChildren().add(topvbox.getChildren().size() - 1, bottom);
+//        }
+//    }
     @FXML
     private void handleKeyInput(final InputEvent event) {
 //        if (event instanceof KeyEvent) {
@@ -857,7 +860,6 @@ public class Main implements Initializable, Observer {
     private Task initRemoteServer(String port) {
         final String Port = port;
         return new Task() {
-
             @Override
             protected Object call() throws Exception {
                 SocketMonitor sm = new SocketMonitor(Port);
@@ -918,7 +920,6 @@ public class Main implements Initializable, Observer {
             //Pass this on by..
         } else if (line.equals("BUILD_UPDATE")) {
             Platform.runLater(new Runnable() {
-
                 float vel;
 
                 public void run() {
@@ -936,7 +937,6 @@ public class Main implements Initializable, Observer {
 
         } else if (line.equals("STATUS_REPORT")) {
             Platform.runLater(new Runnable() {
-
                 float vel;
 
                 public void run() {
@@ -976,7 +976,6 @@ public class Main implements Initializable, Observer {
     private void updateGUIConfigState() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
-
             float vel;
 
             public void run() {
@@ -1030,7 +1029,6 @@ public class Main implements Initializable, Observer {
     private void updateGuiStatusReport(String line) {
         final String l = line;
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 logger.info("updateGuiStatusReport Ran");
@@ -1072,7 +1070,6 @@ public class Main implements Initializable, Observer {
     private void updateGuiMachineSettings(String line) {
         final String l = line;
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 //We are now back in the EventThread and can update the GUI
@@ -1094,37 +1091,48 @@ public class Main implements Initializable, Observer {
 
     @Override
     public synchronized void update(Observable o, Object arg) {
-        final String ROUTING_KEY = (String) arg;
+
+        //We process status code messages here first.
+        if (arg.getClass().getCanonicalName().equals("tgfx.system.StatusCode")) {
+            //We got an error condition.. lets route it to where it goes!
+            StatusCode statuscode = (StatusCode) arg;
+            console.appendText("[->] TinyG Response: " + statuscode.getStatusType() + ":" + statuscode.getMessage() + "\n");
+        } else {
+            final String ROUTING_KEY = (String) arg;
 //        We have to run the updates likes this.
 //        https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
-        Platform.runLater(new Runnable() {
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    // we are now back in the EventThread and can update the GUI
+                    if (ROUTING_KEY.startsWith("[!]")) {
+                        String line = ROUTING_KEY.split("#")[1];
+                        String msg = ROUTING_KEY.split("#")[0];
 
-            public void run() {
-                // we are now back in the EventThread and can update the GUI
-                if (ROUTING_KEY.equals("STATUS_REPORT")) {
-                    updateGuiStatusReport(ROUTING_KEY);
-                    //updateStatusReport(ROUTING_KEY);
-                } else if (ROUTING_KEY.equals("CMD_GET_AXIS_SETTINGS")) {
-                    updateGuiAxisSettings();
-                } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
-                    updateGuiMachineSettings(ROUTING_KEY);
-                } else if (ROUTING_KEY.contains("CMD_GET_MOTOR_SETTINGS")) {
-                    updateGuiMotorSettings();
-                } else if (ROUTING_KEY.equals("NETWORK_MESSAGE")) {  //unused
-                    //updateExternal();
-                } else if (ROUTING_KEY.equals("MACHINE_UPDATE")) {
-                    updateGuiMachineSettings(ROUTING_KEY);
-                } else {
-                    System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
+                        Main.logger.error("Invalid Routing Key: \n\tMessage: " + msg + "\n\tLine: " + line);
+                    } else if (ROUTING_KEY.equals("STATUS_REPORT")) {
+                        updateGuiStatusReport(ROUTING_KEY);
+                        //updateStatusReport(ROUTING_KEY);
+                    } else if (ROUTING_KEY.equals("CMD_GET_AXIS_SETTINGS")) {
+                        updateGuiAxisSettings();
+                    } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
+                        updateGuiMachineSettings(ROUTING_KEY);
+                    } else if (ROUTING_KEY.contains("CMD_GET_MOTOR_SETTINGS")) {
+                        updateGuiMotorSettings();
+                    } else if (ROUTING_KEY.equals("NETWORK_MESSAGE")) {  //unused
+                        //updateExternal();
+                    } else if (ROUTING_KEY.equals("MACHINE_UPDATE")) {
+                        updateGuiMachineSettings(ROUTING_KEY);
+                    } else {
+                        System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void updateGuiMotorSettings() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
-
             public void run() {
                 //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
                 //Right now this is how I am doing this.  However I think there can be a more optimized way
@@ -1207,7 +1215,6 @@ public class Main implements Initializable, Observer {
     private void updateGuiAxisSettings() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 //We are now back in the EventThread and can update the GUI for the CMD SETTINGS

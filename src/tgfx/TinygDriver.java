@@ -64,9 +64,9 @@ public class TinygDriver extends Observable {
     public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":G920g0x0y0z0}\n";
     public static final String RESPONSE_STATUS_REPORT = "{\"r\":{\"bd\":{\"sr\":{";
     //public static final String RESPONSE_STATUS_REPORT = "{\"sr\":{";
-    public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"r\":{\"bd\":{\"fb";
-    public static final String RESPONSE_MACHINE_FIRMWARE_VERSION = "{\"r\":{\"bd\":{\"fv";
-    public static final String RESPONSE_MACHINE_COORDINATE_SYSTEM = "{\"r\":{\"bd\":{\"gco";
+    public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"r\":{\"bd\":{\"sys\":{\"fb\"";
+    public static final String RESPONSE_MACHINE_FIRMWARE_VERSION = "{\"r\":{\"bd\":{\"sys\":{\"fv\"";
+    public static final String RESPONSE_MACHINE_COORDINATE_SYSTEM = "{\"r\":{\"bd\":{\"sys\":{\"gco\"";
     public static final String RESPONSE_MACHINE_SETTINGS = "{\"r\":{\"bd\":{\"sys";
     public static final String RESPONSE_MOTOR_1 = "{\"r\":{\"bd\":{\"1";
     public static final String RESPONSE_MOTOR_2 = "{\"r\":{\"bd\":{\"2";

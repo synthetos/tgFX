@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import tgfx.Main;
 import tgfx.TinygDriver;
 import tgfx.system.Axis;
+import tgfx.system.StatusCode;
 
 /**
  *
@@ -86,11 +87,22 @@ public class ResponseParser extends Observable implements Runnable {
                 case 40:
                     logger.info("[!]" + responseHeader.getStatusMessage() + " ignoring rest of JSON message..");
                     return;
+                case 60:
+                    logger.info("[!]Zero Lenght Line");
+                    setChanged();
+                    StatusCode sc = new StatusCode(60, "Zero Length Line", line, "Illegal Gcode");
+                    notifyObservers(sc);
                 default:
                     
             }
-
-            if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
+            if (line.contains("bd\":{\"\":\"\"}")){
+                //Move on
+            }else if(line.contains("SYSTEM READY")){  //This will be moved to the switch statement above when we assign "SYSTEM READY" a status code.
+                setChanged();
+                StatusCode sc = new StatusCode(0, "System Ready", "", "TinyG Message");
+                notifyObservers(sc);
+            }
+            else if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
                 //Parse Status Report
                 //"{"sr":{"line":0,"xpos":1.567,"ypos":0.548,"zpos":0.031,"apos":0.000,"vel":792.463,"unit":"mm","stat":"run"}}"
                 TinygDriver.getInstance().m.getAxisByName("X").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posx").getText()));
@@ -122,26 +134,22 @@ public class ResponseParser extends Observable implements Runnable {
                 setChanged();
                 notifyObservers("STATUS_REPORT");
 
-            } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_BUILD)) {
-                logger.info("[#]Parsing Machine Settings....");
-                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fb").getText()));
-                setChanged();
-                notifyObservers("MACHINE_UPDATE");
-            } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_BUILD)) {
-                logger.info("[#]Parsing Build Number...");
-                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fb").getText()));
-                setChanged();
-                notifyObservers("MACHINE_UPDATE");
-
-
-            } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_VERSION)) {
-                logger.info("[#]Parsing Version...");
-                TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fv").getText()));
-                setChanged();
-                notifyObservers("MACHINE_UPDATE");
-
-
-            } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
+            } 
+//            else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_BUILD)) {
+//                logger.info("[#]Parsing Machine Settings....");
+//                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fb").getText()));
+//                setChanged();
+//                notifyObservers("MACHINE_UPDATE");
+//            } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_VERSION)) {
+//                logger.info("[#]Parsing Version...");
+//                TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fv").getText()));
+//                setChanged();
+//                notifyObservers("MACHINE_UPDATE");
+//
+//
+//            } 
+            
+            else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
                 logger.info("[#]Parsing Machine Settings JSON");
                 //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
                 TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sys").getNode("fv").getText()));
@@ -211,8 +219,8 @@ public class ResponseParser extends Observable implements Runnable {
             //This is an issue mostly when the lines are very very small and there are many of them
             //and you are running at a high feedrate.
             logger.error("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
-            setChanged();
-            notifyObservers("[!] " + ex.getMessage() + "Line Was: " + line + "\n");
+//            setChanged();
+//            notifyObservers("[!] #" + ex.getMessage() +"#"+ line + "\n");
 
             //UGLY BUG FIX WORKAROUND FOR NOW
             //Code to fix a possible JSON TinyG Error
@@ -232,7 +240,7 @@ public class ResponseParser extends Observable implements Runnable {
             //Extra } for some reason
             logger.error("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
             setChanged();
-            notifyObservers("[!] " + ex.getMessage() + "Line Was: " + line + "\n");
+            notifyObservers("[!]ParserJson Exception #" + ex.getMessage() +"#"+ line + "\n");
 
         } catch (Exception ex) {
             setChanged();
