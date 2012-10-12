@@ -3,16 +3,8 @@ dist/
 nbproject/private/
 debugTest.txt
 
-*.properties
-
-nbproject/UPDATED.TXT
-nbproject/jfx-impl.xml
 
 nbproject/jfx-impl_backup_6.xml
-
-nbproject/build-impl.xml
-
-nbproject/genfiles.properties
 
 nbproject/jfx-impl_backup_5.xml
 
