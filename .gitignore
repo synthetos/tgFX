@@ -6,9 +6,6 @@ debugTest.txt
 *.properties
 
 nbproject/UPDATED.TXT
-
-nbproject/project.properties
-
 nbproject/jfx-impl.xml
 
 nbproject/jfx-impl_backup_6.xml
@@ -19,13 +16,11 @@ nbproject/genfiles.properties
 
 nbproject/jfx-impl_backup_5.xml
 
-roject/jfx-impl.xml
 
 nbproject/jfx-impl_backup_6.xml
 
 nbproject/jfx-impl_backup_6.xml
 
-roject/jfx-impl.xml
 
 nbproject/jfx-impl_backup_7.xml
 
