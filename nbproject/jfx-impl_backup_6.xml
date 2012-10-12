@@ -951,6 +951,10 @@
             <path path="${run.classpath}"/>
             <map from="${basedir}${file.separator}${build.classes.dir}" to=""/>
             <map from="${basedir}${file.separator}${dist.jar}" to=""/>
+            <map from="${javafx.runtime}${file.separator}lib${file.separator}jfxrt.jar" to=""/>
+            <map from="${javafx.runtime}${file.separator}lib${file.separator}deploy.jar" to=""/>
+            <map from="${javafx.runtime}${file.separator}lib${file.separator}javaws.jar" to=""/>
+            <map from="${javafx.runtime}${file.separator}lib${file.separator}plugin.jar" to=""/>
         </pathconvert>
         <!-- add possibly missing dependencies at distance 2 (build system logic thus provides transitive closure) -->
         <local name="run.and.lib.classpath"/>
