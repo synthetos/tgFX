@@ -72,7 +72,7 @@ public class ResponseParser extends Observable implements Runnable {
             //Create our JSON Parsing Object
             JsonRootNode json = JDOM.parse(line);
             responseHeader.parseResponseHeader(json);
-            logger.debug("returned line " + responseHeader.getLineNumber() + ": " + line);
+            //logger.debug("returned line " + responseHeader.getLineNumber() + ": " + line);
             TinygDriver.getInstance().commandComplete(responseHeader);
             logger.debug("Response Header Line Number: " + responseHeader.getLineNumber());
 
@@ -88,7 +88,7 @@ public class ResponseParser extends Observable implements Runnable {
                     logger.info("[!]" + responseHeader.getStatusMessage() + " ignoring rest of JSON message..");
                     return;
                 case 60:
-                    logger.info("[!]Zero Lenght Line");
+                    logger.info("[!]Zero Length Line");
                     setChanged();
                     StatusCode sc = new StatusCode(60, "Zero Length Line", line, "Illegal Gcode");
                     notifyObservers(sc);
@@ -97,7 +97,8 @@ public class ResponseParser extends Observable implements Runnable {
             }
             if (line.contains("bd\":{\"\":\"\"}")){
                 //Move on
-            }else if(line.contains("SYSTEM READY")){  //This will be moved to the switch statement above when we assign "SYSTEM READY" a status code.
+            }else if(line.contains("SYSTEM READY")){  
+                //This will be moved to the switch statement above when we assign "SYSTEM READY" a status code.
                 setChanged();
                 StatusCode sc = new StatusCode(0, "System Ready", "", "TinyG Message");
                 notifyObservers(sc);

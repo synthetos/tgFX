@@ -99,8 +99,6 @@ public class SerialDriver implements SerialPortEventListener {
     public  void serialEvent(SerialPortEvent oEvent) {
         if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try {
-
-
                 int available = input.available();   //Get the size of data in the input buffer
                 byte chunk[] = new byte[available];  //Setup byte array to store the data.
                 input.read(chunk, 0, available);

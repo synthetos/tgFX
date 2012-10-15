@@ -68,9 +68,15 @@ import javafx.scene.shape.StrokeLineCap;
 import org.apache.log4j.BasicConfigurator;
 import org.omg.PortableInterceptor.USER_EXCEPTION;
 import argo.jdom.JdomParser;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
+import tgfx.gcode.GcodeLine;
 import tgfx.system.StatusCode;
 
 public class Main implements Initializable, Observer {
@@ -81,10 +87,15 @@ public class Main implements Initializable, Observer {
     //public Machine m = new Machine();
     private JdomParser JDOM = new JdomParser(); //JSON Object Parser1
     private TinygDriver tg = TinygDriver.getInstance();
+    public ObservableList data;
     //private SerialDriver ser = SerialDriver.getInstance();
     /**
      * FXML UI Components
      */
+    @FXML
+    private TableColumn<GcodeLine, String> gcodeCol;
+    @FXML
+    private TableView gcodeView;
     @FXML
     private TabPane motorTabPane, axisTabPane;
     @FXML
@@ -160,6 +171,7 @@ public class Main implements Initializable, Observer {
 
 
         Platform.runLater(new Runnable() {
+
             @Override
             public void run() {
                 logger.debug("handleOpenFile");
@@ -182,14 +194,15 @@ public class Main implements Initializable, Observer {
                     BufferedReader br = new BufferedReader(new InputStreamReader(in));
                     String strLine;
 
-                    gcodesList.clear();
+                    data.removeAll(data);
                     //Clear the list if there was a previous file loaded
 
                     while ((strLine = br.readLine()) != null) {
                         if (!strLine.equals("")) {
                             //Do not add empty lines to the list
-                            gcodesList.appendText(strLine + "\n");
-//
+//                            gcodesList.appendText(strLine + "\n");
+                            data.add(new GcodeLine(strLine));
+
 //                        System.out.println(strLine);
                         }
                     }
@@ -212,7 +225,7 @@ public class Main implements Initializable, Observer {
         Byte reset = 0x18;
         tg.resetSpaceBuffer();
         tg.priorityWrite(reset); //This resets TinyG
-        Thread.sleep(4000); //We need to sleep a bit until TinyG comes back
+        Thread.sleep(3000); //We need to sleep a bit until TinyG comes back
         tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //This will reset our DRO readings
     }
 
@@ -412,16 +425,21 @@ public class Main implements Initializable, Observer {
 
     public Task fileSenderTask() {
         return new Task() {
+
             @Override
             protected Object call() throws Exception {
                 StringBuilder line = new StringBuilder();
 
-                //ObservableList<TextField> gcodeProgramList = gcodesList.getText();
-                //gcodeProgramList = gcodesList.getItems();
-                String[] gcodeProgramList = gcodesList.getText().split("\n");
+
 
                 //TinygDriver.getInstance().setClearToSend(true);
-                for (String l : gcodeProgramList) {
+                int numbGcodeLines = data.size();
+                String tmp;
+                for (int i = 0; i < numbGcodeLines; i++) {
+                    String l = (((GcodeLine) data.get(i)).getCodeLine());
+//            System.out.println("SENT>> " + ((GcodeLine) data.get(i)).getCodeLine() + "\n");
+//        }
+//                for (int i = 0; i < numbGcodeLines; i++) {
                     if (!isTaskActive()) {
                         //Cancel Button was pushed
                         console.appendText("[!]File Sending Task Killed....\n");
@@ -628,7 +646,15 @@ public class Main implements Initializable, Observer {
 
                 console.appendText("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
                 Connect.setText("Disconnect");
+
+                /**
+                 * *****************************
+                 * OnConnect Actions Called Here
+                 *****************************
+                 */
                 onConnectActions();
+
+
             }
         } else {
             tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);
@@ -860,6 +886,7 @@ public class Main implements Initializable, Observer {
     private Task initRemoteServer(String port) {
         final String Port = port;
         return new Task() {
+
             @Override
             protected Object call() throws Exception {
                 SocketMonitor sm = new SocketMonitor(Port);
@@ -920,6 +947,7 @@ public class Main implements Initializable, Observer {
             //Pass this on by..
         } else if (line.equals("BUILD_UPDATE")) {
             Platform.runLater(new Runnable() {
+
                 float vel;
 
                 public void run() {
@@ -937,6 +965,7 @@ public class Main implements Initializable, Observer {
 
         } else if (line.equals("STATUS_REPORT")) {
             Platform.runLater(new Runnable() {
+
                 float vel;
 
                 public void run() {
@@ -976,6 +1005,7 @@ public class Main implements Initializable, Observer {
     private void updateGUIConfigState() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
+
             float vel;
 
             public void run() {
@@ -1029,9 +1059,10 @@ public class Main implements Initializable, Observer {
     private void updateGuiStatusReport(String line) {
         final String l = line;
         Platform.runLater(new Runnable() {
+
             @Override
             public void run() {
-                logger.info("updateGuiStatusReport Ran");
+                //logger.info("updateGuiStatusReport Ran");
                 float vel;
                 //We are now back in the EventThread and can update the GUI
                 try {
@@ -1070,6 +1101,7 @@ public class Main implements Initializable, Observer {
     private void updateGuiMachineSettings(String line) {
         final String l = line;
         Platform.runLater(new Runnable() {
+
             @Override
             public void run() {
                 //We are now back in the EventThread and can update the GUI
@@ -1102,6 +1134,7 @@ public class Main implements Initializable, Observer {
 //        We have to run the updates likes this.
 //        https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
             Platform.runLater(new Runnable() {
+
                 public void run() {
                     // we are now back in the EventThread and can update the GUI
                     if (ROUTING_KEY.startsWith("[!]")) {
@@ -1133,6 +1166,7 @@ public class Main implements Initializable, Observer {
     private void updateGuiMotorSettings() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
+
             public void run() {
                 //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
                 //Right now this is how I am doing this.  However I think there can be a more optimized way
@@ -1215,6 +1249,7 @@ public class Main implements Initializable, Observer {
     private void updateGuiAxisSettings() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
+
             @Override
             public void run() {
                 //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
@@ -1384,6 +1419,14 @@ public class Main implements Initializable, Observer {
 //        gp.setFill(Color.BLUE);
 //        
 //        gp.rect(10, 5, 10, 5);
+
+        //Gcode Mapping
+        data = FXCollections.observableArrayList();
+        gcodeCol.setCellValueFactory(new PropertyValueFactory<GcodeLine, String>("codeLine"));
+        GcodeLine n = new GcodeLine("STARTS");
+        gcodeView.getItems().setAll(data);
+        data.add(n);
+        gcodeView.setItems(data);
 
         TinygDriver.getInstance().queueReader.setRun(true);
         Thread reader = new Thread(TinygDriver.getInstance().queueReader);

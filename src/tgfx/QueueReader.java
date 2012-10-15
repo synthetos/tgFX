@@ -41,6 +41,7 @@ public class QueueReader extends Observable implements Runnable {
         //This will empty the queue
         //This is called when the tinyG board is reset.
         queue.removeAll(queue);
+        jsonQueue.removeAll(jsonQueue);
     }
     
     @Override

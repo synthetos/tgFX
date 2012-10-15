@@ -587,8 +587,10 @@ public class TinygDriver extends Observable {
         //so we can talk to the TinyG board again.  Otherwise we will just continue to wait forever.
         
         int returnspace = freespace;
-        freespace = 254;
+        freespace = 250;
+        waitingCommandSize = 0;
         queueReader.emptyQueue();
+//        clearToSend.signal();
         return(returnspace);
     }
 
@@ -715,7 +717,7 @@ public class TinygDriver extends Observable {
         int spaceAvailable = waitForSpace(modifyableMsg.toString(), lineNumber);
         logger.debug("writing " + msg.length() + " byte message, " + spaceAvailable + " bytes available in hardware buffer");
         ser.write(msg);
-        Thread.sleep(10);
+//        Thread.sleep(10);
     }
 
     public long setCurrentlineNumber(StringBuffer modifyableMsg) {
