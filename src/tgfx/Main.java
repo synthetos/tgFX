@@ -197,12 +197,19 @@ public class Main implements Initializable, Observer {
                     data.removeAll(data);
                     //Clear the list if there was a previous file loaded
 
+                    int _linenumber = 0;
                     while ((strLine = br.readLine()) != null) {
+
                         if (!strLine.equals("")) {
                             //Do not add empty lines to the list
 //                            gcodesList.appendText(strLine + "\n");
-                            data.add(new GcodeLine(strLine));
 
+                            if (!strLine.toUpperCase().startsWith("N")) {
+                                strLine = "N" + String.valueOf(_linenumber) + " " + strLine;
+                            }
+
+                            data.add(new GcodeLine(strLine, _linenumber));
+                            _linenumber++;
 //                        System.out.println(strLine);
                         }
                     }
@@ -436,7 +443,9 @@ public class Main implements Initializable, Observer {
                 int numbGcodeLines = data.size();
                 String tmp;
                 for (int i = 0; i < numbGcodeLines; i++) {
-                    String l = (((GcodeLine) data.get(i)).getCodeLine());
+                    GcodeLine _gcl = (GcodeLine) data.get(i);
+                    
+//                    String l = (((GcodeLine) data.get(i)).getCodeLine());
 //            System.out.println("SENT>> " + ((GcodeLine) data.get(i)).getCodeLine() + "\n");
 //        }
 //                for (int i = 0; i < numbGcodeLines; i++) {
@@ -446,15 +455,15 @@ public class Main implements Initializable, Observer {
                         break;
 
                     } else {
-                        if (l.startsWith("(")) {
-                            console.appendText("GCODE COMMENT:" + l + "\n");
+                        if (_gcl.getCodeLine().startsWith("(")) {
+                            console.appendText("GCODE COMMENT:" + _gcl.getCodeLine() + "\n");
                             continue;
-                        } else if (l.equals("")) {
+                        } else if (_gcl.getCodeLine().equals("")) {
                             //Blank Line.. Passing.. 
                             continue;
                         }
                         line.setLength(0);
-                        line.append("{\"gc\":\"").append(l).append("\"}\n");
+                        line.append("{\"gc\":\"").append(_gcl.getCodeLine()).append("\"}\n");
                         while (TinygDriver.getInstance().isPAUSED()) {
                             Thread.sleep(50);
                         }
@@ -649,8 +658,7 @@ public class Main implements Initializable, Observer {
 
                 /**
                  * *****************************
-                 * OnConnect Actions Called Here
-                 *****************************
+                 * OnConnect Actions Called Here ****************************
                  */
                 onConnectActions();
 
@@ -1423,7 +1431,7 @@ public class Main implements Initializable, Observer {
         //Gcode Mapping
         data = FXCollections.observableArrayList();
         gcodeCol.setCellValueFactory(new PropertyValueFactory<GcodeLine, String>("codeLine"));
-        GcodeLine n = new GcodeLine("STARTS");
+        GcodeLine n = new GcodeLine("Click open to load..", 0);
         gcodeView.getItems().setAll(data);
         data.add(n);
         gcodeView.setItems(data);

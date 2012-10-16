@@ -20,6 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 import org.apache.log4j.Logger;
+import tgfx.gcode.GcodeLine;
 
 import tgfx.system.Axis;
 import tgfx.system.Machine;
@@ -133,7 +134,7 @@ public class TinygDriver extends Observable {
     //private static final int maxbuffer = 250; //keep space for cancel and resume
     public static final int ERROR = -256;
     private int extraFree = 0;
-    private int freespace = 250 - extraFree;
+    private int freespace = 350 - extraFree;
     private int waitingCommandSize = 0;
     //private long lastCommandSent;
     private long lastLineNumberSent = 0;
@@ -718,6 +719,11 @@ public class TinygDriver extends Observable {
         logger.debug("writing " + msg.length() + " byte message, " + spaceAvailable + " bytes available in hardware buffer");
         ser.write(msg);
 //        Thread.sleep(10);
+    }
+    
+    public void write(GcodeLine gcl) throws Exception{
+        int spaceAvailable = waitForSpace(gcl.getCodeLine(), gcl.getGcodeLineNumber());
+        logger.debug("writing " + gcl.getCodeLine().length() + " byte message, " + spaceAvailable + " bytes available in hardware buffer");
     }
 
     public long setCurrentlineNumber(StringBuffer modifyableMsg) {
