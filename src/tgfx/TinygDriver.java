@@ -134,7 +134,8 @@ public class TinygDriver extends Observable {
     //private static final int maxbuffer = 250; //keep space for cancel and resume
     public static final int ERROR = -256;
     private int extraFree = 0;
-    private int freespace = 350 - extraFree;
+    private int EMPTY_BUFFER_SIZE = 250;
+    private int freespace = EMPTY_BUFFER_SIZE - extraFree;
     private int waitingCommandSize = 0;
     //private long lastCommandSent;
     private long lastLineNumberSent = 0;
