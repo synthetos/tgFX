@@ -1122,14 +1122,14 @@
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
                                   </padding>
                                 </HBox>
-                                <ListView id="listView1">
+                                <ListView fx:id="configsListView">
                                   <VBox.margin>
                                     <Insets left="10.0" right="10.0" top="10.0" />
                                   </VBox.margin>
                                 </ListView>
                                 <HBox id="hBox5" alignment="CENTER" spacing="10.0">
                                   <children>
-                                    <Button id="button1" text="Import Config" />
+                                    <Button id="button1" onAction="#handleImportConfig" text="Import Config" />
                                     <Button id="button2" text="Load" />
                                     <Button id="button3" onAction="#handleApplyDefaultSettings" text="Defaults" />
                                   </children>

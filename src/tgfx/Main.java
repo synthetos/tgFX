@@ -7,14 +7,10 @@
 package tgfx;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -30,8 +26,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -45,13 +39,10 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 
 import tgfx.external.SocketMonitor;
 import tgfx.render.Draw2d;
@@ -59,23 +50,19 @@ import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
 import org.apache.log4j.Logger;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.StrokeLineCap;
 
 import org.apache.log4j.BasicConfigurator;
-import org.omg.PortableInterceptor.USER_EXCEPTION;
 import argo.jdom.JdomParser;
+import java.io.*;
+import java.nio.charset.Charset;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Region;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
 import tgfx.gcode.GcodeLine;
 import tgfx.system.StatusCode;
 
@@ -92,6 +79,8 @@ public class Main implements Initializable, Observer {
     /**
      * FXML UI Components
      */
+    @FXML
+    private ListView configsListView;
     @FXML
     private TableColumn<GcodeLine, String> gcodeCol;
     @FXML
@@ -444,7 +433,7 @@ public class Main implements Initializable, Observer {
                 String tmp;
                 for (int i = 0; i < numbGcodeLines; i++) {
                     GcodeLine _gcl = (GcodeLine) data.get(i);
-                    
+
 //                    String l = (((GcodeLine) data.get(i)).getCodeLine());
 //            System.out.println("SENT>> " + ((GcodeLine) data.get(i)).getCodeLine() + "\n");
 //        }
@@ -796,6 +785,34 @@ public class Main implements Initializable, Observer {
 ////            };
 //        }
 //    }
+    @FXML
+    private void handleImportConfig(ActionEvent event) throws Exception {
+        //This function gets the config file selected and applys the settings onto tinyg.
+        InputStream fis;
+        BufferedReader br;
+        String line;
+
+        File selected_config = new File(System.getProperty("user.dir") + "\\configs\\" + configsListView.getSelectionModel().getSelectedItem());
+
+        fis = new FileInputStream(selected_config);
+        br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
+
+        while ((line = br.readLine()) != null) {
+            if (tg.isConnected()) {
+                if (line.startsWith("NAME:")) {
+                    //This is the name of the CONFIG lets not write this to TinyG 
+                    console.appendText("[+]Loading " + line.split(":")[1] + " config into TinyG... Please Wait...");
+                } else {
+                    tg.write(line + "\n");    //Write the line to tinyG
+                    Thread.sleep(100);      //Writing Values to eeprom can take a bit of time..
+                    console.appendText("[+]Writing Config String: " + line +"\n");
+                }
+            }
+        }
+
+
+    }
+
     @FXML
     private void handleEnter(final InputEvent event) throws Exception {
         //private void handleEnter(ActionEvent event) throws Exception {
@@ -1381,7 +1398,14 @@ public class Main implements Initializable, Observer {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-
+        //Populate the config's list view
+//        String dir = System.getProperty("user.dir");
+        File config_files = new File(System.getProperty("user.dir") + "\\configs");
+        for (File f : config_files.listFiles()) {
+            if (f.isFile() && f.getName().endsWith(".config")) {
+                configsListView.getItems().add(f.getName());
+            }
+        }
 
         BasicConfigurator.configure();
         SocketMonitor sm;
