@@ -72,7 +72,7 @@ public class ResponseParser extends Observable implements Runnable {
             JsonRootNode json = JDOM.parse(line);
             responseHeader.parseResponseHeader(json);
 
-            logger.debug("Response Header Line Number: " + responseHeader.getLineNumber());
+//            logger.debug("Response Header Line Number: " + responseHeader.getLineNumber());
 
             switch (ResponseHeader.getStatusCode()) {
                 case -1:
@@ -98,21 +98,25 @@ public class ResponseParser extends Observable implements Runnable {
                 setChanged();
                 StatusCode sc = new StatusCode(0, "System Ready", "", "TinyG Message");
                 notifyObservers(sc);
-            }  
-            
-            /**###################CRITICAL#########################**/
-            else if(line.startsWith(TinygDriver.RESPONSE_QUEUE_REPORT)){
+            } /**
+             * ###################CRITICAL#########################*
+             */
+            else if (line.startsWith(TinygDriver.RESPONSE_QUEUE_REPORT)) {
                 //TinyG Input Planning Queue Reporting... Queue Reports are for flow control
                 //LOCK THE DAMN SERIALWRITER!
                 TinygDriver.getInstance().serialWriter.lock.lock();
-                logger.debug("Locking...");
-                TinygDriver.getInstance().qr.updateQueue(json, line);
-                logger.info("qr: PBA:" + TinygDriver.getInstance().qr.getPba() + " Line: " + TinygDriver.getInstance().qr.getLineIndex());
-                TinygDriver.getInstance().serialWriter.resetLinesSentBeforeUpdate(); //We saw a qr report.. reset the count.
-                TinygDriver.getInstance().serialWriter.lock.unlock();
-                logger.debug("Un-Locking...");
-            /**###################CRITICAL#########################**/
-            
+                try {
+                    logger.debug("Locking...");
+                    TinygDriver.getInstance().qr.updateQueue(json, line);
+                    logger.info("GOT A QR UPDATE qr: PBA:" + TinygDriver.getInstance().qr.getPba() + " Line: " + TinygDriver.getInstance().qr.getLineIndex());
+                    TinygDriver.getInstance().serialWriter.resetLinesSentBeforeUpdate();
+                    TinygDriver.getInstance().serialWriter.clearToSend.signal();
+                } finally {
+                    TinygDriver.getInstance().serialWriter.lock.unlock();
+                }
+                /**
+                 * ###################CRITICAL#########################*
+                 */
             } else if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
                 //Parse Status Report
                 //"{"sr":{"line":0,"xpos":1.567,"ypos":0.548,"zpos":0.031,"apos":0.000,"vel":792.463,"unit":"mm","stat":"run"}}"
@@ -132,9 +136,7 @@ public class ResponseParser extends Observable implements Runnable {
                 setChanged();
                 notifyObservers("STATUS_REPORT");
 
-            }
-            
-            else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
                 logger.info("[#]Parsing Machine Settings JSON");
                 //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
                 TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sys").getNode("fv").getText()));

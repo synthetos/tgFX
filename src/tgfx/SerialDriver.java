@@ -42,16 +42,16 @@ public class SerialDriver implements SerialPortEventListener {
     public double offsetPointer = 0;
     //DEBUG
 
-    public synchronized void write(String str) throws Exception {
+    public void write(String str) throws Exception {
         this.output.write(str.getBytes());
 
     }
 
-    public synchronized void priorityWrite(String str) throws Exception {
+    public  void priorityWrite(String str) throws Exception {
         this.output.write(str.getBytes());
     }
     
-    public synchronized void priorityWrite(Byte b) throws Exception {
+    public  void priorityWrite(Byte b) throws Exception {
         Main.logger.debug("[*] Priority Write Sent\n");
         this.output.write(b);
     }

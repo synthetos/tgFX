@@ -127,7 +127,7 @@ public class TinygDriver extends Observable {
     public static ArrayBlockingQueue<byte[]> queue = new ArrayBlockingQueue<byte[]>(
             30);
     
-    public static ArrayBlockingQueue<GcodeLine[]> writerQueue = new ArrayBlockingQueue<GcodeLine[]>(24);
+    public static ArrayBlockingQueue<GcodeLine[]> writerQueue = new ArrayBlockingQueue<GcodeLine[]>(50000);
     
     
     // public static BlockingQueue<String> jsonQueue = new
@@ -149,15 +149,10 @@ public class TinygDriver extends Observable {
     private int EMPTY_BUFFER_SIZE = 250;
     private int freespace = EMPTY_BUFFER_SIZE - extraFree;
     private int waitingCommandSize = 0;
-    //private long lastCommandSent;
     private long lastLineNumberSent = 0;
-    private long increaseGreaterResponse = 0;
-    //private int lastCommandSize;
     private int bustedBuffer = 0;
-//    private ArrayBlockingQueue<String> ouputBuffer = new ArrayBlockingQueue<String>(
-//            maxbuffer);
+
     ReentrantLock lock = new ReentrantLock();
-    private Condition clearToSend = lock.newCondition();
     private LinkedList<Command> buffered = new LinkedList<Command>();
 
     /**
