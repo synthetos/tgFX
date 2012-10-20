@@ -4,10 +4,14 @@
  */
 package tgfx;
 
+import org.apache.log4j.PropertyConfigurator;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
 
 /**
@@ -17,6 +21,7 @@ import javafx.stage.Stage;
 public class TgFX extends Application {
     
     public static void main(String[] args) {
+    	PropertyConfigurator.configure("log4j.properties");
         Application.launch(TgFX.class, args);
     }
     
@@ -27,6 +32,8 @@ public class TgFX extends Application {
         
         Scene scene = new Scene(root);
 //        scene.getStylesheets().add(this.getClass().getResource("composer.css").toExternalForm());
+        
+        
         
         stage.setScene(scene);
         stage.show();

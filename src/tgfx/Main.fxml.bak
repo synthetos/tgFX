@@ -145,7 +145,7 @@
                                 <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
                               </VBox.margin>
                             </HBox>
-                            <TableView fx:id="gcodeView" prefHeight="400.0" prefWidth="200.0">
+                            <TableView fx:id="gcodeView" prefHeight="200.0" prefWidth="200.0">
                               <columns>
                                 <TableColumn id="gcodeCol" minWidth="250.0" prefWidth="250.0" sortable="false" text="Gcode Program" fx:id="gcodeCol" />
                               </columns>
@@ -1122,16 +1122,15 @@
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
                                   </padding>
                                 </HBox>
-                                <ListView fx:id="configsListView">
+                                <ListView id="listView1">
                                   <VBox.margin>
                                     <Insets left="10.0" right="10.0" top="10.0" />
                                   </VBox.margin>
                                 </ListView>
                                 <HBox id="hBox5" alignment="CENTER" spacing="10.0">
                                   <children>
-                                    <Button id="button2" text="Import" />
-                                    <Button id="button1" onAction="#handleImportConfig" text="Load" />
-                                    <Button fx:id="saveConfig" mnemonicParsing="false" text="Save" />
+                                    <Button id="button1" text="Import Config" />
+                                    <Button id="button2" text="Load" />
                                     <Button id="button3" onAction="#handleApplyDefaultSettings" text="Defaults" />
                                   </children>
                                   <VBox.margin>

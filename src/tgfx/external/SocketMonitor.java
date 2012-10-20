@@ -11,7 +11,7 @@ import java.net.Socket;
 import java.nio.channels.ClosedChannelException;
 import java.util.Observable;
 import java.util.Observer;
-import tgfx.TinygDriver;
+import tgfx.tinyg.TinygDriver;
 
 /**
  *
@@ -46,14 +46,14 @@ public class SocketMonitor {
 
     public void handleConnections() {
         System.out.println("[+]Remote Monitor Listening for Connections....");
-        while (ser.isConnected()) {
+//        while (ser.isConnected()) {
             try {
                 final Socket socket = server.accept();
-                new ConnectionHandler(socket);
+            ConnectionHandler connectionHandler = new ConnectionHandler(socket);
             } catch (IOException ex) {
                 System.out.println("[!]Error: " + ex.getMessage());
             }
-        }
+//        }
         System.out.println("[!]Socket Monitor Terminated...");
 
     }
@@ -92,10 +92,10 @@ class ConnectionHandler implements Runnable, Observer {
         this.socket = socket;
 
         SerialDriver ser = SerialDriver.getInstance();
-        System.out.println("[+]Opening Remote Listener Socket");
+       System.out.println("[+]Opening Remote Listener Socket");
         ser.addObserver(this);
-        Thread t = new Thread(this);
-        t.start();
+       Thread t = new Thread(this);
+//        t.start();
     }
 
     private void write(String l) throws Exception {
