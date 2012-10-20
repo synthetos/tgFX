@@ -4,6 +4,7 @@
  */
 package tgfx;
 
+import tgfx.tinyg.TinygDriver;
 import gnu.io.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

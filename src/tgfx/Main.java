@@ -6,6 +6,7 @@
  */
 package tgfx;
 
+import tgfx.tinyg.TinygDriver;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -157,8 +158,6 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleOpenFile(ActionEvent event) {
 
-
-
         Platform.runLater(new Runnable() {
 
             @Override
@@ -219,7 +218,7 @@ public class Main implements Initializable, Observer {
 //        tg.setCANCELLED(true);
         setTaskActive(false);
         Byte reset = 0x18;
-        tg.resetSpaceBuffer();
+//        tg.resetSpaceBuffer();
         tg.priorityWrite(reset); //This resets TinyG
         Thread.sleep(3000); //We need to sleep a bit until TinyG comes back
         tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //This will reset our DRO readings
@@ -459,7 +458,7 @@ public class Main implements Initializable, Observer {
                         tg.write(line.toString());
 
                     }
-                    logger.debug(tg.getBustedBufferCount() + " times buffer below threshold");
+//                    logger.debug(tg.getBustedBufferCount() + " times buffer below threshold");
                 }
                 return true;
             }
@@ -605,12 +604,12 @@ public class Main implements Initializable, Observer {
     private void onConnectActions() {
         try {
 
-            tg.write(TinygDriver.CMD_APPLY_DISABLE_HASHCODE);
-            tg.write(TinygDriver.CMD_APPLY_DISABLE_LOCAL_ECHO);
-            tg.getAllMotorSettings();
-            tg.getAllAxisSettings();
-            tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero
-            tg.write(TinygDriver.CMD_QUERY_MACHINE_SETTINGS);  //On command to rule them all.
+//            tg.write(TinygDriver.CMD_APPLY_DISABLE_HASHCODE);
+//            tg.write(TinygDriver.CMD_APPLY_DISABLE_LOCAL_ECHO);
+//            tg.getAllMotorSettings();
+//            tg.getAllAxisSettings();
+//            tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero
+//            tg.write(TinygDriver.CMD_QUERY_MACHINE_SETTINGS);  //On command to rule them all.
 
             /**
              * Draw the workspace area in the preview
@@ -671,7 +670,7 @@ public class Main implements Initializable, Observer {
         srMomo.setText("?");
         srVelo.setText("?");
         srState.setText("?");
-        tg.resetSpaceBuffer();
+//        tg.resetSpaceBuffer();
 
     }
 
@@ -786,6 +785,25 @@ public class Main implements Initializable, Observer {
 //        }
 //    }
     @FXML
+    private void handleSaveConfig(ActionEvent event) throws Exception {
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+
+
+                FileChooser fc = new FileChooser();
+                fc.setInitialDirectory(new File(System.getProperty("user.dir") + "\\configs\\"));
+                fc.setTitle("Save Current TinyG Configuration");
+                File f = fc.showOpenDialog(null);
+                if(f.canWrite()){
+                    
+                }
+            }
+        });
+    }
+
+    @FXML
     private void handleImportConfig(ActionEvent event) throws Exception {
         //This function gets the config file selected and applys the settings onto tinyg.
         InputStream fis;
@@ -805,13 +823,12 @@ public class Main implements Initializable, Observer {
                 } else {
                     tg.write(line + "\n");    //Write the line to tinyG
                     Thread.sleep(100);      //Writing Values to eeprom can take a bit of time..
-                    console.appendText("[+]Writing Config String: " + line +"\n");
+                    console.appendText("[+]Writing Config String: " + line + "\n");
                 }
             }
         }
-
-
     }
+    
 
     @FXML
     private void handleEnter(final InputEvent event) throws Exception {
@@ -1238,39 +1255,7 @@ public class Main implements Initializable, Observer {
         });
     }
 
-//    
-//    @Override
-//    public synchronized void update(Observable o, Object arg) {
-//        final String ROUTING_KEY = (String) arg;
-//
-//        //We have to run the updates likes this.
-//        //https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
-//        Platform.runLater(new Runnable() {
-//
-//            public void run() {
-//                // we are now back in the EventThread and can update the GUI
-//                if (ROUTING_KEY.equals("PLAIN")) {
-//                    console.appendText((String) ROUTING_KEY + "\n");
-//
-//                } else if (ROUTING_KEY.equals("BUILD_UPDATE")) {
-//                    updateGuiState(ROUTING_KEY);
-//                } else if (ROUTING_KEY.equals("STATUS_REPORT")) {
-////                    console.setText((String) MSG[1] + "\n");
-//                    updateGuiState(ROUTING_KEY);
-//
-//                } else if (ROUTING_KEY.contains("ERROR")) {
-//                    console.appendText(ROUTING_KEY);
-//                } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
-////                    System.out.println("UPDATE: MACHINE SETTINGS");
-//                    updateGUIConfigState();
-//                } else {
-//                    console.appendText(ROUTING_KEY);
-//                    System.out.println(ROUTING_KEY);
-//                }
-//
-//            }
-//        });
-//    }
+
     private void updateGuiAxisSettings() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
@@ -1399,7 +1384,6 @@ public class Main implements Initializable, Observer {
     public void initialize(URL url, ResourceBundle rb) {
 
         //Populate the config's list view
-//        String dir = System.getProperty("user.dir");
         File config_files = new File(System.getProperty("user.dir") + "\\configs");
         for (File f : config_files.listFiles()) {
             if (f.isFile() && f.getName().endsWith(".config")) {
@@ -1468,6 +1452,11 @@ public class Main implements Initializable, Observer {
         reader.start();  //start the queueReader thread.
 
 
+        Thread serialWriterThread = new Thread(tg.serialWriter);
+        serialWriterThread.setName("SerialWriter");
+        serialWriterThread.setDaemon(true);
+        serialWriterThread.start();
+        
         Thread threadResponseParser = new Thread(tg.resParse);
         threadResponseParser.setDaemon(true);
         threadResponseParser.setName("ResponseParser");

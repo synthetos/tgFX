@@ -15,7 +15,7 @@ import java.util.concurrent.BlockingQueue;
 import org.apache.log4j.Logger;
 
 import tgfx.Main;
-import tgfx.TinygDriver;
+import tgfx.tinyg.TinygDriver;
 import tgfx.system.Axis;
 import tgfx.system.StatusCode;
 
@@ -71,15 +71,10 @@ public class ResponseParser extends Observable implements Runnable {
             //Create our JSON Parsing Object
             JsonRootNode json = JDOM.parse(line);
             responseHeader.parseResponseHeader(json);
-            //logger.debug("returned line " + responseHeader.getLineNumber() + ": " + line);
-            TinygDriver.getInstance().commandComplete(responseHeader);
+
             logger.debug("Response Header Line Number: " + responseHeader.getLineNumber());
 
-            //This is a way to catch status codes that we do not want to parse out the rest of the message
-            //40 is an Unrecognized Command
-            //-1 is an error in parsing the json
-
-            switch (responseHeader.getStatusCode()) {
+            switch (ResponseHeader.getStatusCode()) {
                 case -1:
                     logger.info("[!]Error Parsing JSON line: " + line);
                     return;
@@ -94,13 +89,30 @@ public class ResponseParser extends Observable implements Runnable {
                 default:
 
             }
-            if (line.contains("bd\":{\"\":\"\"}")) {
-                //Move on
-            } else if (line.contains("SYSTEM READY")) {
+//            if (line.contains("bd\":{\"\":\"\"}")) {
+//                //Move on
+//            } else
+
+            if (line.contains("SYSTEM READY")) {
                 //This will be moved to the switch statement above when we assign "SYSTEM READY" a status code.
                 setChanged();
                 StatusCode sc = new StatusCode(0, "System Ready", "", "TinyG Message");
                 notifyObservers(sc);
+            }  
+            
+            /**###################CRITICAL#########################**/
+            else if(line.startsWith(TinygDriver.RESPONSE_QUEUE_REPORT)){
+                //TinyG Input Planning Queue Reporting... Queue Reports are for flow control
+                //LOCK THE DAMN SERIALWRITER!
+                TinygDriver.getInstance().serialWriter.lock.lock();
+                logger.debug("Locking...");
+                TinygDriver.getInstance().qr.updateQueue(json, line);
+                logger.info("qr: PBA:" + TinygDriver.getInstance().qr.getPba() + " Line: " + TinygDriver.getInstance().qr.getLineIndex());
+                TinygDriver.getInstance().serialWriter.resetLinesSentBeforeUpdate(); //We saw a qr report.. reset the count.
+                TinygDriver.getInstance().serialWriter.lock.unlock();
+                logger.debug("Un-Locking...");
+            /**###################CRITICAL#########################**/
+            
             } else if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
                 //Parse Status Report
                 //"{"sr":{"line":0,"xpos":1.567,"ypos":0.548,"zpos":0.031,"apos":0.000,"vel":792.463,"unit":"mm","stat":"run"}}"
@@ -108,24 +120,11 @@ public class ResponseParser extends Observable implements Runnable {
                 TinygDriver.getInstance().m.getAxisByName("Y").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posy").getText()));
                 TinygDriver.getInstance().m.getAxisByName("Z").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posz").getText()));
                 TinygDriver.getInstance().m.getAxisByName("A").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posa").getText()));
-
-//               TinygDriver.getInstance().m.getAxisByName("B").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posa").getText()));
-//               TinygDriver.getInstance().m.getAxisByName("C").setWork_position(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("posa").getText()));
-
-                //Parse state out of status report.
                 TinygDriver.getInstance().m.setMachineState(Integer.valueOf(json.getNode("r").getNode("bd").getNode("sr").getNode("stat").getText()));
-
-                //Parse motion mode (momo) out of start report
                 TinygDriver.getInstance().m.setMotionMode(Integer.parseInt(json.getNode("r").getNode("bd").getNode("sr").getNode("momo").getText()));
-
-                //Parse velocity out of status report
                 TinygDriver.getInstance().m.setVelocity(Float.parseFloat(json.getNode("r").getNode("bd").getNode("sr").getNode("vel").getText()));
-
-                //Parse Unit Mode
                 TinygDriver.getInstance().m.setUnits(Integer.parseInt(json.getNode("r").getNode("bd").getNode("sr").getNode("unit").getText()));
                 TinygDriver.getInstance().m.setCoordinate_mode(Integer.parseInt(json.getNode("r").getNode("bd").getNode("sr").getNode("coor").getText()));
-
-
                 //m.getAxisByName("X").setWork_position(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sr").getNode("xpos").getText())));
                 //m.getAxisByName("Y").setWork_position(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sr").getNode("ypos").getText())));
                 //m.getAxisByName("Z").setWork_position(Float.parseFloat((json.getNode("r").getNode("bd").getNode("sr").getNode("zpos").getText())));
@@ -133,19 +132,8 @@ public class ResponseParser extends Observable implements Runnable {
                 setChanged();
                 notifyObservers("STATUS_REPORT");
 
-            } //            else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_BUILD)) {
-            //                logger.info("[#]Parsing Machine Settings....");
-            //                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fb").getText()));
-            //                setChanged();
-            //                notifyObservers("MACHINE_UPDATE");
-            //            } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_FIRMWARE_VERSION)) {
-            //                logger.info("[#]Parsing Version...");
-            //                TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("bd").getNode("fv").getText()));
-            //                setChanged();
-            //                notifyObservers("MACHINE_UPDATE");
-            //
-            //
-            //            } 
+            }
+            
             else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
                 logger.info("[#]Parsing Machine Settings JSON");
                 //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
@@ -280,8 +268,10 @@ public class ResponseParser extends Observable implements Runnable {
         //{"1":{"ma":0,"sa":1.800,"tr":1.250,"mi":8,"po":0,"pm":1}}
         JsonRootNode json = JDOM.parse(line);
         String strMotor = String.valueOf(motor);
-
+        TinygDriver.getInstance().m.getMotorByNumber(motor).setCURRENT_MOTOR_JSON_OBJECT(line.split("bd\":")[1].split(",\"sc")[0]); //Get us or current json line. This isfor
+        //saving settings in the UI
         try {
+
 
 
             TinygDriver.getInstance().m.getMotorByNumber(motor).setMapToAxis(Integer.valueOf((json.getNode("r").getNode("bd").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_MAP_AXIS).getText())));
@@ -290,7 +280,7 @@ public class ResponseParser extends Observable implements Runnable {
             TinygDriver.getInstance().m.getMotorByNumber(motor).setPolarity(Integer.valueOf((json.getNode("r").getNode("bd").getNode(strMotor).getNode("po").getText())));
             TinygDriver.getInstance().m.getMotorByNumber(motor).setPower_management(Integer.valueOf((json.getNode("r").getNode("bd").getNode(strMotor).getNode("pm").getText())));
             TinygDriver.getInstance().m.getMotorByNumber(motor).setMicrosteps(Integer.valueOf(json.getNode("r").getNode("bd").getNode(strMotor).getNode("mi").getText()));
-        }catch(java.lang.NumberFormatException ex){
+        } catch (java.lang.NumberFormatException ex) {
             TinygDriver.getInstance().m.getMotorByNumber(motor).setMapToAxis(Float.valueOf(json.getNode("r").getNode("bd").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_MAP_AXIS).getText()).intValue());
             TinygDriver.getInstance().m.getMotorByNumber(motor).setStep_angle(Float.valueOf(json.getNode("r").getNode("bd").getNode(strMotor).getNode("sa").getText()));
             TinygDriver.getInstance().m.getMotorByNumber(motor).setTravel_per_revolution(Float.valueOf(json.getNode("r").getNode("bd").getNode(strMotor).getNode("tr").getText()));

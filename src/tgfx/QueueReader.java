@@ -8,7 +8,7 @@ import java.util.concurrent.BlockingQueue;
 
 import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
-import tgfx.TinygDriver;
+import tgfx.tinyg.TinygDriver;
 
 /**
  *

@@ -11,7 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Observable;
 import java.util.Observer;
-import tgfx.TinygDriver;
+import tgfx.tinyg.TinygDriver;
 
 /**
  *

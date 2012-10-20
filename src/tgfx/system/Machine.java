@@ -26,6 +26,7 @@ public class Machine {
      */
     //TG Specific
     //Machine EEPROM Values
+    private String CURRENT_MACHINE_JSON_OBJECT;
     private float firmware_build;
     private float firmware_version;
     private int status_report_interval;
@@ -72,6 +73,15 @@ public class Machine {
 
         g54, g55, g56, g57, g58, g59
     }
+
+    public String getCURRENT_MACHINE_JSON_OBJECT() {
+        return CURRENT_MACHINE_JSON_OBJECT;
+    }
+
+    public void setCURRENT_MACHINE_JSON_OBJECT(String CURRENT_MACHINE_JSON_OBJECT) {
+        this.CURRENT_MACHINE_JSON_OBJECT = CURRENT_MACHINE_JSON_OBJECT;
+    }
+    
     public static coordinate_systems coordinate_system;
 
 //    public static enum motion_modes {

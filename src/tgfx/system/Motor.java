@@ -9,7 +9,8 @@ package tgfx.system;
  * @author ril3y
  */
 public class Motor {
-
+    
+    private String CURRENT_MOTOR_JSON_OBJECT;
     private int id_number; //On TinyG the motor ports are 1-4
     private int ma;// map_to_axis
     private int mi; //Microsteps
@@ -18,18 +19,8 @@ public class Motor {
     private boolean po;
     private boolean pm;
 
-//     private Motor() {
-//     }
-//    
-//    public static Motor getInstance() {
-//        return MotorHolder.INSTANCE;
-//    }
-//    
-//    private static class MotorHolder {
-//
-//        private static final Motor INSTANCE = new Motor();
-//    }
-//    //End Singleton
+    
+    
     /**
      *
      * What TinyG Motor Class Looks Like. 2/1/2012 [1ma] m1_map_to_axis 0 [0=X,
@@ -42,6 +33,15 @@ public class Motor {
         id_number = id;
     }
 
+    public String getCURRENT_MOTOR_JSON_OBJECT() {
+        return CURRENT_MOTOR_JSON_OBJECT;
+    }
+
+    public void setCURRENT_MOTOR_JSON_OBJECT(String CURRENT_MOTOR_JSON_OBJECT) {
+        this.CURRENT_MOTOR_JSON_OBJECT = CURRENT_MOTOR_JSON_OBJECT;
+    }
+
+    
     //Small wrappers to return int's vs bools
     public int isPolarityInt() {
         if (isPolarity() == true) {

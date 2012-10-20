@@ -32,14 +32,15 @@ public class ResponseHeader {
     }
     public  String getStatusMessage() {
         return statusMessage;
+        //TODO THESE IN A HASHMAP IN TinyG Driver
     }
     
     public void parseResponseHeader(JsonNode responseNodeObject){
-        statusMessage = responseNodeObject.getNode("r").getNode("sm").getText();
+//        statusMessage = responseNodeObject.getNode("r").getNode("sm").getText();
         statusCode = Integer.valueOf(responseNodeObject.getNode("r").getNode("sc").getText());
         try {
-        	bufferAvailable = Integer.valueOf(responseNodeObject.getNode("r").getNode("buf").getText());
-        lineNumber = Long.valueOf(responseNodeObject.getNode("r").getNode("ln").getText());
+//        	bufferAvailable = Integer.valueOf(responseNodeObject.getNode("r").getNode("buf").getText());
+        lineNumber = Long.valueOf(responseNodeObject.getNode("r").getNode("bd").getNode("qr").getNode("lix").getText());
         } catch(Exception pjex) {
         	//bufferAvailable = -1;
         	//lineNumber = -1;

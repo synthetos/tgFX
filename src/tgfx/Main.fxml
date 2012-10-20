@@ -1129,8 +1129,9 @@
                                 </ListView>
                                 <HBox id="hBox5" alignment="CENTER" spacing="10.0">
                                   <children>
-                                    <Button id="button1" onAction="#handleImportConfig" text="Import Config" />
-                                    <Button id="button2" text="Load" />
+                                    <Button id="button2" text="Import" />
+                                    <Button id="button1" onAction="#handleImportConfig" text="Load" />
+                                    <Button fx:id="saveConfig" mnemonicParsing="false" text="Save" />
                                     <Button id="button3" onAction="#handleApplyDefaultSettings" text="Defaults" />
                                   </children>
                                   <VBox.margin>

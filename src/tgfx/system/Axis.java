@@ -24,6 +24,7 @@ public class Axis {
 
         LINEAR, ROTATIONAL;
     }
+    private String CURRENT_AXIS_JSON_OBJECT;
     private AXIS_TYPE axis_type;
     private float latch_velocity;
 //    private float seek_rate_maximum;
@@ -55,6 +56,14 @@ public class Axis {
         NO_HOMING_AND_LIMIT,
         NC_HOMING_ONLY,
         NC_HOMING_AND_LIMIT
+    }
+
+    public String getCURRENT_AXIS_JSON_OBJECT() {
+        return CURRENT_AXIS_JSON_OBJECT;
+    }
+
+    public void setCURRENT_AXIS_JSON_OBJECT(String CURRENT_AXIS_JSON_OBJECT) {
+        this.CURRENT_AXIS_JSON_OBJECT = CURRENT_AXIS_JSON_OBJECT;
     }
 
     public enum AXIS_MODES {
