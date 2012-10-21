@@ -63,12 +63,15 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.PropertyValueFactory;
 import tgfx.gcode.GcodeLine;
 import tgfx.system.StatusCode;
 
 public class Main implements Initializable, Observer {
 
+    private boolean drawPreview = true;
     private boolean taskActive = false;
     static final Logger logger = Logger.getLogger(Main.class);
     //private static final String CMD_GET_stateUS_REPORT = "{\"sr\":\"\"}\n";
@@ -80,6 +83,8 @@ public class Main implements Initializable, Observer {
     /**
      * FXML UI Components
      */
+    @FXML
+    private Button settingDrawBtn;
     @FXML
     private ListView configsListView;
     @FXML
@@ -156,10 +161,20 @@ public class Main implements Initializable, Observer {
 //    Path path = new Path();
 
     @FXML
+    private void handleTogglePreview(ActionEvent event) {
+        if (settingDrawBtn.getText().equals("ON")) {
+            settingDrawBtn.setText("OFF");
+            drawPreview = true;
+        } else {
+            settingDrawBtn.setText("ON");
+            drawPreview = false;
+        }
+    }
+
+    @FXML
     private void handleOpenFile(ActionEvent event) {
 
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 logger.debug("handleOpenFile");
@@ -420,7 +435,6 @@ public class Main implements Initializable, Observer {
 
     public Task fileSenderTask() {
         return new Task() {
-
             @Override
             protected Object call() throws Exception {
                 StringBuilder line = new StringBuilder();
@@ -603,14 +617,12 @@ public class Main implements Initializable, Observer {
      */
     private void onConnectActions() {
         try {
-
 //            tg.write(TinygDriver.CMD_APPLY_DISABLE_HASHCODE);
 //            tg.write(TinygDriver.CMD_APPLY_DISABLE_LOCAL_ECHO);
 //            tg.getAllMotorSettings();
 //            tg.getAllAxisSettings();
 //            tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero
 //            tg.write(TinygDriver.CMD_QUERY_MACHINE_SETTINGS);  //On command to rule them all.
-
             /**
              * Draw the workspace area in the preview
              */
@@ -787,7 +799,6 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleSaveConfig(ActionEvent event) throws Exception {
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
 
@@ -796,8 +807,7 @@ public class Main implements Initializable, Observer {
                 fc.setInitialDirectory(new File(System.getProperty("user.dir") + "\\configs\\"));
                 fc.setTitle("Save Current TinyG Configuration");
                 File f = fc.showOpenDialog(null);
-                if(f.canWrite()){
-                    
+                if (f.canWrite()) {
                 }
             }
         });
@@ -828,7 +838,6 @@ public class Main implements Initializable, Observer {
             }
         }
     }
-    
 
     @FXML
     private void handleEnter(final InputEvent event) throws Exception {
@@ -928,7 +937,6 @@ public class Main implements Initializable, Observer {
     private Task initRemoteServer(String port) {
         final String Port = port;
         return new Task() {
-
             @Override
             protected Object call() throws Exception {
                 SocketMonitor sm = new SocketMonitor(Port);
@@ -989,7 +997,6 @@ public class Main implements Initializable, Observer {
             //Pass this on by..
         } else if (line.equals("BUILD_UPDATE")) {
             Platform.runLater(new Runnable() {
-
                 float vel;
 
                 public void run() {
@@ -1007,7 +1014,6 @@ public class Main implements Initializable, Observer {
 
         } else if (line.equals("STATUS_REPORT")) {
             Platform.runLater(new Runnable() {
-
                 float vel;
 
                 public void run() {
@@ -1030,7 +1036,6 @@ public class Main implements Initializable, Observer {
                         vel = tg.m.getVelocity();
                         srVelo.setText(String.valueOf(vel));
 
-//                        drawLine(tg.m.getMotionMode(), vel);
 
 
                     } catch (Exception ex) {
@@ -1047,7 +1052,6 @@ public class Main implements Initializable, Observer {
     private void updateGUIConfigState() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
-
             float vel;
 
             public void run() {
@@ -1101,7 +1105,6 @@ public class Main implements Initializable, Observer {
     private void updateGuiStatusReport(String line) {
         final String l = line;
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 //logger.info("updateGuiStatusReport Ran");
@@ -1128,7 +1131,18 @@ public class Main implements Initializable, Observer {
                     vel = m.getVelocity();
                     srVelo.setText(String.valueOf(vel));
 
-                    drawLine(TinygDriver.getInstance().m.getMotionMode(), vel);
+                    //############################################################
+                    /**
+                     * This enables drawing on the GUI Uncomment it if you want
+                     * it to draw
+                     *
+                     *
+                     */
+                    if (drawPreview) {
+                        drawLine(TinygDriver.getInstance().m.getMotionMode(), vel);
+                    }
+                    //##############################################################
+
 //                    drawLine(m.getMotionMode(), vel, zAxisVal.getText());
 //                        renderZ();
                 } catch (Exception ex) {
@@ -1143,7 +1157,6 @@ public class Main implements Initializable, Observer {
     private void updateGuiMachineSettings(String line) {
         final String l = line;
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 //We are now back in the EventThread and can update the GUI
@@ -1176,7 +1189,6 @@ public class Main implements Initializable, Observer {
 //        We have to run the updates likes this.
 //        https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
             Platform.runLater(new Runnable() {
-
                 public void run() {
                     // we are now back in the EventThread and can update the GUI
                     if (ROUTING_KEY.startsWith("[!]")) {
@@ -1208,7 +1220,6 @@ public class Main implements Initializable, Observer {
     private void updateGuiMotorSettings() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
-
             public void run() {
                 //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
                 //Right now this is how I am doing this.  However I think there can be a more optimized way
@@ -1255,11 +1266,9 @@ public class Main implements Initializable, Observer {
         });
     }
 
-
     private void updateGuiAxisSettings() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
@@ -1456,7 +1465,7 @@ public class Main implements Initializable, Observer {
         serialWriterThread.setName("SerialWriter");
         serialWriterThread.setDaemon(true);
         serialWriterThread.start();
-        
+
         Thread threadResponseParser = new Thread(tg.resParse);
         threadResponseParser.setDaemon(true);
         threadResponseParser.setName("ResponseParser");
