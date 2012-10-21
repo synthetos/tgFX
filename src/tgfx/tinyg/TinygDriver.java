@@ -23,7 +23,6 @@ import javafx.scene.layout.GridPane;
 
 import org.apache.log4j.Logger;
 import tgfx.Command;
-import tgfx.QueueReader;
 import tgfx.ResponseParser;
 import tgfx.SerialDriver;
 import tgfx.SerialWriter;
@@ -133,7 +132,6 @@ public class TinygDriver extends Observable {
     // public static BlockingQueue<String> jsonQueue = new
     // LinkedBlockingQueue<>();
     // public static BlockingQueue<byte[]> queue = new LinkedBlockingQueue<>();
-    public QueueReader queueReader = new QueueReader(queue, jsonQueue);
     public ResponseParser resParse = new ResponseParser(jsonQueue); // Our
     
     public SerialWriter   serialWriter = new SerialWriter(writerQueue);

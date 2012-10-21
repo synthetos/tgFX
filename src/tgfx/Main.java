@@ -1452,14 +1452,6 @@ public class Main implements Initializable, Observer {
         data.add(n);
         gcodeView.setItems(data);
 
-        TinygDriver.getInstance().queueReader.setRun(true);
-        Thread reader = new Thread(TinygDriver.getInstance().queueReader);
-        reader.setName("QueueReader");
-        reader.setDaemon(true);
-        reader.setPriority(Thread.MIN_PRIORITY);
-        reader.start();  //start the queueReader thread.
-
-
         Thread serialWriterThread = new Thread(tg.serialWriter);
         serialWriterThread.setName("SerialWriter");
         serialWriterThread.setDaemon(true);
