@@ -50,6 +50,10 @@ public class SerialWriter implements Runnable {
         lines_sent_before_update = lines_sent_before_update + 1;
     }
 
+    public boolean setThrottled(boolean t) {
+        return ser.setThrottled(t);
+    }
+    
     public void addCommandToBuffer(String cmd) {
         this.queue.add(cmd);
     }

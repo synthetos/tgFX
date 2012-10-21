@@ -108,8 +108,15 @@ public class ResponseParser extends Observable implements Runnable {
                 try {
 //                    logger.debug("Locking...");
                     TinygDriver.getInstance().qr.updateQueue(json, line);
-//                    logger.info("GOT A QR UPDATE qr: PBA:" + TinygDriver.getInstance().qr.getPba() + " Line: " + TinygDriver.getInstance().qr.getLineIndex());
-                    TinygDriver.getInstance().serialWriter.resetLinesSentBeforeUpdate();
+                    logger.info("GOT A QR UPDATE qr: PBA:" + TinygDriver.getInstance().qr.getPba() + " Line: " + TinygDriver.getInstance().qr.getLineIndex());
+                    if (TinygDriver.getInstance().qr.getPba() <= 2) {
+                        if (TinygDriver.getInstance().serialWriter.setThrottled(true))
+                          logger.info("Throttled for PBA");
+                    } else {
+                        if (TinygDriver.getInstance().serialWriter.setThrottled(false))
+                            logger.info("Unthrottled for PBA");                        
+                    }
+//                    TinygDriver.getInstance().serialWriter.resetLinesSentBeforeUpdate();
 //                    TinygDriver.getInstance().serialWriter.clearToSend.signal();
                 } finally {
 //                    TinygDriver.getInstance().serialWriter.lock.unlock();

@@ -96,6 +96,16 @@ public class SerialDriver implements SerialPortEventListener {
         this.CANCELLED = choice;
     }
 
+    public boolean setThrottled(boolean t) {
+        synchronized (mutex) {
+          if (t == throttled)
+            return false;
+          throttled = t;
+            if (!throttled)
+                mutex.notify();
+        }
+        return true;
+    }
     public void setConnected(boolean c) {
         this.connectionState = c;
     }
@@ -118,15 +128,10 @@ public class SerialDriver implements SerialPortEventListener {
                 for (int i=0; i < cnt; i++) {
                     if (inbuffer[i] == 0x13) {
                         System.out.println("Got XOFF");
-                        synchronized (mutex) {
-                            throttled = true;
-                        }
+//                        setThrottled(true);
                     } else if (inbuffer[i] == 0x11) {
                         System.out.println("Got XON");
-                        synchronized (mutex) {
-                            throttled = false;
-                            mutex.notify();
-                        }
+//                        setThrottled(false);
                     } else if (inbuffer[i] == '\n') {
                         String f = new String(lineBuffer, 0, lineIdx);
  //                       Main.logger.debug("full line |" + f + "|");                        
