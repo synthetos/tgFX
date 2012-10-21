@@ -104,15 +104,15 @@ public class ResponseParser extends Observable implements Runnable {
             else if (line.startsWith(TinygDriver.RESPONSE_QUEUE_REPORT)) {
                 //TinyG Input Planning Queue Reporting... Queue Reports are for flow control
                 //LOCK THE DAMN SERIALWRITER!
-                TinygDriver.getInstance().serialWriter.lock.lock();
+//                TinygDriver.getInstance().serialWriter.lock.lock();
                 try {
-                    logger.debug("Locking...");
+//                    logger.debug("Locking...");
                     TinygDriver.getInstance().qr.updateQueue(json, line);
-                    logger.info("GOT A QR UPDATE qr: PBA:" + TinygDriver.getInstance().qr.getPba() + " Line: " + TinygDriver.getInstance().qr.getLineIndex());
+//                    logger.info("GOT A QR UPDATE qr: PBA:" + TinygDriver.getInstance().qr.getPba() + " Line: " + TinygDriver.getInstance().qr.getLineIndex());
                     TinygDriver.getInstance().serialWriter.resetLinesSentBeforeUpdate();
-                    TinygDriver.getInstance().serialWriter.clearToSend.signal();
+//                    TinygDriver.getInstance().serialWriter.clearToSend.signal();
                 } finally {
-                    TinygDriver.getInstance().serialWriter.lock.unlock();
+//                    TinygDriver.getInstance().serialWriter.lock.unlock();
                 }
                 /**
                  * ###################CRITICAL#########################*

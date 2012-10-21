@@ -659,7 +659,7 @@ public class TinygDriver extends Observable {
 //        logger.debug("writing " + msg.length() + " byte message, " + spaceAvailable + " bytes available in hardware buffer");
           
           TinygDriver.getInstance().serialWriter.addCommandToBuffer(msg);
-         logger.debug("[+]Added " + msg + " to SerialWriter Queue");
+ //        logger.debug("[+]Added " + msg + " to SerialWriter Queue");
     }
 
     public void write(GcodeLine gcl) throws Exception {

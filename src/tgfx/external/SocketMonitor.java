@@ -93,7 +93,7 @@ class ConnectionHandler implements Runnable, Observer {
 
         SerialDriver ser = SerialDriver.getInstance();
        System.out.println("[+]Opening Remote Listener Socket");
-        ser.addObserver(this);
+//        ser.addObserver(this);
        Thread t = new Thread(this);
 //        t.start();
     }
