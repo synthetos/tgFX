@@ -42,9 +42,15 @@ public class SerialDriver implements SerialPortEventListener {
     public double offsetPointer = 0;
     //DEBUG
 
-    public void write(String str) throws Exception {
-        this.output.write(str.getBytes());
-
+    public void write(String str) {
+        try{
+            this.output.write(str.getBytes());
+        }catch(Exception ex){
+            Main.logger.error("Error in SerialDriver Write");
+            
+        }
+        
+        
     }
 
     public  void priorityWrite(String str) throws Exception {
@@ -103,6 +109,7 @@ public class SerialDriver implements SerialPortEventListener {
                 int available = input.available();   //Get the size of data in the input buffer
                 byte chunk[] = new byte[available];  //Setup byte array to store the data.
                 input.read(chunk, 0, available);
+                
 
                 //Flow.logger.debug("Serial Event Read In: <-- " + String.valueOf(chunk.length) + " Bytes...");
                 TinygDriver.getInstance().appendResponseQueue(chunk);
@@ -148,13 +155,14 @@ public class SerialDriver implements SerialPortEventListener {
             // open the streams
             input = serialPort.getInputStream();
             output = serialPort.getOutputStream();
+            
 
             // add event listeners
             serialPort.addEventListener(this);
             serialPort.notifyOnDataAvailable(true);
-//            serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN | SerialPort.FLOWCONTROL_XONXOFF_OUT);
-            serialPort.setInputBufferSize(64);
-            serialPort.setOutputBufferSize(64);
+            serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN);
+            serialPort.setInputBufferSize(15000);
+            serialPort.setOutputBufferSize(254);
 
             Main.logger.debug("[+]Opened " + port + " successfully.");
             setConnected(true); //Register that this is connectionState.
