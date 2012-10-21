@@ -28,14 +28,16 @@ public class SerialDriver implements SerialPortEventListener {
     private String port;
     private String buf = "";
     private String flow = new String();
+    private static final Object mutex = new Object(); 
     public InputStream input;
     public OutputStream output;
+    private static boolean throttled = false;
     private boolean PAUSED = false;
     private boolean CANCELLED = false;
     //DEBUG
 //    public ByteArrayOutputStream bof = new ByteArrayOutputStream();
-    private byte[] inBuffer = new byte[1024];
-    private int bytesInBuffer = 0;
+    private static byte[] lineBuffer = new byte[1024];
+    private static int lineIdx = 0;
     public String debugFileBuffer = "";
     public byte[] debugBuffer = new byte[1024];
     public ArrayList<String> lastRes = new ArrayList();
@@ -43,13 +45,16 @@ public class SerialDriver implements SerialPortEventListener {
     //DEBUG
 
     public void write(String str) {
-        try{
+        try {
+            synchronized (mutex) {
+                while (throttled) {
+                    mutex.wait();
+                }
+            }
             this.output.write(str.getBytes());
-        }catch(Exception ex){
-            Main.logger.error("Error in SerialDriver Write");
-            
+        } catch (Exception ex){
+            Main.logger.error("Error in SerialDriver Write");   
         }
-        
         
     }
 
@@ -91,6 +96,16 @@ public class SerialDriver implements SerialPortEventListener {
         this.CANCELLED = choice;
     }
 
+    public boolean setThrottled(boolean t) {
+        synchronized (mutex) {
+          if (t == throttled)
+            return false;
+          throttled = t;
+            if (!throttled)
+                mutex.notify();
+        }
+        return true;
+    }
     public void setConnected(boolean c) {
         this.connectionState = c;
     }
@@ -103,16 +118,31 @@ public class SerialDriver implements SerialPortEventListener {
         return this.connectionState;
     }
 
-    public  void serialEvent(SerialPortEvent oEvent) {
+    @Override
+    public void serialEvent(SerialPortEvent oEvent) {
+        byte[] inbuffer = new byte[1024];
+
         if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try {
-                int available = input.available();   //Get the size of data in the input buffer
-                byte chunk[] = new byte[available];  //Setup byte array to store the data.
-                input.read(chunk, 0, available);
-                
+                int cnt = input.read(inbuffer, 0, inbuffer.length);
+                for (int i=0; i < cnt; i++) {
+                    if (inbuffer[i] == 0x13) {
+                        System.out.println("Got XOFF");
+//                        setThrottled(true);
+                    } else if (inbuffer[i] == 0x11) {
+                        System.out.println("Got XON");
+//                        setThrottled(false);
+                    } else if (inbuffer[i] == '\n') {
+                        String f = new String(lineBuffer, 0, lineIdx);
+ //                       Main.logger.debug("full line |" + f + "|");                        
+                        TinygDriver.getInstance().resParse.appendJsonQueue(f);
+                        lineIdx = 0;
+                    } else
+                    lineBuffer[lineIdx++] = inbuffer[i];
+                }
 
                 //Flow.logger.debug("Serial Event Read In: <-- " + String.valueOf(chunk.length) + " Bytes...");
-                TinygDriver.getInstance().appendResponseQueue(chunk);
+ //               TinygDriver.getInstance().appendResponseQueue(chunk);
             } catch (Exception ex) {
                 System.out.println("Exception in Serial Event");
             }

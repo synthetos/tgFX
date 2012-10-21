@@ -190,7 +190,6 @@ public class Main implements Initializable, Observer {
                     }
 
                     fc.setInitialDirectory(new File(HOME_DIR));  //This will find osx users home dir
-                    //fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Gcode Files","*.gc"));
                     File f = fc.showOpenDialog(null);
                     FileInputStream fstream = new FileInputStream(f);
                     DataInputStream in = new DataInputStream((fstream));
@@ -1452,14 +1451,6 @@ public class Main implements Initializable, Observer {
         gcodeView.getItems().setAll(data);
         data.add(n);
         gcodeView.setItems(data);
-
-        TinygDriver.getInstance().queueReader.setRun(true);
-        Thread reader = new Thread(TinygDriver.getInstance().queueReader);
-        reader.setName("QueueReader");
-        reader.setDaemon(true);
-        reader.setPriority(Thread.MIN_PRIORITY);
-        reader.start();  //start the queueReader thread.
-
 
         Thread serialWriterThread = new Thread(tg.serialWriter);
         serialWriterThread.setName("SerialWriter");
