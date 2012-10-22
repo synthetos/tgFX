@@ -16,7 +16,7 @@ import tgfx.tinyg.TinygDriver;
  */
 public class SerialWriter implements Runnable {
 
-    public ReentrantLock lock = new ReentrantLock();
+ //   public ReentrantLock lock = new ReentrantLock();
     private BlockingQueue queue;
     private int val = 0;
     private boolean RUN = true;
@@ -24,7 +24,7 @@ public class SerialWriter implements Runnable {
     private int pba = 24;
     private int lines_sent_before_update = 0;
     private SerialDriver ser = SerialDriver.getInstance();
-    public Condition clearToSend = lock.newCondition();
+ //   public Condition clearToSend = lock.newCondition();
 
     public SerialWriter(BlockingQueue q) {
         this.queue = q;
@@ -50,6 +50,10 @@ public class SerialWriter implements Runnable {
         lines_sent_before_update = lines_sent_before_update + 1;
     }
 
+    public boolean setThrottled(boolean t) {
+        return ser.setThrottled(t);
+    }
+    
     public void addCommandToBuffer(String cmd) {
         this.queue.add(cmd);
     }
@@ -80,32 +84,32 @@ public class SerialWriter implements Runnable {
             try {
                 tmpCmd = (String) queue.take();  //Grab the byte[] on the top of the stack (queue)
                 
-                Main.logger.debug("Locking...");
-                Main.logger.debug("[+]Took msg from serialWriter queue");
-                lock.lock();
-                if (getPbaSize() <= 2 || getIncrementLinesSentBeforeUpdate() <= 24) {
+//                Main.logger.debug("Locking...");
+//                Main.logger.debug("[+]Took msg from serialWriter queue");
+//                lock.lock();
+//                if (getPbaSize() <= 2 || getIncrementLinesSentBeforeUpdate() <= 24) {
                     //Write the line to TinyG
                     ser.write(tmpCmd);
-                    incrementLinesSentBeforeUpdate();
-                    Main.logger.info("[+]PBA is: " + getPbaSize());
-                    lock.unlock();
-                    Main.logger.debug("Un-Locking...");
-                } else {
-                    while (getIncrementLinesSentBeforeUpdate() !=0 && getPbaSize() > 5) {
+//                    incrementLinesSentBeforeUpdate();
+//                    Main.logger.info("[+]PBA is: " + getPbaSize());
+//                    lock.unlock();
+//                    Main.logger.debug("Un-Locking...");
+ //               } else {
+ //                   while (getIncrementLinesSentBeforeUpdate() !=0 && getPbaSize() > 5) {
 //                        System.out.println(getPbaSize());
                         //Main.logger.debug("[+] Not Enough room in PBA or too many lines sent with a response... Waiting");
                         //We use the size of 5 to let the buffer clear up a bit before we shove it back in.
 //                        Main.logger.debug("Unlocking... Waiting for room in PBA... PBA is: " + getPbaSize());
-                        clearToSend.await();
+//                        clearToSend.await();
+//                        
                         
-                        
-                    }
-                    ser.write(tmpCmd);
-                    incrementLinesSentBeforeUpdate();
-                    lock.unlock();
-                    Main.logger.debug("Un-Locking...");
+//                    }
+//                   ser.write(tmpCmd);
+//                    incrementLinesSentBeforeUpdate();
+//                    lock.unlock();
+//                    Main.logger.debug("Un-Locking...");
 
-                }
+ //               }
             } catch (Exception ex) {
                 System.out.println("[!]Exception in SerialWriter Thread");
 
