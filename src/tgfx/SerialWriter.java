@@ -4,11 +4,7 @@
  */
 package tgfx;
 
-import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
-import tgfx.tinyg.TinygDriver;
 
 /**
  *
@@ -16,16 +12,15 @@ import tgfx.tinyg.TinygDriver;
  */
 public class SerialWriter implements Runnable {
 
- //   public ReentrantLock lock = new ReentrantLock();
     private BlockingQueue queue;
-    private int val = 0;
     private boolean RUN = true;
     private String tmpCmd;
-    private int pba = 24;
-    private int lines_sent_before_update = 0;
+    private int buffer_available = 254;
     private SerialDriver ser = SerialDriver.getInstance();
- //   public Condition clearToSend = lock.newCondition();
+    private static final Object mutex = new Object();
+    private static boolean throttled = false;
 
+    //   public Condition clearToSend = lock.newCondition();
     public SerialWriter(BlockingQueue q) {
         this.queue = q;
     }
@@ -38,43 +33,74 @@ public class SerialWriter implements Runnable {
         this.RUN = RUN;
     }
 
-    public void resetLinesSentBeforeUpdate() {
-        lines_sent_before_update = 0;
+    public synchronized int getBufferValue() {
+        return buffer_available;
     }
 
-    public int getIncrementLinesSentBeforeUpdate() {
-        return (lines_sent_before_update);
+    public synchronized void addBytesReturnedToBuffer(int lenBytesReturned) {
+        buffer_available = buffer_available + lenBytesReturned;
+//        Main.logger.info("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");
     }
 
-    public void incrementLinesSentBeforeUpdate() {
-        lines_sent_before_update = lines_sent_before_update + 1;
-    }
-
-    public boolean setThrottled(boolean t) {
-        return ser.setThrottled(t);
-    }
-    
     public void addCommandToBuffer(String cmd) {
         this.queue.add(cmd);
     }
 
-    public void setPbaSize(int sze) {
-        pba = sze;
+    public boolean setThrottled(boolean t) {
+        
+        synchronized (mutex) {
+            if (t == throttled) {
+                Main.logger.info("Throttled already set");
+                return false;
+            }
+            Main.logger.info("Setting Throttled " + t);
+            throttled = t;
+//            if (!throttled) {
+//                mutex.notify();
+//            }
+        }
+        return true;
     }
 
-    public int getPbaSize() {
-        return (pba);
+    public void notifyAck() {
+        //This is called by the response parser when an ack packet is recvd.  This
+        //Will wake up the mutex that is sleeping in the write method of the serialWriter
+        //(this) class.
+        synchronized (mutex) {
+            Main.logger.info("Notifying the SerialWriter we have recvd an ACK");
+            mutex.notify();
+        }
     }
 
-    public float getFeeBufferPercentage() {
-        float p = (pba / 24) * 100;
-        return (p);
-    }
+    public void write(String str) {
+        try {
+            synchronized (mutex) {
+                if (str.length() > getBufferValue()) {
+                    setThrottled(true);
+                } else {
+                   buffer_available = getBufferValue() - str.length();
+                }
 
-    public void emptyPBA() {
-        //This will empty the queue
-        //This is called when the tinyG board is reset.
-        queue.removeAll(queue);
+                while (throttled) {
+                    if (str.length() > getBufferValue()) {
+                        Main.logger.info("Throttling: Line Length: " + str.length() + " is smaller than buffer length: " + buffer_available);
+                        setThrottled(true);
+                    } else {
+                        setThrottled(false);
+                        buffer_available = getBufferValue() - str.length();
+                        break;
+                    }
+                    Main.logger.info("We are Throttled in the write method for SerialWriter");
+                    //We wait here until the an ack comes in to the response parser
+                    // frees up some buffer space.  Then we unlock the mutex and write the next line.
+                    mutex.wait();
+                    Main.logger.info("We are free from Throttled!");
+                }
+            }
+            ser.write(str);
+        } catch (Exception ex) {
+            Main.logger.error("Error in SerialDriver Write");
+        }
     }
 
     @Override
@@ -83,33 +109,36 @@ public class SerialWriter implements Runnable {
         while (RUN == true) {
             try {
                 tmpCmd = (String) queue.take();  //Grab the byte[] on the top of the stack (queue)
-                
+
 //                Main.logger.debug("Locking...");
 //                Main.logger.debug("[+]Took msg from serialWriter queue");
 //                lock.lock();
 //                if (getPbaSize() <= 2 || getIncrementLinesSentBeforeUpdate() <= 24) {
-                    //Write the line to TinyG
-                    ser.write(tmpCmd);
+                //Write the line to TinyG
+
+
+                this.write(tmpCmd);
+
 //                    incrementLinesSentBeforeUpdate();
 //                    Main.logger.info("[+]PBA is: " + getPbaSize());
 //                    lock.unlock();
 //                    Main.logger.debug("Un-Locking...");
- //               } else {
- //                   while (getIncrementLinesSentBeforeUpdate() !=0 && getPbaSize() > 5) {
+                //               } else {
+                //                   while (getIncrementLinesSentBeforeUpdate() !=0 && getPbaSize() > 5) {
 //                        System.out.println(getPbaSize());
-                        //Main.logger.debug("[+] Not Enough room in PBA or too many lines sent with a response... Waiting");
-                        //We use the size of 5 to let the buffer clear up a bit before we shove it back in.
+                //Main.logger.debug("[+] Not Enough room in PBA or too many lines sent with a response... Waiting");
+                //We use the size of 5 to let the buffer clear up a bit before we shove it back in.
 //                        Main.logger.debug("Unlocking... Waiting for room in PBA... PBA is: " + getPbaSize());
 //                        clearToSend.await();
 //                        
-                        
+
 //                    }
 //                   ser.write(tmpCmd);
 //                    incrementLinesSentBeforeUpdate();
 //                    lock.unlock();
 //                    Main.logger.debug("Un-Locking...");
 
- //               }
+                //               }
             } catch (Exception ex) {
                 System.out.println("[!]Exception in SerialWriter Thread");
 

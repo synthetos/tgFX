@@ -4,30 +4,20 @@
  */
 package tgfx.tinyg;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javafx.application.Platform;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-
 import org.apache.log4j.Logger;
 import tgfx.Command;
 import tgfx.ResponseParser;
 import tgfx.SerialDriver;
 import tgfx.SerialWriter;
 import tgfx.gcode.GcodeLine;
-
 import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
@@ -38,20 +28,38 @@ import tgfx.system.Motor;
 public class TinygDriver extends Observable {
 
     static final Logger logger = Logger.getLogger(TinygDriver.class);
-    // private MachineTinyG mTG = MachineTinyG.getInstance();
     public Machine m = Machine.getInstance();
     public QueueReport qr = QueueReport.getInstance();
+
+    private class StatusCode {
+
+        int codeNumber;
+        String codeName;
+        String codeMessage;
+
+        private StatusCode(int cn, String cnme, String cmessage) {
+            codeName = cnme;
+            codeMessage = cmessage;
+            codeNumber = codeNumber;
+        }
+
+        private String getStatusCodeMessage() {
+            return (codeMessage);
+        }
+    }
+    public final StatusCode STATUS_CODE_OK = new StatusCode(0, "OK", "Ready For Input");
+    public final StatusCode STATUS_CODE_NOOP = new StatusCode(3, "NOOP", "Non-operation");
+    public final StatusCode STATUS_CODE_LOADING_EEPROM = new StatusCode(15, "LOADING_EEPROM", "Loading EEPROM settings");
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
-    
-    
-    
-    public static final String RESPONSE_HEADER = "{\"r\":{\"bd\":";
+    public static final String RESPONSE_FOOTER = "\"f\":[";
+    public static final String RESPONSE_HEADER = "{\"b\":{\"gc\":";
     public static final String CMD_QUERY_COORDINATE_SYSTEM = "{\"coor\":\"\"}\n";
     public static final String CMD_QUERY_HARDWARE_BUILD_NUMBER = "{\"fb\":\"\"}\n";
     public static final String CMD_QUERY_HARDWARE_FIRMWARE_NUMBER = "{\"fv\":\"\"}\n";
     public static final String CMD_QUERY_OK_PROMPT = "{\"gc\":\"?\"}\n";
+    public static final String CMD_QUERY_BUFFER = "{\"k\":\"\"}\n";
     public static final String CMD_QUERY_STATUS_REPORT = "{\"sr\":\"\"}\n";
     public static final String CMD_QUERY_AXIS_X = "{\"x\":null}\n";
     public static final String CMD_QUERY_AXIS_Y = "{\"y\":null}\n";
@@ -73,25 +81,26 @@ public class TinygDriver extends Observable {
     public static final String CMD_APPLY_RESUME = "~\n";
     public static final String CMD_APPLY_DISABLE_XON_XOFF = "{\"ex\":1}\n";
     public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":G920g0x0y0z0}\n";
-    public static final String RESPONSE_STATUS_REPORT = "{\"r\":{\"bd\":{\"sr\":{";
-    public static final String RESPONSE_QUEUE_REPORT = "{\"r\":{\"bd\":{\"qr\":{";
+    public static final String RESPONSE_STATUS_REPORT = "{\"b\":{\"sr\":{\"";
+    public static final String RESPONSE_QUEUE_REPORT = "{\"b\":{\"qr\":{";
     //public static final String RESPONSE_STATUS_REPORT = "{\"sr\":{";
-    public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"r\":{\"bd\":{\"sys\":{\"fb\"";
-    public static final String RESPONSE_MACHINE_FIRMWARE_VERSION = "{\"r\":{\"bd\":{\"sys\":{\"fv\"";
-    public static final String RESPONSE_MACHINE_COORDINATE_SYSTEM = "{\"r\":{\"bd\":{\"sys\":{\"gco\"";
-    public static final String RESPONSE_MACHINE_SETTINGS = "{\"r\":{\"bd\":{\"sys";
-    public static final String RESPONSE_MOTOR_1 = "{\"r\":{\"bd\":{\"1";
-    public static final String RESPONSE_MOTOR_2 = "{\"r\":{\"bd\":{\"2";
-    public static final String RESPONSE_MOTOR_3 = "{\"r\":{\"bd\":{\"3";
-    public static final String RESPONSE_MOTOR_4 = "{\"r\":{\"bd\":{\"4";
-    public static final String RESPONSE_MOTOR_5 = "{\"r\":{\"bd\":{\"5";
-    public static final String RESPONSE_MOTOR_6 = "{\"r\":{\"bd\":{\"6";
-    public static final String RESPONSE_AXIS_X = "{\"r\":{\"bd\":{\"x";
-    public static final String RESPONSE_AXIS_Y = "{\"r\":{\"bd\":{\"y";
-    public static final String RESPONSE_AXIS_Z = "{\"r\":{\"bd\":{\"z";
-    public static final String RESPONSE_AXIS_A = "{\"r\":{\"bd\":{\"a";
-    public static final String RESPONSE_AXIS_B = "{\"r\":{\"bd\":{\"b";
-    public static final String RESPONSE_AXIS_C = "{\"r\":{\"bd\":{\"c";
+    public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"b\":{\"sys\":{\"fb\"";
+    public static final String RESPONSE_MACHINE_FIRMWARE_VERSION = "{\"b\":{\"sys\":{\"fv\"";
+    public static final String RESPONSE_MACHINE_COORDINATE_SYSTEM = "{\"b\":{\"sys\":{\"gco\"";
+    public static final String RESPONSE_MACHINE_SETTINGS = "{\"b\":{\"sys";
+    public static final String RESPONSE_ACK = "{\"k\":";
+    public static final String RESPONSE_MOTOR_1 = "{\"b\":{\"1";
+    public static final String RESPONSE_MOTOR_2 = "{\"b\":{\"2";
+    public static final String RESPONSE_MOTOR_3 = "{\"b\":{\"3";
+    public static final String RESPONSE_MOTOR_4 = "{\"b\":{\"4";
+    public static final String RESPONSE_MOTOR_5 = "{\"b\":{\"5";
+    public static final String RESPONSE_MOTOR_6 = "{\"b\":{\"6";
+    public static final String RESPONSE_AXIS_X = "{\"b\":{\"x";
+    public static final String RESPONSE_AXIS_Y = "{\"b\":{\"y";
+    public static final String RESPONSE_AXIS_Z = "{\"b\":{\"z";
+    public static final String RESPONSE_AXIS_A = "{\"b\":{\"a";
+    public static final String RESPONSE_AXIS_B = "{\"b\":{\"b";
+    public static final String RESPONSE_AXIS_C = "{\"b\":{\"c";
     //AXIS Mnemonics
     public static final String MNEMONIC_AXIS_AXIS_MODE = "am";
     public static final String MNEMONIC_AXIS_VELOCITY_MAXIMUM = "vm";
@@ -112,46 +121,20 @@ public class TinygDriver extends Observable {
     public static final String MNEMONIC_MOTOR_MICROSTEPS = "mi";
     public static final String MNEMONIC_MOTOR_POLARITY = "po";
     public static final String MNEMONIC_MOTOR_POWER_MANAGEMENT = "pm";
-    public static final int CONFIG_DELAY = 50; //50 milliseconds to allow hardware configs to be set
-//      // hardware configs to be set
-    public ArrayList<String> connections = new ArrayList<String>();
-//    private String tmpLineNumber = new String();
-    /**
-     * TinyG Parsing Strings
-     */
+    public ArrayList<String> connections = new ArrayList<>();
     private SerialDriver ser = SerialDriver.getInstance();
-    // Buffers for threads here
-    public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<String>(
-            10);
-    public static ArrayBlockingQueue<byte[]> queue = new ArrayBlockingQueue<byte[]>(
-            30);
-    
-    public static ArrayBlockingQueue<GcodeLine[]> writerQueue = new ArrayBlockingQueue<GcodeLine[]>(50000);
-    
-    
-    // public static BlockingQueue<String> jsonQueue = new
-    // LinkedBlockingQueue<>();
-    // public static BlockingQueue<byte[]> queue = new LinkedBlockingQueue<>();
+    public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(10);
+    public static ArrayBlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(30);
+    public static ArrayBlockingQueue<GcodeLine[]> writerQueue = new ArrayBlockingQueue<>(50000);
     public ResponseParser resParse = new ResponseParser(jsonQueue); // Our
-    
-    public SerialWriter   serialWriter = new SerialWriter(writerQueue);
-    
- 
-    //private String buf; // Buffer to store parital json lines
+    public SerialWriter serialWriter = new SerialWriter(writerQueue);
     private boolean PAUSED = false;
-    //private AtomicBoolean ClearToSend = new AtomicBoolean(true);
     public static int processedMsgs;
-    //private static final int maxbuffer = 250; //keep space for cancel and resume
     public static final int ERROR = -256;
     private int extraFree = 0;
     private int EMPTY_BUFFER_SIZE = 250;
     private int freespace = EMPTY_BUFFER_SIZE - extraFree;
-    private int waitingCommandSize = 0;
-    private long lastLineNumberSent = 0;
-    private int bustedBuffer = 0;
-
-    ReentrantLock lock = new ReentrantLock();
-    private LinkedList<Command> buffered = new LinkedList<Command>();
+    private LinkedList<Command> buffered = new LinkedList<>();
 
     /**
      * Singleton Code for the Serial Port Object
@@ -162,78 +145,21 @@ public class TinygDriver extends Observable {
         return TinygDriverHolder.INSTANCE;
     }
 
-    public int getFreeSpace() {
-        //lock.lock();
-        int ret = freespace;
-        //lock.unlock();
-        return ret;
-    }
-
-//    public int commandComplete(ResponseHeader responseHeader) throws InterruptedException {
-//
-//        int bufferAvailable;
-//        /*
-//         * try { bufferAvailable = responseHeader.getBufferAvailable();
-//         * logger.debug("buffer size: " + bufferAvailable); } catch (Exception
-//         * ex) { logger.info("could not get buffer size", ex); return 0; }
-//         */
-//        lock.lock();
-//        if (responseHeader.getLineNumber() > lastLineNumberSent) {
-//            logger.info("received a bigger line number (" + responseHeader.getLineNumber() + ") than we sent (" + lastLineNumberSent + ") increasing by " + increaseGreaterResponse);
-//            lastLineNumberSent = responseHeader.getLineNumber() + increaseGreaterResponse;
-//        }
-//        bufferAvailable = responseHeader.getBufferAvailable();
-//        while (buffered.size() > 0 && buffered.peek().asEarlyAs(responseHeader.getLineNumber())) {
-//            Command completed = buffered.pop();
-//            logger.debug("completed line " + completed.getLineNumber() + ", " + completed.getSize() + " bytes");
-//            freespace += completed.getSize();
-//            logger.debug("space available " + freespace + " returned from tinyg " + responseHeader.getBufferAvailable());
-//        }
-//        //freespace = responseHeader.getBufferAvailable();
-//
-//        if (responseHeader.getBufferAvailable() < extraFree) {
-//            this.bustedBuffer++;
-//            logger.error("busted buffer " + bustedBuffer);
-//        } else if (responseHeader.getBufferAvailable() < freespace) {
-//            this.bustedBuffer++;
-//            logger.error("overestimated freespace " + responseHeader.getBufferAvailable() + " < " + freespace);
-//        }
-//        try {
-//            if (waitingCommandSize > 0) { //could something be waiting?
-//                if (freespace >= waitingCommandSize) { //is there enough to fit their message?
-//                    logger.debug("signalling awaiting writer " + freespace + " > " + waitingCommandSize);
-//                    clearToSend.signal();
-//                } else {
-//                    logger.debug("not enough space " + freespace + " < " + waitingCommandSize);
-//                }
-//            } else {
-//                logger.debug("nothing waiting " + freespace + " > " + waitingCommandSize);
-//            }
-//        } finally {
-//            lock.unlock();
-//        }
-//        return bufferAvailable;
-//    }
     public void getAllMotorSettings() throws Exception {
         Platform.runLater(new Runnable() {
 
-            //float vel;
             public void run() {
                 //With the sleeps in this method we wrap it in a runnable task
                 try {
-                    Thread.sleep(CONFIG_DELAY);
                     ser.write(CMD_QUERY_MOTOR_1_SETTINGS);
                     TinygDriver.logger.info("[+]Getting Motor 1 Settings");
 
-                    Thread.sleep(CONFIG_DELAY);
                     ser.write(CMD_QUERY_MOTOR_2_SETTINGS);
                     TinygDriver.logger.info("[+]Getting Motor 2 Settings");
 
-                    Thread.sleep(CONFIG_DELAY);
                     ser.write(CMD_QUERY_MOTOR_3_SETTINGS);
                     TinygDriver.logger.info("[+]Getting Motor 3 Settings");
 
-                    Thread.sleep(CONFIG_DELAY);
                     ser.write(CMD_QUERY_MOTOR_4_SETTINGS);
                     TinygDriver.logger.info("[+]Getting Motor 4 Settings");
 
@@ -241,19 +167,8 @@ public class TinygDriver extends Observable {
                     TinygDriver.logger.error("[!]Exception in getAllMotorSettings()...");
                     TinygDriver.logger.error(ex.getMessage());
                 }
-
             }
         });
-    }
-
-    public void requestStatusUpdate() {
-        try {
-            ser.write(CMD_QUERY_STATUS_REPORT);
-            setChanged();
-            notifyObservers("HEARTBEAT");
-        } catch (Exception e) {
-            TinygDriver.logger.error(e.getMessage());
-        }
     }
 
     public void getAllAxisSettings() throws Exception {
@@ -261,35 +176,26 @@ public class TinygDriver extends Observable {
 
             public void run() {
                 try {
-                    //We toss these sleeps in to give the hardware (tg) time to
-                    //respond and have their values parsed.
-
                     TinygDriver.logger.info("[+]Getting A AXIS Settings");
-                    Thread.sleep(CONFIG_DELAY);
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_A);
-                    Thread.sleep(CONFIG_DELAY);
 
                     TinygDriver.logger.info("[+]Getting B AXIS Settings");
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_B);
-                    Thread.sleep(CONFIG_DELAY);
 
                     TinygDriver.logger.info("[+]Getting C AXIS Settings");
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_C);
-                    Thread.sleep(CONFIG_DELAY);
 
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_X);
                     TinygDriver.logger.info("[+]Getting X AXIS Settings");
-                    Thread.sleep(CONFIG_DELAY);
 
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_Y);
                     TinygDriver.logger.info("[+]Getting Y AXIS Settings");
-                    Thread.sleep(CONFIG_DELAY);
 
-                    TinygDriver.logger.info("[+]Getting Z AXIS Settings");
                     TinygDriver.getInstance().write(CMD_QUERY_AXIS_Z);
-                    Thread.sleep(CONFIG_DELAY);
+                    TinygDriver.logger.info("[+]Getting Z AXIS Settings");
 
                 } catch (Exception ex) {
+                    logger.error("Error in getAllAxisSettings : TinygDriver.java");
                 }
             }
         });
@@ -342,7 +248,6 @@ public class TinygDriver extends Observable {
                     String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_SWITCH_MODE, switchMode);
                     this.write(configObj);
                 }
-
             }
         }
 
@@ -360,7 +265,6 @@ public class TinygDriver extends Observable {
                 this.write("{\"" + _motor.getId_number() + MNEMONIC_MOTOR_TRAVEL_PER_REVOLUTION + "\":" + tf.getText() + "}\n");
             }
         }
-
     }
 
     public void applyHardwareAxisSettings(Axis _axis, TextField tf) throws Exception {
@@ -431,11 +335,7 @@ public class TinygDriver extends Observable {
                 this.write("{\"" + _axis.getAxis_name().toLowerCase() + MNEMONIC_AXIS_ZERO_BACKOFF + "\":" + tf.getText() + "}\n");
             }
         }
-
         System.out.println("[+]Applying " + _axis.getAxis_name() + " settings");
-        Thread.sleep(100);
-
-
     }
 
     public void getMotorSettings(int motorNumber) {
@@ -450,8 +350,6 @@ public class TinygDriver extends Observable {
                 ser.write(CMD_QUERY_MOTOR_4_SETTINGS);
             } else {
                 TinygDriver.logger.error("Invalid Motor Number.. Please try again..");
-                setChanged();
-//                notifyObservers("{\"error\":\"Invalid Motor Number\"}");
             }
         } catch (Exception ex) {
             TinygDriver.logger.error(ex.getMessage());
@@ -527,7 +425,6 @@ public class TinygDriver extends Observable {
                             break;
                         default:
                             microSteps = 1;
-
                     }
                     String configObj = String.format("{\"%s%s\":%s}\n", _motorNumber, MNEMONIC_MOTOR_MICROSTEPS, microSteps);
                     this.write(configObj);
@@ -544,12 +441,6 @@ public class TinygDriver extends Observable {
         }
     }
 
-    public void applyHardwareMachineSettings() {
-        /**
-         * Apply Machine Settings to TinyG from GUI
-         */
-    }
-
     public void queryHardwareSingleMotorSettings(int motorNumber) {
         try {
             if (motorNumber == 1) {
@@ -564,7 +455,6 @@ public class TinygDriver extends Observable {
                 System.out.println("Invalid Motor Number.. Please try again..");
                 setChanged();
             }
-//            this.write(TinygDriver.CMD_QUERY_OK_PROMPT);
         } catch (Exception ex) {
             System.out.println("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
         }
@@ -588,7 +478,6 @@ public class TinygDriver extends Observable {
         super.notifyObservers();
     }
 
-    // End Singleton
     public void appendJsonQueue(String line) {
         // This adds full normalized json objects to our jsonQueue.
         TinygDriver.jsonQueue.add(line);
@@ -601,7 +490,6 @@ public class TinygDriver extends Observable {
         } catch (Exception e) {
             System.out.println("ERROR n shit");
         }
-
     }
 
     public boolean isPAUSED() {
@@ -629,12 +517,10 @@ public class TinygDriver extends Observable {
 
     public void initialize(String portName, int dataRate) {
         this.ser.initialize(portName, dataRate);
-
     }
 
     public void disconnect() {
         this.ser.disconnect();
-        // queueReader.setRun(false); //Kill the reader thread.
     }
 
     public boolean isConnected() {
@@ -646,61 +532,9 @@ public class TinygDriver extends Observable {
      * SerialDriver write methods from here.
      */
     public synchronized void write(String msg) throws Exception {
-        // if (msg.contains("gc")) {
-        // TinygDriver.getInstance().setClearToSend(false);
-
-        //Flow.logger.debug("waiting for space");
-
-//        StringBuffer modifyableMsg = new StringBuffer(msg);
-//        long lineNumber = setCurrentlineNumber(modifyableMsg);  //This will set the last line we sent to the tinyg serial input buffer
-//        int spaceAvailable = waitForSpace(msg);
-//        logger.debug("writing " + msg.length() + " byte message, " + spaceAvailable + " bytes available in hardware buffer");
-          
-          TinygDriver.getInstance().serialWriter.addCommandToBuffer(msg);
- //        logger.debug("[+]Added " + msg + " to SerialWriter Queue");
+        TinygDriver.getInstance().serialWriter.addCommandToBuffer(msg);
     }
 
-    public void write(GcodeLine gcl) throws Exception {
-//        int spaceAvailable = waitForSpace(gcl.getCodeLine(), gcl.getGcodeLineNumber());
-//        logger.debug("writing " + gcl.getCodeLine().length() + " byte message, " + spaceAvailable + " bytes available in hardware buffer");
-    }
-
-//    public long setCurrentlineNumber(StringBuffer modifyableMsg) {
-//        String startingN = "{\"gc\":\"N";//"{\"gc\": \"N";
-//
-//        //This will set the last line we sent to the tinyg serial input buffer
-//        String msg = modifyableMsg.toString().trim();
-//        if (!msg.startsWith("N") && !msg.contains(":")) {
-//            logger.debug("one-up");
-//            lastLineNumberSent = lastLineNumberSent + 1;  //Auto increment the line number as were not provided one by the gcode file / command.
-//            //lastLineNumberSent = lastCommandSent + 1;  //Auto increment the line number as were not provided one by the gcode file / command.
-//            logger.debug("[+]No Line Number Detected... Using: " + lastLineNumberSent);
-//        } else if (msg.startsWith(startingN)) {
-//            logger.debug("specified line number");
-//            StringBuilder tmpLineNumber = new StringBuilder();
-//            for (int i = startingN.length(); i < msg.length(); i++) {  //We start at one because we know its a N at 0
-//                char c = msg.charAt(i);
-//                if (c >= '0' && c <= '9') {
-//                    tmpLineNumber.append(c);
-//                    logger.debug("tmpLineNumber: " + tmpLineNumber.toString());
-//                } else {
-//                    break; //This is not a number now... we will break this operation
-//                }
-//            }
-//            lastLineNumberSent = Long.valueOf(tmpLineNumber.toString());
-//            logger.debug("[+]Pulled Out Line Number: " + lastLineNumberSent);
-//            logger.debug("done with N");
-//        } else {
-//            logger.debug("very confused about what the next line number should be");
-//            if (msg.startsWith("{\"gc\":")) {
-//                modifyableMsg.insert(startingN.length() - 1, "N" + ++lastLineNumberSent + " ");
-//            }
-//        }
-//
-//        //lastLineNumberSent++;
-//        logger.debug("returning lastLineNumberSent: " + lastLineNumberSent);
-//        return lastLineNumberSent;
-//    }
     public void priorityWrite(Byte b) throws Exception {
         this.ser.priorityWrite(b);
     }
@@ -735,65 +569,27 @@ public class TinygDriver extends Observable {
 
     public void queryHardwareAllAxisSettings() throws Exception {
         try {
-            // We toss these sleeps in to give the hardware (tg) time to
-            // respond and have their values parsed.
-            this.write(CMD_QUERY_OK_PROMPT);
 
             System.out.println("[+]Getting A AXIS Settings");
             this.ser.write(CMD_QUERY_AXIS_A);
-            Thread.sleep(50);
 
             System.out.println("[+]Getting B AXIS Settings");
             this.ser.write(CMD_QUERY_AXIS_B);
-            Thread.sleep(50);
 
             System.out.println("[+]Getting C AXIS Settings");
             this.ser.write(CMD_QUERY_AXIS_C);
-            Thread.sleep(50);
 
             this.ser.write(CMD_QUERY_AXIS_X);
             System.out.println("[+]Getting X AXIS Settings");
-            Thread.sleep(50);
 
             this.ser.write(CMD_QUERY_AXIS_Y);
             System.out.println("[+]Getting Y AXIS Settings");
-            Thread.sleep(50);
 
-            System.out.println("[+]Getting Z AXIS Settings");
             this.ser.write(CMD_QUERY_AXIS_Z);
-            Thread.sleep(50);
+            System.out.println("[+]Getting Z AXIS Settings");
 
         } catch (Exception ex) {
             System.out.println("[!]Error in queryHardwareAxisSettings()");
-        }
-    }
-
-
-    public void queryHardwareMachineSettings() {
-        try {
-            ser.write(CMD_QUERY_MACHINE_SETTINGS);
-            // ser.write(CMD_QUERY_OK_PROMPT); //This is required as
-            // "status reports" do not return an "OK" msg
-
-            ser.write(CMD_QUERY_HARDWARE_BUILD_NUMBER); // If TinyG current
-            // positions are other
-            // than zero
-            // ser.write(CMD_QUERY_OK_PROMPT); //This is required as
-            // "status reports" do not return an "OK" msg
-
-            ser.write(CMD_QUERY_HARDWARE_FIRMWARE_NUMBER); // If TinyG current
-            // positions are
-            // other than zero
-            // ser.write(CMD_QUERY_OK_PROMPT); //This is required as
-            // "status reports" do not return an "OK" msg
-
-            ser.write(CMD_QUERY_COORDINATE_SYSTEM);
-            // ser.write(CMD_QUERY_OK_PROMPT); //This is required as
-            // "status reports" do not return an "OK" msg
-            // setChanged();
-            // notifyObservers("CMD_GET_MACHINE_SETTINGS");
-        } catch (Exception e) {
-            System.out.println("ERROR Writing to Serial Port in getMachineSettings");
         }
     }
 }

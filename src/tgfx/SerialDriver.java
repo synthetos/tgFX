@@ -6,13 +6,11 @@ package tgfx;
 
 import tgfx.tinyg.TinygDriver;
 import gnu.io.*;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -28,7 +26,7 @@ public class SerialDriver implements SerialPortEventListener {
     private String port;
     private String buf = "";
     private String flow = new String();
-    private static final Object mutex = new Object(); 
+    private static final Object mutex = new Object();
     public InputStream input;
     public OutputStream output;
     private static boolean throttled = false;
@@ -46,23 +44,20 @@ public class SerialDriver implements SerialPortEventListener {
 
     public void write(String str) {
         try {
-            synchronized (mutex) {
-                while (throttled) {
-                    mutex.wait();
-                }
-            }
+            Thread.sleep(15);
             this.output.write(str.getBytes());
-        } catch (Exception ex){
-            Main.logger.error("Error in SerialDriver Write");   
+            Main.logger.info("Wrote Line: " + str);
+        } catch (InterruptedException | IOException ex) {
+            Main.logger.error("Error in SerialDriver Write");
         }
-        
+
     }
 
-    public  void priorityWrite(String str) throws Exception {
+    public void priorityWrite(String str) throws Exception {
         this.output.write(str.getBytes());
     }
-    
-    public  void priorityWrite(Byte b) throws Exception {
+
+    public void priorityWrite(Byte b) throws Exception {
         Main.logger.debug("[*] Priority Write Sent\n");
         this.output.write(b);
     }
@@ -96,16 +91,6 @@ public class SerialDriver implements SerialPortEventListener {
         this.CANCELLED = choice;
     }
 
-    public boolean setThrottled(boolean t) {
-        synchronized (mutex) {
-          if (t == throttled)
-            return false;
-          throttled = t;
-            if (!throttled)
-                mutex.notify();
-        }
-        return true;
-    }
     public void setConnected(boolean c) {
         this.connectionState = c;
     }
@@ -125,24 +110,26 @@ public class SerialDriver implements SerialPortEventListener {
         if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try {
                 int cnt = input.read(inbuffer, 0, inbuffer.length);
-                for (int i=0; i < cnt; i++) {
-                    if (inbuffer[i] == 0x13) {
-                        System.out.println("Got XOFF");
+                for (int i = 0; i < cnt; i++) {
+//                    if (inbuffer[i] == 0x13) {
+//                        System.out.println("Got XOFF");
 //                        setThrottled(true);
-                    } else if (inbuffer[i] == 0x11) {
-                        System.out.println("Got XON");
+//                    } else if (inbuffer[i] == 0x11) {
+//                        System.out.println("Got XON");
 //                        setThrottled(false);
-                    } else if (inbuffer[i] == '\n') {
+//                    } else 
+                    if (inbuffer[i] == '\n') {
                         String f = new String(lineBuffer, 0, lineIdx);
- //                       Main.logger.debug("full line |" + f + "|");                        
+                        //                       Main.logger.debug("full line |" + f + "|");                        
                         TinygDriver.getInstance().resParse.appendJsonQueue(f);
                         lineIdx = 0;
-                    } else
-                    lineBuffer[lineIdx++] = inbuffer[i];
+                    } else {
+                        lineBuffer[lineIdx++] = inbuffer[i];
+                    }
                 }
 
                 //Flow.logger.debug("Serial Event Read In: <-- " + String.valueOf(chunk.length) + " Bytes...");
- //               TinygDriver.getInstance().appendResponseQueue(chunk);
+                //               TinygDriver.getInstance().appendResponseQueue(chunk);
             } catch (Exception ex) {
                 System.out.println("Exception in Serial Event");
             }
@@ -185,14 +172,14 @@ public class SerialDriver implements SerialPortEventListener {
             // open the streams
             input = serialPort.getInputStream();
             output = serialPort.getOutputStream();
-            
+
 
             // add event listeners
             serialPort.addEventListener(this);
             serialPort.notifyOnDataAvailable(true);
             serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN);
             serialPort.setInputBufferSize(15000);
-            serialPort.setOutputBufferSize(254);
+            serialPort.setOutputBufferSize(500);
 
             Main.logger.debug("[+]Opened " + port + " successfully.");
             setConnected(true); //Register that this is connectionState.

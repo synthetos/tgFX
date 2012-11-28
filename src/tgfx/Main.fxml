@@ -441,7 +441,7 @@
                                             <TextField fx:id="motor1ConfigTravelPerRev" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
                                               <children>
-                                                <Button id="queryMotor" onAction="#handleQueryMotor" text="Query" />
+                                                <Button id="queryMotor" onAction="#handleMotorQuerySettings" text="Query" />
                                                 <Button id="queryMotor" onAction="#handleMotorApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
@@ -501,7 +501,7 @@
                                             <TextField fx:id="motor2ConfigTravelPerRev" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
                                               <children>
-                                                <Button id="queryMotor" onAction="#handleQueryMotor" text="Query" />
+                                                <Button id="queryMotor" onAction="#handleMotorQuerySettings" text="Query" />
                                                 <Button id="queryMotor" onAction="#handleMotorApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
@@ -561,7 +561,7 @@
                                             <TextField fx:id="motor3ConfigTravelPerRev" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
                                               <children>
-                                                <Button id="queryMotor" onAction="#handleQueryMotor" text="Query" />
+                                                <Button id="queryMotor" onAction="#handleMotorQuerySettings" text="Query" />
                                                 <Button id="queryMotor" onAction="#handleMotorApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
@@ -621,7 +621,7 @@
                                             <TextField fx:id="motor4ConfigTravelPerRev" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
                                               <children>
-                                                <Button id="queryMotor" onAction="#handleQueryMotor" text="Query" />
+                                                <Button id="queryMotor" onAction="#handleMotorQuerySettings" text="Query" />
                                                 <Button id="queryMotor" onAction="#handleMotorApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
@@ -719,7 +719,7 @@
                                             <TextField id="tbAxisXzeroBackoff" fx:id="axisXzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
-                                                <Button id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
+                                                <Button id="queryAxis" onAction="#handleAxisQuerySettings" text="Query" />
                                                 <Button fx:id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
@@ -789,7 +789,7 @@
                                             <TextField id="tbAxisYzeroBackoff" fx:id="axisYzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
-                                                <Button id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
+                                                <Button id="queryAxis" onAction="#handleAxisQuerySettings" text="Query" />
                                                 <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
@@ -855,7 +855,7 @@
                                             <TextField id="tbAxisZzeroBackoff" fx:id="axisZzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
-                                                <Button id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
+                                                <Button id="queryAxis" onAction="#handleAxisQuerySettings" text="Query" />
                                                 <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
@@ -933,7 +933,7 @@
                                             <TextField id="tbAxisAzeroBackoff" fx:id="axisAzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
-                                                <Button id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
+                                                <Button id="queryAxis" onAction="#handleAxisQuerySettings" text="Query" />
                                                 <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
@@ -947,7 +947,7 @@
                                           <children>
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
-                                                <Button fx:id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
+                                                <Button fx:id="queryAxis" onAction="#handleAxisQuerySettings" text="Query" />
                                                 <Button fx:id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
@@ -1091,7 +1091,7 @@
                                             <TextField id="tbAxisCzeroBackoff" fx:id="axisCzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
                                               <children>
-                                                <Button id="queryAxis" onAction="#handleQueryAxisSettings" text="Query" />
+                                                <Button id="queryAxis" onAction="#handleAxisQuerySettings" text="Query" />
                                                 <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
