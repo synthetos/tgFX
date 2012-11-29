@@ -74,55 +74,30 @@ public class ResponseParser extends Observable implements Runnable {
             JsonRootNode json = JDOM.parse(line);
             System.out.println("DEBUG:" + line);
 
-            if (line.startsWith(TinygDriver.RESPONSE_HEADER)) {
-                    int beforeBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
-                    int retBytes = Integer.valueOf(json.getNode("f").getElements().get(2).getText());
-                    int checkSum = Integer.valueOf(json.getNode("f").getElements().get(3).getText());
-                    
-                    TinygDriver.getInstance().serialWriter.addBytesReturnedToBuffer(retBytes);
-                    int afterBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
-                    logger.info("Returned " + retBytes + " to buffer... Buffer was " + beforeBytesReturned + " is now " + afterBytesReturned);
-                    TinygDriver.getInstance().serialWriter.notifyAck();
+            int beforeBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
+            int retBytes = Integer.valueOf(json.getNode("f").getElements().get(2).getText());
+            int checkSum = Integer.valueOf(json.getNode("f").getElements().get(3).getText());
 
-                }
+            //Make sure we do not add bytes to a already full buffer
+            if (beforeBytesReturned != TinygDriver.MAX_BUFFER) {
+                TinygDriver.getInstance().serialWriter.addBytesReturnedToBuffer(retBytes);
+                int afterBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
+                logger.info("Returned " + retBytes + " to buffer... Buffer was " + beforeBytesReturned + " is now " + afterBytesReturned);
+                TinygDriver.getInstance().serialWriter.notifyAck();  //We let our serialWriter thread know we have added some space to the buffer.
+            }
 
-             else if (line.contains("SYSTEM READY")) {
+            if (line.contains("SYSTEM READY")) {
                 //This will be moved to the switch statement above when we assign "SYSTEM READY" a status code.
                 setChanged();
                 StatusCode sc = new StatusCode(0, "System Ready", "", "TinyG Message");
                 notifyObservers(sc);
-            } /**
-             * ###################CRITICAL#########################*
-             */
-            else if (line.startsWith(TinygDriver.RESPONSE_QUEUE_REPORT)) {
-                //TinyG Input Planning Queue Reporting... Queue Reports are for flow control
-                //LOCK THE DAMN SERIALWRITER!
-//                TinygDriver.getInstance().serialWriter.lock.lock();
-                try {
-//                    logger.debug("Locking...");
-                    TinygDriver.getInstance().qr.updateQueue(json, line);
-                    logger.info("GOT A QR UPDATE qr: PBA:" + TinygDriver.getInstance().qr.getPba() + " Line: " + TinygDriver.getInstance().qr.getLineIndex());
 
-
-//                    if (TinygDriver.getInstance().qr.getPba() <= 2) {
-//                        if (TinygDriver.getInstance().serialWriter.setThrottled(true))
-//                          logger.info("Throttled for PBA");
-//                    } else {
-//                        if (TinygDriver.getInstance().serialWriter.setThrottled(false))
-//                            logger.info("Unthrottled for PBA");                        
-//                    }
-
-
-
-//                    TinygDriver.getInstance().serialWriter.resetLinesSentBeforeUpdate();
-//                    TinygDriver.getInstance().serialWriter.clearToSend.signal();
-                } finally {
-//                    TinygDriver.getInstance().serialWriter.lock.unlock();
-                }
-                /**
-                 * ###################CRITICAL#########################*
-                 */
-            } else if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
+            }else if(line.startsWith(TinygDriver.RESPONSE_BUFFER_STATUS)){
+                TinygDriver.getInstance().serialWriter.setBuffer(Integer.parseInt((json.getNode("b").getNode("k").getText())));
+                TinygDriver.getInstance().serialWriter.notifyAck();
+            }
+            
+            else if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
                 //Parse Status Report
                 //"{"sr":{"line":0,"xpos":1.567,"ypos":0.548,"zpos":0.031,"apos":0.000,"vel":792.463,"unit":"mm","stat":"run"}}"
                 TinygDriver.getInstance().m.getAxisByName("X").setWork_position(Float.parseFloat(json.getNode("b").getNode("sr").getNode("posx").getText()));
@@ -143,7 +118,7 @@ public class ResponseParser extends Observable implements Runnable {
                 message[1] = null;
                 notifyObservers(message);
 
-            } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
+            }  else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
                 logger.info("[#]Parsing Machine Settings JSON");
                 //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
                 TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("b").getNode("sys").getNode("fv").getText()));
@@ -158,7 +133,9 @@ public class ResponseParser extends Observable implements Runnable {
                 TinygDriver.getInstance().m.setEnable_echo(Boolean.parseBoolean((json.getNode("b").getNode("sys").getNode("ee").getText())));
                 TinygDriver.getInstance().m.setEnable_xon_xoff(Boolean.parseBoolean((json.getNode("b").getNode("sys").getNode("ex").getText())));
                 setChanged();
-                notifyObservers("CMD_GET_MACHINE_SETTINGS");
+                message[0] = "CMD_GET_MACHINE_SETTINGS";
+                message[1] = null;
+                notifyObservers(message);
 
             } /**
              * Start Checking for Motor Responses

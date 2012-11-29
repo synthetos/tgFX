@@ -42,14 +42,17 @@ public class SerialDriver implements SerialPortEventListener {
     public double offsetPointer = 0;
     //DEBUG
 
-    public void write(String str) {
+    public void write(String str)  {
         try {
-            Thread.sleep(15);
             this.output.write(str.getBytes());
-            Main.logger.info("Wrote Line: " + str);
-        } catch (InterruptedException | IOException ex) {
+           Main.logger.info("Wrote Line: " + str);
+            
+        
+        }catch(Exception ex){
             Main.logger.error("Error in SerialDriver Write");
-        }
+            Main.logger.error("\t"+ ex.getMessage());
+        }    
+        
 
     }
 

@@ -37,6 +37,10 @@ public class SerialWriter implements Runnable {
         return buffer_available;
     }
 
+    public synchronized void setBuffer(int val){
+        buffer_available = val;
+        Main.logger.info("Got a BUFFER Response.. reset it to: " + val);
+    }
     public synchronized void addBytesReturnedToBuffer(int lenBytesReturned) {
         buffer_available = buffer_available + lenBytesReturned;
 //        Main.logger.info("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");

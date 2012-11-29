@@ -6,7 +6,6 @@ package tgfx.tinyg;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.locks.ReentrantLock;
 import javafx.application.Platform;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
@@ -53,6 +52,7 @@ public class TinygDriver extends Observable {
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
+    
     public static final String RESPONSE_FOOTER = "\"f\":[";
     public static final String RESPONSE_HEADER = "{\"b\":{\"gc\":";
     public static final String CMD_QUERY_COORDINATE_SYSTEM = "{\"coor\":\"\"}\n";
@@ -84,7 +84,8 @@ public class TinygDriver extends Observable {
     public static final String RESPONSE_STATUS_REPORT = "{\"b\":{\"sr\":{\"";
     public static final String RESPONSE_QUEUE_REPORT = "{\"b\":{\"qr\":{";
     //public static final String RESPONSE_STATUS_REPORT = "{\"sr\":{";
-    public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"b\":{\"sys\":{\"fb\"";
+    public static final String RESPONSE_BUFFER_STATUS = "{\"b\":{\"k\":{";
+    public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"b\":{\"sys\":{\"fb\":";
     public static final String RESPONSE_MACHINE_FIRMWARE_VERSION = "{\"b\":{\"sys\":{\"fv\"";
     public static final String RESPONSE_MACHINE_COORDINATE_SYSTEM = "{\"b\":{\"sys\":{\"gco\"";
     public static final String RESPONSE_MACHINE_SETTINGS = "{\"b\":{\"sys";
@@ -129,12 +130,7 @@ public class TinygDriver extends Observable {
     public ResponseParser resParse = new ResponseParser(jsonQueue); // Our
     public SerialWriter serialWriter = new SerialWriter(writerQueue);
     private boolean PAUSED = false;
-    public static int processedMsgs;
-    public static final int ERROR = -256;
-    private int extraFree = 0;
-    private int EMPTY_BUFFER_SIZE = 250;
-    private int freespace = EMPTY_BUFFER_SIZE - extraFree;
-    private LinkedList<Command> buffered = new LinkedList<>();
+    public static int MAX_BUFFER = 254;
 
     /**
      * Singleton Code for the Serial Port Object

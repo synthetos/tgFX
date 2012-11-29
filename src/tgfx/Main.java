@@ -5,7 +5,6 @@
  * 
  */
 package tgfx;
-
 import tgfx.tinyg.TinygDriver;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -63,8 +62,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.PropertyValueFactory;
 import tgfx.gcode.GcodeLine;
 import tgfx.system.Machine.Gcode_unit_modes;
@@ -75,12 +72,11 @@ public class Main implements Initializable, Observer {
     private boolean drawPreview = true;
     private boolean taskActive = false;
     static final Logger logger = Logger.getLogger(Main.class);
-    //private static final String CMD_GET_stateUS_REPORT = "{\"sr\":\"\"}\n";
-    //public Machine m = new Machine();
     private JdomParser JDOM = new JdomParser(); //JSON Object Parser1
     private TinygDriver tg = TinygDriver.getInstance();
     public ObservableList data;
-    //private SerialDriver ser = SerialDriver.getInstance();
+
+
     /**
      * FXML UI Components
      */
@@ -176,7 +172,6 @@ public class Main implements Initializable, Observer {
     private void handleOpenFile(ActionEvent event) {
 
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 logger.debug("handleOpenFile");
@@ -431,10 +426,11 @@ public class Main implements Initializable, Observer {
         fsThread.start();
 
     }
+    
+
 
     public Task fileSenderTask() {
         return new Task() {
-
             @Override
             protected Object call() throws Exception {
                 StringBuilder line = new StringBuilder();
@@ -442,8 +438,9 @@ public class Main implements Initializable, Observer {
                 String tmp;
                 for (int i = 0; i < numbGcodeLines; i++) {
                     GcodeLine _gcl = (GcodeLine) data.get(i);
-
-                    if (!isTaskActive()) {
+                    
+                   
+                    if(isCancelled()){
                         //Cancel Button was pushed
                         console.appendText("[!]File Sending Task Killed....\n");
                         break;
@@ -609,10 +606,12 @@ public class Main implements Initializable, Observer {
         try {
 //            tg.write(TinygDriver.CMD_APPLY_DISABLE_HASHCODE);
 //            tg.write(TinygDriver.CMD_APPLY_DISABLE_LOCAL_ECHO);
+           
             tg.getAllMotorSettings();
             tg.getAllAxisSettings();
-//            tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero
-//            tg.write(TinygDriver.CMD_QUERY_MACHINE_SETTINGS);  //On command to rule them all.
+            tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero
+            tg.write(TinygDriver.CMD_QUERY_MACHINE_SETTINGS);  //On command to rule them all.
+
             /**
              * Draw the workspace area in the preview
              */
@@ -789,7 +788,6 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleSaveConfig(ActionEvent event) throws Exception {
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
 
@@ -927,7 +925,6 @@ public class Main implements Initializable, Observer {
     private Task initRemoteServer(String port) {
         final String Port = port;
         return new Task() {
-
             @Override
             protected Object call() throws Exception {
                 SocketMonitor sm = new SocketMonitor(Port);
@@ -945,8 +942,8 @@ public class Main implements Initializable, Observer {
         //Code to make mm's look the same size as inches
         double unitMagnication = 3;
         if (tg.m.getUnitMode() == Gcode_unit_modes.INCHES) {
-            unitMagnication = unitMagnication *10;
-        } 
+            unitMagnication = unitMagnication * 10;
+        }
         double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position()));// + magnification;
         double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position()));// + magnification;
 
@@ -986,7 +983,6 @@ public class Main implements Initializable, Observer {
             //Pass this on by..
         } else if (line.equals("BUILD_UPDATE")) {
             Platform.runLater(new Runnable() {
-
                 float vel;
 
                 public void run() {
@@ -1004,7 +1000,6 @@ public class Main implements Initializable, Observer {
 
         } else if (line.equals("STATUS_REPORT")) {
             Platform.runLater(new Runnable() {
-
                 float vel;
 
                 public void run() {
@@ -1043,7 +1038,6 @@ public class Main implements Initializable, Observer {
     private void updateGUIConfigState() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
-
             float vel;
 
             public void run() {
@@ -1097,7 +1091,6 @@ public class Main implements Initializable, Observer {
     private void updateGuiStatusReport(String line) {
         final String l = line;
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 //logger.info("updateGuiStatusReport Ran");
@@ -1150,7 +1143,6 @@ public class Main implements Initializable, Observer {
     private void updateGuiMachineSettings(String line) {
         final String l = line;
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 //We are now back in the EventThread and can update the GUI
@@ -1186,15 +1178,16 @@ public class Main implements Initializable, Observer {
 //        We have to run the updates likes this.
 //        https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
             Platform.runLater(new Runnable() {
-
                 public void run() {
                     // we are now back in the EventThread and can update the GUI
-                    if (ROUTING_KEY.startsWith("[!]")) {
-                        String line = ROUTING_KEY.split("#")[1];
-                        String msg = ROUTING_KEY.split("#")[0];
+//                    if (ROUTING_KEY.startsWith("[!]")) {
+//                        String line = ROUTING_KEY.split("#")[1];
+//                        String msg = ROUTING_KEY.split("#")[0];
+//
+//                        Main.logger.error("Invalid Routing Key: \n\tMessage: " + msg + "\n\tLine: " + line);
+//                    } else 
 
-                        Main.logger.error("Invalid Routing Key: \n\tMessage: " + msg + "\n\tLine: " + line);
-                    } else if (ROUTING_KEY.equals("STATUS_REPORT")) {
+                    if (ROUTING_KEY.equals("STATUS_REPORT")) {
                         updateGuiStatusReport(ROUTING_KEY);
                         //updateStatusReport(ROUTING_KEY);
                     } else if (ROUTING_KEY.equals("CMD_GET_AXIS_SETTINGS")) {
@@ -1224,7 +1217,7 @@ public class Main implements Initializable, Observer {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
             String MOTOR_ARGUMENT = arg;
-            
+
             @Override
             public void run() {
                 try {
@@ -1233,7 +1226,7 @@ public class Main implements Initializable, Observer {
                         for (Motor m : tg.m.getMotors()) {
                             _updateGuiMotorSettings(String.valueOf(m.getId_number()));
                         }
-                    }else{
+                    } else {
                         //Update only ONE motor's gui settings
                         _updateGuiMotorSettings(MOTOR_ARGUMENT);
                     }
@@ -1282,7 +1275,6 @@ public class Main implements Initializable, Observer {
                 break;
         }
     }
-
 
     private void _updateGuiAxisSettings(String axname) {
         Axis ax = TinygDriver.getInstance().m.getAxisByName(axname);
@@ -1400,7 +1392,6 @@ public class Main implements Initializable, Observer {
         //Update the GUI for Axis Config Settings
         final String AXIS_NAME = axname;
         Platform.runLater(new Runnable() {
-
             @Override
             public void run() {
                 //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
