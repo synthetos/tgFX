@@ -645,7 +645,7 @@
                                   <tabs>
                                     <Tab closable="false" text="X Axis">
                                       <content>
-                                        <GridPane id="xGP" hgap="15.0" style="-fx-padding: 10; -fx-background-color: silver;" vgap="15.0">
+                                        <GridPane id="yGP" hgap="15.0" style="-fx-padding: 10; -fx-background-color: olivedrab ;" vgap="15.0">
                                           <children>
                                             <Label id="lblAxisXMode" text="Axis Mode" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                             <ChoiceBox id="cbXAxisMode" fx:id="axisXmode" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -657,8 +657,8 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label id="lblAxisXMode" text="Switch Mode" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbAxisXswitchMode" fx:id="axisXswitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                            <Label id="lblAxisXMode" text="Switch Mode Min" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                            <ChoiceBox id="cbAxisXswitchModeMin" fx:id="axisXswitchModeMin" GridPane.columnIndex="4" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
                                                   <String fx:value="Disabled" />
@@ -669,54 +669,70 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Feedrate Maximum" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                            <TextField id="tbAxisXmaxFeed" fx:id="axisXmaxFeedRate" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <Label text="Feedrate Maximum" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                            <TextField id="tbAxisXmaxFeed" fx:id="axisXmaxFeedRate" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                               <tooltip>
                                                 <Tooltip text="The feed rate is the maximum cutting speed the axis can sustain." />
                                               </tooltip>
                                             </TextField>
-                                            <Label text="Velocity Maximum" GridPane.columnIndex="3" GridPane.rowIndex="1">
-                                              <graphicTextGap>
-                                                <Long fx:value="4" />
-                                              </graphicTextGap>
-                                            </Label>
-                                            <TextField id="tbAxisXmaxVelocity" fx:id="axisXmaxVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="1">
+                                            <TextField id="tbAxisXmaxVelocity" fx:id="axisXmaxVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                               <tooltip>
                                                 <Tooltip text="The velocity maximum - aka traverse rate - is the upper limit of the machine axis under no cutting load." />
                                               </tooltip>
                                             </TextField>
-                                            <Label text="Travel Maximum" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                            <TextField id="tbAxisXmaxTravel" fx:id="axisXmaxTravel" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                            <Label text="Maximum Jerk" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                            <TextField id="tbAxisXmaxJerk" fx:id="axisXmaxJerk" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                                            <Label id="axisAjunctionDeviation" text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                            <TextField id="tbAxisXjunctionDeviation" fx:id="axisXjunctionDeviation" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <Label text="Travel Maximum" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                            <TextField id="tbAxisXmaxTravel" fx:id="axisXmaxTravel" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                            <Label text="Velocity Maximum" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                            <Label text="Switch Mode Max" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                            <ChoiceBox id="cbAxisXswitchModeMax" fx:id="axisXswitchModeMax" GridPane.columnIndex="4" GridPane.rowIndex="1">
+                                              <items>
+                                                <FXCollections fx:factory="observableArrayList">
+                                                  <String fx:value="Disabled" />
+                                                  <String fx:value="Normal Open Homing Only" />
+                                                  <String fx:value="Normal Open Homing and Limit" />
+                                                  <String fx:value="Normal Closed Homing Only" />
+                                                  <String fx:value="Normal Closed Homing and Limit" />
+                                                </FXCollections>
+                                              </items>
+                                            </ChoiceBox>
+                                            <Label text="Search Velocity" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                            <TextField id="tbAxisXsearchVelocity" fx:id="axisXsearchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                            <Label text="Latch Velocity" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                            <TextField id="tbAxisXlatchVelocity" fx:id="axisXlatchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                            <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                            <TextField id="tbAxisXjunctionDeviation" fx:id="axisXjunctionDeviation" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                               <tooltip>
                                                 <Tooltip text="Junction deviation - in combination with Junction Acceleration ($JA) from the system group - sets the velocity reduction used during cornering through the junction of two lines." />
                                               </tooltip>
                                             </TextField>
-                                            <Label text="Radius" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                                            <TextField id="tbAxisXradius" fx:id="axisXradius" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="3" />
-                                            <Label text="Search Velocity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                            <TextField id="tbAxisXsearchVelocity" fx:id="axisXsearchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                            <Label text="Latch Velocity" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                                            <TextField id="tbAxisXlatchVelocity" fx:id="axisXlatchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-                                            <Label text="Zero Backoff" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                                            <TextField id="tbAxisXzeroBackoff" fx:id="axisXzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                            <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
+                                            <Label text="Maximum Jerk" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                            <TextField id="tbAxisXmaxJerk" fx:id="axisXmaxJerk" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                            <Label text="Latch Backoff" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                            <Label text="Zero Backoff" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                                            <TextField id="tbAxisXzeroBackoff" fx:id="axisXzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+                                            <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="6">
                                               <children>
                                                 <Button id="queryAxis" onAction="#handleAxisQuerySettings" text="Query" />
-                                                <Button fx:id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
+                                                <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
+                                            <TextField fx:id="axisXlatchBackoff" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                                           </children>
                                           <columnConstraints>
                                             <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                                            <ColumnConstraints hgrow="NEVER" minWidth="-1.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
                                           </columnConstraints>
                                           <rowConstraints>
-                                            <RowConstraints fillHeight="true" minHeight="-1.0" vgrow="NEVER" />
-                                            <RowConstraints minHeight="-1.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
                                           </rowConstraints>
                                         </GridPane>
                                       </content>
@@ -735,8 +751,8 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label id="lblAxisYMode" text="Switch Mode" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbAxisYswitchMode" fx:id="axisYswitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                            <Label id="lblAxisYMode" text="Switch Mode Min" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                            <ChoiceBox id="cbAxisYswitchModeMin" fx:id="axisYswitchModeMin" GridPane.columnIndex="4" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
                                                   <String fx:value="Disabled" />
@@ -747,53 +763,77 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Feedrate Maximum" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                            <TextField id="tbAxisYmaxFeed" fx:id="axisYmaxFeedRate" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <Label text="Feedrate Maximum" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                            <TextField id="tbAxisYmaxFeed" fx:id="axisYmaxFeedRate" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                               <tooltip>
                                                 <Tooltip text="The feed rate is the maximum cutting speed the axis can sustain." />
                                               </tooltip>
                                             </TextField>
-                                            <Label text="Velocity Maximum" GridPane.columnIndex="3" GridPane.rowIndex="1">
-                                              <graphicTextGap>
-                                                <Long fx:value="4" />
-                                              </graphicTextGap>
-                                            </Label>
-                                            <TextField id="tbAxisYmaxVelocity" fx:id="axisYmaxVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="1">
+                                            <TextField id="tbAxisYmaxVelocity" fx:id="axisYmaxVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                               <tooltip>
                                                 <Tooltip text="The velocity maximum - aka traverse rate - is the upper limit of the machine axis under no cutting load." />
                                               </tooltip>
                                             </TextField>
-                                            <Label text="Travel Maximum" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                            <TextField id="tbAxisYmaxTravel" fx:id="axisYmaxTravel" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                            <Label text="Maximum Jerk" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                            <TextField id="tbAxisYmaxJerk" fx:id="axisYmaxJerk" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                                            <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                            <TextField id="tbAxisYjunctionDeviation" fx:id="axisYjunctionDeviation" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <Label text="Travel Maximum" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                            <TextField id="tbAxisYmaxTravel" fx:id="axisYmaxTravel" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                            <Label text="Velocity Maximum" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                            <Label text="Switch Mode Max" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                            <ChoiceBox id="cbAxisYswitchModeMax" fx:id="axisYswitchModeMax" GridPane.columnIndex="4" GridPane.rowIndex="1">
+                                              <items>
+                                                <FXCollections fx:factory="observableArrayList">
+                                                  <String fx:value="Disabled" />
+                                                  <String fx:value="Normal Open Homing Only" />
+                                                  <String fx:value="Normal Open Homing and Limit" />
+                                                  <String fx:value="Normal Closed Homing Only" />
+                                                  <String fx:value="Normal Closed Homing and Limit" />
+                                                </FXCollections>
+                                              </items>
+                                            </ChoiceBox>
+                                            <Label text="Search Velocity" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                            <TextField id="tbAxisYsearchVelocity" fx:id="axisYsearchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                            <Label text="Latch Velocity" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                            <TextField id="tbAxisYlatchVelocity" fx:id="axisYlatchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                            <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                            <TextField id="tbAxisYjunctionDeviation" fx:id="axisYjunctionDeviation" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                               <tooltip>
                                                 <Tooltip text="Junction deviation - in combination with Junction Acceleration ($JA) from the system group - sets the velocity reduction used during cornering through the junction of two lines." />
                                               </tooltip>
                                             </TextField>
-                                            <Label text="Radius" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                                            <TextField id="tbAxisYradius" fx:id="axisYradius" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="3" />
-                                            <Label text="Search Velocity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                            <TextField id="tbAxisYsearchVelocity" fx:id="axisYsearchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                            <Label text="Latch Velocity" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                                            <TextField id="tbAxisYlatchVelocity" fx:id="axisYlatchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-                                            <Label text="Zero Backoff" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                                            <TextField id="tbAxisYzeroBackoff" fx:id="axisYzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                            <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
+                                            <Label text="Maximum Jerk" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                            <TextField id="tbAxisYmaxJerk" fx:id="axisYmaxJerk" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                            <Label text="Latch Backoff" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                            <Label text="Zero Backoff" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                                            <TextField id="tbAxisYzeroBackoff" fx:id="axisYzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+                                            <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="6">
                                               <children>
                                                 <Button id="queryAxis" onAction="#handleAxisQuerySettings" text="Query" />
                                                 <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
+                                            <TextField fx:id="axisYlatchBackoff" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                                           </children>
+                                          <columnConstraints>
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                          </columnConstraints>
+                                          <rowConstraints>
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                          </rowConstraints>
                                         </GridPane>
                                       </content>
                                     </Tab>
                                     <Tab closable="false" text="Z Axis">
                                       <content>
-                                        <GridPane id="zGP" hgap="15.0" style="-fx-padding: 10; -fx-background-color: lightsteelblue ;" vgap="15.0">
+                                        <GridPane id="yGP" hgap="15.0" style="-fx-padding: 10; -fx-background-color: olivedrab ;" vgap="15.0">
                                           <children>
                                             <Label id="lblAxisZMode" text="Axis Mode" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                             <ChoiceBox id="cbZAxisMode" fx:id="axisZmode" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -805,8 +845,8 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label id="lblAxisZMode" text="Switch Mode" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbAxisZswitchMode" fx:id="axisZswitchMode" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                            <Label id="lblAxisZMode" text="Switch Mode Min" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                            <ChoiceBox id="cbAxisZswitchModeMin" fx:id="axisZswitchModeMin" GridPane.columnIndex="4" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
                                                   <String fx:value="Disabled" />
@@ -817,43 +857,71 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Feedrate Maximum" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                            <TextField id="tbAxisZmaxFeed" fx:id="axisZmaxFeedRate" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <Label text="Feedrate Maximum" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                            <TextField id="tbAxisZmaxFeed" fx:id="axisZmaxFeedRate" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                               <tooltip>
                                                 <Tooltip text="The feed rate is the maximum cutting speed the axis can sustain." />
                                               </tooltip>
                                             </TextField>
-                                            <Label text="Velocity Maximum" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                            <TextField id="tbAxisZmaxVelocity" fx:id="axisZmaxVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="1">
+                                            <TextField id="tbAxisZmaxVelocity" fx:id="axisZmaxVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                               <tooltip>
                                                 <Tooltip text="The velocity maximum - aka traverse rate - is the upper limit of the machine axis under no cutting load." />
                                               </tooltip>
                                             </TextField>
-                                            <Label text="Travel Maximum" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                            <TextField id="tbAxisZmaxTravel" fx:id="axisZmaxTravel" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                            <Label text="Maximum Jerk" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                            <TextField id="tbAxisZmaxJerk" fx:id="axisZmaxJerk" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                                            <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                            <TextField id="tbAxisZjunctionDeviation" fx:id="axisZjunctionDeviation" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <Label text="Travel Maximum" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                            <TextField id="tbAxisZmaxTravel" fx:id="axisZmaxTravel" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                            <Label text="Velocity Maximum" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                            <Label text="Switch Mode Max" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                            <ChoiceBox id="cbAxisZswitchModeMax" fx:id="axisZswitchModeMax" GridPane.columnIndex="4" GridPane.rowIndex="1">
+                                              <items>
+                                                <FXCollections fx:factory="observableArrayList">
+                                                  <String fx:value="Disabled" />
+                                                  <String fx:value="Normal Open Homing Only" />
+                                                  <String fx:value="Normal Open Homing and Limit" />
+                                                  <String fx:value="Normal Closed Homing Only" />
+                                                  <String fx:value="Normal Closed Homing and Limit" />
+                                                </FXCollections>
+                                              </items>
+                                            </ChoiceBox>
+                                            <Label text="Search Velocity" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                            <TextField id="tbAxisZsearchVelocity" fx:id="axisZsearchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                            <Label text="Latch Velocity" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                            <TextField id="tbAxisZlatchVelocity" fx:id="axisZlatchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                            <Label text="Junction Deviation" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                            <TextField id="tbAxisZjunctionDeviation" fx:id="axisZjunctionDeviation" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                               <tooltip>
                                                 <Tooltip text="Junction deviation - in combination with Junction Acceleration ($JA) from the system group - sets the velocity reduction used during cornering through the junction of two lines." />
                                               </tooltip>
                                             </TextField>
-                                            <Label text="Radius" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                                            <TextField id="tbAxisZradius" fx:id="axisZradius" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="3" />
-                                            <Label text="Search Velocity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                            <TextField id="tbAxisZsearchVelocity" fx:id="axisZsearchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                            <Label text="Latch Velocity" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                                            <TextField id="tbAxisZlatchVelocity" fx:id="axisZlatchVelocity" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-                                            <Label text="Zero Backoff" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                                            <TextField id="tbAxisZzeroBackoff" fx:id="axisZzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                            <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
+                                            <Label text="Maximum Jerk" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                            <TextField id="tbAxisZmaxJerk" fx:id="axisZmaxJerk" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                            <Label text="Latch Backoff" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                            <Label text="Zero Backoff" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                                            <TextField id="tbAxisZzeroBackoff" fx:id="axisZzeroOffset" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+                                            <HBox id="hBox7" alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="4" GridPane.rowIndex="6">
                                               <children>
                                                 <Button id="queryAxis" onAction="#handleAxisQuerySettings" text="Query" />
                                                 <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
+                                            <TextField fx:id="axisZlatchBackoff" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                                           </children>
+                                          <columnConstraints>
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                          </columnConstraints>
+                                          <rowConstraints>
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                                          </rowConstraints>
                                         </GridPane>
                                       </content>
                                     </Tab>

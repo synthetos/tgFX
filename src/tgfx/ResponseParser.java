@@ -7,11 +7,16 @@ package tgfx;
 import argo.jdom.JdomParser;
 import argo.jdom.JsonRootNode;
 import argo.saj.InvalidSyntaxException;
+import argo.staj.JsonStreamElementType;
+import argo.staj.StajParser;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.HashSet;
 import java.util.Observable;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import org.apache.log4j.Logger;
 import tgfx.system.Axis;
-import tgfx.system.Machine;
 import tgfx.system.StatusCode;
 import tgfx.tinyg.TinygDriver;
 
@@ -68,7 +73,25 @@ public class ResponseParser extends Observable implements Runnable {
             //Create our JSON Parsing Object
             JsonRootNode json = JDOM.parse(line);
             System.out.println("DEBUG:" + line);
+//            Reader jsonReader = new StringReader(line);
 
+
+//
+//            Set<String> fieldNames = new HashSet<String>();
+//            StajParser stajParser = null;
+//            
+//            stajParser = new StajParser(jsonReader);
+//            while (stajParser.hasNext()) {
+//                JsonStreamElementType next = stajParser.next();
+//                if (next.equals(JsonStreamElementType.)) {
+//                    fieldNames.add(stajParser);
+//                }
+//            }
+
+//            if(json.getFields() == 2){
+//                
+//            }
+//json.getNode("b").isNode("sys")
 
             //Make sure we have a "f"ooter element in the json
             if (json.isArrayNode("f")) {
@@ -231,8 +254,13 @@ public class ResponseParser extends Observable implements Runnable {
         ax.setTravel_maximum(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_TRAVEL_MAXIMUM).getText())));
         ax.setJerk_maximum(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JERK_MAXIMUM).getText())).intValue());
         ax.setJunction_devation(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JUNCTION_DEVIATION).getText())));
-        ax.setMaxSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MAX_SWITCH_MODE).getText())).intValue());
-        ax.setMaxSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MIN_SWITCH_MODE).getText())).intValue());
+        
+        if(!axis.equals("a") && !axis.equals("b") && !axis.equals("c")){
+            ax.setMaxSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MAX_SWITCH_MODE).getText())).intValue());
+            ax.setMaxSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MIN_SWITCH_MODE).getText())).intValue());
+            //Rotational Axis do not have a good way of doing limit switches.
+        }
+        
         ax.setSearch_velocity(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY).getText())).intValue());
 
         //        Boolean setSwitch_mode = ax.setSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SWITCH_MODE).getText())).intValue());

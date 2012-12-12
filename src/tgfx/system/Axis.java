@@ -41,7 +41,7 @@ public class Axis {
     private double jerk_maximum;
     private double junction_devation;
     private SWITCH_MODES max_switch_mode;
-     private SWITCH_MODES min_switch_mode;
+    private SWITCH_MODES min_switch_mode;
 //    private float homing_travel;
 //    private float homing_search_velocity;
 //    private float homing_latch_velocity;
