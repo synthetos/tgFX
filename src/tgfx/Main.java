@@ -131,7 +131,8 @@ public class Main implements Initializable, Observer {
             motor1ConfigPolarity, motor2ConfigPolarity, motor3ConfigPolarity, motor4ConfigPolarity,
             motor1ConfigPowerMode, motor2ConfigPowerMode, motor3ConfigPowerMode, motor4ConfigPowerMode,
             axisAmode, axisBmode, axisCmode, axisXmode, axisYmode, axisZmode,
-            axisAswitchMode, axisBswitchMode, axisCswitchMode, axisXswitchMode, axisYswitchMode, axisZswitchMode;
+            axisAswitchMode, axisBswitchMode, axisCswitchMode, axisXswitchMode, axisYswitchMode, axisZswitchMode,
+            gcodePlane;
     @FXML
     Group motor1Node;
     @FXML
@@ -370,19 +371,15 @@ public class Main implements Initializable, Observer {
 
     @FXML
     void handleMouseScroll(ScrollEvent evt) {
-        //
-
-        if (evt.getDeltaX() == 0 && evt.getDeltaY() == 40) {
+         if (evt.getDeltaX() == 0 && evt.getDeltaY() == 40) {
             //Mouse Wheel Up
             Draw2d.setMagnification(true);
-
             console.appendText("[+]Zooming in " + String.valueOf(Draw2d.getMagnification()) + "\n");
 
 
         } else if (evt.getDeltaX() == 0 && evt.getDeltaY() == -40) {
             //Mouse Wheel Down
             Draw2d.setMagnification(false);
-
             console.appendText("[+]Zooming out " + String.valueOf(Draw2d.getMagnification()) + "\n");
         }
 
@@ -948,8 +945,8 @@ public class Main implements Initializable, Observer {
         double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position()));// + magnification;
 
         Line l = new Line(xPrevious, yPrevious, newX, newY);
-        l.setStroke(Color.BLUE);
-//        l.setStroke(Draw2d.getLineColorFromVelocity(vel));
+//        l.setStroke(Color.BLUE);
+        l.setStroke(Draw2d.getLineColorFromVelocity(vel));
 
 //        if (moveType == Machine.motion_modes.traverse) {
 //            //G0 Move
@@ -965,7 +962,7 @@ public class Main implements Initializable, Observer {
 //            l.setStrokeWidth(Draw2d.getStrokeWeight());
 //        }
 
-        l.setStrokeWidth(3);
+        l.setStrokeWidth(.05);
 
         xPrevious = newX;
         yPrevious = newY;
@@ -1150,6 +1147,7 @@ public class Main implements Initializable, Observer {
                     Machine m = TinygDriver.getInstance().m;
                     srBuild.setText(String.valueOf(m.getFirmware_build()));
                     srVer.setText(String.valueOf(m.getFirmware_version()));
+                    gcodePlane.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_select_plane());
                     if (m.getCoordinateSystem() != null) {
                         srCoord.setText(TinygDriver.getInstance().m.getCoordinateSystem().toString());
                     }

@@ -14,10 +14,10 @@ public class Motor {
     private int id_number; //On TinyG the motor ports are 1-4
     private int ma;// map_to_axis
     private int mi; //Microsteps
-    private float sa;
-    private float tr;
-    private boolean po;
-    private boolean pm;
+    private float sa; //step angle
+    private float tr; //travel revolution
+    private boolean po; //polarity
+    private boolean pm; //power management
 
     
     

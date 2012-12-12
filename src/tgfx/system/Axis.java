@@ -40,7 +40,8 @@ public class Axis {
     private double travel_maximum;
     private double jerk_maximum;
     private double junction_devation;
-    private SWITCH_MODES switch_mode;
+    private SWITCH_MODES max_switch_mode;
+     private SWITCH_MODES min_switch_mode;
 //    private float homing_travel;
 //    private float homing_search_velocity;
 //    private float homing_latch_velocity;
@@ -191,7 +192,7 @@ public class Axis {
                 System.out.println("\t[+]Set Axis: " + this.getJunction_devation() + " Junction Deviation Max to: " + this.getJunction_devation());
                 return;
             }
-            case "sm": {
+            case "sx": {
                 int val = Double.valueOf(value.substring(0)).intValue();
 
                 String _switchMode = "UNKNOWN";
@@ -209,7 +210,29 @@ public class Axis {
                         break;
                     }
                 }
-                this.setSwitch_mode(val);
+                this.setMaxSwitch_mode(val);
+                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _switchMode);
+                return;
+            }
+                case "sn": {
+                int val = Double.valueOf(value.substring(0)).intValue();
+
+                String _switchMode = "UNKNOWN";
+                switch (val) {
+                    case 0: {
+                        _switchMode = "DISABLED";
+                        break;
+                    }
+                    case 1: {
+                        _switchMode = "HOMING ONLY";
+                        break;
+                    }
+                    case 2: {
+                        _switchMode = "HOMING AND LIMIT";
+                        break;
+                    }
+                }
+                this.setMaxSwitch_mode(val);
                 System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _switchMode);
                 return;
             }
@@ -367,9 +390,9 @@ public class Axis {
                 return (this.setJerk_maximum(Double.valueOf(value)));
             case "jd":
                 return (this.setJunction_devation(Float.valueOf(value)));
-            case "sm": {
+            case "sn": {
                 int val = (int) Double.parseDouble(value);
-                return (this.setSwitch_mode(val));
+                return (this.setMaxSwitch_mode(val));
             }
             case "sv":
                 return (this.setSearch_velocity(Double.parseDouble(value)));
@@ -529,27 +552,49 @@ public class Axis {
     }
 
     public SWITCH_MODES getSwitch_mode() {
-        return switch_mode;
+        return max_switch_mode;
     }
 
-    public Boolean setSwitch_mode(int _sw_mode) {
+    public Boolean setMaxSwitch_mode(int _sw_mode) {
 
         switch (_sw_mode) {
             case 0:
-                switch_mode = SWITCH_MODES.DISABLED;
+                max_switch_mode = SWITCH_MODES.DISABLED;
                 return true;
 
             case 1:
-                switch_mode = SWITCH_MODES.NO_HOMING_ONLY;
+                max_switch_mode = SWITCH_MODES.NO_HOMING_ONLY;
                 return true;
             case 2:
-                switch_mode = SWITCH_MODES.NO_HOMING_AND_LIMIT;
+                max_switch_mode = SWITCH_MODES.NO_HOMING_AND_LIMIT;
                 return true;
             case 3:
-                switch_mode = SWITCH_MODES.NC_HOMING_ONLY;
+                max_switch_mode = SWITCH_MODES.NC_HOMING_ONLY;
                 return true;
             case 4:
-                switch_mode = SWITCH_MODES.NC_HOMING_AND_LIMIT;
+                max_switch_mode = SWITCH_MODES.NC_HOMING_AND_LIMIT;
+                return true;
+        }
+        return false;
+    }
+    public Boolean setMinSwitch_mode(int _sw_mode) {
+
+        switch (_sw_mode) {
+            case 0:
+                min_switch_mode = SWITCH_MODES.DISABLED;
+                return true;
+
+            case 1:
+                min_switch_mode = SWITCH_MODES.NO_HOMING_ONLY;
+                return true;
+            case 2:
+                min_switch_mode = SWITCH_MODES.NO_HOMING_AND_LIMIT;
+                return true;
+            case 3:
+                min_switch_mode = SWITCH_MODES.NC_HOMING_ONLY;
+                return true;
+            case 4:
+                min_switch_mode = SWITCH_MODES.NC_HOMING_AND_LIMIT;
                 return true;
         }
         return false;

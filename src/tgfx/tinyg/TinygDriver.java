@@ -109,7 +109,9 @@ public class TinygDriver extends Observable {
     public static final String MNEMONIC_AXIS_TRAVEL_MAXIMUM = "tm";
     public static final String MNEMONIC_AXIS_JERK_MAXIMUM = "jm";
     public static final String MNEMONIC_AXIS_JUNCTION_DEVIATION = "jd";
-    public static final String MNEMONIC_AXIS_SWITCH_MODE = "sm";
+    public static final String MNEMONIC_AXIS_MAX_SWITCH_MODE = "sx";
+        public static final String MNEMONIC_AXIS_MIN_SWITCH_MODE = "sn";
+
     public static final String MNEMONIC_AXIS_SEARCH_VELOCITY = "sv";
     public static final String MNEMONIC_AXIS_LATCH_VELOCITY = "lv";
     public static final String MNEMONIC_AXIS_LATCH_BACKOFF = "lb";
@@ -241,7 +243,7 @@ public class TinygDriver extends Observable {
                     continue;
                 } else if (cb.getId().contains("switchMode")) {
                     int switchMode = cb.getSelectionModel().getSelectedIndex();
-                    String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_SWITCH_MODE, switchMode);
+                    String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_MAX_SWITCH_MODE, switchMode);
                     this.write(configObj);
                 }
             }

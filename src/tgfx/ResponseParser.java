@@ -11,6 +11,7 @@ import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
 import org.apache.log4j.Logger;
 import tgfx.system.Axis;
+import tgfx.system.Machine;
 import tgfx.system.StatusCode;
 import tgfx.tinyg.TinygDriver;
 
@@ -59,12 +60,6 @@ public class ResponseParser extends Observable implements Runnable {
         }
     }
 
-    public static String replaceCharAt(String s, int pos, char c) {
-        StringBuilder buf = new StringBuilder(s);
-        buf.setCharAt(pos, c);
-        return buf.toString();
-    }
-
     public synchronized void parseJSON(String line) {
         String axis;
         String[] statusResponse;
@@ -74,16 +69,20 @@ public class ResponseParser extends Observable implements Runnable {
             JsonRootNode json = JDOM.parse(line);
             System.out.println("DEBUG:" + line);
 
-            int beforeBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
-            int retBytes = Integer.valueOf(json.getNode("f").getElements().get(2).getText());
-            int checkSum = Integer.valueOf(json.getNode("f").getElements().get(3).getText());
 
-            //Make sure we do not add bytes to a already full buffer
-            if (beforeBytesReturned != TinygDriver.MAX_BUFFER) {
-                TinygDriver.getInstance().serialWriter.addBytesReturnedToBuffer(retBytes);
-                int afterBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
-                logger.info("Returned " + retBytes + " to buffer... Buffer was " + beforeBytesReturned + " is now " + afterBytesReturned);
-                TinygDriver.getInstance().serialWriter.notifyAck();  //We let our serialWriter thread know we have added some space to the buffer.
+            //Make sure we have a "f"ooter element in the json
+            if (json.isArrayNode("f")) {
+                int beforeBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
+                int retBytes = Integer.valueOf(json.getNode("f").getElements().get(2).getText());
+                int checkSum = Integer.valueOf(json.getNode("f").getElements().get(3).getText());
+
+                //Make sure we do not add bytes to a already full buffer
+                if (beforeBytesReturned != TinygDriver.MAX_BUFFER) {
+                    TinygDriver.getInstance().serialWriter.addBytesReturnedToBuffer(retBytes);
+                    int afterBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
+                    logger.info("Returned " + retBytes + " to buffer... Buffer was " + beforeBytesReturned + " is now " + afterBytesReturned);
+                    TinygDriver.getInstance().serialWriter.notifyAck();  //We let our serialWriter thread know we have added some space to the buffer.
+                }
             }
 
             if (line.contains("SYSTEM READY")) {
@@ -92,12 +91,10 @@ public class ResponseParser extends Observable implements Runnable {
                 StatusCode sc = new StatusCode(0, "System Ready", "", "TinyG Message");
                 notifyObservers(sc);
 
-            }else if(line.startsWith(TinygDriver.RESPONSE_BUFFER_STATUS)){
+            } else if (line.startsWith(TinygDriver.RESPONSE_BUFFER_STATUS)) {
                 TinygDriver.getInstance().serialWriter.setBuffer(Integer.parseInt((json.getNode("b").getNode("k").getText())));
                 TinygDriver.getInstance().serialWriter.notifyAck();
-            }
-            
-            else if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
+            } else if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
                 //Parse Status Report
                 //"{"sr":{"line":0,"xpos":1.567,"ypos":0.548,"zpos":0.031,"apos":0.000,"vel":792.463,"unit":"mm","stat":"run"}}"
                 TinygDriver.getInstance().m.getAxisByName("X").setWork_position(Float.parseFloat(json.getNode("b").getNode("sr").getNode("posx").getText()));
@@ -107,8 +104,8 @@ public class ResponseParser extends Observable implements Runnable {
                 TinygDriver.getInstance().m.setMachineState(Integer.valueOf(json.getNode("b").getNode("sr").getNode("stat").getText()));
                 TinygDriver.getInstance().m.setMotionMode(Integer.parseInt(json.getNode("b").getNode("sr").getNode("momo").getText()));
                 TinygDriver.getInstance().m.setVelocity(Float.parseFloat(json.getNode("b").getNode("sr").getNode("vel").getText()));
-                TinygDriver.getInstance().m.setUnits(Integer.parseInt(json.getNode("b").getNode("sr").getNode("unit").getText()));
-                TinygDriver.getInstance().m.setCoordinate_mode(Integer.parseInt(json.getNode("b").getNode("sr").getNode("coor").getText()));
+//                TinygDriver.getInstance().m.setUnits(Integer.parseInt(json.getNode("b").getNode("sr").getNode("unit").getText()));
+//                TinygDriver.getInstance().m.setCoordinate_mode(Integer.parseInt(json.getNode("b").getNode("sr").getNode("coor").getText()));
                 //m.getAxisByName("X").setWork_position(Float.parseFloat((json.getNode("b").getNode("sr").getNode("xpos").getText())));
                 //m.getAxisByName("Y").setWork_position(Float.parseFloat((json.getNode("b").getNode("sr").getNode("ypos").getText())));
                 //m.getAxisByName("Z").setWork_position(Float.parseFloat((json.getNode("b").getNode("sr").getNode("zpos").getText())));
@@ -118,20 +115,21 @@ public class ResponseParser extends Observable implements Runnable {
                 message[1] = null;
                 notifyObservers(message);
 
-            }  else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
+            } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
                 logger.info("[#]Parsing Machine Settings JSON");
-                //{"fv":0.930,"fb":330.190,"si":30,"gi":"21","gs":"17","gp":"64","ga":"90","ea":1,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":10000.000,"ic":0,"il":0,"ec":0,"ee":0,"ex":1}
+                //{"fb":351.010,"fv":0.950,"gpl":0,"gun":1,"gco":1,"gpa":2,"gdi":0,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":5000.000,"st":1,"ic":0,"ee":0,"ex":1,"eq":0,"ej":1,"je":3,"si":200,"baud":0}},"f":[1,0,11,7596]}
                 TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("b").getNode("sys").getNode("fv").getText()));
                 TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("b").getNode("sys").getNode("fb").getText()));
+                TinygDriver.getInstance().m.setGcode_select_plane(Integer.parseInt(json.getNode("b").getNode("sys").getNode("gpl").getText()));
                 TinygDriver.getInstance().m.setStatus_report_interval(Integer.parseInt(json.getNode("b").getNode("sys").getNode("si").getText()));
                 TinygDriver.getInstance().m.setEnable_acceleration(Boolean.parseBoolean(json.getNode("b").getNode("sys").getNode("ex").getText()));
                 TinygDriver.getInstance().m.setJunction_acceleration(Float.parseFloat((json.getNode("b").getNode("sys").getNode("ml").getText())));
                 TinygDriver.getInstance().m.setMin_segment_time(Double.parseDouble(json.getNode("b").getNode("sys").getNode("mt").getText()));
                 TinygDriver.getInstance().m.setMin_arc_segment(Float.parseFloat((json.getNode("b").getNode("sys").getNode("ma").getText())));
                 TinygDriver.getInstance().m.setIgnore_cr_lf_RX(Integer.parseInt(json.getNode("b").getNode("sys").getNode("ic").getText()));  //Check this.
-                TinygDriver.getInstance().m.setEnable_CR_on_TX(Boolean.parseBoolean((json.getNode("b").getNode("sys").getNode("ec").getText())));
+//                TinygDriver.getInstance().m.setEnable_CR_on_TX(Boolean.parseBoolean((json.getNode("b").getNode("sys").getNode("ec").getText())));
                 TinygDriver.getInstance().m.setEnable_echo(Boolean.parseBoolean((json.getNode("b").getNode("sys").getNode("ee").getText())));
-                TinygDriver.getInstance().m.setEnable_xon_xoff(Boolean.parseBoolean((json.getNode("b").getNode("sys").getNode("ex").getText())));
+//                TinygDriver.getInstance().m.setEnable_xon_xoff(Boolean.parseBoolean((json.getNode("b").getNode("sys").getNode("ex").getText())));
                 setChanged();
                 message[0] = "CMD_GET_MACHINE_SETTINGS";
                 message[1] = null;
@@ -233,7 +231,8 @@ public class ResponseParser extends Observable implements Runnable {
         ax.setTravel_maximum(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_TRAVEL_MAXIMUM).getText())));
         ax.setJerk_maximum(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JERK_MAXIMUM).getText())).intValue());
         ax.setJunction_devation(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JUNCTION_DEVIATION).getText())));
-        ax.setSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SWITCH_MODE).getText())).intValue());
+        ax.setMaxSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MAX_SWITCH_MODE).getText())).intValue());
+        ax.setMaxSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MIN_SWITCH_MODE).getText())).intValue());
         ax.setSearch_velocity(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY).getText())).intValue());
 
         //        Boolean setSwitch_mode = ax.setSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SWITCH_MODE).getText())).intValue());
@@ -265,6 +264,7 @@ public class ResponseParser extends Observable implements Runnable {
             TinygDriver.getInstance().m.getMotorByNumber(motor).setPower_management(Integer.valueOf((json.getNode("b").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_POWER_MANAGEMENT).getText())));
             TinygDriver.getInstance().m.getMotorByNumber(motor).setMicrosteps(Integer.valueOf(json.getNode("b").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_MICROSTEPS).getText()));
         } catch (java.lang.NumberFormatException ex) {
+            //TODO look at this code.. why is this here?
             TinygDriver.getInstance().m.getMotorByNumber(motor).setMapToAxis(Float.valueOf(json.getNode("b").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_MAP_AXIS).getText()).intValue());
             TinygDriver.getInstance().m.getMotorByNumber(motor).setStep_angle(Float.valueOf(json.getNode("b").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_STEP_ANGLE).getText()));
             TinygDriver.getInstance().m.getMotorByNumber(motor).setTravel_per_revolution(Float.valueOf(json.getNode("b").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_TRAVEL_PER_REVOLUTION).getText()));

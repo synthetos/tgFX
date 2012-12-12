@@ -32,10 +32,10 @@ public class Machine {
     private int status_report_interval;
     public Gcode_unit_modes gcode_units;
     public Gcode_unit_modes gcode_startup_units;
-    public Gcode_startup_select_plane gcode_select_plane;
-    public Gcode_startup_coord_system gcode_select_coord_system;
-    public Gcode_startup_path_control gcode_path_control;
-    public Gcode_startup_distance_mode gcode_distance_mode;
+    public Gcode_select_plane gcode_select_plane;
+    public Gcode_coord_system gcode_select_coord_system;
+    public Gcode_path_control gcode_path_control;
+    public Gcode_distance_mode gcode_distance_mode;
     private boolean enable_acceleration;
     private float junction_acceleration;
     private float min_line_segment;
@@ -50,8 +50,8 @@ public class Machine {
     private int line_number;
     public static motion_modes motion_mode;
     private float velocity;
-    private List<Motor> motors = new ArrayList<Motor>();
-    private List<Axis> axis = new ArrayList<Axis>();
+    private List<Motor> motors = new ArrayList<>();
+    private List<Axis> axis = new ArrayList<>();
     private Axis x = new Axis(Axis.AXIS.X, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
     private Axis y = new Axis(Axis.AXIS.Y, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
     private Axis z = new Axis(Axis.AXIS.Z, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
@@ -72,6 +72,26 @@ public class Machine {
     public static enum coordinate_systems {
 
         g54, g55, g56, g57, g58, g59
+    }
+
+    public Gcode_select_plane getGcode_select_plane() {
+        return gcode_select_plane;
+    }
+    
+
+    public void setGcode_select_plane(int gsp) {
+        switch(gsp){
+            case 0:
+                this.gcode_select_plane = gcode_select_plane.XY;
+            case 1:
+                this.gcode_select_plane = gcode_select_plane.XZ;
+            case 2:
+                this.gcode_select_plane = gcode_select_plane.YZ;
+        }
+    }
+    
+    public void setGcode_select_plane(Gcode_select_plane gcode_select_plane) {
+        this.gcode_select_plane = gcode_select_plane;
     }
 
     public String getCURRENT_MACHINE_JSON_OBJECT() {
@@ -133,7 +153,7 @@ public class Machine {
         MM      //G20
     };
 
-    public static enum Gcode_startup_select_plane {
+    public static enum Gcode_select_plane {
         //gpl
 
         XY, //G17
@@ -141,7 +161,7 @@ public class Machine {
         YZ  //G19
     }
 
-    public static enum Gcode_startup_distance_mode {
+    public static enum Gcode_distance_mode {
         //gdi
 
         G61,
@@ -149,14 +169,14 @@ public class Machine {
         G64
     }
 
-    public static enum Gcode_startup_path_control {
+    public static enum Gcode_path_control {
         //gpl
 
         ABSOLUTE, //G90
         INCREMENTAL   //91
     }
 
-    public static enum Gcode_startup_coord_system {
+    public static enum Gcode_coord_system {
         //gco
 
         G54, G55, G56, G57, G58, G59
