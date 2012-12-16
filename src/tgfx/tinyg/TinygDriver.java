@@ -365,7 +365,7 @@ public class TinygDriver extends Observable {
         GridPane _gp = (GridPane) _tab.getContent();
         int size = _gp.getChildren().size();
         int i;
-
+        //Iterate though each gridpane child... Picking out text fields and choice boxes
         for (i = 0; i < size; i++) {
 
             if (_gp.getChildren().get(i).toString().contains("TextField")) {
@@ -402,7 +402,7 @@ public class TinygDriver extends Observable {
                         default:
                             mapAxis = 0;  //Defaults to map to X
                     }
-                    String configObj = String.format("{\"%s%s\":%s}\n", _motorNumber, MNEMONIC_MOTOR_MAP_AXIS, mapAxis);
+                    String configObj = String.format("{\"%s\":{\"%s\":%s}}\n", _motorNumber, MNEMONIC_MOTOR_MAP_AXIS, mapAxis);
                     this.write(configObj);
 
                 } else if (_cb.getId().contains("MicroStepping")) {

@@ -254,23 +254,22 @@ public class ResponseParser extends Observable implements Runnable {
         ax.setTravel_maximum(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_TRAVEL_MAXIMUM).getText())));
         ax.setJerk_maximum(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JERK_MAXIMUM).getText())).intValue());
         ax.setJunction_devation(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JUNCTION_DEVIATION).getText())));
-        
-        if(!axis.equals("a") && !axis.equals("b") && !axis.equals("c")){
-            ax.setMaxSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MAX_SWITCH_MODE).getText())).intValue());
-            ax.setMaxSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MIN_SWITCH_MODE).getText())).intValue());
-            //Rotational Axis do not have a good way of doing limit switches.
-        }
-        
-        ax.setSearch_velocity(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY).getText())).intValue());
 
-        //        Boolean setSwitch_mode = ax.setSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SWITCH_MODE).getText())).intValue());
-//        Boolean setSearch_velocity = ax.setSearch_velocity(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY).getText())).intValue());
-        ax.setLatch_velocity(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_VELOCITY).getText())));
-        ax.setLatch_backoff(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_BACKOFF).getText())));
-        ax.setZero_backoff(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_ZERO_BACKOFF).getText())));
+//        if (!axis.equals("a") && !axis.equals("b") && !axis.equals("c")) {
+//            
+//        }
 
         if (ax.getAxisType().equals(Axis.AXIS_TYPE.ROTATIONAL)) {
             ax.setRadius(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_RADIUS).getText())));
+            
+        }else{
+            ax.setMaxSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MAX_SWITCH_MODE).getText())).intValue());
+            ax.setMaxSwitch_mode(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MIN_SWITCH_MODE).getText())).intValue());
+            ax.setSearch_velocity(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY).getText())).intValue());
+            ax.setLatch_velocity(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_VELOCITY).getText())));
+            ax.setLatch_backoff(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_BACKOFF).getText())));
+            ax.setZero_backoff(Float.valueOf((json.getNode("b").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_ZERO_BACKOFF).getText())));
+            //Rotational Axis do not have a good way of doing limit switches.
         }
         setChanged();
 

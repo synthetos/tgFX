@@ -118,19 +118,19 @@ public class Main implements Initializable, Observer {
             axisAjunctionDeviation, axisBjunctionDeviation, axisCjunctionDeviation, axisXjunctionDeviation, axisYjunctionDeviation, axisZjunctionDeviation,
             axisAsearchVelocity, axisBsearchVelocity, axisCsearchVelocity,
             axisXsearchVelocity, axisYsearchVelocity, axisZsearchVelocity,
-            axisAzeroOffset, axisBzeroOffset, axisCzeroOffset, axisXzeroOffset, axisYzeroOffset, axisZzeroOffset,
+            axisAzeroBackoff, axisBzeroBackoff, axisCzeroBackoff, axisXzeroBackoff, axisYzeroBackoff, axisZzeroBackoff,
             axisAmaxVelocity, axisBmaxVelocity, axisCmaxVelocity, axisXmaxVelocity, axisYmaxVelocity, axisZmaxVelocity,
             axisAmaxJerk, axisBmaxJerk, axisCmaxJerk, axisXmaxJerk, axisYmaxJerk, axisZmaxJerk,
             axisAradius, axisBradius, axisCradius, axisXradius, axisYradius, axisZradius,
             axisAlatchVelocity, axisBlatchVelocity, axisClatchVelocity, axisXlatchVelocity, axisYlatchVelocity, axisZlatchVelocity, externalConnections,
-            materialThickness, gcodeLoaded;
+            materialThickness, gcodeLoaded, axisXlatchBackoff, axisYlatchBackoff, axisZlatchBackoff, axisAlatchBackoff, axisBlatchBackoff, axisClatchBackoff;
     @FXML
     ChoiceBox motor1ConfigMapAxis, motor2ConfigMapAxis, motor3ConfigMapAxis, motor4ConfigMapAxis,
             motor1ConfigMicroSteps, motor2ConfigMicroSteps, motor3ConfigMicroSteps, motor4ConfigMicroSteps,
             motor1ConfigPolarity, motor2ConfigPolarity, motor3ConfigPolarity, motor4ConfigPolarity,
             motor1ConfigPowerMode, motor2ConfigPowerMode, motor3ConfigPowerMode, motor4ConfigPowerMode,
             axisAmode, axisBmode, axisCmode, axisXmode, axisYmode, axisZmode,
-            axisAswitchMode, axisBswitchMode, axisCswitchMode, axisXswitchModeMin, axisXswitchModeMax, axisYswitchModeMin, axisYswitchModeMax,
+            axisAswitchModeMin, axisAswitchModeMax, axisBswitchModeMin, axisBswitchModeMax, axisCswitchModeMin, axisCswitchModeMax, axisXswitchModeMin, axisXswitchModeMax, axisYswitchModeMin, axisYswitchModeMax,
             axisZswitchModeMin, axisZswitchModeMax, gcodePlane;
     @FXML
     Group motor1Node;
@@ -1283,44 +1283,51 @@ public class Main implements Initializable, Observer {
                 axisAmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
                 axisAmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisAjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
-                axisAsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
-                axisAzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
-//                axisAswitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                 axisAmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                 axisAmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
-//                                axisAmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 axisAradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
-                //axisAradius.setText(String.valueOf(ax.getRadius()));
-                axisAlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                //Rotational Do not have these.
+                axisAsearchVelocity.setDisable(true);
+                axisAlatchVelocity.setDisable(true);
+                axisAlatchBackoff.setDisable(true);
+                axisAswitchModeMax.setDisable(true);
+                axisAswitchModeMin.setDisable(true);
+                axisAzeroBackoff.setDisable(true);
+
                 break;
             case "b":
                 axisBmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
                 axisBmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
                 axisBmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisBjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
-                axisBsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
-                axisBzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
-//                axisBswitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                 axisBmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                 axisBmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
-                //                                axisBmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
-                //axisBradius.setText(String.valueOf(ax.getRadius()));
                 axisBradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
-                axisBlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                //Rotational Do not have these.
+                axisBsearchVelocity.setDisable(true);
+                axisBlatchVelocity.setDisable(true);
+                axisBlatchBackoff.setDisable(true);
+                axisBswitchModeMax.setDisable(true);
+                axisBswitchModeMin.setDisable(true);
+                axisBzeroBackoff.setDisable(true);
+
                 break;
             case "c":
                 axisCmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
                 axisCmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
                 axisCmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisCjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
-                axisCsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
-                axisCzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
-//                axisCswitchMode.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                 axisCmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                 axisCmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
-//                                axisCmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 axisCradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
-                axisClatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+
+                //Rotational Do not have these.
+                axisCsearchVelocity.setDisable(true);
+                axisClatchVelocity.setDisable(true);
+                axisClatchBackoff.setDisable(true);
+                axisCswitchModeMax.setDisable(true);
+                axisCswitchModeMin.setDisable(true);
+                axisCzeroBackoff.setDisable(true);
                 break;
             case "x":
 //                axisXradius.setText("NA");
@@ -1332,11 +1339,13 @@ public class Main implements Initializable, Observer {
                 axisXmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisXjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisXsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
-                axisXzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
+                axisXzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
                 axisXswitchModeMax.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                 axisXswitchModeMin.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                 axisXmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                 axisXmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+                axisXlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
+
 //                                axisXmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 //axisXradius.setText(String.valueOf(ax.getRadius()));
                 axisXlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
@@ -1351,7 +1360,7 @@ public class Main implements Initializable, Observer {
                 axisYmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisYjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisYsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
-                axisYzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
+                axisYzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
                 axisYswitchModeMax.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                 axisYswitchModeMin.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                 axisYmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
@@ -1359,6 +1368,7 @@ public class Main implements Initializable, Observer {
 //                                axisYmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 // axisYradius.setText(String.valueOf(ax.getRadius()));
                 axisYlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                axisYlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
                 break;
             case "z":
 //                axisZradius.setText("NA");
@@ -1370,7 +1380,7 @@ public class Main implements Initializable, Observer {
                 axisZmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisZjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisZsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
-                axisZzeroOffset.setText(String.valueOf(ax.getZero_backoff()));
+                axisZzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
                 axisZswitchModeMin.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                 axisZswitchModeMax.getSelectionModel().select(ax.getSwitch_mode().ordinal());
                 axisZmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
@@ -1378,6 +1388,7 @@ public class Main implements Initializable, Observer {
 //                                axisZmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 //axisZradius.setText(String.valueOf(ax.getRadius()));
                 axisZlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                axisZlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
                 break;
         }
     }
