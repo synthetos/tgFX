@@ -64,6 +64,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import tgfx.gcode.GcodeLine;
 import tgfx.system.Machine.Gcode_unit_modes;
 import tgfx.system.StatusCode;
@@ -131,7 +132,8 @@ public class Main implements Initializable, Observer {
             motor1ConfigPowerMode, motor2ConfigPowerMode, motor3ConfigPowerMode, motor4ConfigPowerMode,
             axisAmode, axisBmode, axisCmode, axisXmode, axisYmode, axisZmode,
             axisAswitchModeMin, axisAswitchModeMax, axisBswitchModeMin, axisBswitchModeMax, axisCswitchModeMin, axisCswitchModeMax, axisXswitchModeMin, axisXswitchModeMax, axisYswitchModeMin, axisYswitchModeMax,
-            axisZswitchModeMin, axisZswitchModeMax, gcodePlane;
+            axisZswitchModeMin, axisZswitchModeMax, gcodePlane,movementMinLineSegment,movementTimeSegment, movementMinArcSegment, gcodeUnitMode, gcodeCoordSystem,
+            gcodePathControl, gcodeDistanceMode;
     @FXML
     Group motor1Node;
     @FXML
@@ -787,7 +789,7 @@ public class Main implements Initializable, Observer {
 
 
                 FileChooser fc = new FileChooser();
-                fc.setInitialDirectory(new File(System.getProperty("user.dir") + "\\configs\\"));
+                fc.setInitialDirectory(new File(System.getProperty("user.dir") + System.getProperty("file.separator")+"configs"+System.getProperty("file.separator")));
                 fc.setTitle("Save Current TinyG Configuration");
                 File f = fc.showOpenDialog(null);
                 if (f.canWrite()) {
@@ -803,7 +805,7 @@ public class Main implements Initializable, Observer {
         BufferedReader br;
         String line;
 
-        File selected_config = new File(System.getProperty("user.dir") + "\\configs\\" + configsListView.getSelectionModel().getSelectedItem());
+        File selected_config = new File(System.getProperty("user.dir") + System.getProperty("file.separator") +"configs"+System.getProperty("file.separator") + configsListView.getSelectionModel().getSelectedItem());
 
         fis = new FileInputStream(selected_config);
         br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
@@ -959,7 +961,7 @@ public class Main implements Initializable, Observer {
 //            l.setStrokeWidth(Draw2d.getStrokeWeight());
 //        }
 
-        l.setStrokeWidth(.05);
+        l.setStrokeWidth(1);
 
         xPrevious = newX;
         yPrevious = newY;
@@ -1144,7 +1146,12 @@ public class Main implements Initializable, Observer {
                     Machine m = TinygDriver.getInstance().m;
                     srBuild.setText(String.valueOf(m.getFirmware_build()));
                     srVer.setText(String.valueOf(m.getFirmware_version()));
-                    gcodePlane.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_select_plane());
+                    gcodePlane.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_select_plane().ordinal());
+                    gcodeUnitMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_units().ordinal());
+                    gcodeCoordSystem.getSelectionModel().select(TinygDriver.getInstance().m.getCoordinateSystem().ordinal());
+                    gcodePathControl.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
+                    gcodeDistanceMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
+                    
                     if (m.getCoordinateSystem() != null) {
                         srCoord.setText(TinygDriver.getInstance().m.getCoordinateSystem().toString());
                     }
@@ -1286,13 +1293,22 @@ public class Main implements Initializable, Observer {
                 axisAmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                 axisAmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
                 axisAradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
+                axisAsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
+                axisAzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
                 //Rotational Do not have these.
-                axisAsearchVelocity.setDisable(true);
-                axisAlatchVelocity.setDisable(true);
-                axisAlatchBackoff.setDisable(true);
-                axisAswitchModeMax.setDisable(true);
-                axisAswitchModeMin.setDisable(true);
-                axisAzeroBackoff.setDisable(true);
+//                axisAsearchVelocity.setDisable(true);
+//                axisAlatchVelocity.setDisable(true);
+//                axisAlatchBackoff.setDisable(true);
+                axisAswitchModeMax.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
+                axisAswitchModeMin.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
+                
+                axisAmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                axisAlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
+                axisAlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
+                
+//                axisAswitchModeMax.setDisable(true);
+//                axisAswitchModeMin.setDisable(true);
+//                axisAzeroBackoff.setDisable(true);
 
                 break;
             case "b":
@@ -1340,14 +1356,12 @@ public class Main implements Initializable, Observer {
                 axisXjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisXsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                 axisXzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                axisXswitchModeMax.getSelectionModel().select(ax.getSwitch_mode().ordinal());
-                axisXswitchModeMin.getSelectionModel().select(ax.getSwitch_mode().ordinal());
-                axisXmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                axisXswitchModeMax.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
+                axisXswitchModeMin.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
                 axisXmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
-                axisXlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
 
-//                                axisXmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
-                //axisXradius.setText(String.valueOf(ax.getRadius()));
+                axisXmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                axisXlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
                 axisXlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
                 break;
             case "y":
@@ -1361,8 +1375,8 @@ public class Main implements Initializable, Observer {
                 axisYjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisYsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                 axisYzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                axisYswitchModeMax.getSelectionModel().select(ax.getSwitch_mode().ordinal());
-                axisYswitchModeMin.getSelectionModel().select(ax.getSwitch_mode().ordinal());
+                axisYswitchModeMax.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
+                axisYswitchModeMin.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
                 axisYmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                 axisYmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
 //                                axisYmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
@@ -1381,8 +1395,8 @@ public class Main implements Initializable, Observer {
                 axisZjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisZsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                 axisZzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                axisZswitchModeMin.getSelectionModel().select(ax.getSwitch_mode().ordinal());
-                axisZswitchModeMax.getSelectionModel().select(ax.getSwitch_mode().ordinal());
+                axisZswitchModeMin.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
+                axisZswitchModeMax.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
                 axisZmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
                 axisZmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
 //                                axisZmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
@@ -1429,9 +1443,12 @@ public class Main implements Initializable, Observer {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        
+        
+        
 
         //Populate the config's list view
-        File config_files = new File(System.getProperty("user.dir") + "\\configs");
+        File config_files = new File(System.getProperty("user.dir") + System.getProperty("file.separator")+ "configs");
         for (File f : config_files.listFiles()) {
             if (f.isFile() && f.getName().endsWith(".config")) {
                 configsListView.getItems().add(f.getName());

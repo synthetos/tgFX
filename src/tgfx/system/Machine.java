@@ -6,6 +6,10 @@ package tgfx.system;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleFloatProperty;
 
 /**
  *
@@ -39,6 +43,15 @@ public class Machine {
     private boolean enable_acceleration;
     private float junction_acceleration;
     private float min_line_segment;
+    private DoubleProperty min_line_segment_test = new SimpleDoubleProperty();
+
+    public DoubleProperty getMin_line_segment_test() {
+        return min_line_segment_test;
+    }
+
+    public void setMin_line_segment_test(DoubleProperty min_line_segment_test) {
+        this.min_line_segment_test = min_line_segment_test;
+    }
     private float min_arc_segment;
     private double min_segment_time;
     public Ignore_CR_LF_ON_RX ignore_cr_lf_RX;
@@ -77,10 +90,25 @@ public class Machine {
     public Gcode_select_plane getGcode_select_plane() {
         return gcode_select_plane;
     }
-    
+
+    public Gcode_distance_mode getGcode_distance_mode() {
+        return gcode_distance_mode;
+    }
+
+    public void setGcode_distance_mode(int gdm) {
+        
+        switch(gdm){
+            case 0:
+                this.gcode_distance_mode = gcode_distance_mode.ABSOLUTE;
+                break;
+            case 1:
+                this.gcode_distance_mode = gcode_distance_mode.INCREMENTAL;
+        }
+        
+    }
 
     public void setGcode_select_plane(int gsp) {
-        switch(gsp){
+        switch (gsp) {
             case 0:
                 this.gcode_select_plane = gcode_select_plane.XY;
             case 1:
@@ -89,7 +117,7 @@ public class Machine {
                 this.gcode_select_plane = gcode_select_plane.YZ;
         }
     }
-    
+
     public void setGcode_select_plane(Gcode_select_plane gcode_select_plane) {
         this.gcode_select_plane = gcode_select_plane;
     }
@@ -101,7 +129,6 @@ public class Machine {
     public void setCURRENT_MACHINE_JSON_OBJECT(String CURRENT_MACHINE_JSON_OBJECT) {
         this.CURRENT_MACHINE_JSON_OBJECT = CURRENT_MACHINE_JSON_OBJECT;
     }
-    
     public static coordinate_systems coordinate_system;
 
 //    public static enum motion_modes {
@@ -120,13 +147,13 @@ public class Machine {
     }
 
     public void setIgnore_cr_lf_TX(Ignore_CR_LF_ON_RX ignore_cr_lf_TX) {
-        
+
         this.ignore_cr_lf_RX = ignore_cr_lf_TX;
     }
-    
+
     public void setIgnore_cr_lf_RX(int ignore_cr_lf_RX) {
         //Send a int
-        switch (ignore_cr_lf_RX){
+        switch (ignore_cr_lf_RX) {
             case 0:
                 this.ignore_cr_lf_RX = Ignore_CR_LF_ON_RX.OFF;
                 break;
@@ -138,7 +165,6 @@ public class Machine {
                 break;
         }
     }
-    
 
     public static enum Ignore_CR_LF_ON_RX {
         //OFF means neither is ignored on RX
@@ -164,16 +190,38 @@ public class Machine {
     public static enum Gcode_distance_mode {
         //gdi
 
-        G61,
-        G61POINT1,
-        G64
+        ABSOLUTE, //G90
+        INCREMENTAL   //91
     }
 
+    public Gcode_path_control getGcode_path_control() {
+        return gcode_path_control;
+    }
+
+    public void setGcode_path_control(int gpc) {
+        switch(gpc){
+            case 0:
+                this.gcode_path_control = gcode_path_control.G61;
+                break;
+            case 1:
+                this.gcode_path_control = gcode_path_control.G61POINT1;
+                break;
+            case 2:
+                this.gcode_path_control = gcode_path_control.G64;
+                break;
+        }
+    }
+
+    
+    
+    
+    
     public static enum Gcode_path_control {
         //gpl
 
-        ABSOLUTE, //G90
-        INCREMENTAL   //91
+        G61,
+        G61POINT1,
+        G64
     }
 
     public static enum Gcode_coord_system {
@@ -229,10 +277,16 @@ public class Machine {
         }
     }
 
-    
-    
     public Gcode_unit_modes getUnitMode() {
         return gcode_units;
+    }
+
+    public Gcode_unit_modes getGcode_units() {
+        return gcode_units;
+    }
+
+    public void setGcode_units(Gcode_unit_modes gcode_units) {
+        this.gcode_units = gcode_units;
     }
 
     public void setMotionMode(int mode) {
@@ -295,7 +349,8 @@ public class Machine {
     }
 
     public void setFirmware_build(float firmware_build) {
-        this.firmware_build = firmware_build;
+        this.firmware_build = (firmware_build);
+
     }
 
     public float getFirmware_version() {
@@ -413,6 +468,8 @@ public class Machine {
     }
 
     public Machine() {
+
+
 
         motors.add(Motor1);
         motors.add(Motor2);

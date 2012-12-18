@@ -7,6 +7,7 @@ package tgfx.tinyg;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
@@ -52,9 +53,17 @@ public class TinygDriver extends Observable {
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
-    
+    public SimpleStringProperty TEST = new SimpleStringProperty(this, "TEST", "Unknown");
+
+    public SimpleStringProperty getTEST() {
+        return TEST;
+    }
+
+    public void setTEST(String t) {
+        this.TEST.set(t);
+    }
     public static final String RESPONSE_FOOTER = "\"f\":[";
-    public static final String RESPONSE_HEADER = "{\"b\":{\"gc\":";
+    public static final String RESPONSE_HEADER = "{\"r\":{\"gc\":";
     public static final String CMD_QUERY_COORDINATE_SYSTEM = "{\"coor\":\"\"}\n";
     public static final String CMD_QUERY_HARDWARE_BUILD_NUMBER = "{\"fb\":\"\"}\n";
     public static final String CMD_QUERY_HARDWARE_FIRMWARE_NUMBER = "{\"fv\":\"\"}\n";
@@ -71,6 +80,7 @@ public class TinygDriver extends Observable {
     public static final String CMD_QUERY_MOTOR_2_SETTINGS = "{\"2\":null}\n";
     public static final String CMD_QUERY_MOTOR_3_SETTINGS = "{\"3\":null}\n";
     public static final String CMD_QUERY_MOTOR_4_SETTINGS = "{\"4\":null}\n";
+    
     public static final String CMD_QUERY_MACHINE_SETTINGS = "{\"sys\":null}\n";
     public static final String CMD_APPLY_ZERO_ALL_AXIS = "{\"gc\":\"g92x0y0z0a0\"}\n";
     public static final String CMD_APPLY_DISABLE_LOCAL_ECHO = "{\"ee\":0}\n";
@@ -81,27 +91,27 @@ public class TinygDriver extends Observable {
     public static final String CMD_APPLY_RESUME = "~\n";
     public static final String CMD_APPLY_DISABLE_XON_XOFF = "{\"ex\":1}\n";
     public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":G920g0x0y0z0}\n";
-    public static final String RESPONSE_STATUS_REPORT = "{\"b\":{\"sr\":{\"";
-    public static final String RESPONSE_QUEUE_REPORT = "{\"b\":{\"qr\":{";
+    public static final String RESPONSE_STATUS_REPORT = "{\"r\":{\"sr\":{\"";
+    public static final String RESPONSE_QUEUE_REPORT = "{\"r\":{\"qr\":{";
     //public static final String RESPONSE_STATUS_REPORT = "{\"sr\":{";
-    public static final String RESPONSE_BUFFER_STATUS = "{\"b\":{\"k\":{";
-    public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"b\":{\"sys\":{\"fb\":";
-    public static final String RESPONSE_MACHINE_FIRMWARE_VERSION = "{\"b\":{\"sys\":{\"fv\"";
-    public static final String RESPONSE_MACHINE_COORDINATE_SYSTEM = "{\"b\":{\"sys\":{\"gco\"";
-    public static final String RESPONSE_MACHINE_SETTINGS = "{\"b\":{\"sys";
+    public static final String RESPONSE_BUFFER_STATUS = "{\"r\":{\"k\":{";
+    public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"r\":{\"sys\":{\"fb\":";
+    public static final String RESPONSE_MACHINE_FIRMWARE_VERSION = "{\"r\":{\"sys\":{\"fv\"";
+    public static final String RESPONSE_MACHINE_COORDINATE_SYSTEM = "{\"r\":{\"sys\":{\"gco\"";
+    public static final String RESPONSE_MACHINE_SETTINGS = "{\"r\":{\"sys";
     public static final String RESPONSE_ACK = "{\"k\":";
-    public static final String RESPONSE_MOTOR_1 = "{\"b\":{\"1";
-    public static final String RESPONSE_MOTOR_2 = "{\"b\":{\"2";
-    public static final String RESPONSE_MOTOR_3 = "{\"b\":{\"3";
-    public static final String RESPONSE_MOTOR_4 = "{\"b\":{\"4";
-    public static final String RESPONSE_MOTOR_5 = "{\"b\":{\"5";
-    public static final String RESPONSE_MOTOR_6 = "{\"b\":{\"6";
-    public static final String RESPONSE_AXIS_X = "{\"b\":{\"x";
-    public static final String RESPONSE_AXIS_Y = "{\"b\":{\"y";
-    public static final String RESPONSE_AXIS_Z = "{\"b\":{\"z";
-    public static final String RESPONSE_AXIS_A = "{\"b\":{\"a";
-    public static final String RESPONSE_AXIS_B = "{\"b\":{\"b";
-    public static final String RESPONSE_AXIS_C = "{\"b\":{\"c";
+    public static final String RESPONSE_MOTOR_1 = "{\"r\":{\"1";
+    public static final String RESPONSE_MOTOR_2 = "{\"r\":{\"2";
+    public static final String RESPONSE_MOTOR_3 = "{\"r\":{\"3";
+    public static final String RESPONSE_MOTOR_4 = "{\"r\":{\"4";
+    public static final String RESPONSE_MOTOR_5 = "{\"r\":{\"5";
+    public static final String RESPONSE_MOTOR_6 = "{\"r\":{\"6";
+    public static final String RESPONSE_AXIS_X = "{\"r\":{\"x";
+    public static final String RESPONSE_AXIS_Y = "{\"r\":{\"y";
+    public static final String RESPONSE_AXIS_Z = "{\"r\":{\"z";
+    public static final String RESPONSE_AXIS_A = "{\"r\":{\"a";
+    public static final String RESPONSE_AXIS_B = "{\"r\":{\"b";
+    public static final String RESPONSE_AXIS_C = "{\"r\":{\"c";
     //AXIS Mnemonics
     public static final String MNEMONIC_AXIS_AXIS_MODE = "am";
     public static final String MNEMONIC_AXIS_VELOCITY_MAXIMUM = "vm";
@@ -110,8 +120,7 @@ public class TinygDriver extends Observable {
     public static final String MNEMONIC_AXIS_JERK_MAXIMUM = "jm";
     public static final String MNEMONIC_AXIS_JUNCTION_DEVIATION = "jd";
     public static final String MNEMONIC_AXIS_MAX_SWITCH_MODE = "sx";
-        public static final String MNEMONIC_AXIS_MIN_SWITCH_MODE = "sn";
-
+    public static final String MNEMONIC_AXIS_MIN_SWITCH_MODE = "sn";
     public static final String MNEMONIC_AXIS_SEARCH_VELOCITY = "sv";
     public static final String MNEMONIC_AXIS_LATCH_VELOCITY = "lv";
     public static final String MNEMONIC_AXIS_LATCH_BACKOFF = "lb";
@@ -145,7 +154,6 @@ public class TinygDriver extends Observable {
 
     public void getAllMotorSettings() throws Exception {
         Platform.runLater(new Runnable() {
-
             public void run() {
                 //With the sleeps in this method we wrap it in a runnable task
                 try {
@@ -171,7 +179,6 @@ public class TinygDriver extends Observable {
 
     public void getAllAxisSettings() throws Exception {
         Platform.runLater(new Runnable() {
-
             public void run() {
                 try {
                     TinygDriver.logger.info("[+]Getting A AXIS Settings");
@@ -241,9 +248,13 @@ public class TinygDriver extends Observable {
                     String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_AXIS_MODE, axisMode);
                     this.write(configObj);
                     continue;
-                } else if (cb.getId().contains("switchMode")) {
+                } else if (cb.getId().contains("switchModeMax")) {
                     int switchMode = cb.getSelectionModel().getSelectedIndex();
                     String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_MAX_SWITCH_MODE, switchMode);
+                    this.write(configObj);
+                } else if (cb.getId().contains("switchModeMin")) {
+                    int switchMode = cb.getSelectionModel().getSelectedIndex();
+                    String configObj = String.format("{\"%s%s\":%s}\n", _axis.getAxis_name().toLowerCase(), MNEMONIC_AXIS_MIN_SWITCH_MODE, switchMode);
                     this.write(configObj);
                 }
             }

@@ -6,6 +6,7 @@ package tgfx.system;
 
 import java.util.ArrayList;
 import java.util.List;
+import tgfx.tinyg.TinygDriver;
 
 /**
  * [xmp] x_machine_position 0.000 mm [xwp] x_work_position 0.000 mm [xam]
@@ -53,10 +54,9 @@ public class Axis {
     public enum SWITCH_MODES {
 
         DISABLED,
-        NO_HOMING_ONLY,
-        NO_HOMING_AND_LIMIT,
-        NC_HOMING_ONLY,
-        NC_HOMING_AND_LIMIT
+        HOMING_ONLY,
+        LIMIT_ONLY,
+        HOMING_AND_LIMIT,
     }
 
     public String getCURRENT_AXIS_JSON_OBJECT() {
@@ -158,10 +158,6 @@ public class Axis {
                 System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _axisMode);
                 return;
             }
-
-
-
-
             case "vm": {
                 int val = (int) Double.parseDouble(value);
                 this.setVelocity_maximum(val);
@@ -214,7 +210,7 @@ public class Axis {
                 System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _switchMode);
                 return;
             }
-                case "sn": {
+            case "sn": {
                 int val = Double.valueOf(value.substring(0)).intValue();
 
                 String _switchMode = "UNKNOWN";
@@ -376,31 +372,31 @@ public class Axis {
         //IE: $xsr=1200
         //cmd would be sr and value would be 1200
         switch (cmd) {
-            case "am": {
+            case TinygDriver.MNEMONIC_AXIS_AXIS_MODE: {
                 int val = (int) Double.parseDouble(value);
                 return (this.setAxis_mode(val));
             }
-            case "vm":
+            case TinygDriver.MNEMONIC_AXIS_VELOCITY_MAXIMUM:
                 return (this.setVelocity_maximum(Float.valueOf(value)));
-            case "fr":
+            case TinygDriver.MNEMONIC_AXIS_FEEDRATE_MAXIMUM:
                 return (this.setFeed_rate_maximum(Float.valueOf(value)));
-            case "tm":
+            case TinygDriver.MNEMONIC_AXIS_TRAVEL_MAXIMUM:
                 return (this.setTravel_maximum(Float.valueOf(value)));
-            case "jm":
+            case TinygDriver.MNEMONIC_AXIS_JERK_MAXIMUM:
                 return (this.setJerk_maximum(Double.valueOf(value)));
-            case "jd":
+            case TinygDriver.MNEMONIC_AXIS_JUNCTION_DEVIATION:
                 return (this.setJunction_devation(Float.valueOf(value)));
             case "sn": {
                 int val = (int) Double.parseDouble(value);
                 return (this.setMaxSwitch_mode(val));
             }
-            case "sv":
+            case TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY:
                 return (this.setSearch_velocity(Double.parseDouble(value)));
-            case "lv":
+            case TinygDriver.MNEMONIC_AXIS_LATCH_VELOCITY:
                 return (this.setLatch_velocity(Float.parseFloat(value)));
-            case "lb":
+            case TinygDriver.MNEMONIC_AXIS_LATCH_BACKOFF:
                 return (this.setLatch_backoff(Float.parseFloat(value)));
-            case "zb":
+            case TinygDriver.MNEMONIC_AXIS_ZERO_BACKOFF:
                 return (this.setZero_backoff(Float.parseFloat(value)));
             default:
                 return false;
@@ -551,8 +547,12 @@ public class Axis {
         this.motors = motors;
     }
 
-    public SWITCH_MODES getSwitch_mode() {
+    public SWITCH_MODES getMaxSwitch_mode() {
         return max_switch_mode;
+    }
+
+    public SWITCH_MODES getMinSwitch_mode() {
+        return min_switch_mode;
     }
 
     public Boolean setMaxSwitch_mode(int _sw_mode) {
@@ -563,20 +563,18 @@ public class Axis {
                 return true;
 
             case 1:
-                max_switch_mode = SWITCH_MODES.NO_HOMING_ONLY;
+                max_switch_mode = SWITCH_MODES.HOMING_ONLY;
                 return true;
             case 2:
-                max_switch_mode = SWITCH_MODES.NO_HOMING_AND_LIMIT;
+                max_switch_mode = SWITCH_MODES.LIMIT_ONLY;
                 return true;
             case 3:
-                max_switch_mode = SWITCH_MODES.NC_HOMING_ONLY;
-                return true;
-            case 4:
-                max_switch_mode = SWITCH_MODES.NC_HOMING_AND_LIMIT;
+                max_switch_mode = SWITCH_MODES.HOMING_AND_LIMIT;
                 return true;
         }
         return false;
     }
+
     public Boolean setMinSwitch_mode(int _sw_mode) {
 
         switch (_sw_mode) {
@@ -585,16 +583,13 @@ public class Axis {
                 return true;
 
             case 1:
-                min_switch_mode = SWITCH_MODES.NO_HOMING_ONLY;
+                min_switch_mode = SWITCH_MODES.HOMING_ONLY;
                 return true;
             case 2:
-                min_switch_mode = SWITCH_MODES.NO_HOMING_AND_LIMIT;
+                min_switch_mode = SWITCH_MODES.LIMIT_ONLY;
                 return true;
             case 3:
-                min_switch_mode = SWITCH_MODES.NC_HOMING_ONLY;
-                return true;
-            case 4:
-                min_switch_mode = SWITCH_MODES.NC_HOMING_AND_LIMIT;
+                min_switch_mode = SWITCH_MODES.HOMING_AND_LIMIT;
                 return true;
         }
         return false;
