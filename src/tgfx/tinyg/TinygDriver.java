@@ -126,6 +126,7 @@ public class TinygDriver extends Observable {
     public static final String MNEMONIC_AXIS_LATCH_BACKOFF = "lb";
     public static final String MNEMONIC_AXIS_ZERO_BACKOFF = "zb";
     public static final String MNEMONIC_AXIS_RADIUS = "ra";
+    
     //MOTOR Mnemonics
     public static final String MNEMONIC_MOTOR_MAP_AXIS = "ma";
     public static final String MNEMONIC_MOTOR_STEP_ANGLE = "sa";
@@ -133,6 +134,17 @@ public class TinygDriver extends Observable {
     public static final String MNEMONIC_MOTOR_MICROSTEPS = "mi";
     public static final String MNEMONIC_MOTOR_POLARITY = "po";
     public static final String MNEMONIC_MOTOR_POWER_MANAGEMENT = "pm";
+    
+    //Status Report
+    public static final String MNEMONIC_STATUS_REPORT_LINE = "line";
+    public static final String MNEMONIC_STATUS_REPORT_POSX = "posx";
+    public static final String MNEMONIC_STATUS_REPORT_POSY = "posy";
+    public static final String MNEMONIC_STATUS_REPORT_POSZ = "posz";
+    public static final String MNEMONIC_STATUS_REPORT_POSA = "posa";
+    public static final String MNEMONIC_STATUS_REPORT_VELOCITY = "vel";
+    public static final String MNEMONIC_STATUS_REPORT_MOTION_MODE = "momo";
+    public static final String MNEMONIC_STATUS_REPORT_STAT = "stat";
+    
     public ArrayList<String> connections = new ArrayList<>();
     private SerialDriver ser = SerialDriver.getInstance();
     public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(10);
@@ -601,4 +613,15 @@ public class TinygDriver extends Observable {
             System.out.println("[!]Error in queryHardwareAxisSettings()");
         }
     }
+
+    
+    public void applyResponseCommand(responseCommand rc){
+        
+        
+    }
+
+    
+    
+    
+
 }

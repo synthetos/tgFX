@@ -52,7 +52,6 @@ import tgfx.system.Machine;
 import tgfx.system.Motor;
 import org.apache.log4j.Logger;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
 import org.apache.log4j.BasicConfigurator;
 import argo.jdom.JdomParser;
@@ -64,7 +63,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import tgfx.gcode.GcodeLine;
 import tgfx.system.Machine.Gcode_unit_modes;
 import tgfx.system.StatusCode;
@@ -307,7 +305,7 @@ public class Main implements Initializable, Observer {
         //private void handleEnter(ActionEvent event) throws Exception {
         final KeyEvent keyEvent = (KeyEvent) event;
         if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-            Axis _axis = Machine.getInstance().getAxisByName(axisTabPane.getSelectionModel().getSelectedItem().getText().toLowerCase());
+            Axis _axis = Machine.getInstance().getAxisByName(axisTabPane.getSelectionModel().getSelectedItem().getText().toLowerCase().substring(0, 1));
             if (event.getSource().toString().startsWith("TextField")) {
                 //Object Returned is a TextField Object
                 TextField tf = (TextField) event.getSource();
@@ -603,6 +601,7 @@ public class Main implements Initializable, Observer {
 //            tg.write(TinygDriver.CMD_APPLY_DISABLE_HASHCODE);
 //            tg.write(TinygDriver.CMD_APPLY_DISABLE_LOCAL_ECHO);
 
+//            tg.write("{\"xfr\":1500}");
             tg.getAllMotorSettings();
             tg.getAllAxisSettings();
             tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero
