@@ -601,7 +601,7 @@ public class Main implements Initializable, Observer {
 //            tg.write(TinygDriver.CMD_APPLY_DISABLE_HASHCODE);
 //            tg.write(TinygDriver.CMD_APPLY_DISABLE_LOCAL_ECHO);
 
-//            tg.write("{\"xfr\":1500}");
+            tg.write("{\"xfr\":1500}");
             tg.getAllMotorSettings();
             tg.getAllAxisSettings();
             tg.write(TinygDriver.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero

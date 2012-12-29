@@ -14,6 +14,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import org.apache.log4j.Logger;
 import tgfx.Command;
+import tgfx.Main;
 import tgfx.ResponseParser;
 import tgfx.SerialDriver;
 import tgfx.SerialWriter;
@@ -80,7 +81,6 @@ public class TinygDriver extends Observable {
     public static final String CMD_QUERY_MOTOR_2_SETTINGS = "{\"2\":null}\n";
     public static final String CMD_QUERY_MOTOR_3_SETTINGS = "{\"3\":null}\n";
     public static final String CMD_QUERY_MOTOR_4_SETTINGS = "{\"4\":null}\n";
-    
     public static final String CMD_QUERY_MACHINE_SETTINGS = "{\"sys\":null}\n";
     public static final String CMD_APPLY_ZERO_ALL_AXIS = "{\"gc\":\"g92x0y0z0a0\"}\n";
     public static final String CMD_APPLY_DISABLE_LOCAL_ECHO = "{\"ee\":0}\n";
@@ -126,7 +126,6 @@ public class TinygDriver extends Observable {
     public static final String MNEMONIC_AXIS_LATCH_BACKOFF = "lb";
     public static final String MNEMONIC_AXIS_ZERO_BACKOFF = "zb";
     public static final String MNEMONIC_AXIS_RADIUS = "ra";
-    
     //MOTOR Mnemonics
     public static final String MNEMONIC_MOTOR_MAP_AXIS = "ma";
     public static final String MNEMONIC_MOTOR_STEP_ANGLE = "sa";
@@ -134,7 +133,6 @@ public class TinygDriver extends Observable {
     public static final String MNEMONIC_MOTOR_MICROSTEPS = "mi";
     public static final String MNEMONIC_MOTOR_POLARITY = "po";
     public static final String MNEMONIC_MOTOR_POWER_MANAGEMENT = "pm";
-    
     //Status Report
     public static final String MNEMONIC_STATUS_REPORT_LINE = "line";
     public static final String MNEMONIC_STATUS_REPORT_POSX = "posx";
@@ -144,7 +142,28 @@ public class TinygDriver extends Observable {
     public static final String MNEMONIC_STATUS_REPORT_VELOCITY = "vel";
     public static final String MNEMONIC_STATUS_REPORT_MOTION_MODE = "momo";
     public static final String MNEMONIC_STATUS_REPORT_STAT = "stat";
-    
+    //System MNEMONICS
+    public static final String MNEMONIC_SYSTEM_FIRMWARE_BUILD = "fb";
+    public static final String MNEMONIC_SYSTEM_FIRMWARE_VERSION = "fv";
+    public static final String MNEMONIC_SYSTEM_GCODE_PLANE = "gpl";
+    public static final String MNEMONIC_SYSTEM_GCODE_UNIT_MODE = "gun";
+    public static final String MNEMONIC_SYSTEM_GCODE_COORDINATE_SYSTEM = "gco";
+    public static final String MNEMONIC_SYSTEM_GCODE_PATH_CONTROL = "gpa";
+    public static final String MNEMONIC_SYSTEM_GCODE_DISANCE_MODE = "gdi";
+    public static final String MNEMONIC_SYSTEM_JUNCTION_ACCELERATION = "ja";
+    public static final String MNEMONIC_SYSTEM_MIN_LINE_SEGMENT = "ml";
+    public static final String MNEMONIC_SYSTEM_MIN_ARC_SEGMENT = "ma";
+    public static final String MNEMONIC_SYSTEM_MIN_TIME_SEGMENT = "mt";
+    public static final String MNEMONIC_SYSTEM_SWITCH_TYPE = "st";
+    public static final String MNEMONIC_SYSTEM_IGNORE_CR = "ic";
+    public static final String MNEMONIC_SYSTEM_ENABLE_ECHO = "ee";
+    public static final String MNEMONIC_SYSTEM_ENABLE_XON = "ex";
+    public static final String MNEMONIC_SYSTEM_QUEUE_REPORTS = "eq";
+    public static final String MNEMONIC_SYSTEM_ENABLE_JSON_MODE = "ej";
+    public static final String MNEMONIC_SYSTEM_JSON_VOBERSITY = "jv";
+    public static final String MNEMONIC_SYSTEM_TEXT_VOBERSITY = "tv";
+    public static final String MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL = "si";
+    public static final String MNEMONIC_SYSTEM_BAUDRATE = "baud";
     public ArrayList<String> connections = new ArrayList<>();
     private SerialDriver ser = SerialDriver.getInstance();
     public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(10);
@@ -614,14 +633,241 @@ public class TinygDriver extends Observable {
         }
     }
 
-    
-    public void applyResponseCommand(responseCommand rc){
-        
-        
+    public void applyResponseCommand(responseCommand rc) {
+        char _ax;
+        switch (rc.getSettingKey()) {
+            case (TinygDriver.MNEMONIC_AXIS_AXIS_MODE):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey()).setAxis_mode(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_FEEDRATE_MAXIMUM):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setFeed_rate_maximum(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_JERK_MAXIMUM):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setJerk_maximum(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_JUNCTION_DEVIATION):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setJunction_devation(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_LATCH_BACKOFF):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setLatch_backoff(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_LATCH_VELOCITY):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setLatch_velocity(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_MAX_SWITCH_MODE):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setMaxSwitch_mode(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_MIN_SWITCH_MODE):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setMinSwitch_mode(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_RADIUS):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setRadius(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setSearch_velocity(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_TRAVEL_MAXIMUM):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setTravel_maximum(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_VELOCITY_MAXIMUM):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setVelocity_maximum(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_AXIS_ZERO_BACKOFF):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setZero_backoff(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_MOTOR_MAP_AXIS):
+                TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setMapToAxis(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_MOTOR_MICROSTEPS):
+                TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setMicrosteps(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_MOTOR_POLARITY):
+                TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setPolarity(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_MOTOR_POWER_MANAGEMENT):
+                TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setPower_management(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_MOTOR_STEP_ANGLE):
+                TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setStep_angle(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_MOTOR_TRAVEL_PER_REVOLUTION):
+                TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setTravel_per_revolution(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_STATUS_REPORT_LINE):
+                TinygDriver.getInstance().m.setLine_number(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_STATUS_REPORT_MOTION_MODE):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                TinygDriver.getInstance().m.setMotionMode(Integer.valueOf(rc.getSettingValue()));
+                break;
+
+            case (TinygDriver.MNEMONIC_STATUS_REPORT_POSA):
+                _ax =  rc.getSettingKey().charAt(rc.getSettingKey().length()-1);
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWork_position(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                
+                break;
+
+            case (TinygDriver.MNEMONIC_STATUS_REPORT_POSX):
+                _ax =  rc.getSettingKey().charAt(rc.getSettingKey().length()-1);
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWork_position(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_STATUS_REPORT_POSY):
+                _ax =  rc.getSettingKey().charAt(rc.getSettingKey().length()-1);
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWork_position(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_STATUS_REPORT_POSZ):
+                _ax =  rc.getSettingKey().charAt(rc.getSettingKey().length()-1);
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWork_position(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_STATUS_REPORT_STAT):
+                //TinygDriver.getInstance()(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_STATUS_REPORT_VELOCITY):
+                TinygDriver.getInstance().m.setVelocity(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_BAUDRATE):
+                //TinygDriver.getInstance().m.s(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_ENABLE_ECHO):
+                TinygDriver.getInstance().m.setEnable_echo(Boolean.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_ENABLE_JSON_MODE):
+                //TinygDriver.getInstance().m(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_ENABLE_XON):
+                TinygDriver.getInstance().m.setEnable_xon_xoff(Boolean.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_FIRMWARE_BUILD):
+                TinygDriver.getInstance().m.setFirmware_build(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_FIRMWARE_VERSION):
+                TinygDriver.getInstance().m.setFirmware_version(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_GCODE_COORDINATE_SYSTEM):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+            case (TinygDriver.MNEMONIC_SYSTEM_GCODE_DISANCE_MODE):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+            case (TinygDriver.MNEMONIC_SYSTEM_GCODE_PATH_CONTROL):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+            case (TinygDriver.MNEMONIC_SYSTEM_GCODE_PLANE):
+                //TinygDriver.getInstance().m.setGcode_select_plane(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+            case (TinygDriver.MNEMONIC_SYSTEM_GCODE_UNIT_MODE):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_IGNORE_CR):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_JSON_VOBERSITY):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_JUNCTION_ACCELERATION):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+
+//            case (TinygDriver.MNEMONIC_SYSTEM_MIN_ARC_SEGMENT):
+//            TinygDriver.logger.info("[APPLIED: "+ rc.getSettingParent() + " "+ rc.getSettingKey() + ": "+ rc.getSettingValue());
+//break;
+            case (TinygDriver.MNEMONIC_SYSTEM_MIN_LINE_SEGMENT):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_MIN_TIME_SEGMENT):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_QUEUE_REPORTS):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_SWITCH_TYPE):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (TinygDriver.MNEMONIC_SYSTEM_TEXT_VOBERSITY):
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            default:
+                TinygDriver.logger.error("[ERROR] in ApplyResponseCommand:  Command Was:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+        }
+
+
     }
-
-    
-    
-    
-
 }

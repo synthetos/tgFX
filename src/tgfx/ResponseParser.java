@@ -8,24 +8,12 @@ import argo.jdom.JdomParser;
 import argo.jdom.JsonRootNode;
 import argo.saj.InvalidSyntaxException;
 import org.json.*;
-import argo.staj.StajParser;
-import java.io.Reader;
-import java.io.StringReader;
-import java.lang.reflect.Field;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
 
-import java.util.Set;
 import org.apache.log4j.Logger;
 import tgfx.system.Axis;
-import tgfx.system.StatusCode;
 import tgfx.tinyg.TinygDriver;
 import tgfx.tinyg.responseCommand;
 
@@ -85,6 +73,7 @@ public class ResponseParser extends Observable implements Runnable {
 
     public void iterateJsonObject(JSONObject js, String objName) throws Exception {
         Iterator ii;
+        String objectKey;
 //
 //        if (objName.equals("f")) {
 //            JSONArray jsa = js.getJSONArray(objName);
@@ -119,21 +108,33 @@ public class ResponseParser extends Observable implements Runnable {
                 //This is a key value array
                 ii = js.keys();
                 while(ii.hasNext()){
-                    tmpS = ii.next().toString();
-                    String val = js.get(tmpS).toString();
-                    Main.logger.info("JSON PARSED:" + tmpS+":"+val);
+                    String _key = ii.next().toString();
+                    String _val = js.get(_key).toString();
+                    Main.logger.info("JSON PARSED:"+ tmpS + _key+":"+_val);
+                    TinygDriver.getInstance().applyResponseCommand(new responseCommand(tmpS, _key, _val));
                 }
-            }if(js.has("f")){
-                //This is a footer.
-                System.out.println("Footer:");
+            }else{
+                //This is pretty ugly but it gets the key and the value. For single values.
+                String _parent = String.valueOf(tmpS.charAt(0));
+                String _key = tmpS.substring(1); //get the mnemonic not parent key
+                String _val = js.getJSONObject("r").get((String) js.getJSONObject("r").keys().next()).toString();
+                Main.logger.info("Single Key Value: "+_parent+_key+_val);
+                TinygDriver.getInstance().applyResponseCommand(new responseCommand(_parent, _key, _val));
+                
+
             }
-            else{
-                //Greater than 1 for the object key value pair.
-                System.out.println("Object");
-                //Get the single value
-                String tmpV = js.keySet().iterator().next().toString();
-                String val = js.get(tmpV).toString();
-            }
+            
+//            if(js.has("f")){
+//                //This is a footer.
+//                System.out.println("Footer:");
+//            }
+//            else{
+//                //Greater than 1 for the object key value pair.
+//                System.out.println("Object");
+//                //Get the single value
+//                String tmpV = js.keySet().iterator().next().toString();
+//                String val = js.get(tmpV).toString();
+//            }
             
 //            JSONObject tmpJS = js.getJSONObject(objName).getJSONObject(tmpS);
             //Recursion here
