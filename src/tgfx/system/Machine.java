@@ -5,11 +5,19 @@
 package tgfx.system;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.FloatProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import tgfx.tinyg.MnemonicManager;
+import org.json.JSONObject;
+import tgfx.tinyg.TinygDriver;
+import org.apache.log4j.Logger;
+import tgfx.tinyg.responseCommand;
 
 /**
  *
@@ -17,25 +25,22 @@ import javafx.beans.property.SimpleFloatProperty;
  */
 public class Machine {
 
-    /**
-     * [fc] config_version 0.00 [fv] firmware_version 0.93 [fv] firmware_build
-     * 329.38 [ln] line_number 0 [ms] machine_state 0 [vl] velocity 0.000 mm/min
-     * [gi] gcode_inches_mode G21 [20,21] [gs] gcode_select_plane G17 [17,18,19]
-     * [gp] gcode_path_control G64.0 [61,61.1,64] [ga] gcode_absolute_mode G90
-     * [90,91] [ea] enable_acceleration 1 [0,1] [ja] corner_acceleration 200000
-     * mm [ml] min_line_segment 0.080 mm [ma] min_arc_segment 0.100 mm [mt]
-     * min_segment_time 10000 uSec [ic] ignore_CR (on RX) 0 [0,1] [il] ignore_LF
-     * (on RX) 0 [0,1] [ec] enable_CR (on TX) 0 [0,1] [ee] enable_echo 1 [0,1]
-     * [ex] enable_xon_xoff 1 [0,1]
-     */
     //TG Specific
     //Machine EEPROM Values
-    private String CURRENT_MACHINE_JSON_OBJECT;
-    private float firmware_build;
-    private float firmware_version;
+    //binding
+    public SimpleStringProperty m_state = new SimpleStringProperty();
+    public SimpleStringProperty m_mode = new SimpleStringProperty();
+    public SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();
+    public StringProperty firmwareVersion = new SimpleStringProperty();
+    public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
+    private SimpleStringProperty gcodeUnitMode = new SimpleStringProperty();
+    private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
+    
+//    private float firmware_version;
     private int status_report_interval;
-    public Gcode_unit_modes gcode_units;
+    public Gcode_unit_modes gcode_unit_mode;
     public Gcode_unit_modes gcode_startup_units;
+    
     public Gcode_select_plane gcode_select_plane;
     public Gcode_coord_system gcode_select_coord_system;
     public Gcode_path_control gcode_path_control;
@@ -43,15 +48,7 @@ public class Machine {
     private boolean enable_acceleration;
     private float junction_acceleration;
     private float min_line_segment;
-    private DoubleProperty min_line_segment_test = new SimpleDoubleProperty();
-
-    public DoubleProperty getMin_line_segment_test() {
-        return min_line_segment_test;
-    }
-
-    public void setMin_line_segment_test(DoubleProperty min_line_segment_test) {
-        this.min_line_segment_test = min_line_segment_test;
-    }
+    static final Logger logger = Logger.getLogger(TinygDriver.class);
     private float min_arc_segment;
     private double min_segment_time;
     public Ignore_CR_LF_ON_RX ignore_cr_lf_RX;
@@ -61,8 +58,8 @@ public class Machine {
     private boolean enable_hashcode;
     //Misc
     private int line_number;
+//    public static motion_modes motion_mode = new SimpleIntegerProperty();
     public static motion_modes motion_mode;
-    private float velocity;
     private List<Motor> motors = new ArrayList<>();
     private List<Axis> axis = new ArrayList<>();
     private Axis x = new Axis(Axis.AXIS.X, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
@@ -82,6 +79,8 @@ public class Machine {
         traverse, straight, cw_arc, ccw_arc, invalid
     }
 
+    
+
     public static enum coordinate_systems {
 
         g54, g55, g56, g57, g58, g59
@@ -95,19 +94,27 @@ public class Machine {
         return gcode_distance_mode;
     }
 
-    public void setGcode_distance_mode(int gdm) {
-        
-        switch(gdm){
+    public void setGcodeDistanceMode(String gdm) {
+        setGcodeDistanceMode(Integer.valueOf(gdm));
+    }
+
+    public void setGcodeDistanceMode(int gdm) {
+
+        switch (gdm) {
             case 0:
                 this.gcode_distance_mode = gcode_distance_mode.ABSOLUTE;
                 break;
             case 1:
                 this.gcode_distance_mode = gcode_distance_mode.INCREMENTAL;
         }
-        
+
     }
 
-    public void setGcode_select_plane(int gsp) {
+    public void setGcodeSelectPlane(String gsp) {
+        setGcodeSelectPlane(Integer.valueOf(gsp));
+    }
+
+    public void setGcodeSelectPlane(int gsp) {
         switch (gsp) {
             case 0:
                 this.gcode_select_plane = gcode_select_plane.XY;
@@ -121,15 +128,7 @@ public class Machine {
     public void setGcode_select_plane(Gcode_select_plane gcode_select_plane) {
         this.gcode_select_plane = gcode_select_plane;
     }
-
-    public String getCURRENT_MACHINE_JSON_OBJECT() {
-        return CURRENT_MACHINE_JSON_OBJECT;
-    }
-
-    public void setCURRENT_MACHINE_JSON_OBJECT(String CURRENT_MACHINE_JSON_OBJECT) {
-        this.CURRENT_MACHINE_JSON_OBJECT = CURRENT_MACHINE_JSON_OBJECT;
-    }
-    public static coordinate_systems coordinate_system;
+    private SimpleStringProperty coordinateSystem = new SimpleStringProperty();
 
 //    public static enum motion_modes {
 ////        [momo] motion_mode        - 0=traverse, 1=straight feed, 2=cw arc, 3=ccw arc
@@ -198,8 +197,12 @@ public class Machine {
         return gcode_path_control;
     }
 
-    public void setGcode_path_control(int gpc) {
-        switch(gpc){
+    public void setGcodePathControl(String gpc) {
+        setGcodePathControl(Integer.valueOf(gpc));
+    }
+
+    public void setGcodePathControl(int gpc) {
+        switch (gpc) {
             case 0:
                 this.gcode_path_control = gcode_path_control.G61;
                 break;
@@ -212,10 +215,6 @@ public class Machine {
         }
     }
 
-    
-    
-    
-    
     public static enum Gcode_path_control {
         //gpl
 
@@ -223,7 +222,8 @@ public class Machine {
         G61POINT1,
         G64
     }
-
+    
+    
     public static enum Gcode_coord_system {
         //gco
 
@@ -262,6 +262,11 @@ public class Machine {
     public List<Motor> getMotors() {
         return (this.motors);
     }
+
+    public int getNumberOfMotors() {
+        //return how many numbers are in the system
+        return (this.getMotors().size());
+    }
     //TG Composer Specific
     private String machineName;
 
@@ -269,45 +274,57 @@ public class Machine {
         return machineName;
     }
 
-    public void setUnits(int unitMode) {
+    public void setGcodeUnits(int unitMode) {
         if (unitMode == 0) {
-            gcode_units = gcode_units.INCHES;
+            gcode_unit_mode = gcode_unit_mode.INCHES;
         } else {
-            gcode_units = gcode_units.MM;
+            gcode_unit_mode = gcode_unit_mode.MM;
+        }
+    }
+    
+    public SimpleStringProperty getGcodeUnitMode() {
+        return gcodeUnitMode;
+    }
+
+
+
+    public void setGcodeUnits(String gcu) {
+        int _tmpgcu = Integer.valueOf(gcu);
+
+        switch (_tmpgcu) {
+            case (0):
+                gcodeUnitMode.set(Gcode_unit_modes.INCHES.toString());
+                break;
+            case (1):
+                gcodeUnitMode.set(Gcode_unit_modes.MM.toString());
+                break;
         }
     }
 
-    public Gcode_unit_modes getUnitMode() {
-        return gcode_units;
+    public void setGcodeUnits(Gcode_unit_modes gcode_units) {
+        this.gcode_unit_mode = gcode_units;
     }
-
-    public Gcode_unit_modes getGcode_units() {
-        return gcode_units;
+    
+    
+    public SimpleStringProperty getMotionMode(){
+        return(m_mode);
     }
-
-    public void setGcode_units(Gcode_unit_modes gcode_units) {
-        this.gcode_units = gcode_units;
-    }
-
     public void setMotionMode(int mode) {
-//        machine_state = machine_state.reset;
+        
         if (mode == 0) {
-            motion_mode = motion_mode.traverse;
+            m_mode.set(motion_modes.traverse.toString());
         } else if (mode == 1) {
-            motion_mode = motion_mode.straight;
+            m_mode.set(motion_modes.straight.toString());
         } else if (mode == 2) {
-            motion_mode = motion_mode.cw_arc;
+            m_mode.set(motion_modes.cw_arc.toString());
         } else if (mode == 3) {
-            motion_mode = motion_mode.ccw_arc;
+            m_mode.set(motion_modes.ccw_arc.toString());
         } else {
-            motion_mode = motion_mode.invalid;
+            m_mode.set(motion_modes.invalid.toString());
         }
     }
-
-    public motion_modes getMotionMode() {
-        return motion_mode;
-    }
-
+//
+  
     public int getStatus_report_interval() {
         return status_report_interval;
     }
@@ -344,21 +361,21 @@ public class Machine {
         this.enable_xon_xoff = enable_xon_xoff;
     }
 
-    public float getFirmware_build() {
-        return firmware_build;
+    public double getFirmwareBuild() {
+        return firmwareBuild.getValue();
     }
 
-    public void setFirmware_build(float firmware_build) {
-        this.firmware_build = (firmware_build);
+    public void setFirmwareBuild(double firmware_build) {
+        this.firmwareBuild.set(firmware_build);
 
     }
 
-    public float getFirmware_version() {
-        return firmware_version;
+    public StringProperty getFirmwareVersion() {
+        return firmwareVersion;
     }
 
-    public void setFirmware_version(float firmware_version) {
-        this.firmware_version = firmware_version;
+    public void setFirmwareVersion(String fv) {
+        this.firmwareVersion.setValue(fv);
     }
 
     public int getLine_number() {
@@ -369,12 +386,17 @@ public class Machine {
         this.line_number = line_number;
     }
 
-    public machine_states getMachineState() {
-        return this.machine_state;
+    public SimpleStringProperty getMachineState() {
+        return this.m_state;
     }
 
-    public coordinate_systems getCoordinateSystem() {
-        return (this.coordinate_system);
+    public void setCoordinateSystem(String cord) {
+        setCoordinate_mode(Integer.valueOf(cord));
+
+    }
+
+    public SimpleStringProperty getCoordinateSystem() {
+        return (this.coordinateSystem);
     }
 
     public void setCoordinate_mode(double m) {
@@ -382,47 +404,52 @@ public class Machine {
         setCoordinate_mode(c);
     }
 
+    public int getCoordinateSystemOrd(){
+        coordinate_systems[] cs = coordinate_systems.values();
+        return 1;
+    }
+    
     public void setCoordinate_mode(int c) {
         switch (c) {
             case 1:
-                Machine.coordinate_system = coordinate_systems.g54;
+                coordinateSystem.set(coordinate_systems.g54.toString());
                 break;
             case 2:
-                Machine.coordinate_system = coordinate_systems.g55;
+                coordinateSystem.set(coordinate_systems.g55.toString());
                 break;
             case 3:
-                Machine.coordinate_system = coordinate_systems.g56;
+                coordinateSystem.set(coordinate_systems.g56.toString());
                 break;
             case 4:
-                Machine.coordinate_system = coordinate_systems.g57;
+                coordinateSystem.set(coordinate_systems.g57.toString());
                 break;
             case 5:
-                Machine.coordinate_system = coordinate_systems.g58;
+                coordinateSystem.set(coordinate_systems.g58.toString());
                 break;
             case 6:
-                Machine.coordinate_system = coordinate_systems.g59;
+                coordinateSystem.set(coordinate_systems.g59.toString());
                 break;
             default:
-                Machine.coordinate_system = coordinate_systems.g54;
+                coordinateSystem.set(coordinate_systems.g54.toString());
                 break;
         }
     }
 
     public void setMachineState(int state) {
         if (state == 0) {
-            machine_state = machine_state.reset;
+            m_state.set(machine_state.reset.toString());
         } else if (state == 1) {
-            machine_state = machine_state.nop;
+            m_state.set(machine_state.nop.toString());
         } else if (state == 2) {
-            machine_state = machine_state.stop;
+            m_state.set(machine_state.stop.toString());
         } else if (state == 3) {
-            machine_state = machine_state.end;
+            m_state.set(machine_state.end.toString());
         } else if (state == 4) {
-            machine_state = machine_state.run;
+            m_state.set(machine_state.run.toString());
         } else if (state == 5) {
-            machine_state = machine_state.hold;
+            m_state.set(machine_state.hold.toString());
         } else if (state == 6) {
-            machine_state = machine_state.homing;
+            m_state.set(machine_state.homing.toString());
         }
     }
 
@@ -450,12 +477,12 @@ public class Machine {
         this.min_segment_time = min_segment_time;
     }
 
-    public float getVelocity() {
-        return velocity;
+    public Double getVelocity() {
+        return (velocity.get());
     }
 
-    public void setVelocity(float vel) {
-        velocity = vel;
+    public void setVelocity(double vel) {
+        velocity.set(vel);
     }
 
     public static Machine getInstance() {
@@ -469,8 +496,10 @@ public class Machine {
 
     public Machine() {
 
+//        this.firmwareVersion
 
-
+        //Initially set gcode units to mm
+        setGcodeUnits(Gcode_unit_modes.MM);
         motors.add(Motor1);
         motors.add(Motor2);
         motors.add(Motor3);
@@ -485,52 +514,7 @@ public class Machine {
         axis.add(c);
 
     }
-//        this.setFlow("OK");
-//        for (int i = 1; i < 8; i++) {
-//            Motor m = new Motor(i);
-//            motors.add(m);
-//        }
-    //DO NOT TRY TO SET XYZ to anything BUT LINEAR
-    //This is a hardware limitation.
-//        Axis x = new Axis(Axis.AXIS.X, Axis.AXIS_TYPE.LINEAR);
-//        Axis y = new Axis(Axis.AXIS.Y, Axis.AXIS_TYPE.LINEAR);
-//        Axis z = new Axis(Axis.AXIS.Z, Axis.AXIS_TYPE.LINEAR);
-//        Axis a = new Axis(Axis.AXIS.A, Axis.AXIS_TYPE.ROTATIONAL);
-//        Axis b = new Axis(Axis.AXIS.B, Axis.AXIS_TYPE.ROTATIONAL);
-//        Axis c = new Axis(Axis.AXIS.C, Axis.AXIS_TYPE.ROTATIONAL);
 
-    //This just initially sets 1 motor to 1 axis at start time
-    //The profile in tgFX will load / changes these vaules.
-    //Also on connect to your board it should update these values to 
-    //Your correct board setting.  Currently 4/5/12 it does not.
-//        for (Motor m : motors) {
-//
-//            if (m.getId_number() == 1) {
-//                x.addMotor(m);
-//            }
-//            if (m.getId_number() == 2) {
-//                y.addMotor(m);
-//            }
-//            if (m.getId_number() == 3) {
-//                z.addMotor(m);
-//            }
-//            if (m.getId_number() == 4) {
-//                a.addMotor(m);
-//            }
-//            if (m.getId_number() == 5) {
-//                b.addMotor(m);
-//            }
-//            if (m.getId_number() == 6) {
-//                c.addMotor(m);
-//            }
-//        }
-//        axis.add(x);
-//        axis.add(y);
-//        axis.add(z);
-//        axis.add(a);
-//        axis.add(b);
-//        axis.add(c);
-//    }
     public List<Axis> getAllAxis() {
         return axis;
     }
@@ -542,6 +526,11 @@ public class Machine {
             }
         }
         return null;
+    }
+
+    public Motor getMotorByNumber(String m) {
+        //Little stub method to allow calling getMotorByNumber with String arg.
+        return getMotorByNumber(Integer.valueOf(m));
     }
 
     public Motor getMotorByNumber(int i) {
@@ -560,5 +549,138 @@ public class Machine {
     public void setMotorAxis(int motorNumber, int x) {
         Motor m = getMotorByNumber(motorNumber);
         m.setMapToAxis(x);
+    }
+
+//This is the main method to parser a JSON sys object
+    public void applyJsonSystemSetting(JSONObject js, String parent) {
+        logger.info("Applying JSON Object to System Group");
+        Iterator ii = js.keySet().iterator();
+        try {
+            while (ii.hasNext()) {
+                String _key = ii.next().toString();
+                String _val = js.get(_key).toString();
+                final responseCommand rc = new responseCommand(parent, _key, _val);
+
+                switch (_key) {
+                    case (MnemonicManager.MNEMONIC_SYSTEM_BAUDRATE):
+                        //todo do this
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO):
+                        TinygDriver.getInstance().m.setEnable_echo(Boolean.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_JSON_MODE):
+                        //TinygDriver.getInstance().m(Float.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_XON):
+                        TinygDriver.getInstance().m.setEnable_xon_xoff(Boolean.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_BUILD):
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                TinygDriver.getInstance().m.setFirmwareBuild(Double.valueOf(rc.getSettingValue()));
+                                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+
+                            }
+                        });
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_VERSION):
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                TinygDriver.getInstance().m.setFirmwareVersion(rc.getSettingValue());
+                                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                            }
+                        });
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_COORDINATE_SYSTEM):
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                                TinygDriver.getInstance().m.setCoordinateSystem(rc.getSettingValue());
+                            }
+                        });
+
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_DISANCE_MODE):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        TinygDriver.getInstance().m.setGcodeDistanceMode(rc.getSettingValue());
+                        break;
+                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_PATH_CONTROL):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        TinygDriver.getInstance().m.setGcodePathControl(rc.getSettingValue());
+                        break;
+                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_PLANE):
+                        //TinygDriver.getInstance().m.setGcodeSelectPlane(Float.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        TinygDriver.getInstance().m.setGcodeSelectPlane(rc.getSettingValue());
+                        break;
+                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_UNIT_MODE):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        TinygDriver.getInstance().m.setGcodeUnits(rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_IGNORE_CR):
+//                        TinygDriver.getInstance().m.setIgnore_cr_lf_RX(rc.getSettingValue());
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_JSON_VOBERSITY):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_JUNCTION_ACCELERATION):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_MIN_ARC_SEGMENT):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_MIN_LINE_SEGMENT):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_MIN_TIME_SEGMENT):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_QUEUE_REPORTS):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_SWITCH_TYPE):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_TEXT_VOBERSITY):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+
+                }
+            }
+
+        } catch (Exception ex) {
+            logger.error("Error in ApplyJsonSetting in Machine:SYS group");
+        }
+
     }
 }

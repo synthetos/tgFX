@@ -4,7 +4,6 @@
  */
 package tgfx.tinyg;
 
-import argo.jdom.JsonRootNode;
 
 /**
  *
@@ -23,10 +22,10 @@ public class QueueReport {
         return pba;
     }
     
-    public synchronized void updateQueue(JsonRootNode json, String line){
-        lineIndex = Integer.valueOf(json.getNode("r").getNode("bd").getNode("qr").getNode("lix").getText());
-        pba = Integer.valueOf(json.getNode("r").getNode("bd").getNode("qr").getNode("pba").getText());
-    }
+//    public synchronized void updateQueue(JsonRootNode json, String line){
+//        lineIndex = Integer.valueOf(json.getNode("r").getNode("bd").getNode("qr").getNode("lix").getText());
+//        pba = Integer.valueOf(json.getNode("r").getNode("bd").getNode("qr").getNode("pba").getText());
+//    }
     
     private QueueReport() {
     }

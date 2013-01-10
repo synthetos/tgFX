@@ -4,12 +4,21 @@
  */
 package tgfx.system;
 
+import java.util.Iterator;
+import org.json.JSONObject;
+import org.apache.log4j.Logger;
+import tgfx.tinyg.MnemonicManager;
+import tgfx.tinyg.TinygDriver;
+import tgfx.tinyg.responseCommand;
+
 /**
  *
  * @author ril3y
  */
 public class Motor {
+
     
+    static final Logger logger = Logger.getLogger(TinygDriver.class);
     private String CURRENT_MOTOR_JSON_OBJECT;
     private int id_number; //On TinyG the motor ports are 1-4
     private int ma;// map_to_axis
@@ -19,8 +28,6 @@ public class Motor {
     private boolean po; //polarity
     private boolean pm; //power management
 
-    
-    
     /**
      *
      * What TinyG Motor Class Looks Like. 2/1/2012 [1ma] m1_map_to_axis 0 [0=X,
@@ -41,7 +48,6 @@ public class Motor {
         this.CURRENT_MOTOR_JSON_OBJECT = CURRENT_MOTOR_JSON_OBJECT;
     }
 
-    
     //Small wrappers to return int's vs bools
     public int isPolarityInt() {
         if (isPolarity() == true) {
@@ -104,30 +110,27 @@ public class Motor {
     public void setPolarity(boolean polarity) {
         this.po = polarity;
     }
-    
+
     public void setPolarity(int polarity) {
-        if(polarity == 0){
+        if (polarity == 0) {
             this.po = false;
-        }else{
+        } else {
             this.po = true;
         }
     }
-    
 
     public boolean isPower_management() {
         return pm;
     }
 
-    
     public void setPower_management(int power_management) {
-        if(power_management == 0){
+        if (power_management == 0) {
             this.pm = false;
-        }else{
+        } else {
             this.pm = true;
         }
     }
 
-    
     public void setPower_management(boolean power_management) {
         this.pm = power_management;
     }
@@ -146,5 +149,58 @@ public class Motor {
 
     public void setTravel_per_revolution(float travel_per_revolution) {
         this.tr = travel_per_revolution;
+    }
+
+    //This is the main method to parser a JSON Motor object
+    public void applyJsonSystemSetting(JSONObject js, String parent) {
+        logger.info("Applying JSON Object to " + parent + " Group");
+        Iterator ii = js.keySet().iterator();
+        try {
+            while (ii.hasNext()) {
+                String _key = ii.next().toString();
+                String _val = js.get(_key).toString();
+                responseCommand rc = new responseCommand(parent, _key, _val);
+
+                switch (_key) {
+                    case (MnemonicManager.MNEMONIC_MOTOR_MAP_AXIS):
+                        TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setMapToAxis(Integer.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_MOTOR_MICROSTEPS):
+                        TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setMicrosteps(Integer.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_MOTOR_POLARITY):
+                        TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setPolarity(Integer.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_MOTOR_POWER_MANAGEMENT):
+                        TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setPower_management(Integer.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_MOTOR_STEP_ANGLE):
+                        TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setStep_angle(Float.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_MOTOR_TRAVEL_PER_REVOLUTION):
+                        TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setTravel_per_revolution(Float.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+                    default:
+                        logger.info("Default Switch");
+
+
+                }
+            }
+
+        } catch (Exception ex) {
+            logger.error("Error in ApplyJsonSetting in Machine:SYS group");
+        }
+
     }
 }

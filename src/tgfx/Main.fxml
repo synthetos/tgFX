@@ -164,6 +164,7 @@
                                     <Insets />
                                   </HBox.margin>
                                 </Button>
+                                <Button fx:id="btnTest" mnemonicParsing="false" onAction="#handleTestButton" text="Test" />
                               </children>
                               <padding>
                                 <Insets top="10.0" />
@@ -1391,7 +1392,7 @@
                                               </items>
                                             </ChoiceBox>
                                             <Label text="Status Interval" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                            <TextField id="tbMachineStatusInterval" fx:id="MachineStatusInterval" onKeyPressed="#handleAxisEnter" prefHeight="-1.0" prefWidth="162.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <TextField fx:id="MachineStatusInterval" onKeyPressed="#handleAxisEnter" prefHeight="-1.0" prefWidth="162.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                               <tooltip>
                                                 <Tooltip text="The feed rate is the maximum cutting speed the axis can sustain." />
                                               </tooltip>

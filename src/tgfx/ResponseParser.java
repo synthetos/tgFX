@@ -4,16 +4,30 @@
  */
 package tgfx;
 
-import argo.jdom.JdomParser;
-import argo.jdom.JsonRootNode;
-import argo.saj.InvalidSyntaxException;
 import org.json.*;
 import java.util.Iterator;
 import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.Level;
+import javafx.application.Platform;
+import jfxtras.labs.dialogs.DialogFX;
 
 import org.apache.log4j.Logger;
-import tgfx.system.Axis;
+import tgfx.tinyg.CommandManager;
+import tgfx.tinyg.MnemonicManager;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_A;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_B;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_C;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_X;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_Y;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_Z;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_MOTOR_1;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_MOTOR_2;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_MOTOR_3;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_MOTOR_4;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_SYSTEM;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_STATUS_REPORT;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_EMERGENCY_SHUTDOWN;
 import tgfx.tinyg.TinygDriver;
 import tgfx.tinyg.responseCommand;
 
@@ -26,11 +40,16 @@ public class ResponseParser extends Observable implements Runnable {
 //    private BlockingQueue jsonQueue = new ArrayBlockingQueue(1024);
     private String[] message = new String[2];
     private BlockingQueue responseQueue;
-    private JdomParser JDOM = new JdomParser(); //JSON Object Parser
     boolean RUN = true;
     String buf = "";
     private ResponseFooter responseFooter = new ResponseFooter();  //our holder for ResponseFooter Data
     private static Logger logger = Logger.getLogger(ResponseParser.class);
+    //These values are for mapping what n'Th element inthe json footer array maps to which values.
+    private static final int FOOTER_ELEMENT_PROTOCOL_VERSION = 0;
+    private static final int FOOTER_ELEMENT_STATUS_CODE = 1;
+    private static final int FOOTER_ELEMENT_RX_RECVD = 2;
+    private static final int FOOTER_ELEMENT_CHECKSUM = 3;
+    private JSONArray footerValues;
 
     public void appendJsonQueue(String jq) {
         try {
@@ -71,441 +90,266 @@ public class ResponseParser extends Observable implements Runnable {
         }
     }
 
-    public void iterateJsonObject(JSONObject js, String objName) throws Exception {
-        Iterator ii;
-        String objectKey;
-//
-//        if (objName.equals("f")) {
-//            JSONArray jsa = js.getJSONArray(objName);
-//            System.out.println("Footer Object:");
-//            return;
-//            //Parse this in a bit.
-//        } 
-//        
-        if (isJsonObject(js, objName)) {
-            ii = js.getJSONObject(objName).keys();
-        } else {
-            ii = js.keys();
-        }
-
-
-
-        
-        
-        
-        
-        //We need to figure out how to parse out the Footer objects here. 
-        //I think we need to remove the if out of this statement for "f"
-        //Parse this perhaps above.
-
-        while (ii.hasNext()) {
-            String tmpS = ii.next().toString();
-            if (isJsonObject(js.getJSONObject(objName), tmpS)) {
-                js = js.getJSONObject(objName).getJSONObject(tmpS);
-            }
-
-            if(js.length() > 1 && !js.has("f")){
-                //This is a key value array
-                ii = js.keys();
-                while(ii.hasNext()){
-                    String _key = ii.next().toString();
-                    String _val = js.get(_key).toString();
-                    Main.logger.info("JSON PARSED:"+ tmpS + _key+":"+_val);
-                    TinygDriver.getInstance().applyResponseCommand(new responseCommand(tmpS, _key, _val));
-                }
-            }else{
-                //This is pretty ugly but it gets the key and the value. For single values.
-                String _parent = String.valueOf(tmpS.charAt(0));
-                String _key = tmpS.substring(1); //get the mnemonic not parent key
-                String _val = js.getJSONObject("r").get((String) js.getJSONObject("r").keys().next()).toString();
-                Main.logger.info("Single Key Value: "+_parent+_key+_val);
-                TinygDriver.getInstance().applyResponseCommand(new responseCommand(_parent, _key, _val));
-                
-
-            }
+    public void applyStatusReport(JSONObject js) {
+        try {
+            //Set the status report values 
+            TinygDriver.getInstance().m.getAxisByName("X").setWork_position(js.getDouble("posx"));
+            TinygDriver.getInstance().m.getAxisByName("Y").setWork_position(js.getDouble("posy"));
+            TinygDriver.getInstance().m.getAxisByName("Z").setWork_position(js.getDouble("posz"));
+            TinygDriver.getInstance().m.getAxisByName("A").setWork_position(js.getDouble("posa"));
+            TinygDriver.getInstance().m.setMachineState(js.getInt("stat"));
+            TinygDriver.getInstance().m.setMotionMode(js.getInt("momo"));
+            TinygDriver.getInstance().m.setVelocity(js.getDouble("vel"));
             
-//            if(js.has("f")){
-//                //This is a footer.
-//                System.out.println("Footer:");
-//            }
-//            else{
-//                //Greater than 1 for the object key value pair.
-//                System.out.println("Object");
-//                //Get the single value
-//                String tmpV = js.keySet().iterator().next().toString();
-//                String val = js.get(tmpV).toString();
-//            }
-            
-//            JSONObject tmpJS = js.getJSONObject(objName).getJSONObject(tmpS);
-            //Recursion here
-//            iterateJsonObject(tmpJS, tmpS);
 
+//            setChanged();
 
+//            String[] message = new String[2];
+//            message[0] = "STATUS_REPORT";
+//            message[1] = null;
+//            notifyObservers(message);
 
+        } catch (Exception ex) {
+            logger.error("Error in ApplyStatusReport");
 
-//            System.out.println("Command Parsed: " + tmpS + ":" + tmpJ.get(tmpS).toString());
         }
-
-
-
-
-//            String tmpSval = js.getJSONObject("r").get(tmpS).toString();
-//            System.out.println("Command Parsed: " + tmpS + ":" + js.getJSONObject("r").get(tmpS).toString());
-//            responseCommand tmpResCommand = new responseCommand(null, tmpS, tmpSval);
-//            TinygDriver.getInstance().applyResponseCommand(tmpResCommand);
-//                    }
-
-//        }
     }
 
-    public synchronized void parseJSON(String line) {
+    public void applySetting(JSONObject js) {
+        try {
+            if (js.has("gc") | js.has("qr")) {
+                //this is a gcode line echo not a valid response... return now.
+                return;
+            }
+
+            Iterator ii = js.keySet().iterator();
+            String parentGroup = (String) ii.next();
+
+            switch (parentGroup) {
+                case (MNEMONIC_GROUP_MOTOR_1):
+                    TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_1)
+                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_1), MNEMONIC_GROUP_MOTOR_1);
+                    setChanged();
+                    message[0] = "CMD_GET_MOTOR_SETTINGS";
+                    message[1] = MNEMONIC_GROUP_MOTOR_1;
+                    notifyObservers(message);
+                    break;
+                case (MNEMONIC_GROUP_MOTOR_2):
+                    TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_2)
+                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_2), MNEMONIC_GROUP_MOTOR_2);
+                    setChanged();
+                    message[0] = "CMD_GET_MOTOR_SETTINGS";
+                    message[1] = MNEMONIC_GROUP_MOTOR_2;
+                    notifyObservers(message);
+                    break;
+                case (MNEMONIC_GROUP_MOTOR_3):
+                    TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_3)
+                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_3), MNEMONIC_GROUP_MOTOR_3);
+                    setChanged();
+                    message[0] = "CMD_GET_MOTOR_SETTINGS";
+                    message[1] = MNEMONIC_GROUP_MOTOR_3;
+                    notifyObservers(message);
+                    break;
+
+                case (MNEMONIC_GROUP_MOTOR_4):
+                    TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_4)
+                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_4), MNEMONIC_GROUP_MOTOR_4);
+                    setChanged();
+                    message[0] = "CMD_GET_MOTOR_SETTINGS";
+                    message[1] = MNEMONIC_GROUP_MOTOR_4;
+                    notifyObservers(message);
+                    break;
+
+                case (MNEMONIC_GROUP_AXIS_X):
+                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_X)
+                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_X), MNEMONIC_GROUP_AXIS_X);
+                    setChanged();
+                    message[0] = "CMD_GET_AXIS_SETTINGS";
+                    message[1] = MNEMONIC_GROUP_AXIS_X;
+                    notifyObservers(message);
+                    break;
+
+                case (MNEMONIC_GROUP_AXIS_Y):
+                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_Y)
+                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_Y), MNEMONIC_GROUP_AXIS_Y);
+                    setChanged();
+                    message[0] = "CMD_GET_AXIS_SETTINGS";
+                    message[1] = MNEMONIC_GROUP_AXIS_Y;
+                    notifyObservers(message);
+                    break;
+
+                case (MNEMONIC_GROUP_AXIS_Z):
+                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_Z)
+                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_Z), MNEMONIC_GROUP_AXIS_Z);
+                    setChanged();
+                    message[0] = "CMD_GET_AXIS_SETTINGS";
+                    message[1] = MNEMONIC_GROUP_AXIS_Z;
+                    notifyObservers(message);
+                    break;
+
+                case (MNEMONIC_GROUP_AXIS_A):
+                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_A)
+                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_A), MNEMONIC_GROUP_AXIS_A);
+                    setChanged();
+                    message[0] = "CMD_GET_AXIS_SETTINGS";
+                    message[1] = MNEMONIC_GROUP_AXIS_A;
+                    notifyObservers(message);
+                    break;
+                case (MNEMONIC_GROUP_AXIS_B):
+                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_B)
+                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_B), MNEMONIC_GROUP_AXIS_B);
+                    setChanged();
+                    message[0] = "CMD_GET_AXIS_SETTINGS";
+                    message[1] = MNEMONIC_GROUP_AXIS_B;
+                    notifyObservers(message);
+                    break;
+
+                case (MNEMONIC_GROUP_AXIS_C):
+                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_C)
+                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_C), MNEMONIC_GROUP_AXIS_C);
+                    setChanged();
+                    message[0] = "CMD_GET_AXIS_SETTINGS";
+                    message[1] = MNEMONIC_GROUP_AXIS_C;
+                    notifyObservers(message);
+                    break;
+
+                case ("hom"):
+                    System.out.println("HOME");
+                    break;
+                case (MNEMONIC_GROUP_SYSTEM):
+                    System.out.println(MNEMONIC_GROUP_SYSTEM);
+                    TinygDriver.getInstance().m.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
+
+                    setChanged();
+                    message[0] = "CMD_GET_MACHINE_SETTINGS";
+                    message[1] = null;
+                    notifyObservers(message);
+                    break;
+                case (MNEMONIC_GROUP_STATUS_REPORT):
+                    System.out.println("Status Report");
+                    applyStatusReport(js.getJSONObject(MNEMONIC_GROUP_STATUS_REPORT)); //Send in the jsobject 
+                    break;
+                case (MNEMONIC_GROUP_EMERGENCY_SHUTDOWN):
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            DialogFX dialog = new DialogFX(DialogFX.Type.ERROR);
+                            dialog.setTitleText("Error Occured");
+                            dialog.setMessage("You have triggered a limit switch.  TinyG is now in DISABLED mode. \n"
+                                    + "Manually back your machine off of its limit switches.\n  Once done, if you would like to re-enable TinyG click yes.");
+                            int choice = dialog.showDialog();
+                            if (choice == 0) {
+                                logger.info("Clicked Yes");
+                                try {
+                                    TinygDriver.getInstance().priorityWrite((byte) 0x18);
+                                } catch (Exception ex) {
+                                    java.util.logging.Logger.getLogger(ResponseParser.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            } else if (choice == 1) {
+                                logger.info("Clicked No");
+                            }
+
+
+                        }
+                    });
+
+                default:
+
+                    //This is for single settings xfr, 1tr etc...
+                    //This is pretty ugly but it gets the key and the value. For single values.
+                    responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroup(parentGroup);
+
+//                    String _parent = String.valueOf(parentGroup.charAt(0));
+                    String newJs;
+//                    if (_parent.equals("g")) {
+//                        //This is a gcode psudeo group.. gpl.. gun.. etc.. not a real group.  This still belongs in the sys group
+//                        String _key = js.keys().next().toString();  //gpl..gun.. etc IS the key
+//                        _parent = "sys";
+//                        String _val = String.valueOf(js.get(js.keys().next().toString()));
+//                        newJs = "{\"" + _parent + "\":{\"" + _key + "\":" + _val + "}}";
+//                    } else 
+//                    {                 //This is the normal way to go with single group objects
+//                        String _key = parentGroup.substring(1); //get the mnemonic not parent key
+
+
+//                    String _key = parentGroup; //I changed this to deal with the fb mnemonic.. not sure if this works all over.
+                    rc.setSettingValue(String.valueOf(js.get(js.keys().next().toString())));
+                    logger.info("Single Key Value: " + rc.getSettingParent() + rc.getSettingKey() + rc.getSettingValue());
+                    newJs = "{\"" + rc.getSettingParent() + "\":{\"" + rc.getSettingKey() + "\":" + rc.getSettingValue() + "}}";
+//                    }
+
+
+                    this.applySetting(new JSONObject(newJs)); //We pass the new json object we created from the string above
+            }
+        } catch (Exception ex) {
+            System.out.println("Apply Settings Exception.");
+        }
+
+    }
+
+    public void applySettings(String newJsObjString) {
+        //When a single key value pair is sent without the group object
+        //We use this method to create a new json object
+        try {
+            JSONObject newJs = new JSONObject(newJsObjString);
+            applySetting(newJs);
+        } catch (Exception ex) {
+            logger.error("Invalid Attempt to create newJs object");
+        }
+    }
+
+    private void parseFooter(JSONObject js) {
+        try {
+
+
+            //Checking to see if we have a footer response
+            //Status reports will not have a footer so this is for everything else
+            footerValues = js.getJSONArray("f");
+            responseFooter.setProtocolVersion(footerValues.getInt(FOOTER_ELEMENT_PROTOCOL_VERSION));
+            responseFooter.setStatusCode(footerValues.getInt(FOOTER_ELEMENT_STATUS_CODE));
+            responseFooter.setRxRecvd(footerValues.getInt(FOOTER_ELEMENT_RX_RECVD));
+            responseFooter.setCheckSum(footerValues.getInt(FOOTER_ELEMENT_STATUS_CODE));
+            //Out footer object is not populated
+
+            int beforeBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
+            //Make sure we do not add bytes to a already full buffer
+            if (beforeBytesReturned != TinygDriver.MAX_BUFFER) {
+                TinygDriver.getInstance().serialWriter.addBytesReturnedToBuffer(responseFooter.getRxRecvd());
+                int afterBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
+                logger.info("Returned " + responseFooter.getRxRecvd() + " to buffer... Buffer was " + beforeBytesReturned + " is now " + afterBytesReturned);
+                TinygDriver.getInstance().serialWriter.notifyAck();  //We let our serialWriter thread know we have added some space to the buffer.
+            }
+        } catch (Exception ex) {
+            logger.error("Error parsing json footer");
+        }
+    }
+
+    public synchronized void parseJSON(String line) throws JSONException {
         String axis;
         String[] statusResponse;
         int motor;
-        try {
-            JsonRootNode json = JDOM.parse(line);
-            System.out.println("DEBUG:" + line);
-
-            JSONObject js = new JSONObject(line);
-
-            if (js.has("r")) {
-//                Iterator respObjIterator = js.keys();
-                iterateJsonObject(js, "r");
-            }
-
-//            if (js.has("r")) {
-//                if (isJsonObject(js, "r")) {
-//                    iterateJsonObject(js, "r");
-//                }
-//
-//            }
-//            Set<JSONObject> res = js.getJSONObject("r").keySet();
-//            Iterator i = res.iterator();
-//
-//            while (i.hasNext()) {
-//                //Iterate Objects
-//
-//                System.out.println("next");
-
-
-//            }
-
-
-//            if(json.getFields() == 2){
-//                
-//            }
-//json.getNode("r").isNode("sys")
-
-            //Make sure we have a "f"ooter element in the json
-//            if (json.isArrayNode("f")) {
-//                int beforeBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
-//                int retBytes = Integer.valueOf(json.getNode("f").getElements().get(2).getText());
-//                int checkSum = Integer.valueOf(json.getNode("f").getElements().get(3).getText());
-//
-//                //Make sure we do not add bytes to a already full buffer
-//                if (beforeBytesReturned != TinygDriver.MAX_BUFFER) {
-//                    TinygDriver.getInstance().serialWriter.addBytesReturnedToBuffer(retBytes);
-//                    int afterBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
-//                    logger.info("Returned " + retBytes + " to buffer... Buffer was " + beforeBytesReturned + " is now " + afterBytesReturned);
-//                    TinygDriver.getInstance().serialWriter.notifyAck();  //We let our serialWriter thread know we have added some space to the buffer.
-//                }
-//            }
-//
-//            if (line.contains("SYSTEM READY")) {
-//                //This will be moved to the switch statement above when we assign "SYSTEM READY" a status code.
-//                setChanged();
-//                StatusCode sc = new StatusCode(0, "System Ready", "", "TinyG Message");
-//                notifyObservers(sc);
-//
-//            } else if (line.startsWith(TinygDriver.RESPONSE_BUFFER_STATUS)) {
-//                TinygDriver.getInstance().serialWriter.setBuffer(Integer.parseInt((json.getNode("r").getNode("k").getText())));
-//                TinygDriver.getInstance().serialWriter.notifyAck();
-//            } else if (line.contains(TinygDriver.RESPONSE_STATUS_REPORT)) {
-//                //Parse Status Report
-//                //"{"sr":{"line":0,"xpos":1.567,"ypos":0.548,"zpos":0.031,"apos":0.000,"vel":792.463,"unit":"mm","stat":"run"}}"
-//                TinygDriver.getInstance().m.getAxisByName("X").setWork_position(Float.parseFloat(json.getNode("r").getNode("sr").getNode("posx").getText()));
-//                TinygDriver.getInstance().m.getAxisByName("Y").setWork_position(Float.parseFloat(json.getNode("r").getNode("sr").getNode("posy").getText()));
-//                TinygDriver.getInstance().m.getAxisByName("Z").setWork_position(Float.parseFloat(json.getNode("r").getNode("sr").getNode("posz").getText()));
-//                TinygDriver.getInstance().m.getAxisByName("A").setWork_position(Float.parseFloat(json.getNode("r").getNode("sr").getNode("posa").getText()));
-//                TinygDriver.getInstance().m.setMachineState(Integer.valueOf(json.getNode("r").getNode("sr").getNode("stat").getText()));
-//                TinygDriver.getInstance().m.setMotionMode(Integer.parseInt(json.getNode("r").getNode("sr").getNode("momo").getText()));
-//                TinygDriver.getInstance().m.setVelocity(Float.parseFloat(json.getNode("r").getNode("sr").getNode("vel").getText()));
-////                TinygDriver.getInstance().m.setUnits(Integer.parseInt(json.getNode("r").getNode("sr").getNode("unit").getText()));
-////                TinygDriver.getInstance().m.setCoordinate_mode(Integer.parseInt(json.getNode("r").getNode("sr").getNode("coor").getText()));
-//                //m.getAxisByName("X").setWork_position(Float.parseFloat((json.getNode("r").getNode("sr").getNode("xpos").getText())));
-//                //m.getAxisByName("Y").setWork_position(Float.parseFloat((json.getNode("r").getNode("sr").getNode("ypos").getText())));
-//                //m.getAxisByName("Z").setWork_position(Float.parseFloat((json.getNode("r").getNode("sr").getNode("zpos").getText())));
-//                //this.A_AXIS.setWork_position(Float.parseFloat((json.getNode("r").getNode("sr").getNode("awp").getText())));
-//                setChanged();
-//                message[0] = "STATUS_REPORT";
-//                message[1] = null;
-//                notifyObservers(message);
-//
-//            } else if (line.startsWith(TinygDriver.RESPONSE_MACHINE_SETTINGS)) {
-//                logger.info("[#]Parsing Machine Settings JSON");
-//                //{"fb":351.010,"fv":0.950,"gpl":0,"gun":1,"gco":1,"gpa":2,"gdi":0,"ja":200000.000,"ml":0.080,"ma":0.100,"mt":5000.000,"st":1,"ic":0,"ee":0,"ex":1,"eq":0,"ej":1,"je":3,"si":200,"baud":0}},"f":[1,0,11,7596]}
-//                TinygDriver.getInstance().m.setFirmware_version(Float.parseFloat(json.getNode("r").getNode("sys").getNode("fv").getText()));
-////                TinygDriver.getInstance().m.setFirmware_build(Float.parseFloat(json.getNode("r").getNode("sys").getNode("fb").getText()));
-////                TinygDriver.getInstance().m.setFirmware_build(FloatProperty.set(Float.parseFloat(json.getNode("r").getNode("sys").getNode("fb").getText())));
-//                TinygDriver.getInstance().m.setGcode_distance_mode(Integer.parseInt(json.getNode("r").getNode("sys").getNode("gdi").getText()));
-//                TinygDriver.getInstance().m.setUnits(Integer.parseInt(json.getNode("r").getNode("sys").getNode("gun").getText()));
-//                TinygDriver.getInstance().m.setCoordinate_mode(Integer.parseInt(json.getNode("r").getNode("sys").getNode("gco").getText()));
-//                TinygDriver.getInstance().m.setGcode_path_control(Integer.parseInt(json.getNode("r").getNode("sys").getNode("gco").getText()));
-//                TinygDriver.getInstance().m.setGcode_select_plane(Integer.parseInt(json.getNode("r").getNode("sys").getNode("gpl").getText()));
-//                TinygDriver.getInstance().m.setStatus_report_interval(Integer.parseInt(json.getNode("r").getNode("sys").getNode("si").getText()));
-//                TinygDriver.getInstance().m.setEnable_acceleration(Boolean.parseBoolean(json.getNode("r").getNode("sys").getNode("ex").getText()));
-//                TinygDriver.getInstance().m.setJunction_acceleration(Float.parseFloat((json.getNode("r").getNode("sys").getNode("ml").getText())));
-//                TinygDriver.getInstance().m.setMin_segment_time(Double.parseDouble(json.getNode("r").getNode("sys").getNode("mt").getText()));
-//                TinygDriver.getInstance().m.setMin_arc_segment(Float.parseFloat((json.getNode("r").getNode("sys").getNode("ma").getText())));
-//                TinygDriver.getInstance().m.setIgnore_cr_lf_RX(Integer.parseInt(json.getNode("r").getNode("sys").getNode("ic").getText()));  //Check this.
-////                TinygDriver.getInstance().m.setEnable_CR_on_TX(Boolean.parseBoolean((json.getNode("r").getNode("sys").getNode("ec").getText())));
-//                TinygDriver.getInstance().m.setEnable_echo(Boolean.parseBoolean((json.getNode("r").getNode("sys").getNode("ee").getText())));
-////                TinygDriver.getInstance().m.setEnable_xon_xoff(Boolean.parseBoolean((json.getNode("r").getNode("sys").getNode("ex").getText())));
-//                setChanged();
-//                message[0] = "CMD_GET_MACHINE_SETTINGS";
-//                message[1] = null;
-//                notifyObservers(message);
-//
-//            } /**
-//             * Start Checking for Motor Responses
-//             */
-//            else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_1) && !line.contains("null")) {
-//                motor = 1;
-//                parseJsonMotorSettings(line, motor);
-//            } else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_2) && !line.contains("null")) {
-//                motor = 2;
-//                parseJsonMotorSettings(line, motor);
-//            } else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_3) && !line.contains("null")) {
-//                motor = 3;
-//                parseJsonMotorSettings(line, motor);
-//            } else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_4) && !line.contains("null")) {
-//                motor = 4;
-//                parseJsonMotorSettings(line, motor);
-//            } else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_5) && !line.contains("null")) {
-//                motor = 5;
-//                parseJsonMotorSettings(line, motor);
-//            } else if (line.startsWith(TinygDriver.RESPONSE_MOTOR_6) && !line.contains("null")) {
-//                motor = 6;
-//                parseJsonMotorSettings(line, motor);
-//            } /**
-//             * Start Checking for Axis Responses
-//             */
-//            else if (line.startsWith(TinygDriver.RESPONSE_AXIS_A) && !line.contains("null")) {
-//                axis = "a";
-//                parseJsonAxisSettings(line, axis);
-//            } else if (line.startsWith(TinygDriver.RESPONSE_AXIS_B) && !line.contains("null")) {
-//                axis = "b";
-//                parseJsonAxisSettings(line, axis);
-//            } else if (line.startsWith(TinygDriver.RESPONSE_AXIS_C) && !line.contains("null")) {
-//                axis = "c";
-//                parseJsonAxisSettings(line, axis);
-//            } else if (line.startsWith(TinygDriver.RESPONSE_AXIS_X) && !line.contains("null")) {
-//                axis = "x";
-//                parseJsonAxisSettings(line, axis);
-//            } else if (line.startsWith(TinygDriver.RESPONSE_AXIS_Y) && !line.contains("null")) {
-//                axis = "y";
-//                parseJsonAxisSettings(line, axis);
-//            } else if (line.startsWith(TinygDriver.RESPONSE_AXIS_Z) && !line.contains("null")) {
-//                axis = "z";
-//                parseJsonAxisSettings(line, axis);
-//            }
-//
-//
-//
-//
-//
-        } catch (argo.saj.InvalidSyntaxException ex) {
-            //This will happen from time to time depending on the file that is being sent to TinyG
-            //This is an issue mostly when the lines are very very small and there are many of them
-            //and you are running at a high feedrate.
-            logger.error("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
-////            try {
-////                //we typically get errors for the '3rd' element in the json.  this is a weird bug in tg firmware
-////                //but it is reliable.  So we do a dirty fix
-////                if (!line.contains("{\"gc\"")) {
-////                    if (line.charAt(3) != '"') {
-////                        parseJSON(replaceCharAt(line, 3, '"'));
-////                        logger.error("FIXED ACK");
-////                    }
-////
-////                }
-////
-////            } catch (Exception e) {
-////                Main.logger.error("ERROR in Response Parser exception handler");
-////            }
-        } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex) {
-            //Extra } for some reason
-            logger.error("[!]ParseJson Exception: " + ex.getMessage() + " LINE: " + line);
-            setChanged();
-            notifyObservers("[!]ParserJson Exception #" + ex.getMessage() + "#" + line + "\n");
-
-        } catch (Exception ex) {
-            setChanged();
-            notifyObservers("ERROR");
-            logger.error("Exception in TinygDriver", ex);
-        }
-    }
-
-    private synchronized void parseJsonAxisSettings(String line, String axis) throws InvalidSyntaxException {
-        /**
-         * When an axis is queried by tg this is the method that parses the
-         * response and populates the machine model with the axis values.
-         * {"a":{"am":1,"fr":36000.000,"vm":36000.000,"tm":-1.000,"jm":100000000.000,"jd":0.050,"ra":10.000,"sm":0,"sv":36000.000,"lv":3600.000,"lb":0.000,"zb":0.000}}
-         */
-        JsonRootNode json = JDOM.parse(line);
-        Axis ax = TinygDriver.getInstance().m.getAxisByName(axis.toUpperCase());
-
-        //m.getMotorByNumber(motor).setMapToAxis(Integer.valueOf((json.getNode(strMotor).getNode("ma").getText())));
-        ax.setAxis_mode(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_AXIS_MODE).getText())).intValue());
-        ax.setFeed_rate_maximum(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_FEEDRATE_MAXIMUM).getText())));
-        ax.setVelocity_maximum(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_VELOCITY_MAXIMUM).getText())));
-        ax.setTravel_maximum(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_TRAVEL_MAXIMUM).getText())));
-        ax.setJerk_maximum(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JERK_MAXIMUM).getText())).intValue());
-        ax.setJunction_devation(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_JUNCTION_DEVIATION).getText())));
-
-//        if (!axis.equals("a") && !axis.equals("b") && !axis.equals("c")) {
-//            
-//        }
-
-        if (ax.getAxisType().equals(Axis.AXIS_TYPE.ROTATIONAL)) {
-            ax.setRadius(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_RADIUS).getText())));
-            if (axis.equals("a")) {
-                //On TinyG v1-7's Axis contain limit switches.  2012-12-20 Perhaps later version all axis will have limit switches.
-                ax.setMaxSwitch_mode(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MAX_SWITCH_MODE).getText())).intValue());
-                ax.setMinSwitch_mode(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MIN_SWITCH_MODE).getText())).intValue());
-                ax.setSearch_velocity(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY).getText())).intValue());
-                ax.setLatch_velocity(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_VELOCITY).getText())));
-                ax.setLatch_backoff(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_BACKOFF).getText())));
-                ax.setZero_backoff(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_ZERO_BACKOFF).getText())));
-            }
-            setChanged();
-
-            message[0] = "CMD_GET_AXIS_SETTINGS";
-            message[1] = ax.getAxis_name();
-            notifyObservers(message);
-
-        } else {
-
-
-            ax.setMaxSwitch_mode(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MAX_SWITCH_MODE).getText())).intValue());
-            ax.setMinSwitch_mode(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_MIN_SWITCH_MODE).getText())).intValue());
-            ax.setSearch_velocity(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_SEARCH_VELOCITY).getText())).intValue());
-            ax.setLatch_velocity(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_VELOCITY).getText())));
-            ax.setLatch_backoff(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_LATCH_BACKOFF).getText())));
-            ax.setZero_backoff(Float.valueOf((json.getNode("r").getNode(axis).getNode(TinygDriver.MNEMONIC_AXIS_ZERO_BACKOFF).getText())));
-            //Rotational Axis do not have a good way of doing limit switches.
-
-            setChanged();
-
-            message[0] = "CMD_GET_AXIS_SETTINGS";
-            message[1] = ax.getAxis_name();
-            notifyObservers(message);
-        }
-    }
-
-    private synchronized void parseJsonMotorSettings(String line, int motor) throws InvalidSyntaxException {
-        //{"1":{"ma":0,"sa":1.800,"tr":1.250,"mi":8,"po":0,"pm":1}}
-        JsonRootNode json = JDOM.parse(line);
-        String strMotor = String.valueOf(motor);
-        //TinygDriver.getInstance().m.getMotorByNumber(motor).setCURRENT_MOTOR_JSON_OBJECT(line.split("bd\":")[1].split(",\"sc")[0]); //Get us or current json line. This isfor
-        try {
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setMapToAxis(Integer.valueOf((json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_MAP_AXIS).getText())));
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setStep_angle(Float.valueOf(json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_STEP_ANGLE).getText()));
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setTravel_per_revolution(Float.valueOf(json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_TRAVEL_PER_REVOLUTION).getText()));
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setPolarity(Integer.valueOf((json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_POLARITY).getText())));
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setPower_management(Integer.valueOf((json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_POWER_MANAGEMENT).getText())));
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setMicrosteps(Integer.valueOf(json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_MICROSTEPS).getText()));
-        } catch (java.lang.NumberFormatException ex) {
-            //TODO look at this code.. why is this here?
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setMapToAxis(Float.valueOf(json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_MAP_AXIS).getText()).intValue());
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setStep_angle(Float.valueOf(json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_STEP_ANGLE).getText()));
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setTravel_per_revolution(Float.valueOf(json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_TRAVEL_PER_REVOLUTION).getText()));
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setPolarity(Float.valueOf((json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_POLARITY).getText())).intValue());
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setPower_management(Float.valueOf((json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_POWER_MANAGEMENT).getText())).intValue());
-            TinygDriver.getInstance().m.getMotorByNumber(motor).setMicrosteps(Float.valueOf(json.getNode("r").getNode(strMotor).getNode(TinygDriver.MNEMONIC_MOTOR_STEP_ANGLE).getText()).intValue());
-        } catch (argo.jdom.JsonNodeDoesNotMatchPathElementsException ex) {
-            //Single Element Response
-            String res = json.getNode("r").getFields().keySet().toString().split("\\[")[2].split("\\]\\]")[0].split(strMotor)[1];
-            switch (res) {
-                case TinygDriver.MNEMONIC_MOTOR_MAP_AXIS:
-                    TinygDriver.getInstance().m.getMotorByNumber(motor).setMapToAxis(Integer.valueOf((json.getNode("r").getNode(strMotor + TinygDriver.MNEMONIC_MOTOR_MAP_AXIS).getText())));
-                    break;
-                case TinygDriver.MNEMONIC_MOTOR_STEP_ANGLE:
-                    TinygDriver.getInstance().m.getMotorByNumber(motor).setStep_angle(Float.valueOf(json.getNode("r").getNode(strMotor + TinygDriver.MNEMONIC_MOTOR_STEP_ANGLE).getText()));
-
-                    break;
-                case TinygDriver.MNEMONIC_MOTOR_TRAVEL_PER_REVOLUTION:
-                    TinygDriver.getInstance().m.getMotorByNumber(motor).setTravel_per_revolution(Float.valueOf(json.getNode("r").getNode(strMotor + TinygDriver.MNEMONIC_MOTOR_TRAVEL_PER_REVOLUTION).getText()));
-
-                    break;
-                case TinygDriver.MNEMONIC_MOTOR_POLARITY:
-                    TinygDriver.getInstance().m.getMotorByNumber(motor).setPolarity(Integer.valueOf((json.getNode("r").getNode(strMotor + TinygDriver.MNEMONIC_MOTOR_POLARITY).getText())));
-
-                    break;
-                case TinygDriver.MNEMONIC_MOTOR_POWER_MANAGEMENT:
-                    TinygDriver.getInstance().m.getMotorByNumber(motor).setPower_management(Integer.valueOf((json.getNode("r").getNode(strMotor + TinygDriver.MNEMONIC_MOTOR_POWER_MANAGEMENT).getText())));
-
-                    break;
-                case TinygDriver.MNEMONIC_MOTOR_MICROSTEPS:
-                    TinygDriver.getInstance().m.getMotorByNumber(motor).setMicrosteps(Integer.valueOf(json.getNode("r").getNode(strMotor + TinygDriver.MNEMONIC_MOTOR_MICROSTEPS).getText()));
-
-                    break;
-            }
+        logger.info("Got Line: " + line + " from TinyG.");
+        final JSONObject js = new JSONObject(line);
+        if (js.has("f")) {
+            parseFooter(js);  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.
         }
 
-        //TODO: Add support for new switch modes all 4 of them.
+        if (js.has("r")) {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        applySetting(js.getJSONObject("r"));
+                    } catch (JSONException ex) {
+                        java.util.logging.Logger.getLogger(ResponseParser.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
 
-
-        setChanged();
-        message[0] = "CMD_GET_MOTOR_SETTINGS";
-        message[1] = strMotor;
-        notifyObservers(message);
-    }
-
-    void parseResponseLine(byte[] chunk) throws Exception {
-        String json = "";
-        String[] lines;
-
-        int chunkLength = chunk.length;
-        lines = (new String(chunk)).split("\n");   //Convert our byte array to a string[] that split on "\n"
-
-        for (String linebuffer : lines) {
-            normalizeResponseLine(linebuffer);
+        } else if (js.has("er")) {
+            applySetting(js);
         }
-    }
 
-    void normalizeResponseLine(String line) throws Exception {
-
-        if (line.startsWith("{\"") && line.endsWith("}}") && buf.equals("")) {  //The buf check makes sure
-            //The serial event didn't not cut off at the perfect spot and send something like this:
-            //"{"gc":{"gc":"F300.0","st":0,"msg":"OK"}}  
-            //Which is missing the front part of that line "{"gc":
-            buf = "";  //Valid line clear the buffer
-            parseJSON(line);
-        } else if (line.startsWith("{\"") && line.endsWith("}")) {
-            //This is a input command
-            //{"ee":"1"}
-            buf = "";
-            parseJSON(line);
-
-        } else if (line.startsWith("{\"")) {
-            //System.out.println("!! GCODE LINE STARTS WITH { !!" + l);
-            buf = line;
-
-        } else if (line.endsWith("}}")) {
-            //System.out.println("!! GCODE LINE ENDS WITH { !!" + l);
-            buf = buf + line;
-            if (buf.startsWith("{\"") && buf.endsWith("}}")) {
-                parseJSON(buf);
-                buf = "";
-            } else {
-                System.out.println("SERIAL DRIVER CODE: SHOULD NOT HIT THIS");
-                System.out.println(buf);
-            }
-        } else {
-            //If we happen to get a single { as a line this code puts it into the buf var.
-            //
-            buf = line;
-        }
     }
 }

@@ -85,7 +85,7 @@ public class Draw2d {
         return stroke_weight;
     }
 
-    public static Paint getLineColorFromVelocity(float vel) {
+    public static Paint getLineColorFromVelocity(double vel) {
 
         if (vel > 1 && vel < 100) {
             return (SLOWEST);

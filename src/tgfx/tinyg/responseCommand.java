@@ -13,7 +13,9 @@ public class responseCommand {
     private String settingKey;
     private String settingValue;
     
-    
+    public responseCommand(){
+        
+    }
     public responseCommand(String sp, String sk, String sv){
         settingParent = sp;
         settingKey = sk;

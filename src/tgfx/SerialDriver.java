@@ -42,17 +42,17 @@ public class SerialDriver implements SerialPortEventListener {
     public double offsetPointer = 0;
     //DEBUG
 
-    public void write(String str)  {
+    public void write(String str) {
         try {
             this.output.write(str.getBytes());
-           Main.logger.info("Wrote Line: " + str);
-            
-        
-        }catch(Exception ex){
+            Main.logger.info("Wrote Line: " + str);
+
+
+        } catch (Exception ex) {
             Main.logger.error("Error in SerialDriver Write");
-            Main.logger.error("\t"+ ex.getMessage());
-        }    
-        
+            Main.logger.error("\t" + ex.getMessage());
+        }
+
 
     }
 
@@ -180,9 +180,9 @@ public class SerialDriver implements SerialPortEventListener {
             // add event listeners
             serialPort.addEventListener(this);
             serialPort.notifyOnDataAvailable(true);
-            serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN);
-            serialPort.setInputBufferSize(15000);
-            serialPort.setOutputBufferSize(500);
+//            serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN);
+//            serialPort.setInputBufferSize(15000);
+//            serialPort.setOutputBufferSize(500);
 
             Main.logger.debug("[+]Opened " + port + " successfully.");
             setConnected(true); //Register that this is connectionState.
