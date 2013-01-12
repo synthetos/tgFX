@@ -35,12 +35,10 @@ public class Machine {
     public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
     private SimpleStringProperty gcodeUnitMode = new SimpleStringProperty();
     private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
-    
 //    private float firmware_version;
     private int status_report_interval;
     public Gcode_unit_modes gcode_unit_mode;
     public Gcode_unit_modes gcode_startup_units;
-    
     public Gcode_select_plane gcode_select_plane;
     public Gcode_coord_system gcode_select_coord_system;
     public Gcode_path_control gcode_path_control;
@@ -58,6 +56,7 @@ public class Machine {
     private boolean enable_hashcode;
     //Misc
     private int line_number;
+    private String last_message = new String("");
 //    public static motion_modes motion_mode = new SimpleIntegerProperty();
     public static motion_modes motion_mode;
     private List<Motor> motors = new ArrayList<>();
@@ -78,8 +77,6 @@ public class Machine {
 
         traverse, straight, cw_arc, ccw_arc, invalid
     }
-
-    
 
     public static enum coordinate_systems {
 
@@ -114,6 +111,14 @@ public class Machine {
         setGcodeSelectPlane(Integer.valueOf(gsp));
     }
 
+    public String getLast_message() {
+        return last_message;
+    }
+
+    public void setLast_message(String last_message) {
+        this.last_message = last_message;
+    }
+
     public void setGcodeSelectPlane(int gsp) {
         switch (gsp) {
             case 0:
@@ -137,7 +142,7 @@ public class Machine {
 //    }
     public static enum machine_states {
 
-        reset, nop, stop, end, run, hold, homing
+        reset, cycle, stop, end, run, hold, homing, probe, jog
     }
     public static machine_states machine_state;
 
@@ -222,8 +227,7 @@ public class Machine {
         G61POINT1,
         G64
     }
-    
-    
+
     public static enum Gcode_coord_system {
         //gco
 
@@ -281,12 +285,10 @@ public class Machine {
             gcode_unit_mode = gcode_unit_mode.MM;
         }
     }
-    
+
     public SimpleStringProperty getGcodeUnitMode() {
         return gcodeUnitMode;
     }
-
-
 
     public void setGcodeUnits(String gcu) {
         int _tmpgcu = Integer.valueOf(gcu);
@@ -304,13 +306,13 @@ public class Machine {
     public void setGcodeUnits(Gcode_unit_modes gcode_units) {
         this.gcode_unit_mode = gcode_units;
     }
-    
-    
-    public SimpleStringProperty getMotionMode(){
-        return(m_mode);
+
+    public SimpleStringProperty getMotionMode() {
+        return (m_mode);
     }
+
     public void setMotionMode(int mode) {
-        
+
         if (mode == 0) {
             m_mode.set(motion_modes.traverse.toString());
         } else if (mode == 1) {
@@ -324,7 +326,7 @@ public class Machine {
         }
     }
 //
-  
+
     public int getStatus_report_interval() {
         return status_report_interval;
     }
@@ -404,11 +406,11 @@ public class Machine {
         setCoordinate_mode(c);
     }
 
-    public int getCoordinateSystemOrd(){
+    public int getCoordinateSystemOrd() {
         coordinate_systems[] cs = coordinate_systems.values();
         return 1;
     }
-    
+
     public void setCoordinate_mode(int c) {
         switch (c) {
             case 1:
@@ -436,20 +438,35 @@ public class Machine {
     }
 
     public void setMachineState(int state) {
-        if (state == 0) {
-            m_state.set(machine_state.reset.toString());
-        } else if (state == 1) {
-            m_state.set(machine_state.nop.toString());
-        } else if (state == 2) {
-            m_state.set(machine_state.stop.toString());
-        } else if (state == 3) {
-            m_state.set(machine_state.end.toString());
-        } else if (state == 4) {
-            m_state.set(machine_state.run.toString());
-        } else if (state == 5) {
-            m_state.set(machine_state.hold.toString());
-        } else if (state == 6) {
-            m_state.set(machine_state.homing.toString());
+
+        switch (state) {
+            case 1:
+                m_state.set(machine_states.reset.toString());
+                break;
+            case 2:
+                m_state.set(machine_states.cycle.toString());
+                break;
+            case 3:
+                m_state.set(machine_states.stop.toString());
+                break;
+            case 4:
+                m_state.set(machine_states.end.toString());
+                break;
+            case 5:
+                m_state.set(machine_states.run.toString());
+                break;
+            case 6:
+                m_state.set(machine_states.hold.toString());
+                break;
+            case 7:
+                m_state.set(machine_states.homing.toString());
+                break;
+            case 8:
+                m_state.set(machine_states.probe.toString());
+                break;
+            case 9:
+                m_state.set(machine_states.jog.toString());
+                break;
         }
     }
 
@@ -583,35 +600,18 @@ public class Machine {
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_BUILD):
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                TinygDriver.getInstance().m.setFirmwareBuild(Double.valueOf(rc.getSettingValue()));
-                                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-
-                            }
-                        });
+                        TinygDriver.getInstance().m.setFirmwareBuild(Double.valueOf(rc.getSettingValue()));
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_VERSION):
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                TinygDriver.getInstance().m.setFirmwareVersion(rc.getSettingValue());
-                                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                            }
-                        });
+                        TinygDriver.getInstance().m.setFirmwareVersion(rc.getSettingValue());
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_COORDINATE_SYSTEM):
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                                TinygDriver.getInstance().m.setCoordinateSystem(rc.getSettingValue());
-                            }
-                        });
-
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        TinygDriver.getInstance().m.setCoordinateSystem(rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_DISANCE_MODE):
@@ -672,6 +672,11 @@ public class Machine {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_TEXT_VOBERSITY):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_LAST_MESSAGE):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+
                         break;
 
 

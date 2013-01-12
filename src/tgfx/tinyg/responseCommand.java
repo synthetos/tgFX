@@ -4,6 +4,8 @@
  */
 package tgfx.tinyg;
 
+import org.json.JSONObject;
+
 /**
  *
  * @author ril3y
@@ -45,6 +47,10 @@ public class responseCommand {
 
     public void setSettingValue(String settingValue) {
         this.settingValue = settingValue;
+    }
+    
+    public JSONObject buildJsonObject() throws Exception{
+        return(new JSONObject("{\"" + this.getSettingParent() + "\":{\"" + this.getSettingKey() + "\":" + this.getSettingValue() + "}}"));
     }
     
     

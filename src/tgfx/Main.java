@@ -7,7 +7,7 @@
 package tgfx;
 
 import tgfx.tinyg.TinygDriver;
-import java.io.BufferedReader; 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,12 +56,18 @@ import javafx.scene.canvas.GraphicsContext;
 import org.apache.log4j.BasicConfigurator;
 import java.io.*;
 import java.nio.charset.Charset;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.util.StringConverter;
 import jfxtras.labs.scene.control.BeanPathAdapter;
 import tgfx.gcode.GcodeLine;
@@ -82,6 +88,8 @@ public class Main implements Initializable, Observer {
     /**
      * FXML UI Components
      */
+    @FXML
+    private Circle cursor;
     @FXML
     private Button settingDrawBtn;
     @FXML
@@ -151,6 +159,9 @@ public class Main implements Initializable, Observer {
     double xPrevious = -1;
     double yPrevious = -1;
     double magnification = 1;
+    
+    
+    
 
 //    float x = 0;
 //    float y = 0;
@@ -232,10 +243,10 @@ public class Main implements Initializable, Observer {
         console.appendText("[!]Canceling File Sending Task...\n");
 //        tg.setCANCELLED(true);
         setTaskActive(false);
-        Byte reset = 0x18;
+//        Byte reset = 0x18;
 //        tg.resetSpaceBuffer();
-        tg.priorityWrite(reset); //This resets TinyG
-        Thread.sleep(3000); //We need to sleep a bit until TinyG comes back
+//        tg.priorityWrite(reset); //This resets TinyG
+//        Thread.sleep(3000); //We need to sleep a bit until TinyG comes back
         tg.write(CommandManager.CMD_QUERY_STATUS_REPORT);  //This will reset our DRO readings
     }
 
@@ -442,15 +453,16 @@ public class Main implements Initializable, Observer {
             @Override
             protected Object call() throws Exception {
                 StringBuilder line = new StringBuilder();
-                int numbGcodeLines = data.size();
+                int gcodeCharLength = data.size();
                 String tmp;
-                for (int i = 0; i < numbGcodeLines; i++) {
+                for (int i = 0; i < gcodeCharLength; i++) {
                     GcodeLine _gcl = (GcodeLine) data.get(i);
 
 
-                    if (isCancelled()) {
+                    if (isTaskActive() == false) {
                         //Cancel Button was pushed
                         console.appendText("[!]File Sending Task Killed....\n");
+                        data.clear();
                         break;
 
                     } else {
@@ -482,117 +494,6 @@ public class Main implements Initializable, Observer {
         this.taskActive = taskActive;
     }
 
-//
-//                while (tg.ser.CONNECTED) {
-//                    if (tg.ser.CLEAR_TO_TRANSMIT.get()) {
-//                        for (String l : gcodeProgramList) {
-//                            if (l.startsWith("(") || l.equals("")) {
-//                                logger.debug("[#]Gcode line started with a ( or was blank");
-//                                //Skip these lines as they will not illicit a "OK" 
-//                                //From tinyg
-//                                continue;
-//                            } else {
-//                                line = "{\"gc\":\"" + l + "\"}" + "\n";
-//
-////                                if (tg.getClearToSend() && !tg.isPAUSED() && !tg.isCANCELLED()) {
-//                                    tg.write(line);
-////                                    logger.debug("\t WROTE --> " + line);
-//
-////                                }
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                    tg.write(TinygDriver.CMD_QUERY_OK_PROMPT);  //Lets make sure we are clear to send.
-//
-//                    for (String l : gcodeProgramList) {
-//                        if (!tg.isConnected()) {
-//                            console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
-//                            logger.info("[!]Serial Port Disconnected.... Stopping file sending task...");
-//                            return false;
-//                            //break;
-//                        }
-//
-//                        //###############CRITICAL SECTION#########################
-//                        //If this code is changed be very careful as there is much logic here
-//                        //to screw up.  This code makes it so that when you send a file and disconnect or
-//                        //press stop this filesending task dies.  
-//                        if (l.startsWith("(") || l.equals("")) {
-//                            logger.debug("[#]Gcode line started with a ( or was blank");
-//                            //Skip these lines as they will not illicit a "OK" 
-//                            //From tinyg
-//                            continue;
-//                        } else {
-//                            line = "{\"gc\":\"" + l + "\"}" + "\n";
-//
-//                            if (tg.getClearToSend() && !tg.isPAUSED() && !tg.isCANCELLED()) {
-//                                tg.write(line);
-//                                logger.debug("\t WROTE --> " + line);
-//
-//                            } else if (tg.isCANCELLED()) {
-//                                console.appendText("[!]Canceling the file sending task...\n");
-//                                logger.info("[!]Canceling the file sending task...");
-//                                return false;
-//
-//                            } else if (tg.isPAUSED()) {
-//                                logger.info("[+]File Sender task is paused");
-//                                console.appendText("[+]File Sender task is paused");
-//                                while (tg.isPAUSED()) {
-//                                    //Infinite Loop
-//                                    //Not ready yet
-//                                    Thread.sleep(10);
-//                                }
-//                                //This breaks out of the while loop and does some more checking to eliminate any race conditions
-//                                //That might have occured duing waiting for to unpause.
-//                                if (!tg.isConnected()) {
-//                                    console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
-//                                    logger.info("[!]Serial Port Disconnected.... Stopping file sending task...");
-//                                    return false;
-//                                } else if (tg.isCANCELLED()) {
-//                                    console.appendText("[!]Canceling the file sending task...");
-//                                    logger.info("[!]Canceling the file sending task...");
-//                                    return false;
-//                                }
-//                                tg.write(line);
-//                                logger.debug("\t WROTE --> " + line);
-//                            } else {
-//                                while (!tg.getClearToSend()) {
-//                                    //Not ready yet
-////                                    Thread.sleep(10);
-//                                    //We have to check again while in the sleeping thread that sometime
-//                                    //during waiting for the clearbuffer the serialport has not been disconnected.
-//                                    //And cancel has not been called
-//                                    if (!tg.isConnected()) {
-//                                        console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
-//                                        logger.info("[!]Serial Port Disconnected.... Stopping file sending task...");
-//                                        return false;
-//                                    } else if (tg.isCANCELLED()) {
-//                                        console.appendText("[!]Canceling the file sending task...\n");
-//                                        logger.info("[!]Canceling the file sending task...");
-//                                        return false;
-//                                    }
-//                                }
-//
-//                                //This looks like its not needed since the same check above in the while block.
-//                                //However I am pretty confident that this is.
-//                                if (!tg.isConnected()) {
-//                                    console.appendText("[!]Serial Port Disconnected.... Stopping file sending task...");
-//                                    logger.info("[!]Serial Port Disconnected.... Stopping file sending task...");
-//                                    return false;
-//                                }
-//                                //Finally write the line everything is Good to go.
-//                                tg.write(line);
-//                                logger.debug("\t WROTE --> " + line);
-//
-//                            }
-//                        }
-//                    }
-//                    console.appendText("[+] Sending File Complete\n");
-//                    return true;
-//
-//                }
-    //###############CRITICAL SECTION#########################
     @FXML
     private void FXreScanSerial(ActionEvent event) {
         this.reScanSerial();
@@ -631,6 +532,12 @@ public class Main implements Initializable, Observer {
             tg.cmdManager.queryAllMotorSettings();
             tg.cmdManager.queryAllHardwareAxisSettings();
             tg.write(CommandManager.CMD_QUERY_STATUS_REPORT);  //If TinyG current positions are other than zero
+//            Circle c1 = new Circle();
+//            c1.setRadius(50d);
+//            
+
+//            c1.fillProperty().setValue(new Color(0,255,0,100));
+//            drawingCanvas.getChildren().add(c1);
 
             /**
              * Draw the workspace area in the preview
@@ -667,8 +574,7 @@ public class Main implements Initializable, Observer {
 
                 /**
                  * *****************************
-                 * OnConnect Actions Called Here 
-                 * *****************************
+                 * OnConnect Actions Called Here *****************************
                  */
                 onConnectActions();
 
@@ -916,14 +822,14 @@ public class Main implements Initializable, Observer {
                         input.clear();
                         input.setPromptText(PROMPT);
 //                        onConnectActions(); //Do this to get updated values in INCHES or MM
-                        switch(command){
-                            case("g20\n"):
+                        switch (command) {
+                            case ("g20\n"):
                                 tg.priorityWrite("{\"gc\":\"g20\"}\n");
                                 break;
-                            case("g21\n"):
+                            case ("g21\n"):
                                 tg.priorityWrite("{\"gc\":\"g21\"}\n");
                                 break;
-                                
+
                         }
 //                        srUnits.setText(tg.getInstance().m.getGcodeUnitMode().toString());
                         console.appendText("[+]Unit Mode Change Detected... Units set to: " + TinygDriver.getInstance().m.getGcodeUnitMode().toString() + "\n");
@@ -968,7 +874,7 @@ public class Main implements Initializable, Observer {
 
         //Code to make mm's look the same size as inches
         double unitMagnication = 3;
-        if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString()) ) {
+        if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString())) {
             unitMagnication = unitMagnication * 10;
         }
         double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get()));// + magnification;
@@ -1130,7 +1036,7 @@ public class Main implements Initializable, Observer {
 //                    zAxisVal.setText(String.valueOf(new DecimalFormat("0.000").format(m.getAxisByName("Z").getWork_position())));
 //                    //zAxisVal2.setText(String.valueOf(m.getAxisByName("Z").getWork_position())); //Dedicated Z depth preview label
 //                    aAxisVal.setText(String.valueOf(new DecimalFormat("0.000").format(m.getAxisByName("A").getWork_position())));
-                    
+
 //                    axisAjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
 
                     //Update State... running stop homing etc.
@@ -1478,6 +1384,23 @@ public class Main implements Initializable, Observer {
 //        xtgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
 //        tgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
 
+        
+        xAxisVal.textProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
+                cursor.setLayoutX(tg.m.getAxisByName("x").getWork_position().doubleValue()+5);
+            }
+        });
+        
+        
+        yAxisVal.textProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
+                cursor.setLayoutY(canvasHolder.getHeight() - (tg.m.getAxisByName("y").getWork_position().doubleValue()+5));
+                //cursor.setLayoutY(canvasHolder.getHeight() - tg.m.getAxisByName("y").getWork_position().doubleValue());  
+            }
+        });
+
 
         StringConverter sc = new StringConverter<Number>() {
             @Override
@@ -1496,41 +1419,47 @@ public class Main implements Initializable, Observer {
          * WE CREATE OUR BINDINGS HERE TO BIND OUR INTERNAL GUI (JAVAFX 2) MODEL
          * TO OUR TINYG INTERNAL MODEL... READ EMBEDDED SYSTEM MODEL
          */
-        
+
         srMomo.textProperty().bind(tg.m.getMotionMode());
         srVer.textProperty().bind(tg.m.firmwareVersion);
         srVelo.textProperty().bindBidirectional(tg.m.velocity, sc);
-        srBuild.textProperty().bindBidirectional(tg.m.firmwareBuild,sc);
+        srBuild.textProperty().bindBidirectional(tg.m.firmwareBuild, sc);
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
         srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
-        xAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("x").getWork_position(),sc);
-        yAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("y").getWork_position(),sc);
-        zAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("z").getWork_position(),sc);
-        aAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("a").getWork_position(),sc);
+        xAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("x").getWork_position(), sc);
+        yAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("y").getWork_position(), sc);
+        zAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("z").getWork_position(), sc);
+        aAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("a").getWork_position(), sc);
+
+        //cursor
+//        cursor.translateXProperty().bind(tg.m.getAxisByName("x").getWork_position());
+//        cursor.translateYProperty().bind(tg.m.getAxisByName("y").getWork_position());
+
+//        xAxisVal.textProperty().addListener(sc);
+
+
         
-//        srMomo.textProperty().bindBidirectional(tg.m.);
-        
-        
+
 
         BasicConfigurator.configure();
         SocketMonitor sm;
 
-//        WebEngine webEngine = html.getEngine();
-//        webEngine.load("http://www.synthetos.com/wiki/index.php?title=Projects:TinyG");
+        //WebEngine webEngine = html.getEngine();
+        //webEngine.load("http://www.synthetos.com/wiki/index.php?title=Projects:TinyG");
 
 
         logger.info("[+]tgFX is starting....");
         //Make our canvas as big as the hbox that holds it is.
-//        drawingCanvas.setWidth(canvasHolder.getWidth());
-        // drawingCanvas.setHeight(canvasHolder.getMaxHeight());
+        //drawingCanvas.setWidth(canvasHolder.getWidth());
+        //drawingCanvas.setHeight(canvasHolder.getMaxHeight());
 
 
         //drawingCanvas.setWidth(727);
         //drawingCanvas.setHeight(515);
 
-//        double HEIGHT = drawingCanvas.getHeight();
-//        double WIDTH = drawingCanvas.getWidth();
+        //double HEIGHT = drawingCanvas.getHeight();
+        //double WIDTH = drawingCanvas.getWidth();
 
         //gp = drawingCanvas.getGraphicsContext2D();
 //        gp.setFill(Color.RED);
@@ -1575,10 +1504,10 @@ public class Main implements Initializable, Observer {
         threadResponseParser.setDaemon(true);
         threadResponseParser.setName("ResponseParser");
         threadResponseParser.start();
-//
-//        Thread remoteListener = new Thread(initRemoteServer("8888"));
-//        remoteListener.setName("Remote Listener Thread");
-//        remoteListener.start();
+
+        //Thread remoteListener = new Thread(initRemoteServer("8888"));
+        //remoteListener.setName("Remote Listener Thread");
+        //remoteListener.start();
 
         tg.resParse.addObserver(this);
         this.reScanSerial();//Populate our serial ports

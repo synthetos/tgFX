@@ -86,6 +86,7 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_TEXT_VOBERSITY = "tv";
     public static final String MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL = "si";
     public static final String MNEMONIC_SYSTEM_BAUDRATE = "baud";
+    public static final String MNEMONIC_SYSTEM_LAST_MESSAGE = "msg";
 
     public MnemonicManager() {
         //When new settings are added we need to add them to the this class.
@@ -133,6 +134,7 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_SWITCH_TYPE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_TEXT_VOBERSITY);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_LAST_MESSAGE); //EEPROM values loading.. System Ready etc..
 
 
 

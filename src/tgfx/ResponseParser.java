@@ -4,6 +4,7 @@
  */
 package tgfx;
 
+import java.util.ArrayList;
 import org.json.*;
 import java.util.Iterator;
 import java.util.Observable;
@@ -68,14 +69,14 @@ public class ResponseParser extends Observable implements Runnable {
 
     @Override
     public void run() {
-        logger.info("Respone Parser Running");
+        logger.info("Response Parser Running");
         String line;
 
         while (RUN) {
             try {
                 parseJSON((String) responseQueue.take());  //Take a line from the response queue when its ready and parse it.
 
-            } catch (Exception ex) {
+            } catch (InterruptedException | JSONException ex) {
                 logger.error("[!]Error in responseParser run()");
             }
         }
@@ -100,14 +101,14 @@ public class ResponseParser extends Observable implements Runnable {
             TinygDriver.getInstance().m.setMachineState(js.getInt("stat"));
             TinygDriver.getInstance().m.setMotionMode(js.getInt("momo"));
             TinygDriver.getInstance().m.setVelocity(js.getDouble("vel"));
-            
 
-//            setChanged();
 
-//            String[] message = new String[2];
-//            message[0] = "STATUS_REPORT";
-//            message[1] = null;
-//            notifyObservers(message);
+            setChanged();
+
+            String[] message = new String[2];
+            message[0] = "STATUS_REPORT";
+            message[1] = null;
+            notifyObservers(message);
 
         } catch (Exception ex) {
             logger.error("Error in ApplyStatusReport");
@@ -116,6 +117,7 @@ public class ResponseParser extends Observable implements Runnable {
     }
 
     public void applySetting(JSONObject js) {
+        String parentGroup;
         try {
             if (js.has("gc") | js.has("qr")) {
                 //this is a gcode line echo not a valid response... return now.
@@ -123,168 +125,177 @@ public class ResponseParser extends Observable implements Runnable {
             }
 
             Iterator ii = js.keySet().iterator();
-            String parentGroup = (String) ii.next();
+            if (js.keySet().size() > 1) {
+                //This is a special multi single value response object
+                while (ii.hasNext()) {
+                    String key = ii.next().toString();
+                    responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroup(key);
+                    rc.setSettingValue(js.get(key).toString());
+                    parentGroup = rc.getSettingParent();
+                    _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pair
 
-            switch (parentGroup) {
-                case (MNEMONIC_GROUP_MOTOR_1):
-                    TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_1)
-                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_1), MNEMONIC_GROUP_MOTOR_1);
-                    setChanged();
-                    message[0] = "CMD_GET_MOTOR_SETTINGS";
-                    message[1] = MNEMONIC_GROUP_MOTOR_1;
-                    notifyObservers(message);
-                    break;
-                case (MNEMONIC_GROUP_MOTOR_2):
-                    TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_2)
-                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_2), MNEMONIC_GROUP_MOTOR_2);
-                    setChanged();
-                    message[0] = "CMD_GET_MOTOR_SETTINGS";
-                    message[1] = MNEMONIC_GROUP_MOTOR_2;
-                    notifyObservers(message);
-                    break;
-                case (MNEMONIC_GROUP_MOTOR_3):
-                    TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_3)
-                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_3), MNEMONIC_GROUP_MOTOR_3);
-                    setChanged();
-                    message[0] = "CMD_GET_MOTOR_SETTINGS";
-                    message[1] = MNEMONIC_GROUP_MOTOR_3;
-                    notifyObservers(message);
-                    break;
-
-                case (MNEMONIC_GROUP_MOTOR_4):
-                    TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_4)
-                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_4), MNEMONIC_GROUP_MOTOR_4);
-                    setChanged();
-                    message[0] = "CMD_GET_MOTOR_SETTINGS";
-                    message[1] = MNEMONIC_GROUP_MOTOR_4;
-                    notifyObservers(message);
-                    break;
-
-                case (MNEMONIC_GROUP_AXIS_X):
-                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_X)
-                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_X), MNEMONIC_GROUP_AXIS_X);
-                    setChanged();
-                    message[0] = "CMD_GET_AXIS_SETTINGS";
-                    message[1] = MNEMONIC_GROUP_AXIS_X;
-                    notifyObservers(message);
-                    break;
-
-                case (MNEMONIC_GROUP_AXIS_Y):
-                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_Y)
-                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_Y), MNEMONIC_GROUP_AXIS_Y);
-                    setChanged();
-                    message[0] = "CMD_GET_AXIS_SETTINGS";
-                    message[1] = MNEMONIC_GROUP_AXIS_Y;
-                    notifyObservers(message);
-                    break;
-
-                case (MNEMONIC_GROUP_AXIS_Z):
-                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_Z)
-                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_Z), MNEMONIC_GROUP_AXIS_Z);
-                    setChanged();
-                    message[0] = "CMD_GET_AXIS_SETTINGS";
-                    message[1] = MNEMONIC_GROUP_AXIS_Z;
-                    notifyObservers(message);
-                    break;
-
-                case (MNEMONIC_GROUP_AXIS_A):
-                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_A)
-                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_A), MNEMONIC_GROUP_AXIS_A);
-                    setChanged();
-                    message[0] = "CMD_GET_AXIS_SETTINGS";
-                    message[1] = MNEMONIC_GROUP_AXIS_A;
-                    notifyObservers(message);
-                    break;
-                case (MNEMONIC_GROUP_AXIS_B):
-                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_B)
-                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_B), MNEMONIC_GROUP_AXIS_B);
-                    setChanged();
-                    message[0] = "CMD_GET_AXIS_SETTINGS";
-                    message[1] = MNEMONIC_GROUP_AXIS_B;
-                    notifyObservers(message);
-                    break;
-
-                case (MNEMONIC_GROUP_AXIS_C):
-                    TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_C)
-                            .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_C), MNEMONIC_GROUP_AXIS_C);
-                    setChanged();
-                    message[0] = "CMD_GET_AXIS_SETTINGS";
-                    message[1] = MNEMONIC_GROUP_AXIS_C;
-                    notifyObservers(message);
-                    break;
-
-                case ("hom"):
-                    System.out.println("HOME");
-                    break;
-                case (MNEMONIC_GROUP_SYSTEM):
-                    System.out.println(MNEMONIC_GROUP_SYSTEM);
-                    TinygDriver.getInstance().m.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
-
-                    setChanged();
-                    message[0] = "CMD_GET_MACHINE_SETTINGS";
-                    message[1] = null;
-                    notifyObservers(message);
-                    break;
-                case (MNEMONIC_GROUP_STATUS_REPORT):
-                    System.out.println("Status Report");
-                    applyStatusReport(js.getJSONObject(MNEMONIC_GROUP_STATUS_REPORT)); //Send in the jsobject 
-                    break;
-                case (MNEMONIC_GROUP_EMERGENCY_SHUTDOWN):
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            DialogFX dialog = new DialogFX(DialogFX.Type.ERROR);
-                            dialog.setTitleText("Error Occured");
-                            dialog.setMessage("You have triggered a limit switch.  TinyG is now in DISABLED mode. \n"
-                                    + "Manually back your machine off of its limit switches.\n  Once done, if you would like to re-enable TinyG click yes.");
-                            int choice = dialog.showDialog();
-                            if (choice == 0) {
-                                logger.info("Clicked Yes");
-                                try {
-                                    TinygDriver.getInstance().priorityWrite((byte) 0x18);
-                                } catch (Exception ex) {
-                                    java.util.logging.Logger.getLogger(ResponseParser.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                            } else if (choice == 1) {
-                                logger.info("Clicked No");
-                            }
-
-
-                        }
-                    });
-
-                default:
-
-                    //This is for single settings xfr, 1tr etc...
-                    //This is pretty ugly but it gets the key and the value. For single values.
-                    responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroup(parentGroup);
-
-//                    String _parent = String.valueOf(parentGroup.charAt(0));
-                    String newJs;
-//                    if (_parent.equals("g")) {
-//                        //This is a gcode psudeo group.. gpl.. gun.. etc.. not a real group.  This still belongs in the sys group
-//                        String _key = js.keys().next().toString();  //gpl..gun.. etc IS the key
-//                        _parent = "sys";
-//                        String _val = String.valueOf(js.get(js.keys().next().toString()));
-//                        newJs = "{\"" + _parent + "\":{\"" + _key + "\":" + _val + "}}";
-//                    } else 
-//                    {                 //This is the normal way to go with single group objects
-//                        String _key = parentGroup.substring(1); //get the mnemonic not parent key
-
-
-//                    String _key = parentGroup; //I changed this to deal with the fb mnemonic.. not sure if this works all over.
-                    rc.setSettingValue(String.valueOf(js.get(js.keys().next().toString())));
-                    logger.info("Single Key Value: " + rc.getSettingParent() + rc.getSettingKey() + rc.getSettingValue());
-                    newJs = "{\"" + rc.getSettingParent() + "\":{\"" + rc.getSettingKey() + "\":" + rc.getSettingValue() + "}}";
-//                    }
-
-
-                    this.applySetting(new JSONObject(newJs)); //We pass the new json object we created from the string above
+                }
+            } else {
+                _applySettings(js, ii); //this is a standard single group response object
             }
+
+
+
         } catch (Exception ex) {
             System.out.println("Apply Settings Exception.");
         }
+    }
+
+    private void _applySettings(JSONObject js, Iterator ii) throws Exception {
+        String parentGroup = (String) ii.next();
+        _applySettings(js, parentGroup);
+    }
+
+    private void _applySettings(JSONObject js, String pg) throws Exception {
+
+        switch (pg) {
+            case (MNEMONIC_GROUP_MOTOR_1):
+                TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_1)
+                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_1), MNEMONIC_GROUP_MOTOR_1);
+                setChanged();
+                message[0] = "CMD_GET_MOTOR_SETTINGS";
+                message[1] = MNEMONIC_GROUP_MOTOR_1;
+                notifyObservers(message);
+                break;
+            case (MNEMONIC_GROUP_MOTOR_2):
+                TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_2)
+                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_2), MNEMONIC_GROUP_MOTOR_2);
+                setChanged();
+                message[0] = "CMD_GET_MOTOR_SETTINGS";
+                message[1] = MNEMONIC_GROUP_MOTOR_2;
+                notifyObservers(message);
+                break;
+            case (MNEMONIC_GROUP_MOTOR_3):
+                TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_3)
+                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_3), MNEMONIC_GROUP_MOTOR_3);
+                setChanged();
+                message[0] = "CMD_GET_MOTOR_SETTINGS";
+                message[1] = MNEMONIC_GROUP_MOTOR_3;
+                notifyObservers(message);
+                break;
+
+            case (MNEMONIC_GROUP_MOTOR_4):
+                TinygDriver.getInstance().m.getMotorByNumber(MNEMONIC_GROUP_MOTOR_4)
+                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_MOTOR_4), MNEMONIC_GROUP_MOTOR_4);
+                setChanged();
+                message[0] = "CMD_GET_MOTOR_SETTINGS";
+                message[1] = MNEMONIC_GROUP_MOTOR_4;
+                notifyObservers(message);
+                break;
+
+            case (MNEMONIC_GROUP_AXIS_X):
+                TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_X)
+                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_X), MNEMONIC_GROUP_AXIS_X);
+                setChanged();
+                message[0] = "CMD_GET_AXIS_SETTINGS";
+                message[1] = MNEMONIC_GROUP_AXIS_X;
+                notifyObservers(message);
+                break;
+
+            case (MNEMONIC_GROUP_AXIS_Y):
+                TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_Y)
+                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_Y), MNEMONIC_GROUP_AXIS_Y);
+                setChanged();
+                message[0] = "CMD_GET_AXIS_SETTINGS";
+                message[1] = MNEMONIC_GROUP_AXIS_Y;
+                notifyObservers(message);
+                break;
+
+            case (MNEMONIC_GROUP_AXIS_Z):
+                TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_Z)
+                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_Z), MNEMONIC_GROUP_AXIS_Z);
+                setChanged();
+                message[0] = "CMD_GET_AXIS_SETTINGS";
+                message[1] = MNEMONIC_GROUP_AXIS_Z;
+                notifyObservers(message);
+                break;
+
+            case (MNEMONIC_GROUP_AXIS_A):
+                TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_A)
+                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_A), MNEMONIC_GROUP_AXIS_A);
+                setChanged();
+                message[0] = "CMD_GET_AXIS_SETTINGS";
+                message[1] = MNEMONIC_GROUP_AXIS_A;
+                notifyObservers(message);
+                break;
+            case (MNEMONIC_GROUP_AXIS_B):
+                TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_B)
+                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_B), MNEMONIC_GROUP_AXIS_B);
+                setChanged();
+                message[0] = "CMD_GET_AXIS_SETTINGS";
+                message[1] = MNEMONIC_GROUP_AXIS_B;
+                notifyObservers(message);
+                break;
+
+            case (MNEMONIC_GROUP_AXIS_C):
+                TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_C)
+                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_C), MNEMONIC_GROUP_AXIS_C);
+                setChanged();
+                message[0] = "CMD_GET_AXIS_SETTINGS";
+                message[1] = MNEMONIC_GROUP_AXIS_C;
+                notifyObservers(message);
+                break;
+
+            case ("hom"):
+                System.out.println("HOME");
+                break;
+            case (MNEMONIC_GROUP_SYSTEM):
+                System.out.println(MNEMONIC_GROUP_SYSTEM);
+                TinygDriver.getInstance().m.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
+
+                setChanged();
+                message[0] = "CMD_GET_MACHINE_SETTINGS";
+                message[1] = null;
+                notifyObservers(message);
+                break;
+            case (MNEMONIC_GROUP_STATUS_REPORT):
+                System.out.println("Status Report");
+                applyStatusReport(js.getJSONObject(MNEMONIC_GROUP_STATUS_REPORT)); //Send in the jsobject 
+                break;
+            case (MNEMONIC_GROUP_EMERGENCY_SHUTDOWN):
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        DialogFX dialog = new DialogFX(DialogFX.Type.ERROR);
+                        dialog.setTitleText("Error Occured");
+                        dialog.setMessage("You have triggered a limit switch.  TinyG is now in DISABLED mode. \n"
+                                + "Manually back your machine off of its limit switches.\n  Once done, if you would like to re-enable TinyG click yes.");
+                        int choice = dialog.showDialog();
+                        if (choice == 0) {
+                            logger.info("Clicked Yes");
+                            try {
+                                TinygDriver.getInstance().priorityWrite((byte) 0x18);
+                            } catch (Exception ex) {
+                                java.util.logging.Logger.getLogger(ResponseParser.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        } else if (choice == 1) {
+                            logger.info("Clicked No");
+                        }
+
+
+                    }
+                });
+
+            default:
+
+                //This is for single settings xfr, 1tr etc...
+                //This is pretty ugly but it gets the key and the value. For single values.
+                responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroup(pg);
+
+//                  String _parent = String.valueOf(parentGroup.charAt(0));
+                String newJs;
+//                  String _key = parentGroup; //I changed this to deal with the fb mnemonic.. not sure if this works all over.
+                rc.setSettingValue(String.valueOf(js.get(js.keys().next().toString())));
+                logger.info("Single Key Value: " + rc.getSettingParent() + rc.getSettingKey() + rc.getSettingValue());
+                this.applySetting(rc.buildJsonObject()); //We pass the new json object we created from the string above
+            }
+
 
     }
 

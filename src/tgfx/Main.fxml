@@ -13,6 +13,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.web.*?>
 
@@ -195,6 +196,7 @@
                                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
                                       </HBox.margin>
                                     </Group>
+                                    <Circle fx:id="cursor" fill="DODGERBLUE" radius="4.0" stroke="BLACK" strokeType="INSIDE" />
                                     <!--                                    <Group fx:id="drawingCanvas" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
                                   </children>
                                   <prefHeight>
