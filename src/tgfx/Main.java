@@ -60,18 +60,15 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Point2D;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.StringConverter;
-import jfxtras.labs.scene.control.BeanPathAdapter;
 import tgfx.gcode.GcodeLine;
 import tgfx.system.Machine.Gcode_unit_modes;
+import tgfx.system.StatusCode;
 import tgfx.tinyg.CommandManager;
 
 public class Main implements Initializable, Observer {
@@ -82,9 +79,7 @@ public class Main implements Initializable, Observer {
 //    private JdomParser JDOM = new JdomParser(); //JSON Object Parser1
     private TinygDriver tg = TinygDriver.getInstance();
     public ObservableList data;
-//    BeanPathAdapter<Machine> tgPA = new BeanPathAdapter<>(tg.m);
-    public BeanPathAdapter<TinygDriver> tgPA = new BeanPathAdapter<>(tg);
-    //tgPA.bindBidirectional("role", cb.valueProperty(), TinygDriver.class);
+
     /**
      * FXML UI Components
      */
@@ -159,9 +154,6 @@ public class Main implements Initializable, Observer {
     double xPrevious = -1;
     double yPrevious = -1;
     double magnification = 1;
-    
-    
-    
 
 //    float x = 0;
 //    float y = 0;
@@ -462,7 +454,7 @@ public class Main implements Initializable, Observer {
                     if (isTaskActive() == false) {
                         //Cancel Button was pushed
                         console.appendText("[!]File Sending Task Killed....\n");
-                        data.clear();
+
                         break;
 
                     } else {
@@ -868,7 +860,7 @@ public class Main implements Initializable, Observer {
         };
     }
 
-    public void drawLine(Machine.motion_modes moveType, double vel) {
+    public void drawLine(String moveType, double vel) {
 
 
 
@@ -1021,56 +1013,11 @@ public class Main implements Initializable, Observer {
         });
     }
 
-    private void updateGuiStatusReport(String line) {
+    private void drawCanvasUpdate(String line) {
         final String l = line;
-        Platform.runLater(new Runnable() {
-//            @Override
-            public void run() {
-                //logger.info("updateGuiStatusReport Ran");
-//                String vel = String.valueOf(TinygDriver.getInstance().m.getVelocity();
-                //We are now back in the EventThread and can update the GUI
-                try {
-//                    Machine m = TinygDriver.getInstance().m;
-//                    xAxisVal.setText(String.valueOf(new DecimalFormat("0.000").format(m.getAxisByName("X").getWork_position()))); //json.getNode("sr").getNode("posx").getText());
-//                    yAxisVal.setText(String.valueOf(new DecimalFormat("0.000").format(m.getAxisByName("Y").getWork_position())));
-//                    zAxisVal.setText(String.valueOf(new DecimalFormat("0.000").format(m.getAxisByName("Z").getWork_position())));
-//                    //zAxisVal2.setText(String.valueOf(m.getAxisByName("Z").getWork_position())); //Dedicated Z depth preview label
-//                    aAxisVal.setText(String.valueOf(new DecimalFormat("0.000").format(m.getAxisByName("A").getWork_position())));
-
-//                    axisAjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
-
-                    //Update State... running stop homing etc.
-//                    srState.setText(m.getMachineState().toString().toUpperCase());
-//                    srUnits.setText(m.getGcodeUnitMode().toString());
-//                    srCoord.setText(m.getCoordinateSystem().toString());
-//                    srMomo.setText(m.getMotionMode().toString().replace("_", " ").toUpperCase());
-
-
-                    //Parse the veloicity 
-//                    vel = m.getVelocity();
-//                    srVelo.setText(String.valueOf(vel));
-
-                    //############################################################
-                    /**
-                     * This enables drawing on the GUI Uncomment it if you want
-                     * it to draw
-                     *
-                     *
-                     */
-                    if (drawPreview) {
-                        drawLine(Machine.motion_modes.traverse, new Float(12.32322));
-                    }
-                    //##############################################################
-
-//                    drawLine(m.getMotionMode(), vel, zAxisVal.getText());
-//                        renderZ();
-                } catch (Exception ex) {
-                    System.out.println("[!] Exception in UpdateGuiStatusReport...");
-                    System.out.println(ex.getMessage());
-                }
-            }
-        });
-
+        if (drawPreview) {
+            drawLine(tg.m.getMotionMode().get(), tg.m.getVelocity());
+        }
     }
 
     private void updateGuiMachineSettings(String line) {
@@ -1105,76 +1052,75 @@ public class Main implements Initializable, Observer {
     public synchronized void update(Observable o, Object arg) {
 //
 //        //We process status code messages here first.
-//        if (arg.getClass().getCanonicalName().equals("tgfx.system.StatusCode")) {
-//            //We got an error condition.. lets route it to where it goes!
-//            StatusCode statuscode = (StatusCode) arg;
-//            console.appendText("[->] TinyG Response: " + statuscode.getStatusType() + ":" + statuscode.getMessage() + "\n");
-//        } else {
-//            final String[] UPDATE_MESSAGE = (String[]) arg;
-//            final String ROUTING_KEY = UPDATE_MESSAGE[0];
-//            final String KEY_ARGUMENT = UPDATE_MESSAGE[1];
+        if (arg.getClass().getCanonicalName().equals("tgfx.system.StatusCode")) {
+            //We got an error condition.. lets route it to where it goes!
+            StatusCode statuscode = (StatusCode) arg;
+            console.appendText("[->] TinyG Response: " + statuscode.getStatusType() + ":" + statuscode.getMessage() + "\n");
+        } else {
+            final String[] UPDATE_MESSAGE = (String[]) arg;
+            final String ROUTING_KEY = UPDATE_MESSAGE[0];
+            final String KEY_ARGUMENT = UPDATE_MESSAGE[1];
+
 //
-////        We have to run the updates likes this.
-////        https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
+//          We have to run the updates likes this.
+//          https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
 //            Platform.runLater(new Runnable() {
 //                public void run() {
 //                    // we are now back in the EventThread and can update the GUI
-////                    if (ROUTING_KEY.startsWith("[!]")) {
-////                        String line = ROUTING_KEY.split("#")[1];
-////                        String msg = ROUTING_KEY.split("#")[0];
-////
-////                        Main.logger.error("Invalid Routing Key: \n\tMessage: " + msg + "\n\tLine: " + line);
-////                    } else 
-//
-//                    if (ROUTING_KEY.equals("STATUS_REPORT")) {
-//                        updateGuiStatusReport(ROUTING_KEY);
-//                        //updateStatusReport(ROUTING_KEY);
-//                    } else if (ROUTING_KEY.equals("CMD_GET_AXIS_SETTINGS")) {
-//                        updateGuiAxisSettings(KEY_ARGUMENT);
-//                    } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
-//                        //updateGuiMachineSettings(ROUTING_KEY);
-//                    } else if (ROUTING_KEY.contains("CMD_GET_MOTOR_SETTINGS")) {
-//                        updateGuiMotorSettings(KEY_ARGUMENT);
-//                    } else if (ROUTING_KEY.equals("NETWORK_MESSAGE")) {  //unused
-//                        //updateExternal();
-//                    } else if (ROUTING_KEY.equals("MACHINE_UPDATE")) {
-//                        //updateGuiMachineSettings(ROUTING_KEY);
-//                    } else {
-//                        System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
-//                    }
-//                }
+            if (ROUTING_KEY.startsWith("[!]")) {
+                String line = ROUTING_KEY.split("#")[1];
+                String msg = ROUTING_KEY.split("#")[0];
+
+                Main.logger.error("Invalid Routing Key: \n\tMessage: " + msg + "\n\tLine: " + line);
+            } else if (ROUTING_KEY.equals("STATUS_REPORT")) {
+                drawCanvasUpdate(ROUTING_KEY);
+            } else if (ROUTING_KEY.equals("CMD_GET_AXIS_SETTINGS")) {
+                updateGuiAxisSettings(KEY_ARGUMENT);
+            } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
+                //updateGuiMachineSettings(ROUTING_KEY);
+            } else if (ROUTING_KEY.contains("CMD_GET_MOTOR_SETTINGS")) {
+                updateGuiMotorSettings(KEY_ARGUMENT);
+            } else if (ROUTING_KEY.equals("NETWORK_MESSAGE")) {  //unused
+                //updateExternal();
+            } else if (ROUTING_KEY.equals("MACHINE_UPDATE")) {
+                //updateGuiMachineSettings(ROUTING_KEY);
+            } else {
+                System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
+            }
+        }
 //            });
 //        }
-//    }
+    }
 //
-//    private void updateGuiMotorSettings() {
-//        //No motor was provided... Update them all.
-//        updateGuiMotorSettings(null);
-//    }
-//
-//    private void updateGuiMotorSettings(final String arg) {
-//        //Update the GUI for config settings
-//        Platform.runLater(new Runnable() {
-//            String MOTOR_ARGUMENT = arg;
-//
-//            @Override
-//            public void run() {
-//                try {
-//                    if (MOTOR_ARGUMENT == null) {
-//                        //Update ALL motor's gui settings
-//                        for (Motor m : tg.m.getMotors()) {
-//                            _updateGuiMotorSettings(String.valueOf(m.getId_number()));
-//                        }
-//                    } else {
-//                        //Update only ONE motor's gui settings
-//                        _updateGuiMotorSettings(MOTOR_ARGUMENT);
-//                    }
-//                } catch (Exception ex) {
-//                    System.out.println("[!]Exception in updateGuiMotorSettings...");
-//                    System.out.println(ex.getMessage());
-//                }
-//            }
-//        });
+
+    private void updateGuiMotorSettings() {
+        //No motor was provided... Update them all.
+        updateGuiMotorSettings(null);
+    }
+
+    private void updateGuiMotorSettings(final String arg) {
+        //Update the GUI for config settings
+        Platform.runLater(new Runnable() {
+            String MOTOR_ARGUMENT = arg;
+
+            @Override
+            public void run() {
+                try {
+                    if (MOTOR_ARGUMENT == null) {
+                        //Update ALL motor's gui settings
+                        for (Motor m : tg.m.getMotors()) {
+                            _updateGuiMotorSettings(String.valueOf(m.getId_number()));
+                        }
+                    } else {
+                        //Update only ONE motor's gui settings
+                        _updateGuiMotorSettings(MOTOR_ARGUMENT);
+                    }
+                } catch (Exception ex) {
+                    System.out.println("[!]Exception in updateGuiMotorSettings...");
+                    System.out.println(ex.getMessage());
+                }
+            }
+        });
     }
 
     private void _updateGuiMotorSettings(String motor) {
@@ -1384,19 +1330,19 @@ public class Main implements Initializable, Observer {
 //        xtgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
 //        tgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
 
-        
+
         xAxisVal.textProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                cursor.setLayoutX(tg.m.getAxisByName("x").getWork_position().doubleValue()+5);
+                cursor.setLayoutX(TinygDriver.getInstance().m.getAxisByName("x").getWork_position().doubleValue() + 5);
             }
         });
-        
-        
+
+
         yAxisVal.textProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                cursor.setLayoutY(canvasHolder.getHeight() - (tg.m.getAxisByName("y").getWork_position().doubleValue()+5));
+                cursor.setLayoutY((TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5));
                 //cursor.setLayoutY(canvasHolder.getHeight() - tg.m.getAxisByName("y").getWork_position().doubleValue());  
             }
         });
@@ -1427,19 +1373,19 @@ public class Main implements Initializable, Observer {
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
         srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
-        xAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("x").getWork_position(), sc);
-        yAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("y").getWork_position(), sc);
-        zAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("z").getWork_position(), sc);
-        aAxisVal.textProperty().bindBidirectional(TinygDriver.getInstance().m.getAxisByName("a").getWork_position(), sc);
+        xAxisVal.textProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWork_position().asString());
+        yAxisVal.textProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWork_position().asString());
+        zAxisVal.textProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWork_position().asString());
+        aAxisVal.textProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWork_position().asString());
 
         //cursor
-//        cursor.translateXProperty().bind(tg.m.getAxisByName("x").getWork_position());
-//        cursor.translateYProperty().bind(tg.m.getAxisByName("y").getWork_position());
+        cursor.translateXProperty().bind(tg.m.getAxisByName("x").getWork_position());
+        cursor.translateYProperty().bind(tg.m.getAxisByName("y").getWork_position());
 
 //        xAxisVal.textProperty().addListener(sc);
 
 
-        
+
 
 
         BasicConfigurator.configure();

@@ -110,43 +110,12 @@ public class SerialWriter implements Runnable {
     @Override
     public void run() {
         System.out.println("[+]Serial Writer Thread Running...");
-        while (RUN == true) {
+        while (RUN) {
             try {
-                tmpCmd = (String) queue.take();  //Grab the byte[] on the top of the stack (queue)
-
-//                Main.logger.debug("Locking...");
-//                Main.logger.debug("[+]Took msg from serialWriter queue");
-//                lock.lock();
-//                if (getPbaSize() <= 2 || getIncrementLinesSentBeforeUpdate() <= 24) {
-                //Write the line to TinyG
-
-
+                tmpCmd = (String) queue.take();  //Grab the line
                 this.write(tmpCmd);
-
-//                    incrementLinesSentBeforeUpdate();
-//                    Main.logger.info("[+]PBA is: " + getPbaSize());
-//                    lock.unlock();
-//                    Main.logger.debug("Un-Locking...");
-                //               } else {
-                //                   while (getIncrementLinesSentBeforeUpdate() !=0 && getPbaSize() > 5) {
-//                        System.out.println(getPbaSize());
-                //Main.logger.debug("[+] Not Enough room in PBA or too many lines sent with a response... Waiting");
-                //We use the size of 5 to let the buffer clear up a bit before we shove it back in.
-//                        Main.logger.debug("Unlocking... Waiting for room in PBA... PBA is: " + getPbaSize());
-//                        clearToSend.await();
-//                        
-
-//                    }
-//                   ser.write(tmpCmd);
-//                    incrementLinesSentBeforeUpdate();
-//                    lock.unlock();
-//                    Main.logger.debug("Un-Locking...");
-
-                //               }
             } catch (Exception ex) {
                 System.out.println("[!]Exception in SerialWriter Thread");
-
-
             }
         }
         System.out.println("[+]SerialWriter thread exiting...");

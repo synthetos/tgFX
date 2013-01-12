@@ -67,18 +67,25 @@ public class TinygDriver extends Observable {
 
     public void queryHardwareSingleAxisSettings(String _axis) {
         try {
-            if (_axis.toLowerCase().equals("x")) {
-                ser.write(cmdManager.CMD_QUERY_AXIS_X);
-            } else if (_axis.toLowerCase().equals("y")) {
-                ser.write(cmdManager.CMD_QUERY_AXIS_Y);
-            } else if (_axis.toLowerCase().equals("z")) {
-                ser.write(cmdManager.CMD_QUERY_AXIS_Z);
-            } else if (_axis.toLowerCase().equals("a")) {
-                ser.write(cmdManager.CMD_QUERY_AXIS_A);
-            } else if (_axis.toLowerCase().equals("b")) {
-                ser.write(cmdManager.CMD_QUERY_AXIS_B);
-            } else if (_axis.toLowerCase().equals("c")) {
-                ser.write(cmdManager.CMD_QUERY_AXIS_C);
+            switch (_axis.toLowerCase()) {
+                case "x":
+                    ser.write(CommandManager.CMD_QUERY_AXIS_X);
+                    break;
+                case "y":
+                    ser.write(CommandManager.CMD_QUERY_AXIS_Y);
+                    break;
+                case "z":
+                    ser.write(CommandManager.CMD_QUERY_AXIS_Z);
+                    break;
+                case "a":
+                    ser.write(CommandManager.CMD_QUERY_AXIS_A);
+                    break;
+                case "b":
+                    ser.write(CommandManager.CMD_QUERY_AXIS_B);
+                    break;
+                case "c":
+                    ser.write(CommandManager.CMD_QUERY_AXIS_C);
+                    break;
             }
         } catch (Exception ex) {
             System.out.println("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
@@ -403,6 +410,7 @@ public class TinygDriver extends Observable {
      * SerialDriver write methods from here.
      */
     public synchronized void write(String msg) throws Exception {
+        
         TinygDriver.getInstance().serialWriter.addCommandToBuffer(msg);
     }
 
