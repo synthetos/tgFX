@@ -51,7 +51,6 @@ import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
 import org.apache.log4j.Logger;
-import javafx.scene.canvas.GraphicsContext;
 
 import org.apache.log4j.BasicConfigurator;
 import java.io.*;
@@ -64,8 +63,16 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.util.StringConverter;
+import jfxtras.labs.scene.control.gauge.Gauge;
+import jfxtras.labs.scene.control.gauge.Lcd;
+import jfxtras.labs.scene.control.gauge.LcdBuilder;
+import jfxtras.labs.scene.control.gauge.LcdDesign;
+import jfxtras.labs.scene.control.gauge.StyleModel;
+import jfxtras.labs.scene.control.gauge.StyleModelBuilder;
+import org.apache.log4j.Level;
 import tgfx.gcode.GcodeLine;
 import tgfx.system.Machine.Gcode_unit_modes;
 import tgfx.system.StatusCode;
@@ -79,7 +86,34 @@ public class Main implements Initializable, Observer {
 //    private JdomParser JDOM = new JdomParser(); //JSON Object Parser1
     private TinygDriver tg = TinygDriver.getInstance();
     public ObservableList data;
-
+    /*
+     * LCD XPOS
+     */
+    private Lcd xLcd, yLcd, zLcd, aLcd; //DRO Lcds
+    private StyleModel STYLE_MODEL_X = StyleModelBuilder.create()
+            .lcdDesign(LcdDesign.BLACK)
+            .lcdDecimals(3)
+            .lcdValueFont(Gauge.LcdFont.LCD)
+            .lcdUnitStringVisible(true)
+            .build();
+    private StyleModel STYLE_MODEL_Y = StyleModelBuilder.create()
+            .lcdDesign(LcdDesign.BLACK)
+            .lcdDecimals(3)
+            .lcdValueFont(Gauge.LcdFont.LCD)
+            .lcdUnitStringVisible(true)
+            .build();
+    private StyleModel STYLE_MODEL_Z = StyleModelBuilder.create()
+            .lcdDesign(LcdDesign.BLACK)
+            .lcdDecimals(3)
+            .lcdValueFont(Gauge.LcdFont.LCD)
+            .lcdUnitStringVisible(true)
+            .build();
+    private StyleModel STYLE_MODEL_A = StyleModelBuilder.create()
+            .lcdDesign(LcdDesign.BLACK)
+            .lcdDecimals(3)
+            .lcdValueFont(Gauge.LcdFont.LCD)
+            .lcdUnitStringVisible(true)
+            .build();
     /**
      * FXML UI Components
      */
@@ -97,9 +131,8 @@ public class Main implements Initializable, Observer {
     private TabPane motorTabPane, axisTabPane;
     @FXML
     private Pane previewPane;
-    @FXML
-    private Group drawingCanvas;
-    GraphicsContext gp;
+    
+
     @FXML
     private Button Con, Run, Connect, gcodeZero, btnClearScreen, btnRemoteListener, pauseResume, btnTest;
     @FXML
@@ -109,8 +142,13 @@ public class Main implements Initializable, Observer {
     @FXML
     private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
             srVer, srUnits, srCoord;
+    
+    @FXML
+    StackPane cursorPoint;
     @FXML
     TextArea gcodesList;
+    @FXML
+    Label xposT, yposT;
     @FXML
     WebView html;
     @FXML
@@ -142,11 +180,11 @@ public class Main implements Initializable, Observer {
     @FXML
     Group motor1Node;
     @FXML
-    HBox bottom;
+    HBox bottom, xposhbox;
     @FXML
     HBox canvasHolder;
     @FXML
-    VBox topvbox;
+    VBox topvbox, positionsVbox;
     /**
      * Drawing Code Vars
      *
@@ -172,7 +210,7 @@ public class Main implements Initializable, Observer {
         } else {
             settingDrawBtn.setText("ON");
             drawPreview = false;
-        }
+        }        
     }
 
     @FXML
@@ -309,9 +347,8 @@ public class Main implements Initializable, Observer {
     private void handleAxisQuerySettings(ActionEvent evt) throws Exception {
         String _axisSelected = axisTabPane.getSelectionModel().getSelectedItem().getText().toLowerCase();
         console.appendText("[+]Querying Axis: " + _axisSelected + "\n");
-//        tg.queryAllHardwareAxisSettings();
         try {
-            tg.queryHardwareSingleAxisSettings(_axisSelected);
+            tg.queryHardwareSingleAxisSettings(_axisSelected.charAt(0));
         } catch (Exception ex) {
             System.out.println("[!]Error Querying Axis: " + _axisSelected);
         }
@@ -326,8 +363,15 @@ public class Main implements Initializable, Observer {
             if (event.getSource().toString().startsWith("TextField")) {
                 //Object Returned is a TextField Object
                 TextField tf = (TextField) event.getSource();
-                tg.applyHardwareAxisSettings(_axis, tf);
-                console.appendText("[+]Applying Axis.......\n");
+                try {
+                    console.appendText("[+]Applying Axis.......\n");
+                    tg.applyHardwareAxisSettings(_axis, tf);
+                } catch (NumberFormatException ex) {
+                    console.appendText("[!]Invalid Setting Entered.. Ignoring.");
+                    logger.error(ex.getMessage());
+                    tg.queryHardwareSingleAxisSettings(_axis.getAxis_name()); //This will reset the input that was bad to the current settings
+                }
+
 
             }
         }
@@ -399,8 +443,8 @@ public class Main implements Initializable, Observer {
             console.appendText("[+]Zooming out " + String.valueOf(Draw2d.getMagnification()) + "\n");
         }
 
-        drawingCanvas.setScaleX(Draw2d.getMagnification());
-        drawingCanvas.setScaleY(Draw2d.getMagnification());
+        previewPane.setScaleX(Draw2d.getMagnification());
+        previewPane.setScaleY(Draw2d.getMagnification());
 
 
 //        canvsGroup.setScaleX(Draw2d.getMagnification());
@@ -511,6 +555,8 @@ public class Main implements Initializable, Observer {
 //            tg.write("{\"gun\":null}");
 //
 //            tg.write("{\"xfr\":1500}");
+            tg.write(CommandManager.CMD_QUERY_STATUS_REPORT);
+            tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
 
 
 
@@ -597,7 +643,7 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleClearScreen(ActionEvent evt) {
         console.appendText("[+]Clearning Screen...\n");
-        drawingCanvas.getChildren().clear();
+        previewPane.getChildren().clear();
     }
 
 //    private void handleTilda() {
@@ -869,8 +915,8 @@ public class Main implements Initializable, Observer {
         if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString())) {
             unitMagnication = unitMagnication * 10;
         }
-        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get()));// + magnification;
-        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get()));// + magnification;
+        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get())+80);// + magnification;
+        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get())+80);// + magnification;
 
         Line l = new Line(xPrevious, yPrevious, newX, newY);
 //        l.setStroke(Color.BLUE);
@@ -896,7 +942,7 @@ public class Main implements Initializable, Observer {
         yPrevious = newY;
 
         if (l != null) {
-            drawingCanvas.getChildren().add(l);
+            previewPane.getChildren().add(l);
         }
 
 
@@ -1061,12 +1107,6 @@ public class Main implements Initializable, Observer {
             final String ROUTING_KEY = UPDATE_MESSAGE[0];
             final String KEY_ARGUMENT = UPDATE_MESSAGE[1];
 
-//
-//          We have to run the updates likes this.
-//          https://forums.oracle.com/forums/thread.jspa?threadID=2298778&start=0 for more information
-//            Platform.runLater(new Runnable() {
-//                public void run() {
-//                    // we are now back in the EventThread and can update the GUI
             if (ROUTING_KEY.startsWith("[!]")) {
                 String line = ROUTING_KEY.split("#")[1];
                 String msg = ROUTING_KEY.split("#")[0];
@@ -1088,8 +1128,6 @@ public class Main implements Initializable, Observer {
                 System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
             }
         }
-//            });
-//        }
     }
 //
 
@@ -1324,25 +1362,55 @@ public class Main implements Initializable, Observer {
         });
     }
 
+    private Lcd buildSingleDRO(Lcd tmpLcd, StyleModel sm, String title, String units) {
+        tmpLcd = LcdBuilder.create()
+                .styleModel(sm)
+                .threshold(30)
+                .title(title)
+                .unit(units)
+                .build();
+        tmpLcd.setPrefSize(200, 70);
+        return tmpLcd;
+
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
 //        xtgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
 //        tgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
+        logger.setLevel(Level.ERROR);
+        xLcd = buildSingleDRO(xLcd, STYLE_MODEL_X, "X Axis Position", tg.m.getGcodeUnitMode().get());
+        yLcd = buildSingleDRO(yLcd, STYLE_MODEL_Y, "Y Axis Position",tg.m.getGcodeUnitMode().get());
+        zLcd = buildSingleDRO(zLcd, STYLE_MODEL_Z, "Z Axis Position",tg.m.getGcodeUnitMode().get());
+        aLcd = buildSingleDRO(aLcd, STYLE_MODEL_A, "A Axis Position","Deg");
 
+        StackPane droStackPane = new StackPane();
+        droStackPane.getChildren().addAll(xLcd, yLcd, zLcd, aLcd);
+        
+//        
+        positionsVbox.getChildren().add(xLcd);
+        positionsVbox.getChildren().add(yLcd);
+        positionsVbox.getChildren().add(zLcd);
+        positionsVbox.getChildren().add(aLcd);
 
-        xAxisVal.textProperty().addListener(new ChangeListener() {
+        
+        xLcd.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                cursor.setLayoutX(TinygDriver.getInstance().m.getAxisByName("x").getWork_position().doubleValue() + 5);
+                double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5;
+                xposT.setText(String.valueOf(tmp));
+                cursorPoint.setLayoutY(tmp);
             }
         });
 
 
-        yAxisVal.textProperty().addListener(new ChangeListener() {
+        yLcd.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                cursor.setLayoutY((TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5));
+                double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5;
+                yposT.setText(String.valueOf(tmp));
+                cursorPoint.setLayoutY(tmp);
                 //cursor.setLayoutY(canvasHolder.getHeight() - tg.m.getAxisByName("y").getWork_position().doubleValue());  
             }
         });
@@ -1373,19 +1441,21 @@ public class Main implements Initializable, Observer {
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
         srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
-        xAxisVal.textProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWork_position().asString());
-        yAxisVal.textProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWork_position().asString());
-        zAxisVal.textProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWork_position().asString());
-        aAxisVal.textProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWork_position().asString());
+        
+        //Bind our Units to each axis
+        xLcd.lcdUnitProperty().bind(tg.m.getGcodeUnitMode());
+        yLcd.lcdUnitProperty().bind(tg.m.getGcodeUnitMode());
+        zLcd.lcdUnitProperty().bind(tg.m.getGcodeUnitMode());
+//        aLcd.lcdUnitProperty().bind(tg.m.getCoordinateSystem());  Always degress
+        
+        xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWork_position());
+        yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWork_position());
+        zLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWork_position());
+        aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWork_position());
 
         //cursor
-        cursor.translateXProperty().bind(tg.m.getAxisByName("x").getWork_position());
-        cursor.translateYProperty().bind(tg.m.getAxisByName("y").getWork_position());
-
-//        xAxisVal.textProperty().addListener(sc);
-
-
-
+//        cursorPoint.layoutXProperty().bind(tg.m.getAxisByName("x").getWork_position());
+//        cursorPoint.layoutYProperty().bind(tg.m.getAxisByName("y").getWork_position());
 
 
         BasicConfigurator.configure();
@@ -1396,42 +1466,7 @@ public class Main implements Initializable, Observer {
 
 
         logger.info("[+]tgFX is starting....");
-        //Make our canvas as big as the hbox that holds it is.
-        //drawingCanvas.setWidth(canvasHolder.getWidth());
-        //drawingCanvas.setHeight(canvasHolder.getMaxHeight());
-
-
-        //drawingCanvas.setWidth(727);
-        //drawingCanvas.setHeight(515);
-
-        //double HEIGHT = drawingCanvas.getHeight();
-        //double WIDTH = drawingCanvas.getWidth();
-
-        //gp = drawingCanvas.getGraphicsContext2D();
-//        gp.setFill(Color.RED);
-//        gp.getCanvas().setWidth(100);
-//        gp.getCanvas().toFront();
-//        gp.setLineWidth(2);
-//        gp.setStroke(Color.AZURE);
-//        gp.strokeLine(0,0,100,100);
-//        gp.setStroke(Color.PINK);
-//        gp.strokeLine(100,100,0,100);
-//        
-//        gp.setStroke(Color.CYAN);
-//        gp.strokeLine(0,HEIGHT, WIDTH,0);
-//        gp.setStroke(Color.BLANCHEDALMOND);
-//        gp.strokeLine(gp.getCanvas().getWidth()/2,gp.getCanvas().getHeight()/2,0,0);
-////
-//        gp.setStroke(Color.ORANGE);
-//        
-//        gp.strokeLine(0, 0, 10, gp.getCanvas().getHeight()-5);
-//        gp.setStroke(Color.BLUE);
-//        gp.strokeLine(0,0,gp.getCanvas().getHeight()-5,10);
-//        
-//        
-//        gp.setFill(Color.BLUE);
-//        
-//        gp.rect(10, 5, 10, 5);
+        
 
         //Gcode Mapping
         data = FXCollections.observableArrayList();
@@ -1451,9 +1486,9 @@ public class Main implements Initializable, Observer {
         threadResponseParser.setName("ResponseParser");
         threadResponseParser.start();
 
-        //Thread remoteListener = new Thread(initRemoteServer("8888"));
-        //remoteListener.setName("Remote Listener Thread");
-        //remoteListener.start();
+//        Thread remoteListener = new Thread(initRemoteServer("8888"));
+//        remoteListener.setName("Remote Listener Thread");
+//        remoteListener.start();
 
         tg.resParse.addObserver(this);
         this.reScanSerial();//Populate our serial ports

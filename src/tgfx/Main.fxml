@@ -19,7 +19,7 @@
 
 <fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" style="&#10;" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
   <children>
-    <BorderPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: grey&#10;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <BorderPane prefHeight="800.0" prefWidth="1280.0" style="&#10;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
         <VBox alignment="CENTER" style="-fx-background-color: grey" BorderPane.alignment="CENTER">
           <children>
@@ -113,7 +113,7 @@
             <Long fx:value="5" />
           </spacing>
           <BorderPane.margin>
-            <Insets />
+            <Insets fx:id="x7" />
           </BorderPane.margin>
         </VBox>
       </bottom>
@@ -128,242 +128,100 @@
           <tabs>
             <Tab fx:id="gcode_tab" closable="false" text="Gcode">
               <content>
-                <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <HBox alignment="CENTER" fillHeight="true" padding="$x7" prefHeight="-1.0" prefWidth="-1.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));" visible="true">
                   <children>
-                    <HBox alignment="CENTER" prefHeight="519.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <VBox alignment="CENTER" blendMode="SRC_ATOP" maxWidth="300.0" minWidth="200.0" prefHeight="300.0" prefWidth="266.0" style="" visible="true" HBox.hgrow="ALWAYS">
                       <children>
-                        <VBox style="-fx-background-color: grey&#10;" HBox.hgrow="NEVER">
+                        <HBox id="gcodeFile" alignment="TOP_CENTER">
                           <children>
-                            <HBox id="gcodeFile" alignment="TOP_CENTER">
-                              <children>
-                                <Button fx:id="gcodeZero" onAction="#zeroSystem" text="Zero" />
-                                <Button fx:id="btnClearScreen" onAction="#handleClearScreen" text="Clear Screen" />
-                              </children>
-                              <spacing>
-                                <Long fx:value="5" />
-                              </spacing>
-                              <VBox.margin>
-                                <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-                              </VBox.margin>
-                            </HBox>
-                            <TableView fx:id="gcodeView" prefHeight="400.0" prefWidth="200.0">
-                              <columns>
-                                <TableColumn id="gcodeCol" minWidth="250.0" prefWidth="250.0" sortable="false" text="Gcode Program" fx:id="gcodeCol" />
-                              </columns>
-                            </TableView>
-                            <HBox id="gcodeFile" fx:id="command_bar" alignment="TOP_CENTER" padding="$x1_x0" spacing="10.0">
-                              <children>
-                                <Button onAction="#handleOpenFile" text="Open File" />
-                                <Button fx:id="runBtn" onAction="#handleRunFile" text="Run" />
-                                <Button fx:id="pauseResume" onAction="#handlePauseResumeAct" text="Pause" />
-                              </children>
-                            </HBox>
-                            <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
-                              <children>
-                                <Button fx:id="cancelBtn" onAction="#handleCancelFile" prefWidth="131.0" style="-fx-background-color:red" text="Cancel" underline="false" HBox.hgrow="NEVER">
-                                  <HBox.margin>
-                                    <Insets />
-                                  </HBox.margin>
-                                </Button>
-                                <Button fx:id="btnTest" mnemonicParsing="false" onAction="#handleTestButton" text="Test" />
-                              </children>
-                              <padding>
-                                <Insets top="10.0" />
-                              </padding>
-                            </HBox>
+                            <Button fx:id="gcodeZero" onAction="#zeroSystem" text="Zero" />
+                            <Button fx:id="btnClearScreen" onAction="#handleClearScreen" text="Clear Screen" />
                           </children>
-                          <maxWidth>
-                            <Long fx:value="250" />
-                          </maxWidth>
-                          <minWidth>
-                            <Long fx:value="250" />
-                          </minWidth>
-                          <prefHeight>
-                            <Long fx:value="-1" />
-                          </prefHeight>
-                          <prefWidth>
-                            <Long fx:value="250" />
-                          </prefWidth>
-                        </VBox>
-                        <AnchorPane id="AnchorPane" prefHeight="515.0" prefWidth="361.0" style="-fx-background-color: grey" HBox.hgrow="ALWAYS">
+                          <spacing>
+                            <Long fx:value="5" />
+                          </spacing>
+                          <VBox.margin>
+                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
+                          </VBox.margin>
+                        </HBox>
+                        <TableView fx:id="gcodeView" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+                          <columns>
+                            <TableColumn id="gcodeCol" maxWidth="500.0" minWidth="290.0" prefWidth="250.0" resizable="true" sortable="false" text="Gcode Program" fx:id="gcodeCol" />
+                          </columns>
+                          <VBox.margin>
+                            <Insets bottom="15.0" left="5.0" right="5.0" top="15.0" />
+                          </VBox.margin>
+                        </TableView>
+                        <HBox id="gcodeFile" fx:id="command_bar" alignment="TOP_CENTER" padding="$x1_x0" spacing="10.0">
                           <children>
-                            <HBox padding="$x6" style="fx-background-color:yellow" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                              <children>
-                                <HBox fx:id="canvasHolder" alignment="CENTER" onScroll="#handleMouseScroll" style="-fx-background-color: black" HBox.hgrow="ALWAYS">
-                                  <children>
-                                    <Group fx:id="drawingCanvas" onScroll="#handleMouseScroll" style="-fx-background-color: black" HBox.hgrow="ALWAYS">
-                                      <HBox.margin>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
-                                      </HBox.margin>
-                                    </Group>
-                                    <Circle fx:id="cursor" fill="DODGERBLUE" radius="4.0" stroke="BLACK" strokeType="INSIDE" />
-                                    <!--                                    <Group fx:id="drawingCanvas" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
-                                  </children>
-                                  <prefHeight>
-                                    <Long fx:value="-1" />
-                                  </prefHeight>
-                                  <prefWidth>
-                                    <Long fx:value="-1" />
-                                  </prefWidth>-->
-                                  </children>
-                                </HBox>
-                                <VBox fx:id="gcode_preview" alignment="CENTER_RIGHT" style="-fx-background-color: grey&#10;" HBox.hgrow="NEVER">
-                                  <children>
-                                    <HBox alignment="CENTER" style="-fx-background-color: red;&#10; -fx-background-radius: 9,8,5,4;" VBox.margin="$x6">
-                                      <children>
-                                        <Label id="droTitle" fx:id="xAxis" text="X" />
-                                        <Label id="dro" fx:id="xAxisVal" contentDisplay="CENTER" text="0.000">
-                                          <maxWidth>
-                                            <Long fx:value="-1" />
-                                          </maxWidth>
-                                          <minWidth>
-                                            <Long fx:value="200" />
-                                          </minWidth>
-                                          <prefWidth>
-                                            <Long fx:value="-1" />
-                                          </prefWidth>
-                                          <HBox.margin>
-                                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-                                          </HBox.margin>
-                                        </Label>
-                                      </children>
-                                      <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
-                                      </padding>
-                                      <prefHeight>
-                                        <Long fx:value="-1" />
-                                      </prefHeight>
-                                      <prefWidth>
-                                        <Long fx:value="-1" />
-                                      </prefWidth>
-                                      <spacing>
-                                        <Long fx:value="5" />
-                                      </spacing>
-                                    </HBox>
-                                    <HBox alignment="CENTER" padding="$x6" style="-fx-background-color: orange;&#10;    -fx-background-radius: 9,8,5,4;&#10;&#10;" VBox.margin="$x6">
-                                      <children>
-                                        <Label id="droTitle" fx:id="yAxis" text="Y" />
-                                        <Label id="dro" fx:id="yAxisVal" text="0.000">
-                                          <maxWidth>
-                                            <Long fx:value="-1" />
-                                          </maxWidth>
-                                          <minWidth>
-                                            <Long fx:value="200" />
-                                          </minWidth>
-                                          <HBox.margin>
-                                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-                                          </HBox.margin>
-                                        </Label>
-                                      </children>
-                                      <prefHeight>
-                                        <Long fx:value="-1" />
-                                      </prefHeight>
-                                      <prefWidth>
-                                        <Long fx:value="-1" />
-                                      </prefWidth>
-                                      <spacing>
-                                        <Long fx:value="5" />
-                                      </spacing>
-                                    </HBox>
-                                    <HBox alignment="CENTER" padding="$x6" style="-fx-background-color: purple;&#10; -fx-background-radius: 9,8,5,4;&#10;" VBox.margin="$x6">
-                                      <children>
-                                        <Label id="droTitle" fx:id="zAxis" text="Z" />
-                                        <Label id="dro" fx:id="zAxisVal" text="0.000">
-                                          <maxWidth>
-                                            <Long fx:value="-1" />
-                                          </maxWidth>
-                                          <minWidth>
-                                            <Long fx:value="200" />
-                                          </minWidth>
-                                          <HBox.margin>
-                                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-                                          </HBox.margin>
-                                        </Label>
-                                      </children>
-                                      <prefHeight>
-                                        <Long fx:value="-1" />
-                                      </prefHeight>
-                                      <prefWidth>
-                                        <Long fx:value="-1" />
-                                      </prefWidth>
-                                      <spacing>
-                                        <Long fx:value="5" />
-                                      </spacing>
-                                    </HBox>
-                                    <HBox alignment="CENTER" padding="$x6" style="-fx-background-color: blue;&#10; -fx-background-radius: 9,8,5,4;" VBox.margin="$x6">
-                                      <children>
-                                        <Label id="droTitle" fx:id="aAxis" text="A" />
-                                        <Label id="dro" fx:id="aAxisVal" text="0.000">
-                                          <maxWidth>
-                                            <Long fx:value="-1" />
-                                          </maxWidth>
-                                          <minWidth>
-                                            <Long fx:value="200" />
-                                          </minWidth>
-                                          <HBox.margin>
-                                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-                                          </HBox.margin>
-                                        </Label>
-                                      </children>
-                                      <prefHeight>
-                                        <Long fx:value="-1" />
-                                      </prefHeight>
-                                      <prefWidth>
-                                        <Long fx:value="-1" />
-                                      </prefWidth>
-                                      <spacing>
-                                        <Long fx:value="5" />
-                                      </spacing>
-                                    </HBox>
-                                  </children>
-                                  <maxHeight>
-                                    <Long fx:value="515" />
-                                  </maxHeight>
-                                  <maxWidth>
-                                    <Long fx:value="283" />
-                                  </maxWidth>
-                                  <minHeight>
-                                    <Long fx:value="-1" />
-                                  </minHeight>
-                                  <minWidth>
-                                    <Long fx:value="-1" />
-                                  </minWidth>
-                                  <padding>
-                                    <Insets left="5.0" fx:id="x3" />
-                                  </padding>
-                                  <prefHeight>
-                                    <Long fx:value="-1" />
-                                  </prefHeight>
-                                  <prefWidth>
-                                    <Long fx:value="-1" />
-                                  </prefWidth>
-                                  <spacing>
-                                    <Long fx:value="5" />
-                                  </spacing>
-                                </VBox>
-                              </children>
-                              <prefHeight>
-                                <Long fx:value="-1" />
-                              </prefHeight>
-                              <prefWidth>
-                                <Long fx:value="-1" />
-                              </prefWidth>
-                            </HBox>
+                            <Button onAction="#handleOpenFile" text="Open File" />
+                            <Button fx:id="runBtn" onAction="#handleRunFile" text="Run" />
+                            <Button fx:id="pauseResume" onAction="#handlePauseResumeAct" text="Pause" />
+                          </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+                          <children>
+                            <Button fx:id="cancelBtn" onAction="#handleCancelFile" prefWidth="131.0" style="-fx-background-color:red" text="Cancel" underline="false" HBox.hgrow="NEVER">
+                              <HBox.margin>
+                                <Insets fx:id="x7" />
+                              </HBox.margin>
+                            </Button>
+                            <Button fx:id="btnTest" mnemonicParsing="false" onAction="#handleTestButton" text="Test" />
                           </children>
                           <padding>
-                            <Insets left="5.0" fx:id="x3" />
+                            <Insets top="10.0" />
                           </padding>
-                        </AnchorPane>
+                        </HBox>
                       </children>
-                      <spacing>
-                        <Long fx:value="0" />
-                      </spacing>
-                    </HBox>
+                      <padding>
+                        <Insets bottom="15.0" left="10.0" right="10.0" />
+                      </padding>
+                    </VBox>
+                    <StackPane id="StackPane" alignment="CENTER_RIGHT" style="" HBox.hgrow="ALWAYS">
+                      <children>
+                        <Pane fx:id="previewPane" blendMode="SRC_ATOP" prefHeight="-1.0" prefWidth="-1.0" style="" StackPane.alignment="BOTTOM_RIGHT">
+                          <children>
+                            <VBox layoutX="384.0" layoutY="195.0" prefHeight="-1.0" prefWidth="-1.0" visible="false">
+                              <children>
+                                <HBox prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="NEVER">
+                                  <children>
+                                    <Label fx:id="xposT" text="" />
+                                  </children>
+                                </HBox>
+                                <HBox prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="NEVER">
+                                  <children>
+                                    <Label fx:id="yposT" text="" />
+                                  </children>
+                                </HBox>
+                                <StackPane fx:id="cursorPoint" prefHeight="-1.0" prefWidth="-1.0" rotate="45.0">
+                                  <children>
+                                    <Line endX="0.0" endY="50.0" startX="0.0" stroke="DODGERBLUE" />
+                                    <Circle fx:id="cursor" fill="DODGERBLUE" radius="5.0" stroke="BLACK" strokeType="INSIDE" />
+                                    <Line endX="50.0" startX="0.0" stroke="DODGERBLUE" />
+                                  </children>
+                                </StackPane>
+                              </children>
+                            </VBox>
+                          </children>
+                        </Pane>
+                        <VBox fx:id="positionsVbox" alignment="CENTER" fillWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" style="" StackPane.alignment="TOP_RIGHT">
+                          <padding>
+                            <Insets right="15.0" top="15.0" />
+                          </padding>
+                          <StackPane.margin>
+                            <Insets top="15.0" />
+                          </StackPane.margin>
+                        </VBox>
+                      </children>
+                      <HBox.margin>
+                        <Insets fx:id="x7" />
+                      </HBox.margin>
+                    </StackPane>
                   </children>
-                  <padding>
-                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
-                  </padding>
-                </AnchorPane>
+                  <spacing>
+                    <Long fx:value="0" />
+                  </spacing>
+                </HBox>
               </content>
             </Tab>
             <Tab fx:id="config_tab" closable="false" text="Axis / Motor Settings">
@@ -649,7 +507,7 @@
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
                                   </padding>
                                   <VBox.margin>
-                                    <Insets />
+                                    <Insets fx:id="x7" />
                                   </VBox.margin>
                                 </HBox>
                                 <TabPane id="motorTabPane" fx:id="axisTabPane" side="LEFT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
@@ -725,7 +583,7 @@
                                                 <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
-                                            <TextField fx:id="axisXlatchBackoff" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                            <TextField fx:id="axisXlatchBackoff" onKeyPressed="#handleAxisEnter" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                                           </children>
                                           <columnConstraints>
                                             <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
@@ -817,7 +675,7 @@
                                                 <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
-                                            <TextField fx:id="axisYlatchBackoff" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                            <TextField fx:id="axisYlatchBackoff" onKeyPressed="#handleAxisEnter" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                                           </children>
                                           <columnConstraints>
                                             <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
@@ -909,7 +767,7 @@
                                                 <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
-                                            <TextField fx:id="axisZlatchBackoff" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                            <TextField fx:id="axisZlatchBackoff" onKeyPressed="#handleAxisEnter" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                                           </children>
                                           <columnConstraints>
                                             <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
@@ -1001,7 +859,7 @@
                                                 <Button id="applyAxisSettings" onAction="#handleAxisApplySettings" text="Apply" />
                                               </children>
                                             </HBox>
-                                            <TextField fx:id="axisAlatchBackoff" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                            <TextField fx:id="axisAlatchBackoff" onKeyPressed="#handleAxisEnter" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                                             <Label text="Radius" GridPane.columnIndex="0" GridPane.rowIndex="6" />
                                             <TextField id="tbaxisARadius" fx:id="axisAradius" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                                           </children>
@@ -1234,7 +1092,7 @@
                     </VBox>
                   </children>
                   <padding>
-                    <Insets />
+                    <Insets fx:id="x7" />
                   </padding>
                 </AnchorPane>
               </content>
@@ -1261,7 +1119,7 @@
                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
                                           </padding>
                                           <VBox.margin>
-                                            <Insets />
+                                            <Insets fx:id="x7" />
                                           </VBox.margin>
                                         </HBox>
                                         <GridPane alignment="CENTER_LEFT" hgap="15.0" style="-fx-padding: 10" vgap="15.0" VBox.vgrow="NEVER">
@@ -1345,7 +1203,7 @@
                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x6" />
                                           </padding>
                                           <VBox.margin>
-                                            <Insets />
+                                            <Insets fx:id="x7" />
                                           </VBox.margin>
                                         </HBox>
                                         <GridPane hgap="15.0" style="-fx-padding: 10" vgap="15.0" VBox.vgrow="NEVER">
@@ -1515,9 +1373,9 @@
         </TabPane>
       </center>
       <top>
-        <HBox alignment="CENTER" style="-fx-background-color: black&#10;">
+        <HBox fx:id="topMainTitle" alignment="CENTER" style="&#10;&#10;">
           <children>
-            <AnchorPane HBox.hgrow="ALWAYS">
+            <AnchorPane style="" HBox.hgrow="ALWAYS">
               <children>
                 <StackPane AnchorPane.bottomAnchor="25.5" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="25.5">
                   <children>

@@ -7,16 +7,14 @@ package tgfx.system;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javafx.application.Platform;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import tgfx.tinyg.MnemonicManager;
 import org.json.JSONObject;
 import tgfx.tinyg.TinygDriver;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import tgfx.tinyg.responseCommand;
 
 /**
@@ -33,7 +31,7 @@ public class Machine {
     public SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();
     public StringProperty firmwareVersion = new SimpleStringProperty();
     public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
-    private SimpleStringProperty gcodeUnitMode = new SimpleStringProperty();
+    private SimpleStringProperty gcodeUnitMode = new SimpleStringProperty("mm");
     private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
 //    private float firmware_version;
     private int status_report_interval;
@@ -568,6 +566,52 @@ public class Machine {
         m.setMapToAxis(x);
     }
 
+    public void applyJsonStatusReport(JSONObject js, String parent) {
+
+        Iterator ii = js.keySet().iterator();
+        try {
+            while (ii.hasNext()) {
+                String _key = ii.next().toString();
+                String _val = js.get(_key).toString();
+                final responseCommand rc = new responseCommand(parent, _key, _val);
+
+                switch (rc.getSettingKey()) {
+                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
+                        TinygDriver.getInstance().m.setLine_number(Integer.valueOf(rc.getSettingValue()));
+                        break;
+                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_MOTION_MODE):
+                        TinygDriver.getInstance().m.setMotionMode(Integer.valueOf(rc.getSettingValue()));
+                        break;
+                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
+                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey()).setWork_position(Double.valueOf(rc.getSettingValue()));
+                        break;
+                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
+                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey()).setWork_position(Double.valueOf(rc.getSettingValue()));
+                        break;
+                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
+                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey()).setWork_position(Double.valueOf(rc.getSettingValue()));
+                        break;
+                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
+                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey()).setWork_position(Double.valueOf(rc.getSettingValue()));
+                        break;
+                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
+                        TinygDriver.getInstance().m.setMachineState(Integer.valueOf(rc.getSettingValue()));
+                        break;
+                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_UNITS):
+                        TinygDriver.getInstance().m.setGcodeUnits(Integer.valueOf(rc.getSettingValue()));
+                        break;
+                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
+                        TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
+                        break;
+                }
+                
+                
+            }
+        } catch (JSONException | NumberFormatException ex) {
+            
+        }
+    }
+
 //This is the main method to parser a JSON sys object
     public void applyJsonSystemSetting(JSONObject js, String parent) {
         logger.info("Applying JSON Object to System Group");
@@ -678,8 +722,6 @@ public class Machine {
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
 
                         break;
-
-
                 }
             }
 

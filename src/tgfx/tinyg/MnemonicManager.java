@@ -5,7 +5,6 @@
 package tgfx.tinyg;
 
 import java.util.ArrayList;
-import tgfx.tinyg.TinygDriver;
 
 /**
  *
@@ -57,13 +56,14 @@ public class MnemonicManager {
     public static final String MNEMONIC_MOTOR_POWER_MANAGEMENT = "pm";
     //Status Report
     public static final String MNEMONIC_STATUS_REPORT_LINE = "line";
-    public static final String MNEMONIC_STATUS_REPORT_POSX = "posx";
-    public static final String MNEMONIC_STATUS_REPORT_POSY = "posy";
-    public static final String MNEMONIC_STATUS_REPORT_POSZ = "posz";
-    public static final String MNEMONIC_STATUS_REPORT_POSA = "posa";
+    public static final String MNEMONIC_STATUS_REPORT_POSX = "x";
+    public static final String MNEMONIC_STATUS_REPORT_POSY = "y";
+    public static final String MNEMONIC_STATUS_REPORT_POSZ = "z";
+    public static final String MNEMONIC_STATUS_REPORT_POSA = "a";
     public static final String MNEMONIC_STATUS_REPORT_VELOCITY = "vel";
     public static final String MNEMONIC_STATUS_REPORT_MOTION_MODE = "momo";
     public static final String MNEMONIC_STATUS_REPORT_STAT = "stat";
+    public static final String MNEMONIC_STATUS_REPORT_UNITS = "unit";
     //System MNEMONICS
     public static final String MNEMONIC_SYSTEM_FIRMWARE_BUILD = "fb";
     public static final String MNEMONIC_SYSTEM_FIRMWARE_VERSION = "fv";
@@ -135,10 +135,15 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_SWITCH_TYPE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_TEXT_VOBERSITY);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_LAST_MESSAGE); //EEPROM values loading.. System Ready etc..
-
-
-
-
+        //Status Report
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_LINE);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_MOTION_MODE);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_POSA);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_POSX);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_POSY);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_POSZ);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_UNITS);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_VELOCITY);
     }
 
     public responseCommand lookupSingleGroup(String strToLookup) {
@@ -146,9 +151,6 @@ public class MnemonicManager {
         // belongs in which group.
 
         responseCommand rc = new responseCommand();
-
-
-    
         
         if (AXIS_MNEMONICS.contains(strToLookup.substring(1))) {
             rc.setSettingParent(String.valueOf(strToLookup.charAt(0)));
@@ -158,35 +160,15 @@ public class MnemonicManager {
             rc.setSettingParent(String.valueOf(strToLookup.charAt(0)));
             rc.setSettingKey(strToLookup.substring(1));
             return (rc);
-        }else if(SYS_MNEMONICS.contains(strToLookup)){
+        } else if (SYS_MNEMONICS.contains(strToLookup)) {
             rc.setSettingParent(MNEMONIC_GROUP_SYSTEM);
             rc.setSettingKey(strToLookup);
             return (rc);
+        } else if (STATUS_MNEMONICS.contains(strToLookup)) {
+            rc.setSettingParent(MNEMONIC_GROUP_STATUS_REPORT);
+            rc.setSettingKey(strToLookup);
+            return (rc);
         }
-//        for (String s : AXIS_MNEMONICS) {
-//            if (s.equals(strToLookup)) {
-//                rc.setSettingParent(s);
-//                rc.setSettingKey(s.substring(1));
-//                return (rc);
-//            }
-//        }
-//        for (Integer i = 1; i != TinygDriver.getInstance().m.getNumberOfMotors(); i++) { //iterate the motors
-//            for (String s : MOTOR_MNEMONICS) {
-//                if ((String.valueOf(i) + s).equals(strToLookup)) {
-//                    rc.setSettingParent(i.toString());
-//                    rc.setSettingKey(s.substring(1));
-//                    return (rc); //return the motor number as the group
-//                }
-//            }
-//        }
-//
-//        for (String s : SYS_MNEMONICS) {
-//            if (s.equals(strToLookup)) {
-//                rc.setSettingParent(s.toString());
-//                rc.setSettingKey(s.substring(1));
-//                return (rc);
-//            }
-//        }
         return null;
     }
 }

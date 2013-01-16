@@ -6,6 +6,57 @@
         Purpose of the stylesheet follows.
 */
 
+.button {
+    -fx-padding: 5 22 5 22;   
+    -fx-border-color: #e2e2e2;
+    -fx-border-width: 2;
+
+    -fx-background-radius: 0;
+
+    -fx-background-color: #1d1d1d;
+  
+     -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-font-size: 11pt;
+    -fx-text-fill: #d8d8d8;
+}
+
+.button:hover{
+    -fx-background-color: #3a3a3a;
+}
+
+.button:pressed, .button:default:hover:pressed
+{
+  -fx-background-color: white;
+  -fx-text-fill: #1d1d1d;
+}
+
+.button:focused
+{
+    -fx-border-color: white, white;
+    -fx-border-width: 1, 1;
+    -fx-border-style: solid, segments(1, 1);
+    -fx-border-radius: 0, 0;
+    -fx-border-insets: 1 1 1 1, 0;
+}
+
+.button:disabled, .button:default:disabled
+{
+    -fx-opacity: 0.4;
+    -fx-background-color: #1d1d1d;
+    -fx-text-fill: white;
+}
+
+.button:default
+{
+    -fx-background-color: #008287;
+    -fx-text-fill: #ffffff;
+}
+
+.button:default:hover{
+    -fx-background-color: #219297;
+}
+
+
 root { 
     display: block;
 }
@@ -34,6 +85,19 @@ root {
     -fx-text-fill: linear-gradient(white, #d0d0d0);
 }
 
+#topMainTitle {
+    
+    /*-fx-background-color: hsl(0,0%,90%);*/
+/*    -webkit-box-shadow: inset hsla(0,0%,15%,  1) 0  0px 0px 4px, 	 border 
+        inset hsla(0,0%,15%, .8) 0 -1px 5px 4px, 	 soft SD 
+        inset hsla(0,0%,0%, .25) 0 -1px 0px 7px,	 bottom SD 
+	inset hsla(0,0%,100%,.7) 0  2px 1px 7px, 	 top HL 
+        hsla(0,0%, 0%,.15) 0 -5px 6px 4px, 	 outer SD 
+        hsla(0,0%,100%,.5) 0  5px 6px 4px;	 outer HL 	
+	-webkit-transition: color .2s;*/
+    
+    -fx-background-color: black;
+}
 
 #droTitle {
     /*
@@ -62,3 +126,34 @@ root {
     -fx-text-overrun: clip;
     -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

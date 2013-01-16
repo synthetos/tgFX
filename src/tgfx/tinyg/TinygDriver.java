@@ -10,6 +10,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import tgfx.ResponseParser;
 import tgfx.SerialDriver;
@@ -65,6 +66,11 @@ public class TinygDriver extends Observable {
 
    
 
+    public void queryHardwareSingleAxisSettings(char c){
+        //Our queryHardwareSingleAxisSetting function for chars
+        queryHardwareSingleAxisSettings(String.valueOf(c));
+    }
+    
     public void queryHardwareSingleAxisSettings(String _axis) {
         try {
             switch (_axis.toLowerCase()) {
@@ -251,7 +257,7 @@ public class TinygDriver extends Observable {
                 try {
                     applyHardwareMotorSettings(_motor, tf);
                 } catch (Exception _ex) {
-                    System.out.println("[!]Exception in applyHardwareMotorSettings(Tab _tab)");
+                    logger.error("[!]Exception in applyHardwareMotorSettings(Tab _tab)");
                 }
             } else if (_gp.getChildren().get(i) instanceof ChoiceBox) {
                 @SuppressWarnings("unchecked")
@@ -339,6 +345,7 @@ public class TinygDriver extends Observable {
     }
 
     private TinygDriver() {
+        logger.setLevel(Level.ERROR);
     }
 
     private static class TinygDriverHolder {

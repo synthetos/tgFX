@@ -23,6 +23,7 @@ public class SerialWriter implements Runnable {
     //   public Condition clearToSend = lock.newCondition();
     public SerialWriter(BlockingQueue q) {
         this.queue = q;
+        
     }
 
     public boolean isRUN() {

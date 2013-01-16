@@ -4,9 +4,7 @@
  */
 package tgfx.tinyg;
 
-import com.sun.javafx.scene.control.Keystroke;
 import org.apache.log4j.Logger;
-import tgfx.ResponseParser;
 
 /**
  *
@@ -21,6 +19,7 @@ public class CommandManager {
     public static final String CMD_QUERY_HARDWARE_BUILD_NUMBER = "{\"fb\":\"\"}\n";
     public static final String CMD_QUERY_HARDWARE_FIRMWARE_NUMBER = "{\"fv\":\"\"}\n";
     public static final String CMD_QUERY_OK_PROMPT = "{\"gc\":\"?\"}\n";
+    
     
     public static final String CMD_QUERY_STATUS_REPORT = "{\"sr\":\"\"}\n";
     public static final String CMD_QUERY_AXIS_X = "{\"x\":null}\n";
@@ -50,6 +49,7 @@ public class CommandManager {
     public static final String CMD_APPLY_DISABLE_HASHCODE = "{\"eh\":0\"}\n";
     public static final String CMD_APPLY_DEFAULT_SETTINGS = "{\"defaults\":1}\n";
     public static final String CMD_APPLY_STATUS_UPDATE_INTERVAL = "{\"si\":200}\n";
+    public static final String CMD_APPLY_JSON_VOBERSITY = "{\"jv\":3}\n";
     public static final String CMD_APPLY_PAUSE = "!\n";
     public static final String CMD_APPLY_RESUME = "~\n";
     
