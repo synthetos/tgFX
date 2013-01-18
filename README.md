@@ -1,5 +1,6 @@
 tgFX
 ====
+This is the DEV branch.  This mostly likely will not work from day to day.  Use Master.
 
 A JavaFX 2 based GUI controller for the TinyG motion controller.
 
