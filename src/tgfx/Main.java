@@ -948,64 +948,6 @@ public class Main implements Initializable, Observer {
 
     }
 
-    private void updateGuiState(String line) {
-        final String l = line;
-        if (l.contains("msg")) {
-            //Pass this on by..
-        } else if (line.equals("BUILD_UPDATE")) {
-            Platform.runLater(new Runnable() {
-                float vel;
-
-                public void run() {
-                    //We are now back in the EventThread and can update the GUI
-                    try {
-                        srBuild.setText(String.valueOf(tg.m.getFirmwareBuild()));
-                        srVer.setText(String.valueOf(tg.m.getFirmwareVersion()));
-                    } catch (Exception ex) {
-                        System.out.println("[!]Exception in UpdateGUI State()");
-                        System.out.println(ex.getMessage());
-                    }
-
-                }
-            });
-
-        } else if (line.equals("STATUS_REPORT")) {
-            Platform.runLater(new Runnable() {
-                float vel;
-
-                public void run() {
-                    //We are now back in the EventThread and can update the GUI
-                    try {
-
-                        xAxisVal.setText(String.valueOf(tg.m.getAxisByName("X").getWork_position())); //json.getNode("sr").getNode("posx").getText());
-                        yAxisVal.setText(String.valueOf(tg.m.getAxisByName("Y").getWork_position()));
-                        zAxisVal.setText(String.valueOf(tg.m.getAxisByName("Z").getWork_position()));
-                        aAxisVal.setText(String.valueOf(tg.m.getAxisByName("A").getWork_position()));
-
-                        //Update State... running stop homing etc.
-//                        srState.setText(tg.m.getMachineState().toString().toUpperCase());
-//                        srUnits.setText(tg.m.getGcodeUnitMode().toString());
-
-//                        srMomo.setText(tg.m.getMotionMode().toString().replace("_", " ").toUpperCase());
-                        //Set the motion mode
-
-                        //Parse the veloicity 
-//                        vel = tg.m.getVelocity();
-//                        srVelo.setText(String.valueOf(vel));
-
-
-
-                    } catch (Exception ex) {
-                        System.out.println("[!]Error in UpdateGuiState -> STATUS_REPORT");
-                        System.out.println(ex.getMessage());
-                    }
-
-                }
-            });
-
-        }
-    }
-
     private void updateGUIConfigState() {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
@@ -1074,8 +1016,8 @@ public class Main implements Initializable, Observer {
                 //We are now back in the EventThread and can update the GUI
                 try {
                     Machine m = TinygDriver.getInstance().m;
-                    srBuild.setText(String.valueOf(m.getFirmwareBuild()));
-                    srVer.setText(String.valueOf(m.getFirmwareVersion()));
+//                    srBuild.setText(String.valueOf(m.getFirmwareBuild()));
+//                    srVer.setText(String.valueOf(m.getFirmwareVersion()));
                     gcodePlane.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_select_plane().ordinal());
 //                    gcodeUnitMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_units().ordinal());
 //                    gcodeCoordSystem.getSelectionModel().select(TinygDriver.getInstance().m.getCoordinateSystem().ordinal());
@@ -1123,7 +1065,7 @@ public class Main implements Initializable, Observer {
             } else if (ROUTING_KEY.equals("NETWORK_MESSAGE")) {  //unused
                 //updateExternal();
             } else if (ROUTING_KEY.equals("MACHINE_UPDATE")) {
-                //updateGuiMachineSettings(ROUTING_KEY);
+                updateGuiMachineSettings(ROUTING_KEY);
             } else {
                 System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
             }

@@ -251,7 +251,7 @@ public class ResponseParser extends Observable implements Runnable {
                 TinygDriver.getInstance().m.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
 
                 setChanged();
-                message[0] = "CMD_GET_MACHINE_SETTINGS";
+                message[0] = "MACHINE_UPDATE";
                 message[1] = null;
                 notifyObservers(message);
                 break;

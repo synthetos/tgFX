@@ -604,11 +604,10 @@ public class Machine {
                         TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
                         break;
                 }
-                
-                
+
+
             }
         } catch (JSONException | NumberFormatException ex) {
-            
         }
     }
 
@@ -658,7 +657,7 @@ public class Machine {
                         TinygDriver.getInstance().m.setCoordinateSystem(rc.getSettingValue());
                         break;
 
-                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_DISANCE_MODE):
+                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_DISTANCE_MODE):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().m.setGcodeDistanceMode(rc.getSettingValue());
                         break;
@@ -720,12 +719,20 @@ public class Machine {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_LAST_MESSAGE):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-
                         break;
+
                 }
+
+                //Here we are going to have the resParser notifiy the GUI observer that it has changed 
+                //This is so we get updates to the GUI when the system changes.
+//                String[] message = new String[2];
+//                message[0] = "MACHINE_UPDATE";
+//                message[1] = null;
+//                TinygDriver.getInstance().resParse.hasChanged();
+//                TinygDriver.getInstance().resParse.notifyObservers(message);
             }
 
-        } catch (Exception ex) {
+        } catch (JSONException | NumberFormatException ex) {
             logger.error("Error in ApplyJsonSetting in Machine:SYS group");
         }
 
