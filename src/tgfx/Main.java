@@ -1325,7 +1325,7 @@ public class Main implements Initializable, Observer {
         xLcd = buildSingleDRO(xLcd, STYLE_MODEL_X, "X Axis Position", tg.m.getGcodeUnitMode().get());
         yLcd = buildSingleDRO(yLcd, STYLE_MODEL_Y, "Y Axis Position",tg.m.getGcodeUnitMode().get());
         zLcd = buildSingleDRO(zLcd, STYLE_MODEL_Z, "Z Axis Position",tg.m.getGcodeUnitMode().get());
-        aLcd = buildSingleDRO(aLcd, STYLE_MODEL_A, "A Axis Position","Deg");
+        aLcd = buildSingleDRO(aLcd, STYLE_MODEL_A, "A Axis Position","°");
 
         StackPane droStackPane = new StackPane();
         droStackPane.getChildren().addAll(xLcd, yLcd, zLcd, aLcd);

@@ -39,6 +39,17 @@
     -fx-border-insets: 1 1 1 1, 0;
 }
 
+#lblMachine{
+    -fx-text-fill: white;
+}
+
+
+#lblAxis{
+    -fx-text-fill: white;
+}
+
+
+
 .button:disabled, .button:default:disabled
 {
     -fx-opacity: 0.4;
@@ -87,8 +98,15 @@ root {
 
 #topMainTitle {
     
-    /*-fx-background-color: hsl(0,0%,90%);*/
-/*    -webkit-box-shadow: inset hsla(0,0%,15%,  1) 0  0px 0px 4px, 	 border 
+    
+-fx-background-color:
+        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+        linear-gradient(#20262b, #191d22),
+        radial-gradient(center 80% 10%, radius 80%, rgba(255, 266, 266,0.9), rgba(255,255,255,0));
+
+    
+/*    -fx-background-color: hsl(0,0%,90%);
+    -webkit-box-shadow: inset hsla(0,0%,15%,  1) 0  0px 0px 4px, 	 border 
         inset hsla(0,0%,15%, .8) 0 -1px 5px 4px, 	 soft SD 
         inset hsla(0,0%,0%, .25) 0 -1px 0px 7px,	 bottom SD 
 	inset hsla(0,0%,100%,.7) 0  2px 1px 7px, 	 top HL 
@@ -96,7 +114,7 @@ root {
         hsla(0,0%,100%,.5) 0  5px 6px 4px;	 outer HL 	
 	-webkit-transition: color .2s;*/
     
-    -fx-background-color: black;
+ 
 }
 
 #droTitle {
