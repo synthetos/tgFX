@@ -118,7 +118,7 @@ public class ResponseParser extends Observable implements Runnable {
     public void applySetting(JSONObject js) {
         String parentGroup;
         try {
-            if (js.has("gc") | js.has("qr") | js.has("n")) {
+            if (js.has("gc") | js.has("qr") | js.has("n") | js.length() == 0) { //The length == 0 is where you just get an {"r":{}
                 //this is a gcode line echo not a valid response... return now.
                 return;
             }

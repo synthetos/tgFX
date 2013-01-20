@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
-import java.util.Scanner;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -811,74 +810,74 @@ public class Main implements Initializable, Observer {
             if ("".equals(command)) {
                 tg.write(CommandManager.CMD_QUERY_OK_PROMPT);
             } else {
-                if (command.contains("$")) {
-                    if (command.contains("defaults")) {
-                        //If someone resets TinyG's defaults we need to completely refresh the system.
-                        console.appendText("[#]Restoring TinyG Defaults... Please Wait.....\n");
-                        Thread.sleep(50); // Let the console update before we start to pause the UI thread.
-                        tg.write(CommandManager.CMD_APPLY_DEFAULT_SETTINGS);
-                        Thread.sleep(4000);  //This takes a bit of time to run on TinyG.  We might want to 
-                        //make this into a runnable or something of the sort.  For now we pause in the main event loop :(
-                        onConnectActions();
-                        console.appendText("[#]Restore Complete...\n");
-                        input.clear();
-                        input.setPromptText(PROMPT);
-                        return;
-                    } else if (!command.contains("=")) {
-                        console.appendText("[!]Please use = in your $ command.\n");
-                        console.appendText("[!]Example: $xsr=1200\n");
-                        return;
-                    }
-
-                    //Command line setting detected
-
-                    String cmd = command.split("=")[0].replace("$", ""); //Grabs the command... xfr in the example above...
-                    String value = command.split("=")[1].replace("\n", "");  //Grabs the value... so 1200 in the example..
-                    Scanner scanner = new Scanner(value);
-                    if (scanner.hasNextDouble()) {
-                        tg.write("{\"" + cmd + "\":" + value + "}\n");
-                    } else {
-                        tg.write("{\"" + cmd + "\":\"" + value + "\"}\n");
-                    }
-
-                    console.appendText("$Command: " + command + "\n");
-
-                    //TODO: Clean this up to only refresh the axis or motor or machine group vs all of the settings
-                    tg.write(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
-                    tg.cmdManager.queryAllHardwareAxisSettings();
-                    tg.cmdManager.queryAllMotorSettings();
-
-                    input.clear();
-                    input.setPromptText(PROMPT);
-                } else {
-                    //Catch if a unit mode command was sent... Update the status bar if it was..
-                    if (command.toLowerCase().contains("g20") || command.toLowerCase().contains("g21")) {
+//                if (command.contains("$")) {
+//                    if (command.contains("defaults")) {
+//                        //If someone resets TinyG's defaults we need to completely refresh the system.
+//                        console.appendText("[#]Restoring TinyG Defaults... Please Wait.....\n");
+//                        Thread.sleep(50); // Let the console update before we start to pause the UI thread.
+//                        tg.write(CommandManager.CMD_APPLY_DEFAULT_SETTINGS);
+//                        Thread.sleep(4000);  //This takes a bit of time to run on TinyG.  We might want to 
+//                        //make this into a runnable or something of the sort.  For now we pause in the main event loop :(
+//                        onConnectActions();
+//                        console.appendText("[#]Restore Complete...\n");
+//                        input.clear();
+//                        input.setPromptText(PROMPT);
+//                        return;
+//                    } else if (!command.contains("=")) {
+//                        console.appendText("[!]Please use = in your $ command.\n");
+//                        console.appendText("[!]Example: $xsr=1200\n");
+//                        return;
+//                    }
+//
+//                    //Command line setting detected
+//
+//                    String cmd = command.split("=")[0].replace("$", ""); //Grabs the command... xfr in the example above...
+//                    String value = command.split("=")[1].replace("\n", "");  //Grabs the value... so 1200 in the example..
+//                    Scanner scanner = new Scanner(value);
+//                    if (scanner.hasNextDouble()) {
+//                        tg.write("{\"" + cmd + "\":" + value + "}\n");
+//                    } else {
+//                        tg.write("{\"" + cmd + "\":\"" + value + "\"}\n");
+//                    }
+//
+//                    console.appendText("$Command: " + command + "\n");
+//
+//                    //TODO: Clean this up to only refresh the axis or motor or machine group vs all of the settings
+//                    tg.write(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
+//                    tg.cmdManager.queryAllHardwareAxisSettings();
+//                    tg.cmdManager.queryAllMotorSettings();
+//
+//                    input.clear();
+//                    input.setPromptText(PROMPT);
+//                } else {
+//                    //Catch if a unit mode command was sent... Update the status bar if it was..
+//                    if (command.toLowerCase().contains("g20") || command.toLowerCase().contains("g21")) {
+////                        tg.write(command);
+//                        console.appendText(command);
+//                        input.clear();
+//                        input.setPromptText(PROMPT);
+////                        onConnectActions(); //Do this to get updated values in INCHES or MM
+//                        switch (command) {
+//                            case ("g20\n"):
+//                                tg.priorityWrite("{\"gc\":\"g20\"}\n");
+//                                break;
+//                            case ("g21\n"):
+//                                tg.priorityWrite("{\"gc\":\"g21\"}\n");
+//                                break;
+//
+//                        }
+////                        srUnits.setText(tg.getInstance().m.getGcodeUnitMode().toString());
+//                        console.appendText("[+]Unit Mode Change Detected... Units set to: " + TinygDriver.getInstance().m.getGcodeUnitMode().toString() + "\n");
+//                    } else if (command.toLowerCase().contains("g54") || command.toLowerCase().contains("g55") || command.toLowerCase().contains("g56")
+//                            || command.toLowerCase().contains("g57") || command.toLowerCase().contains("g58") || command.toLowerCase().contains("g59")) {
 //                        tg.write(command);
-                        console.appendText(command);
-                        input.clear();
-                        input.setPromptText(PROMPT);
-//                        onConnectActions(); //Do this to get updated values in INCHES or MM
-                        switch (command) {
-                            case ("g20\n"):
-                                tg.priorityWrite("{\"gc\":\"g20\"}\n");
-                                break;
-                            case ("g21\n"):
-                                tg.priorityWrite("{\"gc\":\"g21\"}\n");
-                                break;
-
-                        }
-//                        srUnits.setText(tg.getInstance().m.getGcodeUnitMode().toString());
-                        console.appendText("[+]Unit Mode Change Detected... Units set to: " + TinygDriver.getInstance().m.getGcodeUnitMode().toString() + "\n");
-                    } else if (command.toLowerCase().contains("g54") || command.toLowerCase().contains("g55") || command.toLowerCase().contains("g56")
-                            || command.toLowerCase().contains("g57") || command.toLowerCase().contains("g58") || command.toLowerCase().contains("g59")) {
-                        tg.write(command);
-                        console.appendText(command);
-                        input.clear();
-                        input.setPromptText(PROMPT);
-                        tg.write(CommandManager.CMD_QUERY_STATUS_REPORT); //the coord is a field that is enabled by default in status reports.
-//                        srUnits.setText(tg.getInstance().m.getCoordinateSystem().toString());
-                        console.appendText("[+]Coordinate Mode Change Detected... Coordniate Mode set to: " + tg.getInstance().m.getCoordinateSystem().toString() + "\n");
-                    } else {
+//                        console.appendText(command);
+//                        input.clear();
+//                        input.setPromptText(PROMPT);
+//                        tg.write(CommandManager.CMD_QUERY_STATUS_REPORT); //the coord is a field that is enabled by default in status reports.
+////                        srUnits.setText(tg.getInstance().m.getCoordinateSystem().toString());
+//                        console.appendText("[+]Coordinate Mode Change Detected... Coordniate Mode set to: " + tg.getInstance().m.getCoordinateSystem().toString() + "\n");
+//                    } else {
                         //Execute whatever you placed in the input box
                         tg.write(command);
                         console.appendText(command);
@@ -888,8 +887,8 @@ public class Main implements Initializable, Observer {
                 }
             }
 
-        }
-    }
+//        }
+//    }
 
     private Task initRemoteServer(String port) {
         final String Port = port;
@@ -911,7 +910,7 @@ public class Main implements Initializable, Observer {
         //Code to make mm's look the same size as inches
         double unitMagnication = 3;
         if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString())) {
-            unitMagnication = unitMagnication * 10;
+            unitMagnication = unitMagnication * 25.4;
         }
         double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get()) + 80);// + magnification;
         double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get()) + 80);// + magnification;
@@ -1388,11 +1387,12 @@ public class Main implements Initializable, Observer {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
                 String tmp = TinygDriver.getInstance().m.getGcodeUnitMode().get();
-                System.out.println("Gcode Units Changed to: " + tmp);
+//                System.out.println("Gcode Units Changed to: " + tmp);
                 xLcd.setUnit(tmp);
                 yLcd.setUnit(tmp);
                 zLcd.setUnit(tmp);
                 gcodeUnitMode.getSelectionModel().select(tg.m.getGcodeUnitModeAsInt());
+                console.appendText("[+]Gcode Unit Mode Changed to: " + tmp);
             }
         });
 
