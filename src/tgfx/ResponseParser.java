@@ -61,7 +61,7 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
-        logger.setLevel(org.apache.log4j.Level.INFO);
+        logger.setLevel(org.apache.log4j.Level.ERROR);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class ResponseParser extends Observable implements Runnable {
     public void applySetting(JSONObject js) {
         String parentGroup;
         try {
-            if (js.has("gc") | js.has("qr")) {
+            if (js.has("gc") | js.has("qr") | js.has("n")) {
                 //this is a gcode line echo not a valid response... return now.
                 return;
             }
@@ -351,6 +351,7 @@ public class ResponseParser extends Observable implements Runnable {
         String[] statusResponse;
         int motor;
         logger.info("Got Line: " + line + " from TinyG.");
+        System.out.println("LINE: " + line);
         final JSONObject js = new JSONObject(line);
         if (js.has("f")) {
             parseFooter(js);  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.

@@ -68,7 +68,7 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_FIRMWARE_BUILD = "fb";
     public static final String MNEMONIC_SYSTEM_FIRMWARE_VERSION = "fv";
     public static final String MNEMONIC_SYSTEM_GCODE_PLANE = "gpl";
-    public static final String MNEMONIC_SYSTEM_GCODE_UNIT_MODE = "gun";
+    public static final String MNEMONIC_SYSTEM_GCODE_UNIT_MODE = "unit";
     public static final String MNEMONIC_SYSTEM_GCODE_COORDINATE_SYSTEM = "gco";
     public static final String MNEMONIC_SYSTEM_GCODE_PATH_CONTROL = "gpa";
     public static final String MNEMONIC_SYSTEM_GCODE_DISTANCE_MODE = "gdi";

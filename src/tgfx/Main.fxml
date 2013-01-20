@@ -1115,180 +1115,203 @@
                               <children>
                                 <HBox prefHeight="-1.0" prefWidth="-1.0" style="" visible="true" VBox.vgrow="ALWAYS">
                                   <children>
-                                    <VBox fillWidth="false" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" HBox.hgrow="NEVER">
+                                    <VBox id="VBox" alignment="TOP_CENTER" blendMode="SRC_OVER" spacing="5.0" style="&#10;" HBox.hgrow="NEVER">
                                       <children>
-                                        <HBox id="motor_config_hbox" alignment="TOP_CENTER" minWidth="300.0" prefWidth="-1.0" style="-fx-background-color: black;" VBox.vgrow="NEVER">
+                                        <HBox id="HBox" alignment="TOP_CENTER" spacing="5.0">
                                           <children>
-                                            <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Gcode" />
+                                            <VBox fillWidth="false" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" HBox.hgrow="NEVER">
+                                              <children>
+                                                <HBox id="motor_config_hbox" alignment="TOP_CENTER" minWidth="300.0" prefWidth="-1.0" style="-fx-background-color: black;" VBox.vgrow="NEVER">
+                                                  <children>
+                                                    <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Gcode" />
+                                                  </children>
+                                                  <padding>
+                                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x70" />
+                                                  </padding>
+                                                  <VBox.margin>
+                                                    <Insets fx:id="x81" />
+                                                  </VBox.margin>
+                                                </HBox>
+                                                <GridPane id="gcodeGP" alignment="CENTER_LEFT" hgap="15.0" style="-fx-padding: 10" vgap="15.0" VBox.vgrow="NEVER">
+                                                  <children>
+                                                    <Label id="lblMachine" text="Gcode Plane" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                    <ChoiceBox id="cbGcodePlane" fx:id="gcodePlane" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                      <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                          <String fx:value="G17 - XY Plane" />
+                                                          <String fx:value="G18 - XZ Plane" />
+                                                          <String fx:value="G19 - YZ Plane" />
+                                                        </FXCollections>
+                                                      </items>
+                                                    </ChoiceBox>
+                                                    <Label id="lblMachine" text="Unit Mode" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                    <ChoiceBox id="cbGcodeUnitMode" fx:id="gcodeUnitMode" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                      <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                          <String fx:value="G20 - Inches" />
+                                                          <String fx:value="G21 - MM" />
+                                                        </FXCollections>
+                                                      </items>
+                                                    </ChoiceBox>
+                                                    <Label id="lblMachine" text="Cood. System" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                                    <ChoiceBox id="cbGcodeCoordSystem" fx:id="gcodeCoordSystem" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                      <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                          <String fx:value="G54" />
+                                                          <String fx:value="G55" />
+                                                          <String fx:value="G56" />
+                                                          <String fx:value="G57" />
+                                                          <String fx:value="G58" />
+                                                          <String fx:value="G59" />
+                                                        </FXCollections>
+                                                      </items>
+                                                    </ChoiceBox>
+                                                    <Label id="lblMachine" text="Path Control" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                                    <ChoiceBox id="cbGcodePathControl" fx:id="gcodePathControl" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                      <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                          <String fx:value="G61 - Exact Stop" />
+                                                          <String fx:value="G61.1 - Exact Path" />
+                                                          <String fx:value="G66 - Continuous" />
+                                                        </FXCollections>
+                                                      </items>
+                                                    </ChoiceBox>
+                                                    <ChoiceBox id="cbGcodeDistanceMode" fx:id="gcodeDistanceMode" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                                      <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                          <String fx:value="G90 - Absolute" />
+                                                          <String fx:value="G91 - Incremental" />
+                                                        </FXCollections>
+                                                      </items>
+                                                    </ChoiceBox>
+                                                    <Label id="lblMachine" text="Distance Mode" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                                  </children>
+                                                  <columnConstraints>
+                                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                                  </columnConstraints>
+                                                  <rowConstraints>
+                                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                                  </rowConstraints>
+                                                </GridPane>
+                                              </children>
+                                            </VBox>
+                                            <VBox prefHeight="-1.0" prefWidth="-1.0" style="" HBox.hgrow="NEVER">
+                                              <children>
+                                                <HBox id="motor_config_hbox" alignment="TOP_CENTER" minWidth="-1.0" prefWidth="-1.0" style="-fx-background-color: black;" VBox.vgrow="NEVER">
+                                                  <children>
+                                                    <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Movement" />
+                                                  </children>
+                                                  <padding>
+                                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="z6" />
+                                                  </padding>
+                                                  <VBox.margin>
+                                                    <Insets fx:id="x82" />
+                                                  </VBox.margin>
+                                                </HBox>
+                                                <GridPane id="movementGP" hgap="15.0" style="-fx-padding: 10" vgap="15.0" VBox.vgrow="NEVER">
+                                                  <children>
+                                                    <Label id="lblMachine" text="Min Line Segment" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                    <Label id="lblMachine" text="Min Arc Segment" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                    <Label id="lblMachine" text="Min Time Segment" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
+                                                    <TextField prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                    <TextField prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                    <TextField prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                  </children>
+                                                  <columnConstraints>
+                                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+                                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+                                                  </columnConstraints>
+                                                  <rowConstraints>
+                                                    <RowConstraints maxHeight="-1.0" prefHeight="-1.0" vgrow="ALWAYS" />
+                                                    <RowConstraints maxHeight="-1.0" prefHeight="-1.0" vgrow="ALWAYS" />
+                                                    <RowConstraints maxHeight="-1.0" prefHeight="-1.0" vgrow="ALWAYS" />
+                                                  </rowConstraints>
+                                                </GridPane>
+                                              </children>
+                                            </VBox>
+                                            <VBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0" style="&#10;" HBox.hgrow="NEVER">
+                                              <children>
+                                                <HBox id="motor_config_hbox" alignment="TOP_CENTER" minWidth="-1.0" prefWidth="-1.0" style="-fx-background-color: black;" VBox.vgrow="NEVER">
+                                                  <children>
+                                                    <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Misc" />
+                                                  </children>
+                                                  <padding>
+                                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x56" />
+                                                  </padding>
+                                                  <VBox.margin>
+                                                    <Insets right="5.0" fx:id="x2" />
+                                                  </VBox.margin>
+                                                </HBox>
+                                                <GridPane id="miscGP" hgap="15.0" style="-fx-padding: 10" vgap="15.0">
+                                                  <children>
+                                                    <Label id="lblMachine" text="Enable XON/XOFF" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                    <ChoiceBox id="cbMachineXON" fx:id="MachineXON" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                      <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                          <String fx:value="Disabled" />
+                                                          <String fx:value="Enabled" />
+                                                        </FXCollections>
+                                                      </items>
+                                                    </ChoiceBox>
+                                                    <Label id="lblMachine" text="Status Interval" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                    <TextField fx:id="MachineStatusInterval" onKeyPressed="#handleAxisEnter" prefHeight="-1.0" prefWidth="162.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                      <tooltip>
+                                                        <Tooltip text="The feed rate is the maximum cutting speed the axis can sustain." />
+                                                      </tooltip>
+                                                    </TextField>
+                                                    <Label id="lblMachine" text="Switch Type" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                                    <Label id="lblMachine" text="Ignore CR / LF" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                                    <TextField id="tbMachineIgnoreCR" fx:id="MachineIgrnoreCR" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                      <tooltip>
+                                                        <Tooltip text="Junction deviation - in combination with Junction Acceleration ($JA) from the system group - sets the velocity reduction used during cornering through the junction of two lines." />
+                                                      </tooltip>
+                                                    </TextField>
+                                                    <ComboBox id="cbMachineSwitchType" fx:id="MachineSwitchType" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                      <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                          <String fx:value="Item 1" />
+                                                          <String fx:value="Item 2" />
+                                                          <String fx:value="Item 3" />
+                                                        </FXCollections>
+                                                      </items>
+                                                    </ComboBox>
+                                                  </children>
+                                                  <columnConstraints>
+                                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+                                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+                                                    <ColumnConstraints hgrow="ALWAYS" />
+                                                  </columnConstraints>
+                                                  <rowConstraints>
+                                                    <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+                                                    <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+                                                    <RowConstraints vgrow="ALWAYS" />
+                                                    <RowConstraints vgrow="ALWAYS" />
+                                                  </rowConstraints>
+                                                </GridPane>
+                                              </children>
+                                            </VBox>
+                                          </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" VBox.vgrow="NEVER">
+                                          <children>
+                                            <Button mnemonicParsing="false" text="Query" />
+                                            <Button mnemonicParsing="false" text="Apply" />
                                           </children>
                                           <padding>
-                                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x70" />
+                                            <Insets bottom="10.0" right="10.0" top="10.0" />
                                           </padding>
                                           <VBox.margin>
-                                            <Insets fx:id="x81" />
+                                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
                                           </VBox.margin>
                                         </HBox>
-                                        <GridPane id="gcodeGP" alignment="CENTER_LEFT" hgap="15.0" style="-fx-padding: 10" vgap="15.0" VBox.vgrow="NEVER">
-                                          <children>
-                                            <Label id="lblMachine" text="Gcode Plane" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbGcodePlane" fx:id="gcodePlane" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                              <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                  <String fx:value="G17 - XY Plane" />
-                                                  <String fx:value="G18 - XZ Plane" />
-                                                  <String fx:value="G19 - YZ Plane" />
-                                                </FXCollections>
-                                              </items>
-                                            </ChoiceBox>
-                                            <Label id="lblMachine" text="Unit Mode" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                            <ChoiceBox id="cbGcodeUnitMode" fx:id="gcodeUnitMode" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                              <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                  <String fx:value="G20 - Inches" />
-                                                  <String fx:value="G21 - MM" />
-                                                </FXCollections>
-                                              </items>
-                                            </ChoiceBox>
-                                            <Label id="lblMachine" text="Cood. System" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                            <ChoiceBox id="cbGcodeCoordSystem" fx:id="gcodeCoordSystem" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                              <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                  <String fx:value="G54" />
-                                                  <String fx:value="G55" />
-                                                  <String fx:value="G56" />
-                                                  <String fx:value="G57" />
-                                                  <String fx:value="G58" />
-                                                  <String fx:value="G59" />
-                                                </FXCollections>
-                                              </items>
-                                            </ChoiceBox>
-                                            <Label id="lblMachine" text="Path Control" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                            <ChoiceBox id="cbGcodePathControl" fx:id="gcodePathControl" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                              <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                  <String fx:value="G61 - Exact Stop" />
-                                                  <String fx:value="G61.1 - Exact Path" />
-                                                  <String fx:value="G66 - Continuous" />
-                                                </FXCollections>
-                                              </items>
-                                            </ChoiceBox>
-                                            <ChoiceBox id="cbGcodeDistanceMode" fx:id="gcodeDistanceMode" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                              <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                  <String fx:value="G90 - Absolute" />
-                                                  <String fx:value="G91 - Incremental" />
-                                                </FXCollections>
-                                              </items>
-                                            </ChoiceBox>
-                                            <Label id="lblMachine" text="Distance Mode" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                          </children>
-                                          <columnConstraints>
-                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                                          </columnConstraints>
-                                          <rowConstraints>
-                                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                          </rowConstraints>
-                                        </GridPane>
                                       </children>
                                     </VBox>
-                                    <VBox prefHeight="-1.0" prefWidth="-1.0" style="" HBox.hgrow="NEVER">
-                                      <children>
-                                        <HBox id="motor_config_hbox" alignment="TOP_CENTER" minWidth="-1.0" prefWidth="-1.0" style="-fx-background-color: black;" VBox.vgrow="NEVER">
-                                          <children>
-                                            <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Movement" />
-                                          </children>
-                                          <padding>
-                                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="z6" />
-                                          </padding>
-                                          <VBox.margin>
-                                            <Insets fx:id="x82" />
-                                          </VBox.margin>
-                                        </HBox>
-                                        <GridPane id="movementGP" hgap="15.0" style="-fx-padding: 10" vgap="15.0" VBox.vgrow="NEVER">
-                                          <children>
-                                            <Label id="lblMachine" text="Min Line Segment" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                            <Label id="lblMachine" text="Min Arc Segment" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                            <Label id="lblMachine" text="Min Time Segment" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
-                                            <TextField prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                            <TextField prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                            <TextField prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                          </children>
-                                          <columnConstraints>
-                                            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                          </columnConstraints>
-                                          <rowConstraints>
-                                            <RowConstraints maxHeight="-1.0" prefHeight="-1.0" vgrow="ALWAYS" />
-                                            <RowConstraints maxHeight="-1.0" prefHeight="-1.0" vgrow="ALWAYS" />
-                                            <RowConstraints maxHeight="-1.0" prefHeight="-1.0" vgrow="ALWAYS" />
-                                          </rowConstraints>
-                                        </GridPane>
-                                      </children>
-                                    </VBox>
-                                    <VBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0" style="&#10;" HBox.hgrow="NEVER">
-                                      <children>
-                                        <HBox id="motor_config_hbox" alignment="TOP_CENTER" minWidth="-1.0" prefWidth="-1.0" style="-fx-background-color: black;" VBox.vgrow="NEVER">
-                                          <children>
-                                            <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Misc" />
-                                          </children>
-                                          <padding>
-                                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x56" />
-                                          </padding>
-                                        </HBox>
-                                        <GridPane id="miscGP" hgap="15.0" style="&#10;-fx-padding: 10" vgap="15.0">
-                                          <children>
-                                            <Label id="lblMachine" text="Enable XON/XOFF" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                            <ChoiceBox id="cbMachineXON" fx:id="MachineXON" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                              <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                  <String fx:value="Disabled" />
-                                                  <String fx:value="Enabled" />
-                                                </FXCollections>
-                                              </items>
-                                            </ChoiceBox>
-                                            <Label id="lblMachine" text="Status Interval" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                            <TextField fx:id="MachineStatusInterval" onKeyPressed="#handleAxisEnter" prefHeight="-1.0" prefWidth="162.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                              <tooltip>
-                                                <Tooltip text="The feed rate is the maximum cutting speed the axis can sustain." />
-                                              </tooltip>
-                                            </TextField>
-                                            <Label id="lblMachine" text="Switch Type" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                            <Label id="lblMachine" text="Ignore CR / LF" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                            <TextField id="tbMachineIgnoreCR" fx:id="MachineIgrnoreCR" onKeyPressed="#handleAxisEnter" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                              <tooltip>
-                                                <Tooltip text="Junction deviation - in combination with Junction Acceleration ($JA) from the system group - sets the velocity reduction used during cornering through the junction of two lines." />
-                                              </tooltip>
-                                            </TextField>
-                                            <ComboBox id="cbMachineSwitchType" fx:id="MachineSwitchType" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                              <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                  <String fx:value="Item 1" />
-                                                  <String fx:value="Item 2" />
-                                                  <String fx:value="Item 3" />
-                                                </FXCollections>
-                                              </items>
-                                            </ComboBox>
-                                          </children>
-                                          <columnConstraints>
-                                            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                            <ColumnConstraints hgrow="ALWAYS" />
-                                          </columnConstraints>
-                                          <rowConstraints>
-                                            <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
-                                            <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
-                                            <RowConstraints vgrow="ALWAYS" />
-                                            <RowConstraints vgrow="ALWAYS" />
-                                          </rowConstraints>
-                                        </GridPane>
-                                      </children>
-                                    </VBox>
-                                    <VBox id="vBox2" alignment="TOP_CENTER" fillWidth="true" maxWidth="-1.0" minWidth="375.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10; " visible="true" HBox.hgrow="ALWAYS">
+                                    <VBox id="vBox2" alignment="TOP_CENTER" fillWidth="true" maxWidth="-1.0" minWidth="250.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10; " visible="true" HBox.hgrow="ALWAYS">
                                       <children>
                                         <HBox id="hBox4" alignment="TOP_CENTER" style="-fx-background-color: black;" VBox.vgrow="NEVER">
                                           <children>
@@ -1308,7 +1331,6 @@
                                             <Button id="button2" text="Import" />
                                             <Button id="button1" onAction="#handleImportConfig" text="Load" />
                                             <Button id="saveConfig" mnemonicParsing="false" text="Save" />
-                                            <Button id="button3" onAction="#handleApplyDefaultSettings" text="Defaults" />
                                           </children>
                                           <padding>
                                             <Insets left="5.0" right="5.0" fx:id="x6_x01" />
@@ -1316,6 +1338,11 @@
                                           <VBox.margin>
                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
                                           </VBox.margin>
+                                        </HBox>
+                                        <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="NEVER">
+                                          <children>
+                                            <Button id="button3" onAction="#handleApplyDefaultSettings" text="Restore Hardware Defaults" HBox.hgrow="ALWAYS" />
+                                          </children>
                                         </HBox>
                                       </children>
                                       <padding>
@@ -1339,9 +1366,9 @@
             </Tab>
             <Tab fx:id="settings_tab" closable="false" text="tgFX Settings">
               <content>
-                <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
                   <children>
-                    <HBox layoutY="0.0" prefHeight="525.0" prefWidth="250.0" style="-fx-background-color: CCCCCC;" AnchorPane.leftAnchor="0.0">
+                    <HBox blendMode="SRC_ATOP" layoutY="0.0" prefHeight="525.0" prefWidth="250.0" style="&#10;" AnchorPane.leftAnchor="0.0">
                       <children>
                         <VBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
                           <children>
@@ -1364,9 +1391,9 @@
                 </AnchorPane>
               </content>
             </Tab>
-            <Tab fx:id="documentation_tab" closable="false" text="Documentation">
+            <Tab fx:id="documentation_tab" closable="false" disable="true" text="Documentation">
               <content>
-                <AnchorPane id="docs" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: grey&#10;">
+                <AnchorPane id="docs" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
                   <children>
                     <WebView fx:id="html" prefHeight="510.0" prefWidth="1181.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
                   </children>
@@ -1414,7 +1441,7 @@
                 <HBox alignment="CENTER" prefHeight="105.0" AnchorPane.rightAnchor="20.0">
                   <children>
                     <Label fx:id="serialTitle" alignment="CENTER" prefHeight="27.0" prefWidth="131.0" text="Serial Ports: " />
-                    <ChoiceBox fx:id="serialPorts" />
+                    <ChoiceBox fx:id="serialPorts" minWidth="120.0" />
                     <Button fx:id="Connect" onAction="#handleConnect" text="Connect" />
                     <Button fx:id="reScan" onAction="#FXreScanSerial" text="Re-Scan" />
                   </children>

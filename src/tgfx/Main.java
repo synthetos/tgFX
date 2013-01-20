@@ -131,8 +131,6 @@ public class Main implements Initializable, Observer {
     private TabPane motorTabPane, axisTabPane;
     @FXML
     private Pane previewPane;
-    
-
     @FXML
     private Button Con, Run, Connect, gcodeZero, btnClearScreen, btnRemoteListener, pauseResume, btnTest;
     @FXML
@@ -142,7 +140,6 @@ public class Main implements Initializable, Observer {
     @FXML
     private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
             srVer, srUnits, srCoord;
-    
     @FXML
     StackPane cursorPoint;
     @FXML
@@ -210,7 +207,7 @@ public class Main implements Initializable, Observer {
         } else {
             settingDrawBtn.setText("ON");
             drawPreview = false;
-        }        
+        }
     }
 
     @FXML
@@ -555,6 +552,7 @@ public class Main implements Initializable, Observer {
 //            tg.write("{\"gun\":null}");
 //
 //            tg.write("{\"xfr\":1500}");
+//            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);
             tg.write(CommandManager.CMD_QUERY_STATUS_REPORT);
             tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
 
@@ -915,8 +913,8 @@ public class Main implements Initializable, Observer {
         if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString())) {
             unitMagnication = unitMagnication * 10;
         }
-        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get())+80);// + magnification;
-        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get())+80);// + magnification;
+        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get()) + 80);// + magnification;
+        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get()) + 80);// + magnification;
 
         Line l = new Line(xPrevious, yPrevious, newX, newY);
 //        l.setStroke(Color.BLUE);
@@ -1024,9 +1022,9 @@ public class Main implements Initializable, Observer {
                     gcodePathControl.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
                     gcodeDistanceMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
 
-                    if (m.getCoordinateSystem() != null) {
-                        srCoord.setText(TinygDriver.getInstance().m.getCoordinateSystem().toString());
-                    }
+//                    if (m.getCoordinateSystem() != null) {
+//                        srCoord.setText(TinygDriver.getInstance().m.getCoordinateSystem().toString());
+//                    }
                 } catch (Exception ex) {
                     System.out.println("[!] Exception in updateGuiMachineSettings");
                     System.out.println(ex.getMessage());
@@ -1321,22 +1319,23 @@ public class Main implements Initializable, Observer {
 
 //        xtgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
 //        tgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
-        logger.setLevel(Level.ERROR);
+        logger.setLevel(Level.ERROR); 
+
         xLcd = buildSingleDRO(xLcd, STYLE_MODEL_X, "X Axis Position", tg.m.getGcodeUnitMode().get());
-        yLcd = buildSingleDRO(yLcd, STYLE_MODEL_Y, "Y Axis Position",tg.m.getGcodeUnitMode().get());
-        zLcd = buildSingleDRO(zLcd, STYLE_MODEL_Z, "Z Axis Position",tg.m.getGcodeUnitMode().get());
-        aLcd = buildSingleDRO(aLcd, STYLE_MODEL_A, "A Axis Position","°");
+        yLcd = buildSingleDRO(yLcd, STYLE_MODEL_Y, "Y Axis Position", tg.m.getGcodeUnitMode().get());
+        zLcd = buildSingleDRO(zLcd, STYLE_MODEL_Z, "Z Axis Position", tg.m.getGcodeUnitMode().get());
+        aLcd = buildSingleDRO(aLcd, STYLE_MODEL_A, "A Axis Position", "°");
 
         StackPane droStackPane = new StackPane();
         droStackPane.getChildren().addAll(xLcd, yLcd, zLcd, aLcd);
-        
+
 //        
         positionsVbox.getChildren().add(xLcd);
         positionsVbox.getChildren().add(yLcd);
         positionsVbox.getChildren().add(zLcd);
         positionsVbox.getChildren().add(aLcd);
 
-        
+
         xLcd.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
@@ -1383,13 +1382,24 @@ public class Main implements Initializable, Observer {
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
         srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
-        
+
         //Bind our Units to each axis
-        xLcd.lcdUnitProperty().bind(tg.m.getGcodeUnitMode());
-        yLcd.lcdUnitProperty().bind(tg.m.getGcodeUnitMode());
-        zLcd.lcdUnitProperty().bind(tg.m.getGcodeUnitMode());
+        tg.m.getGcodeUnitMode().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
+                String tmp = TinygDriver.getInstance().m.getGcodeUnitMode().get();
+                System.out.println("Gcode Units Changed to: " + tmp);
+                xLcd.setUnit(tmp);
+                yLcd.setUnit(tmp);
+                zLcd.setUnit(tmp);
+                gcodeUnitMode.getSelectionModel().select(tg.m.getGcodeUnitModeAsInt());
+            }
+        });
+
+//        yLcd.lcdUnitProperty().bind(tg.m.getGcodeUnitMode());
+//        zLcd.lcdUnitProperty().bind(tg.m.getGcodeUnitMode());
 //        aLcd.lcdUnitProperty().bind(tg.m.getCoordinateSystem());  Always degress
-        
+
         xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWork_position());
         yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWork_position());
         zLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWork_position());
@@ -1408,7 +1418,7 @@ public class Main implements Initializable, Observer {
 
 
         logger.info("[+]tgFX is starting....");
-        
+
 
         //Gcode Mapping
         data = FXCollections.observableArrayList();
