@@ -118,7 +118,7 @@ public class ResponseParser extends Observable implements Runnable {
     public void applySetting(JSONObject js) {
         String parentGroup;
         try {
-            if (js.has("gc") | js.has("qr")) {
+            if (js.has("gc") | js.has("qr") | js.has("n") | js.length() == 0) { //The length == 0 is where you just get an {"r":{}
                 //this is a gcode line echo not a valid response... return now.
                 return;
             }
@@ -143,7 +143,7 @@ public class ResponseParser extends Observable implements Runnable {
 
         } catch (Exception ex) {
             logger.error("[!] Error in applySetting(JsonOBject js) : " + ex.getMessage());
-            logger.error("Got Line: " + js);
+//            logger.error("Got Line: " + js);
 
 
         }
@@ -251,7 +251,7 @@ public class ResponseParser extends Observable implements Runnable {
                 TinygDriver.getInstance().m.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
 
                 setChanged();
-                message[0] = "CMD_GET_MACHINE_SETTINGS";
+                message[0] = "MACHINE_UPDATE";
                 message[1] = null;
                 notifyObservers(message);
                 break;
@@ -351,6 +351,7 @@ public class ResponseParser extends Observable implements Runnable {
         String[] statusResponse;
         int motor;
         logger.info("Got Line: " + line + " from TinyG.");
+        
         final JSONObject js = new JSONObject(line);
         if (js.has("f")) {
             parseFooter(js);  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.

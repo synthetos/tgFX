@@ -35,7 +35,7 @@ public class Machine {
     private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
 //    private float firmware_version;
     private int status_report_interval;
-    public Gcode_unit_modes gcode_unit_mode;
+//    public Gcode_unit_modes gcode_unit_mode;
     public Gcode_unit_modes gcode_startup_units;
     public Gcode_select_plane gcode_select_plane;
     public Gcode_coord_system gcode_select_coord_system;
@@ -177,8 +177,8 @@ public class Machine {
     public static enum Gcode_unit_modes {
         //gun
 
-        INCHES, //G21
-        MM      //G20
+        INCHES, //G20
+        MM      //G21
     };
 
     public static enum Gcode_select_plane {
@@ -278,14 +278,23 @@ public class Machine {
 
     public void setGcodeUnits(int unitMode) {
         if (unitMode == 0) {
-            gcode_unit_mode = gcode_unit_mode.INCHES;
-        } else {
-            gcode_unit_mode = gcode_unit_mode.MM;
+            gcodeUnitMode.setValue(Gcode_unit_modes.INCHES.toString());
+            
+        } else if(unitMode == 1) {
+            gcodeUnitMode.setValue(Gcode_unit_modes.MM.toString());
         }
     }
 
     public SimpleStringProperty getGcodeUnitMode() {
         return gcodeUnitMode;
+    }
+    
+    public int getGcodeUnitModeAsInt() {
+       if(gcodeUnitMode.get().equals(Gcode_unit_modes.MM.toString())){
+           return(1);
+       }else{
+           return(0);
+       }
     }
 
     public void setGcodeUnits(String gcu) {
@@ -301,9 +310,9 @@ public class Machine {
         }
     }
 
-    public void setGcodeUnits(Gcode_unit_modes gcode_units) {
-        this.gcode_unit_mode = gcode_units;
-    }
+//    public void setGcodeUnits(Gcode_unit_modes gcode_units) {
+//        this.gcode_unit_mode = gcode_units;
+//    }
 
     public SimpleStringProperty getMotionMode() {
         return (m_mode);
@@ -514,7 +523,7 @@ public class Machine {
 //        this.firmwareVersion
 
         //Initially set gcode units to mm
-        setGcodeUnits(Gcode_unit_modes.MM);
+//        setGcodeUnits(Gcode_unit_modes.MM.toString());
         motors.add(Motor1);
         motors.add(Motor2);
         motors.add(Motor3);
@@ -604,11 +613,10 @@ public class Machine {
                         TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
                         break;
                 }
-                
-                
+
+
             }
         } catch (JSONException | NumberFormatException ex) {
-            
         }
     }
 
@@ -658,7 +666,7 @@ public class Machine {
                         TinygDriver.getInstance().m.setCoordinateSystem(rc.getSettingValue());
                         break;
 
-                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_DISANCE_MODE):
+                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_DISTANCE_MODE):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().m.setGcodeDistanceMode(rc.getSettingValue());
                         break;
@@ -720,12 +728,20 @@ public class Machine {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_LAST_MESSAGE):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-
                         break;
+
                 }
+
+                //Here we are going to have the resParser notifiy the GUI observer that it has changed 
+                //This is so we get updates to the GUI when the system changes.
+//                String[] message = new String[2];
+//                message[0] = "MACHINE_UPDATE";
+//                message[1] = null;
+//                TinygDriver.getInstance().resParse.hasChanged();
+//                TinygDriver.getInstance().resParse.notifyObservers(message);
             }
 
-        } catch (Exception ex) {
+        } catch (JSONException | NumberFormatException ex) {
             logger.error("Error in ApplyJsonSetting in Machine:SYS group");
         }
 

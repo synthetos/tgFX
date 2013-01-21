@@ -68,10 +68,10 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_FIRMWARE_BUILD = "fb";
     public static final String MNEMONIC_SYSTEM_FIRMWARE_VERSION = "fv";
     public static final String MNEMONIC_SYSTEM_GCODE_PLANE = "gpl";
-    public static final String MNEMONIC_SYSTEM_GCODE_UNIT_MODE = "gun";
+    public static final String MNEMONIC_SYSTEM_GCODE_UNIT_MODE = "unit";
     public static final String MNEMONIC_SYSTEM_GCODE_COORDINATE_SYSTEM = "gco";
     public static final String MNEMONIC_SYSTEM_GCODE_PATH_CONTROL = "gpa";
-    public static final String MNEMONIC_SYSTEM_GCODE_DISANCE_MODE = "gdi";
+    public static final String MNEMONIC_SYSTEM_GCODE_DISTANCE_MODE = "gdi";
     public static final String MNEMONIC_SYSTEM_JUNCTION_ACCELERATION = "ja";
     public static final String MNEMONIC_SYSTEM_MIN_LINE_SEGMENT = "ml";
     public static final String MNEMONIC_SYSTEM_MIN_ARC_SEGMENT = "ma";
@@ -119,7 +119,7 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_FIRMWARE_BUILD);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_FIRMWARE_VERSION);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_COORDINATE_SYSTEM);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_DISANCE_MODE);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_DISTANCE_MODE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_PATH_CONTROL);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_PATH_CONTROL);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_PLANE);
