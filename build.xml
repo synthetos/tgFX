@@ -10,6 +10,14 @@
 <project name="tgFX" default="default" basedir=".">
     <description>Builds, tests, and runs the project tgFX.</description>
     <import file="nbproject/build-impl.xml"/>
+    
+    
+    <target name="-pre-jar" > 
+    <propertyfile file="${src.dir}\version.properties"> 
+    <entry key="BUILD" value="1" type="int" operation="+"/> 
+    <entry key="DATE" value="1" type="date" operation="="/>
+    </propertyfile> 
+    </target> 
     <!--
 
     There exist several targets which are by default empty and which can be 

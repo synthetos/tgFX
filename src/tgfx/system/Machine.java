@@ -31,7 +31,7 @@ public class Machine {
     public SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();
     public StringProperty firmwareVersion = new SimpleStringProperty();
     public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
-    private SimpleStringProperty gcodeUnitMode = new SimpleStringProperty("mm");
+    private SimpleStringProperty gcodeUnitMode = new SimpleStringProperty("MM");
     private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
 //    private float firmware_version;
     private int status_report_interval;
@@ -542,6 +542,10 @@ public class Machine {
     public List<Axis> getAllAxis() {
         return axis;
     }
+    
+    public Axis getAxisByName(char c){
+        return(getAxisByName(String.valueOf(c)));
+    }
 
     public Axis getAxisByName(String name) {
         for (Axis tmpAxis : axis) {
@@ -592,16 +596,16 @@ public class Machine {
                         TinygDriver.getInstance().m.setMotionMode(Integer.valueOf(rc.getSettingValue()));
                         break;
                     case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey()).setWork_position(Double.valueOf(rc.getSettingValue()));
+                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
                         break;
                     case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey()).setWork_position(Double.valueOf(rc.getSettingValue()));
+                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
                         break;
                     case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey()).setWork_position(Double.valueOf(rc.getSettingValue()));
+                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
                         break;
                     case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey()).setWork_position(Double.valueOf(rc.getSettingValue()));
+                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
                         break;
                     case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
                         TinygDriver.getInstance().m.setMachineState(Integer.valueOf(rc.getSettingValue()));

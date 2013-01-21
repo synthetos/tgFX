@@ -56,10 +56,10 @@ public class MnemonicManager {
     public static final String MNEMONIC_MOTOR_POWER_MANAGEMENT = "pm";
     //Status Report
     public static final String MNEMONIC_STATUS_REPORT_LINE = "line";
-    public static final String MNEMONIC_STATUS_REPORT_POSX = "x";
-    public static final String MNEMONIC_STATUS_REPORT_POSY = "y";
-    public static final String MNEMONIC_STATUS_REPORT_POSZ = "z";
-    public static final String MNEMONIC_STATUS_REPORT_POSA = "a";
+    public static final String MNEMONIC_STATUS_REPORT_POSX = "posx";
+    public static final String MNEMONIC_STATUS_REPORT_POSY = "posy";
+    public static final String MNEMONIC_STATUS_REPORT_POSZ = "posz";
+    public static final String MNEMONIC_STATUS_REPORT_POSA = "posa";
     public static final String MNEMONIC_STATUS_REPORT_VELOCITY = "vel";
     public static final String MNEMONIC_STATUS_REPORT_MOTION_MODE = "momo";
     public static final String MNEMONIC_STATUS_REPORT_STAT = "stat";

@@ -21,9 +21,9 @@
   <children>
     <BorderPane prefHeight="800.0" prefWidth="1280.0" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
-        <VBox alignment="CENTER" style="-fx-background-color: GREY;" BorderPane.alignment="CENTER">
+        <VBox alignment="CENTER" prefHeight="168.0" prefWidth="1280.0" style="-fx-background-color: GREY;" BorderPane.alignment="CENTER">
           <children>
-            <TextArea fx:id="console" editable="false" wrapText="true">
+            <TextArea fx:id="console" editable="false" maxHeight="300.0" wrapText="true" VBox.vgrow="ALWAYS">
               <minHeight>
                 <Long fx:value="75" />
               </minHeight>
@@ -103,12 +103,6 @@
           <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
           </padding>
-          <prefHeight>
-            <Long fx:value="-1" />
-          </prefHeight>
-          <prefWidth>
-            <Long fx:value="-1" />
-          </prefWidth>
           <spacing>
             <Long fx:value="5" />
           </spacing>
@@ -118,7 +112,7 @@
         </VBox>
       </bottom>
       <center>
-        <TabPane>
+        <TabPane style="">
           <prefHeight>
             <Long fx:value="-1" />
           </prefHeight>
@@ -1368,7 +1362,7 @@
               <content>
                 <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
                   <children>
-                    <HBox blendMode="SRC_ATOP" layoutY="0.0" prefHeight="525.0" prefWidth="250.0" style="&#10;" AnchorPane.leftAnchor="0.0">
+                    <HBox blendMode="SRC_ATOP" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" style="&#10;" AnchorPane.leftAnchor="0.0">
                       <children>
                         <VBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
                           <children>
@@ -1379,8 +1373,44 @@
                             </HBox>
                             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="15.0">
                               <children>
-                                <Label text="Draw Preview" />
+                                <Label id="lblMachine" text="Draw Preview" />
                                 <Button fx:id="settingDrawBtn" mnemonicParsing="false" onAction="#handleTogglePreview" text="OFF" />
+                              </children>
+                            </HBox>
+                          </children>
+                        </VBox>
+                        <VBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+                          <children>
+                            <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="200.0" style="-fx-background-color:blue">
+                              <children>
+                                <Label text="Build Info" textFill="WHITE" />
+                              </children>
+                            </HBox>
+                            <HBox alignment="TOP_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                              <children>
+                                <Label id="lblVersion" fx:id="tgfxVersion" text="">
+                                  <graphic>
+                                    <Label id="lblMachine" text="Version:" />
+                                  </graphic>
+                                </Label>
+                              </children>
+                            </HBox>
+                            <HBox alignment="TOP_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                              <children>
+                                <Label id="lblBuildNumber" fx:id="tgfxBuildNumber" text="">
+                                  <graphic>
+                                    <Label id="lblMachine" text="Build Number:" />
+                                  </graphic>
+                                </Label>
+                              </children>
+                            </HBox>
+                            <HBox alignment="TOP_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                              <children>
+                                <Label id="lblBuildNumber" fx:id="tgfxBuildDate" text="">
+                                  <graphic>
+                                    <Label id="lblMachine" text="Build Date:" />
+                                  </graphic>
+                                </Label>
                               </children>
                             </HBox>
                           </children>
