@@ -581,6 +581,7 @@ public class Main implements Initializable, Observer {
 //            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);
             tg.cmdManager.queryStatusReport(); //If TinyG current positions are other than zero
             tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
+            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY); 
 
 
 

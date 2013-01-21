@@ -44,6 +44,7 @@ public class CommandManager {
     public static final String CMD_APPLY_DEFAULT_SETTINGS = "{\"defaults\":1}\n";
     public static final String CMD_APPLY_STATUS_UPDATE_INTERVAL = "{\"si\":200}\n";
     public static final String CMD_APPLY_JSON_VOBERSITY = "{\"jv\":3}\n";
+    public static final String CMD_APPLY_TEXT_VOBERSITY = "{\"tv\":0}\n"; 
     public static final String CMD_APPLY_PAUSE = "!\n";
     public static final String CMD_APPLY_RESUME = "~\n";
 //    public static final String CMD_APPLY_RESET = "\x18\n";
