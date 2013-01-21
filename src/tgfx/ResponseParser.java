@@ -143,7 +143,7 @@ public class ResponseParser extends Observable implements Runnable {
 
         } catch (Exception ex) {
             logger.error("[!] Error in applySetting(JsonOBject js) : " + ex.getMessage());
-            logger.error("Got Line: " + js);
+//            logger.error("Got Line: " + js);
 
 
         }
@@ -351,7 +351,7 @@ public class ResponseParser extends Observable implements Runnable {
         String[] statusResponse;
         int motor;
         logger.info("Got Line: " + line + " from TinyG.");
-        System.out.println("LINE: " + line);
+        
         final JSONObject js = new JSONObject(line);
         if (js.has("f")) {
             parseFooter(js);  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.

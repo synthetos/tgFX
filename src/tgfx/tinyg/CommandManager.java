@@ -82,7 +82,7 @@ public class CommandManager {
             logger.info("[+]Getting Motor 4 Settings");
 
         } catch (Exception ex) {
-            logger.error("[!]Exception in getAllMotorSettings()...");
+            logger.error("[!]Exception in queryAllMotorSettings()...");
             logger.error(ex.getMessage());
         }
     }
@@ -94,26 +94,26 @@ public class CommandManager {
     public void queryAllHardwareAxisSettings() throws Exception {
         try {
 
-            System.out.println("[+]Getting A AXIS Settings");
+            logger.info("[+]Getting A AXIS Settings");
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_A);
 
-            System.out.println("[+]Getting B AXIS Settings");
+            logger.info("[+]Getting B AXIS Settings");
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_B);
 
-            System.out.println("[+]Getting C AXIS Settings");
+            logger.info("[+]Getting C AXIS Settings");
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_C);
 
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_X);
-            System.out.println("[+]Getting X AXIS Settings");
+            logger.info("[+]Getting X AXIS Settings");
 
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_Y);
-            System.out.println("[+]Getting Y AXIS Settings");
+            logger.info("[+]Getting Y AXIS Settings");
 
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_Z);
-            System.out.println("[+]Getting Z AXIS Settings");
+            logger.info("[+]Getting Z AXIS Settings");
 
         } catch (Exception ex) {
-            logger.error("[!]Error in queryHardwareAxisSettings()");
+            logger.error("[!]Error in queryAllHardwareAxisSettings()");
         }
     }
 }
