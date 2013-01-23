@@ -205,12 +205,14 @@ public class Main implements Initializable, Observer {
      * Drawing Code Vars
      *
      */
-    double xPrevious = -1;
-    double yPrevious = -1;
+    double xPrevious;
+    double yPrevious;
     double magnification = 1;
 
     public Main() {
         this.gcodePane = new Pane();
+        double xPrevious = gcodePane.getWidth()/2;
+        double yPrevious = gcodePane.getHeight()/2;
     }
 
 //    float x = 0;
@@ -887,25 +889,30 @@ public class Main implements Initializable, Observer {
 
 
         //Code to make mm's look the same size as inches
-//        double unitMagnication = 3;
-//        if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString())) {
-//            unitMagnication = unitMagnication * 25.4;
-////        }
+        double unitMagnication = 1;
+        if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString())) {
+            unitMagnication =  5;  //INCHES
+        }else{
+            unitMagnication = 2; //MM
+        }
 //        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get()) + 80);// + magnification;
 //        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get()) + 80);// + magnification;
         
-        double newX = (Double.valueOf(tg.m.getAxisByName("x").getWork_position().get()));// + magnification;
-        double newY = gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get()));// + magnification;
-        System.out.println(gcodePane.getHeight() - tg.m.getAxisByName("y").getWork_position().get());
+        double newX = (Double.valueOf(tg.m.getAxisByName("x").getWork_position().get())) + (gcodePane.getWidth()/2);// + magnification;
+        double newY = (gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get()))) - (gcodePane.getHeight()/2);// + magnification;
+//        System.out.println(gcodePane.getHeight() - tg.m.getAxisByName("y").getWork_position().get());
         Line l = new Line(xPrevious, yPrevious, newX, newY);
 //        l.setStroke(Color.BLUE);
-        l.setStroke(Draw2d.getLineColorFromVelocity(vel));
+        
 
-//        if (moveType == Machine.motion_modes.traverse) {
-//            //G0 Move
+        if (tg.m.getMotionMode().get().equals("traverse")) {
+            //G0 Move
 //            l.setStrokeWidth(Draw2d.getStrokeWeight() / 2);
-//            l.setStroke(Draw2d.TRAVERSE);
-//        }
+            l.setStrokeDashOffset(5);
+            l.setStroke(Draw2d.TRAVERSE);
+        }else{
+            l.setStroke(Draw2d.getLineColorFromVelocity(vel));
+        }
 
 
         //CODE TO ONLY DRAW CUTTING MOVEMENTS
@@ -998,11 +1005,11 @@ public class Main implements Initializable, Observer {
                     Machine m = TinygDriver.getInstance().m;
 //                    srBuild.setText(String.valueOf(m.getFirmwareBuild()));
 //                    srVer.setText(String.valueOf(m.getFirmwareVersion()));
-                    gcodePlane.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_select_plane().ordinal());
-//                    gcodeUnitMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_units().ordinal());
+//                    gcodePlane.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_select_plane().ordinal());
+//                    gcodeUnitMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcodeUnitMode());
 //                    gcodeCoordSystem.getSelectionModel().select(TinygDriver.getInstance().m.getCoordinateSystem().ordinal());
-                    gcodePathControl.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
-                    gcodeDistanceMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
+//                    gcodePathControl.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
+//                    gcodeDistanceMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
 
 //                    if (m.getCoordinateSystem() != null) {
 //                        srCoord.setText(TinygDriver.getInstance().m.getCoordinateSystem().toString());
@@ -1304,7 +1311,7 @@ public class Main implements Initializable, Observer {
         try {
             msg = rb.getString(propToken);
         } catch (MissingResourceException e) {
-            System.err.println("Token ".concat(propToken).concat(" not in Propertyfile!"));
+           logger.error("Error Getting Build Info Token ".concat(propToken).concat(" not in Propertyfile!"));
         }
         return msg;
     }
@@ -1466,8 +1473,8 @@ public class Main implements Initializable, Observer {
         BasicConfigurator.configure();
         SocketMonitor sm;
 
-        WebEngine webEngine = html.getEngine();
-        webEngine.load("https://github.com/synthetos/TinyG/wiki");
+//        WebEngine webEngine = html.getEngine();
+//        webEngine.load("https://github.com/synthetos/TinyG/wiki");
 
 
         logger.info("[+]tgFX is starting....");

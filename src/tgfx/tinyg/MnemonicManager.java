@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class MnemonicManager {
     //Group holder Mnemonics
 
+    private static final ArrayList<String> GROUP_MNEMONICS = new ArrayList<>();
     private static final ArrayList<String> AXIS_MNEMONICS = new ArrayList<>();
     private static final ArrayList<String> SYS_MNEMONICS = new ArrayList<>();
     private static final ArrayList<String> MOTOR_MNEMONICS = new ArrayList<>();
@@ -144,8 +145,59 @@ public class MnemonicManager {
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_POSZ);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_UNITS);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_VELOCITY);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_STAT);
+        //Master Group
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_A);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_B);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_C);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_X);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_Y);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_Z);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_EMERGENCY_SHUTDOWN);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_HOME);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_MOTOR_1);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_MOTOR_2);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_MOTOR_3);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_MOTOR_4);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_POS);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_STATUS_REPORT);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_SYSTEM);
+        
+        
     }
 
+    
+    public boolean isMasterGroupObject(String strToLookup){
+        if(GROUP_MNEMONICS.contains(strToLookup)){
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public responseCommand lookupSingleGroupMaster(String strToLookup, String parentGroup){
+        //This will iterate all group mnemoics to see if the single group object
+        // belongs in which group.
+
+        responseCommand rc = new responseCommand(parentGroup, null, null);
+        
+        if (AXIS_MNEMONICS.contains(strToLookup)) {
+            rc.setSettingKey(strToLookup);
+            return (rc);
+        } else if (MOTOR_MNEMONICS.contains(strToLookup)) {
+            rc.setSettingKey(strToLookup);
+            return (rc);
+        } else if (SYS_MNEMONICS.contains(strToLookup)) {
+            rc.setSettingKey(strToLookup);
+            return (rc);
+        } else if (STATUS_MNEMONICS.contains(strToLookup)) {
+            rc.setSettingKey(strToLookup);
+            return (rc);
+        }
+        return null;
+    }
+
+    
     public responseCommand lookupSingleGroup(String strToLookup) {
         //This will iterate all group mnemoics to see if the single group object
         // belongs in which group.

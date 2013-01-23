@@ -536,6 +536,8 @@ public class Machine {
         axis.add(a);
         axis.add(b);
         axis.add(c);
+        
+        setMotionMode(0);
 
     }
 
@@ -621,6 +623,7 @@ public class Machine {
 
             }
         } catch (JSONException | NumberFormatException ex) {
+            logger.error("Error in Machine.java --> Apply Axis Status Report. " + ex.getMessage());
         }
     }
 
