@@ -59,7 +59,9 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Orientation;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
@@ -885,13 +887,16 @@ public class Main implements Initializable, Observer {
 
 
         //Code to make mm's look the same size as inches
-        double unitMagnication = 3;
-        if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString())) {
-            unitMagnication = unitMagnication * 25.4;
-        }
-        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get()) + 80);// + magnification;
-        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get()) + 80);// + magnification;
-
+//        double unitMagnication = 3;
+//        if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString())) {
+//            unitMagnication = unitMagnication * 25.4;
+////        }
+//        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get()) + 80);// + magnification;
+//        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get()) + 80);// + magnification;
+        
+        double newX = (Double.valueOf(tg.m.getAxisByName("x").getWork_position().get()));// + magnification;
+        double newY = gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get()));// + magnification;
+        System.out.println(gcodePane.getHeight() - tg.m.getAxisByName("y").getWork_position().get());
         Line l = new Line(xPrevious, yPrevious, newX, newY);
 //        l.setStroke(Color.BLUE);
         l.setStroke(Draw2d.getLineColorFromVelocity(vel));
@@ -1332,9 +1337,26 @@ public class Main implements Initializable, Observer {
 
         // .. or to the right
 //        w.getRightIcons().add(new MinimizeIcon(w));
-
+//        ScrollBar vGcodePreviewScrollBar = new ScrollBar();
+//        ScrollBar hGcodePreviewScrollBar = new ScrollBar();
+//        vGcodePreviewScrollBar.setOrientation(Orientation.VERTICAL);
+//        hGcodePreviewScrollBar.setOrientation(Orientation.HORIZONTAL);
+//        
+//        
+//        hGcodePreviewScrollBar.valueProperty().addListener(new ChangeListener<Number>() {
+//            public void changed(ObservableValue<? extends Number> ov,
+//                Number old_val, Number new_val) {
+//                System.out.println(new_val);
+//                    gcodePane.setLayoutY(-new_val.doubleValue());
+//            }
+//        });
+        
+//   
+//        gcodePane.getChildren().add(vGcodePreviewScrollBar);
+//        gcodePane.getChildren().add(hGcodePreviewScrollBar);
+//       
+//        gcodePane.setTranslateX(gcodePane.getWidth());
         w.getContentPane().getChildren().add(gcodePane);
-
         // add some content
 //        w.getContentPane().getChildren().add(new Label("Content"));
         previewPane.getChildren().add(w);
