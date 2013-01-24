@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class MnemonicManager {
     //Group holder Mnemonics
 
+    private static final ArrayList<String> GROUP_MNEMONICS = new ArrayList<>();
     private static final ArrayList<String> AXIS_MNEMONICS = new ArrayList<>();
     private static final ArrayList<String> SYS_MNEMONICS = new ArrayList<>();
     private static final ArrayList<String> MOTOR_MNEMONICS = new ArrayList<>();
@@ -56,22 +57,24 @@ public class MnemonicManager {
     public static final String MNEMONIC_MOTOR_POWER_MANAGEMENT = "pm";
     //Status Report
     public static final String MNEMONIC_STATUS_REPORT_LINE = "line";
-    public static final String MNEMONIC_STATUS_REPORT_POSX = "x";
-    public static final String MNEMONIC_STATUS_REPORT_POSY = "y";
-    public static final String MNEMONIC_STATUS_REPORT_POSZ = "z";
-    public static final String MNEMONIC_STATUS_REPORT_POSA = "a";
+    public static final String MNEMONIC_STATUS_REPORT_POSX = "posx";
+    public static final String MNEMONIC_STATUS_REPORT_POSY = "posy";
+    public static final String MNEMONIC_STATUS_REPORT_POSZ = "posz";
+    public static final String MNEMONIC_STATUS_REPORT_POSA = "posa";
     public static final String MNEMONIC_STATUS_REPORT_VELOCITY = "vel";
     public static final String MNEMONIC_STATUS_REPORT_MOTION_MODE = "momo";
     public static final String MNEMONIC_STATUS_REPORT_STAT = "stat";
     public static final String MNEMONIC_STATUS_REPORT_UNITS = "unit";
     //System MNEMONICS
+    public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_UNIT_MODE = "gun";
+    public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE = "gpl";
+    public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_COORDINATE_SYSTEM = "gco";
+    public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL = "gpa";
+    public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_DISTANCE_MODE = "gdi";
+    
     public static final String MNEMONIC_SYSTEM_FIRMWARE_BUILD = "fb";
     public static final String MNEMONIC_SYSTEM_FIRMWARE_VERSION = "fv";
-    public static final String MNEMONIC_SYSTEM_GCODE_PLANE = "gpl";
-    public static final String MNEMONIC_SYSTEM_GCODE_UNIT_MODE = "gun";
-    public static final String MNEMONIC_SYSTEM_GCODE_COORDINATE_SYSTEM = "gco";
-    public static final String MNEMONIC_SYSTEM_GCODE_PATH_CONTROL = "gpa";
-    public static final String MNEMONIC_SYSTEM_GCODE_DISANCE_MODE = "gdi";
+    public static final String MNEMONIC_SYSTEM_GCODE_UNIT_MODE = "unit";
     public static final String MNEMONIC_SYSTEM_JUNCTION_ACCELERATION = "ja";
     public static final String MNEMONIC_SYSTEM_MIN_LINE_SEGMENT = "ml";
     public static final String MNEMONIC_SYSTEM_MIN_ARC_SEGMENT = "ma";
@@ -87,7 +90,11 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL = "si";
     public static final String MNEMONIC_SYSTEM_BAUDRATE = "baud";
     public static final String MNEMONIC_SYSTEM_LAST_MESSAGE = "msg";
-
+    public static final String MNEMONIC_SYSTEM_EXPAND_LF_TO_CRLF_ON_TX  = "ec";
+    public static final String MNEMONIC_SYSTEM_HARDWARE_VERSION = "hv";
+    public static final String MNEMONIC_SYSTEM_CHORDAL_TOLERANCE = "ct";
+    public static final String MNEMONIC_SYSTEM_TINYG_ID_VERSION = "id";
+   
     public MnemonicManager() {
         //When new settings are added we need to add them to the this class.
         //Axis
@@ -118,11 +125,11 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_XON);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_FIRMWARE_BUILD);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_FIRMWARE_VERSION);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_COORDINATE_SYSTEM);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_DISANCE_MODE);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_PATH_CONTROL);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_PATH_CONTROL);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_PLANE);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_COORDINATE_SYSTEM);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_DISTANCE_MODE);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_UNIT_MODE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_IGNORE_CR);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_JSON_VOBERSITY);
@@ -135,6 +142,12 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_SWITCH_TYPE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_TEXT_VOBERSITY);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_LAST_MESSAGE); //EEPROM values loading.. System Ready etc..
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_HARDWARE_VERSION);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_EXPAND_LF_TO_CRLF_ON_TX);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_UNIT_MODE);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_CHORDAL_TOLERANCE);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_TINYG_ID_VERSION);
+        
         //Status Report
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_LINE);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_MOTION_MODE);
@@ -144,8 +157,59 @@ public class MnemonicManager {
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_POSZ);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_UNITS);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_VELOCITY);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_STAT);
+        //Master Group
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_A);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_B);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_C);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_X);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_Y);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_Z);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_EMERGENCY_SHUTDOWN);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_HOME);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_MOTOR_1);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_MOTOR_2);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_MOTOR_3);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_MOTOR_4);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_POS);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_STATUS_REPORT);
+        GROUP_MNEMONICS.add(MNEMONIC_GROUP_SYSTEM);
+        
+        
     }
 
+    
+    public boolean isMasterGroupObject(String strToLookup){
+        if(GROUP_MNEMONICS.contains(strToLookup)){
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public responseCommand lookupSingleGroupMaster(String strToLookup, String parentGroup){
+        //This will iterate all group mnemoics to see if the single group object
+        // belongs in which group.
+
+        responseCommand rc = new responseCommand(parentGroup, null, null);
+        
+        if (AXIS_MNEMONICS.contains(strToLookup)) {
+            rc.setSettingKey(strToLookup);
+            return (rc);
+        } else if (MOTOR_MNEMONICS.contains(strToLookup)) {
+            rc.setSettingKey(strToLookup);
+            return (rc);
+        } else if (SYS_MNEMONICS.contains(strToLookup)) {
+            rc.setSettingKey(strToLookup);
+            return (rc);
+        } else if (STATUS_MNEMONICS.contains(strToLookup)) {
+            rc.setSettingKey(strToLookup);
+            return (rc);
+        }
+        return null;
+    }
+
+    
     public responseCommand lookupSingleGroup(String strToLookup) {
         //This will iterate all group mnemoics to see if the single group object
         // belongs in which group.
