@@ -55,13 +55,12 @@ import org.apache.log4j.BasicConfigurator;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.MissingResourceException;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Orientation;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
@@ -76,21 +75,21 @@ import jfxtras.labs.scene.control.gauge.LcdBuilder;
 import jfxtras.labs.scene.control.gauge.LcdDesign;
 import jfxtras.labs.scene.control.gauge.StyleModel;
 import jfxtras.labs.scene.control.gauge.StyleModelBuilder;
-import jfxtras.labs.scene.control.window.CloseIcon;
-import jfxtras.labs.scene.control.window.MinimizeIcon;
 import jfxtras.labs.scene.control.window.Window;
 import org.apache.log4j.Level;
 import tgfx.gcode.GcodeLine;
 import tgfx.system.Machine.Gcode_unit_modes;
 import tgfx.system.StatusCode;
 import tgfx.tinyg.CommandManager;
-import tgfx.tinyg.MnemonicManager;
 
 public class Main implements Initializable, Observer {
 
     
     private String buildDate;
     private int buildNumber;
+    
+    
+    
     
     private boolean drawPreview = true;
     private boolean taskActive = false;
@@ -158,7 +157,7 @@ public class Main implements Initializable, Observer {
     TextField input, listenerPort;
     @FXML
     private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
-            srVer, srUnits, srCoord, tgfxBuildNumber, tgfxBuildDate, tgfxVersion;
+            srVer, srUnits, srCoord, tgfxBuildNumber, tgfxBuildDate, tgfxVersion, tinygHardwareVersion, tinygIdNumber;
     @FXML
     StackPane cursorPoint;
     @FXML
@@ -319,11 +318,12 @@ public class Main implements Initializable, Observer {
     @FXML
     void handleTestButton(ActionEvent evt) throws Exception {
         logger.info("Test Button....");
-        tg.write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
+        tg.write(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
+//        tg.write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
 //        TinygDriver.getInstance().priorityWrite((byte)0x18);
-        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_SYSTEM_MNEMONIC_SYSTEM_SWITCH_TYPE_NC);
-        TinygDriver.getInstance().m.setFirmwareVersion("867543");
-        TinygDriver.getInstance().m.setFirmwareBuild(0.01);
+//        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_SYSTEM_MNEMONIC_SYSTEM_SWITCH_TYPE_NC);
+//        TinygDriver.getInstance().m.setFirmwareVersion("867543");
+//        TinygDriver.getInstance().m.setFirmwareBuild(0.01);
     }
 
     @FXML
@@ -583,7 +583,9 @@ public class Main implements Initializable, Observer {
 //
 //            tg.write("{\"xfr\":1500}");
 //            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);
+            tg.write(CommandManager.CMD_DEFAULT_ENABLE_JSON);
             tg.cmdManager.queryStatusReport(); //If TinyG current positions are other than zero
+            
             tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
             tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY); 
 
@@ -1473,8 +1475,8 @@ public class Main implements Initializable, Observer {
         BasicConfigurator.configure();
         SocketMonitor sm;
 
-//        WebEngine webEngine = html.getEngine();
-//        webEngine.load("https://github.com/synthetos/TinyG/wiki");
+        WebEngine webEngine = html.getEngine();
+        webEngine.load("https://github.com/synthetos/TinyG/wiki");
 
 
         logger.info("[+]tgFX is starting....");

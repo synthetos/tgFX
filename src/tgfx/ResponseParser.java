@@ -82,7 +82,7 @@ public class ResponseParser extends Observable implements Runnable {
 
         while (RUN) {
             try {
-                line = ((String) responseQueue.take()).trim().replace(" ", "");
+                line = (String) responseQueue.take();
 //                line = line.trim();  //remove spaces at the begginig and end of lines.
                 if (line.startsWith("{")) {
                     if (isTEXT_MODE()) {
@@ -103,7 +103,7 @@ public class ResponseParser extends Observable implements Runnable {
                     }
                     parseJSON(line);  //Take a line from the response queue when its ready and parse it.
 //                    System.out.println("GOT LINE: " + line);
-                } else {
+                } else  {
                     //Text Mode Response
                     if (!isTEXT_MODE()) {
                         //We are just entering text mode and need to alert the user. 
@@ -164,31 +164,65 @@ public class ResponseParser extends Observable implements Runnable {
 //    }
     public void applySettingMasterGroup(JSONObject js, String pg) throws Exception {
         String parentGroup;
-        if (js.keySet().size() > 1) {
+        if (pg.equals(MNEMONIC_GROUP_STATUS_REPORT)) {
+            //This is a status report master object that came in through a response object.
+            //meaning that the response was asked for like this {"sr":""} and returned like this.
+            //{"r":{"sr":{"line":0,"posx":0.000,"posy":0.000,"posz":0.000,"posa":0.000,"vel":0.000,"unit":1,"momo":0,"stat":3},"f":[1,0,10,885]}}
+            //Right now its parsed down to JUST the json object for the SR like so.
+            //{"sr":{"line":0,"posx":0.000,"posy":0.000,"posz":0.000,"posa":0.000,"vel":0.000,"unit":1,"momo":0,"stat":3},"f":[1,0,10,885]}
+            //so we can now just pass it to the applySettingStatusReport method.
+            applySettingStatusReport(js);
+        } else {
+            if (js.keySet().size() > 1) {
+                Iterator ii = js.keySet().iterator();
+                //This is a special multi single value response object
+                while (ii.hasNext()) {
+                    String key = ii.next().toString();
+                    if (key.equals("f")) {
+                        parseFooter(js.getJSONArray("f"));  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.               
+                    } else {
+                        responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroupMaster(key, pg);
+                        rc.setSettingValue(js.get(key).toString());
+                        parentGroup = rc.getSettingParent();
+                        _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pai
+                    }
+                }
+            }
+        }
+    }
+
+    public void applySettingStatusReport(JSONObject js) {
+        /**
+         * This breaks the mold a bit.. but its more efficient. This gets called
+         * off the top of ParseJson if it has an "SR" in it. Sr's are called so
+         * often that instead of walking the normal parsing tree.. this skips to
+         * the end
+         */
+        String parentGroup;
+        try {
             Iterator ii = js.keySet().iterator();
             //This is a special multi single value response object
             while (ii.hasNext()) {
                 String key = ii.next().toString();
-                if (key.equals("f")) {
-                    parseFooter(js.getJSONArray("f"));  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.               
-                } else {
-                    responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroupMaster(key, pg);
-                    rc.setSettingValue(js.get(key).toString());
-                    parentGroup = rc.getSettingParent();
-                    _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pai
-                }
+
+                responseCommand rc = new responseCommand(MNEMONIC_GROUP_SYSTEM, key.toString(), js.get(key).toString());
+                TinygDriver.getInstance().m.applyJsonStatusReport(rc);
+//                _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pair
             }
+            setChanged();
+            message[0] = "STATUS_REPORT";
+            message[1] = null;
+            notifyObservers(message);
+
+        } catch (Exception ex) {
+            logger.error("[!] Error in applySettingStatusReport(JsonOBject js) : " + ex.getMessage());
+            logger.error("[!]js.tostring " + js.toString());
         }
     }
 
     public void applySetting(JSONObject js) {
         String parentGroup;
         try {
-//            if (js.has("gc") | js.has("qr") | js.has("n") | js.length() == 0) { //The length == 0 is where you just get an {"r":{}
-//                //this is a gcode line echo not a valid response... return now.
-//                return;
-//            }
-
 
             if (js.keySet().size() > 1) { //If there are more than one object in the json response
                 Iterator ii = js.keySet().iterator();
@@ -197,6 +231,9 @@ public class ResponseParser extends Observable implements Runnable {
                     String key = ii.next().toString();
                     if (key.equals("f")) {
                         parseFooter(js.getJSONArray("f"));  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.               
+                    } else if (key.equals("n")) {
+                        //Got a line number
+                        TinygDriver.getInstance().m.setLine_number((int) js.getInt(key));
                     } else {
                         if (TinygDriver.getInstance().mneManager.isMasterGroupObject(key)) {
                             logger.info("Group Status Report Detected: " + key);
@@ -215,15 +252,15 @@ public class ResponseParser extends Observable implements Runnable {
                  */
                 if (js.keySet().contains("f")) {
                     /**
-                     * This is a single response footer object:
-                     * Like So: {"f":[1,0,5,3330]}
+                     * This is a single response footer object: Like So:
+                     * {"f":[1,0,5,3330]}
                      */
                     parseFooter(js.getJSONArray("f"));
                 } else {
-                     /**
-                     * Contains a single object in the json response
-                     * I am not sure this else is needed any longer.
-                     */  
+                    /**
+                     * Contains a single object in the json response I am not
+                     * sure this else is needed any longer.
+                     */
                     _applySettings(js, js.keys().next().toString());
                 }
             }
@@ -342,15 +379,15 @@ public class ResponseParser extends Observable implements Runnable {
                 message[1] = null;
                 notifyObservers(message);
                 break;
-            case (MNEMONIC_GROUP_STATUS_REPORT):
-                Main.logger.info("Status Report");
-                TinygDriver.getInstance().m.applyJsonStatusReport(js.getJSONObject(MNEMONIC_GROUP_STATUS_REPORT), MNEMONIC_GROUP_STATUS_REPORT); //Send in the jsobject 
-                setChanged();
-                message[0] = "STATUS_REPORT";
-                message[1] = null;
-                notifyObservers(message);
-
-                break;
+//            case (MNEMONIC_GROUP_STATUS_REPORT):
+//                Main.logger.info("Status Report");
+//                TinygDriver.getInstance().m.applyJsonStatusReport(js.getJSONObject(MNEMONIC_GROUP_STATUS_REPORT), MNEMONIC_GROUP_STATUS_REPORT); //Send in the jsobject 
+//                setChanged();
+//                message[0] = "STATUS_REPORT";
+//                message[1] = null;
+//                notifyObservers(message);
+//
+//                break;
             case (MNEMONIC_GROUP_EMERGENCY_SHUTDOWN):
                 Platform.runLater(new Runnable() {
                     @Override
@@ -456,7 +493,7 @@ public class ResponseParser extends Observable implements Runnable {
                                 applySetting(js.getJSONObject("r"));
                                 break;
                             case ("sr"):
-                                applySetting(js.getJSONObject("sr"));
+                                applySettingStatusReport(js.getJSONObject("sr"));
                                 break;
 
 

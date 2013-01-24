@@ -160,7 +160,7 @@
                                 <Insets fx:id="x727" />
                               </HBox.margin>
                             </Button>
-                            <Button fx:id="btnTest" mnemonicParsing="false" onAction="#handleTestButton" text="Test" />
+                            <Button fx:id="btnTest" mnemonicParsing="false" onAction="#handleTestButton" text="Test" visible="false" />
                           </children>
                           <padding>
                             <Insets top="10.0" />
@@ -1097,7 +1097,7 @@
                 </AnchorPane>
               </content>
             </Tab>
-            <Tab closable="false" text="Machine Settings">
+            <Tab closable="false" disable="true" text="Machine Settings">
               <content>
                 <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                   <children>

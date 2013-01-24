@@ -39,11 +39,12 @@ public class CommandManager {
     public static final String CMD_APPLY_SYSTEM_ENABLE_LOCAL_ECHO = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO + "\":0}\n";
     public static final String CMD_APPLY_SYSTEM_MNEMONIC_SYSTEM_SWITCH_TYPE_NC = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_SWITCH_TYPE + "\":1}\n";
     public static final String CMD_QUERY_SYSTEM_GCODE_UNIT_MODE = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_GCODE_UNIT_MODE + "\":null}\n";
-    public static final String CMD_QUERY_SYSTEM_GCODE_PLANE = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_GCODE_PLANE + "\":null}\n";
+    public static final String CMD_QUERY_SYSTEM_GCODE_PLANE = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE + "\":null}\n";
     public static final String CMD_APPLY_DISABLE_HASHCODE = "{\"eh\":0\"}\n";
     public static final String CMD_APPLY_DEFAULT_SETTINGS = "{\"defaults\":1}\n";
     public static final String CMD_APPLY_STATUS_UPDATE_INTERVAL = "{\"si\":200}\n";
     public static final String CMD_APPLY_JSON_VOBERSITY = "{\"jv\":3}\n";
+    public static final String CMD_DEFAULT_ENABLE_JSON = "{\"ej\":1}\n{\n";
     public static final String CMD_APPLY_TEXT_VOBERSITY = "{\"tv\":0}\n"; 
     public static final String CMD_APPLY_PAUSE = "!\n";
     public static final String CMD_APPLY_RESUME = "~\n";

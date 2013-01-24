@@ -581,14 +581,14 @@ public class Machine {
         m.setMapToAxis(x);
     }
 
-    public void applyJsonStatusReport(JSONObject js, String parent) {
+    public void applyJsonStatusReport(responseCommand rc) {
 
-        Iterator ii = js.keySet().iterator();
-        try {
-            while (ii.hasNext()) {
-                String _key = ii.next().toString();
-                String _val = js.get(_key).toString();
-                final responseCommand rc = new responseCommand(parent, _key, _val);
+//        Iterator ii = js.keySet().iterator();
+//        try {
+//            while (ii.hasNext()) {
+//                String _key = ii.next().toString();
+//                String _val = js.get(_key).toString();
+//                final responseCommand rc = new responseCommand(parent, _key, _val);
 
                 switch (rc.getSettingKey()) {
                     case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
@@ -618,12 +618,12 @@ public class Machine {
                     case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
                         TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
                         break;
-                }
-
-
-            }
-        } catch (JSONException | NumberFormatException ex) {
-            logger.error("Error in Machine.java --> Apply Axis Status Report. " + ex.getMessage());
+//                }
+//
+////
+//            }
+//        } catch (JSONException | NumberFormatException ex) {
+//            logger.error("Error in Machine.java --> Apply Axis Status Report. " + ex.getMessage());
         }
     }
 
@@ -668,20 +668,20 @@ public class Machine {
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
-                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_COORDINATE_SYSTEM):
+                    case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_COORDINATE_SYSTEM):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().m.setCoordinateSystem(rc.getSettingValue());
                         break;
 
-                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_DISTANCE_MODE):
+                    case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_DISTANCE_MODE):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().m.setGcodeDistanceMode(rc.getSettingValue());
                         break;
-                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_PATH_CONTROL):
+                    case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().m.setGcodePathControl(rc.getSettingValue());
                         break;
-                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_PLANE):
+                    case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE):
                         //TinygDriver.getInstance().m.setGcodeSelectPlane(Float.valueOf(rc.getSettingValue()));
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().m.setGcodeSelectPlane(rc.getSettingValue());
