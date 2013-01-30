@@ -102,7 +102,7 @@ public class Main implements Initializable, Observer {
     /*
      * LCD DRO PROFILE CREATION
      */
-    private Lcd xLcd, yLcd, zLcd, aLcd; //DRO Lcds
+    private Lcd xLcd, yLcd, zLcd, aLcd, velLcd; //DRO Lcds
     private StyleModel STYLE_MODEL_X = StyleModelBuilder.create()
             .lcdDesign(LcdDesign.BLACK)
             .lcdDecimals(3)
@@ -126,6 +126,12 @@ public class Main implements Initializable, Observer {
             .lcdDecimals(3)
             .lcdValueFont(Gauge.LcdFont.LCD)
             .lcdUnitStringVisible(true)
+            .build();
+    private StyleModel STYLE_MODEL_VEL = StyleModelBuilder.create()
+            .lcdDesign(LcdDesign.RED)
+            .lcdDecimals(3)
+            .lcdValueFont(Gauge.LcdFont.LCD)
+//            .lcdUnitStringVisible(true)
             .build();
     /**
      * JFXtras stuff
@@ -156,7 +162,7 @@ public class Main implements Initializable, Observer {
     @FXML
     TextField input, listenerPort;
     @FXML
-    private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srVelo, srBuild,
+    private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srBuild,
             srVer, srUnits, srCoord, tgfxBuildNumber, tgfxBuildDate, tgfxVersion, tinygHardwareVersion, tinygIdNumber;
     @FXML
     StackPane cursorPoint;
@@ -910,7 +916,7 @@ public class Main implements Initializable, Observer {
         if (tg.m.getMotionMode().get().equals("traverse")) {
             //G0 Move
 //            l.setStrokeWidth(Draw2d.getStrokeWeight() / 2);
-            l.setStrokeDashOffset(5);
+//            l.setStrokeDashOffset(5);
             l.setStroke(Draw2d.TRAVERSE);
         }else{
             l.setStroke(Draw2d.getLineColorFromVelocity(vel));
@@ -1380,16 +1386,17 @@ public class Main implements Initializable, Observer {
         yLcd = buildSingleDRO(yLcd, STYLE_MODEL_Y, "Y Axis Position", tg.m.getGcodeUnitMode().get());
         zLcd = buildSingleDRO(zLcd, STYLE_MODEL_Z, "Z Axis Position", tg.m.getGcodeUnitMode().get());
         aLcd = buildSingleDRO(aLcd, STYLE_MODEL_A, "A Axis Position", "°");
-
-        StackPane droStackPane = new StackPane();
-        droStackPane.getChildren().addAll(xLcd, yLcd, zLcd, aLcd);
+        velLcd = buildSingleDRO(velLcd, STYLE_MODEL_VEL,"Velocity", null);
+//
+//        StackPane droStackPane = new StackPane();
+//        droStackPane.getChildren().addAll(xLcd, yLcd, zLcd, aLcd);
 
 //        
         positionsVbox.getChildren().add(xLcd);
         positionsVbox.getChildren().add(yLcd);
         positionsVbox.getChildren().add(zLcd);
         positionsVbox.getChildren().add(aLcd);
-
+        positionsVbox.getChildren().add(velLcd);
 
         xLcd.valueProperty().addListener(new ChangeListener() {
             @Override
@@ -1432,7 +1439,7 @@ public class Main implements Initializable, Observer {
 
         srMomo.textProperty().bind(tg.m.getMotionMode());
         srVer.textProperty().bind(tg.m.firmwareVersion);
-        srVelo.textProperty().bindBidirectional(tg.m.velocity, sc);
+        
         srBuild.textProperty().bindBidirectional(tg.m.firmwareBuild, sc);
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
@@ -1466,6 +1473,7 @@ public class Main implements Initializable, Observer {
         yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWork_position());
         zLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWork_position());
         aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWork_position());
+        velLcd.valueProperty().bind(TinygDriver.getInstance().m.velocity);
 
         //cursor
 //        cursorPoint.layoutXProperty().bind(tg.m.getAxisByName("x").getWork_position());

@@ -80,9 +80,6 @@
                     <Color blue="0.750" green="0.750" red="0.750" fx:id="x4" />
                   </textFill>
                 </Label>
-                <Separator id="separatorVertical2" orientation="VERTICAL" />
-                <Label id="srText" text="Velocity" textFill="WHITE" FlowPane.margin="$x3" />
-                <Label id="srText" fx:id="srVelo" alignment="CENTER" maxWidth="-Infinity" prefWidth="70.0" text="?" textFill="$x4" FlowPane.margin="$x2" />
                 <Separator id="separatorVertical3" orientation="VERTICAL">
                   <FlowPane.margin>
                     <Insets right="20.0" />
