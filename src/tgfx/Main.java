@@ -84,13 +84,8 @@ import tgfx.tinyg.CommandManager;
 
 public class Main implements Initializable, Observer {
 
-    
     private String buildDate;
     private int buildNumber;
-    
-    
-    
-    
     private boolean drawPreview = true;
     private boolean taskActive = false;
     static final Logger logger = Logger.getLogger(Main.class);
@@ -131,7 +126,7 @@ public class Main implements Initializable, Observer {
             .lcdDesign(LcdDesign.RED)
             .lcdDecimals(3)
             .lcdValueFont(Gauge.LcdFont.LCD)
-//            .lcdUnitStringVisible(true)
+            //            .lcdUnitStringVisible(true)
             .build();
     /**
      * JFXtras stuff
@@ -216,8 +211,8 @@ public class Main implements Initializable, Observer {
 
     public Main() {
         this.gcodePane = new Pane();
-        double xPrevious = gcodePane.getWidth()/2;
-        double yPrevious = gcodePane.getHeight()/2;
+        double xPrevious = gcodePane.getWidth() / 2;
+        double yPrevious = gcodePane.getHeight() / 2;
     }
 
 //    float x = 0;
@@ -591,9 +586,9 @@ public class Main implements Initializable, Observer {
 //            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);
             tg.write(CommandManager.CMD_DEFAULT_ENABLE_JSON);
             tg.cmdManager.queryStatusReport(); //If TinyG current positions are other than zero
-            
+
             tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
-            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY); 
+            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);
 
 
 
@@ -897,28 +892,34 @@ public class Main implements Initializable, Observer {
 
 
         //Code to make mm's look the same size as inches
+        double scale = 1;
         double unitMagnication = 1;
         if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString())) {
-            unitMagnication =  5;  //INCHES
-        }else{
+            unitMagnication = 5;  //INCHES
+        } else {
             unitMagnication = 2; //MM
         }
 //        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get()) + 80);// + magnification;
 //        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get()) + 80);// + magnification;
-        
-        double newX = (Double.valueOf(tg.m.getAxisByName("x").getWork_position().get())) + (gcodePane.getWidth()/2);// + magnification;
-        double newY = (gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get()))) - (gcodePane.getHeight()/2);// + magnification;
+
+        double newX = (Double.valueOf(tg.m.getAxisByName("x").getWork_position().get())) + (gcodePane.getWidth() / 2);// + magnification;
+        double newY = (gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get()))) - (gcodePane.getHeight() / 2);// + magnification;
+        if (newX > gcodePane.getWidth() || newX > gcodePane.getWidth()) {
+            scale = scale / 2;
+            gcodePane.setScaleX(scale);
+            gcodePane.setScaleY(scale);
+        } 
 //        System.out.println(gcodePane.getHeight() - tg.m.getAxisByName("y").getWork_position().get());
         Line l = new Line(xPrevious, yPrevious, newX, newY);
 //        l.setStroke(Color.BLUE);
-        
+
 
         if (tg.m.getMotionMode().get().equals("traverse")) {
             //G0 Move
 //            l.setStrokeWidth(Draw2d.getStrokeWeight() / 2);
 //            l.setStrokeDashOffset(5);
             l.setStroke(Draw2d.TRAVERSE);
-        }else{
+        } else {
             l.setStroke(Draw2d.getLineColorFromVelocity(vel));
         }
 
@@ -1319,7 +1320,7 @@ public class Main implements Initializable, Observer {
         try {
             msg = rb.getString(propToken);
         } catch (MissingResourceException e) {
-           logger.error("Error Getting Build Info Token ".concat(propToken).concat(" not in Propertyfile!"));
+            logger.error("Error Getting Build Info Token ".concat(propToken).concat(" not in Propertyfile!"));
         }
         return msg;
     }
@@ -1327,10 +1328,10 @@ public class Main implements Initializable, Observer {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-        
+
         buildNumber = Integer.valueOf(getBuildInfo("BUILD"));
         buildDate = getBuildInfo("DATE");
-        
+
         //Set our build / versions in the tgFX settings tab.
         tgfxBuildDate.setText(buildDate);
         tgfxBuildNumber.setText(getBuildInfo("BUILD"));
@@ -1365,7 +1366,7 @@ public class Main implements Initializable, Observer {
 //                    gcodePane.setLayoutY(-new_val.doubleValue());
 //            }
 //        });
-        
+
 //   
 //        gcodePane.getChildren().add(vGcodePreviewScrollBar);
 //        gcodePane.getChildren().add(hGcodePreviewScrollBar);
@@ -1386,7 +1387,7 @@ public class Main implements Initializable, Observer {
         yLcd = buildSingleDRO(yLcd, STYLE_MODEL_Y, "Y Axis Position", tg.m.getGcodeUnitMode().get());
         zLcd = buildSingleDRO(zLcd, STYLE_MODEL_Z, "Z Axis Position", tg.m.getGcodeUnitMode().get());
         aLcd = buildSingleDRO(aLcd, STYLE_MODEL_A, "A Axis Position", "°");
-        velLcd = buildSingleDRO(velLcd, STYLE_MODEL_VEL,"Velocity", null);
+        velLcd = buildSingleDRO(velLcd, STYLE_MODEL_VEL, "Velocity", null);
 //
 //        StackPane droStackPane = new StackPane();
 //        droStackPane.getChildren().addAll(xLcd, yLcd, zLcd, aLcd);
@@ -1439,7 +1440,7 @@ public class Main implements Initializable, Observer {
 
         srMomo.textProperty().bind(tg.m.getMotionMode());
         srVer.textProperty().bind(tg.m.firmwareVersion);
-        
+
         srBuild.textProperty().bindBidirectional(tg.m.firmwareBuild, sc);
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
