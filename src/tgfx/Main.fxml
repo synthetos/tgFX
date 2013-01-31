@@ -41,13 +41,15 @@
             </TextField>
             <FlowPane id="flowPane1" alignment="CENTER_RIGHT" columnHalignment="CENTER" maxHeight="22.0" minHeight="22.0" prefHeight="22.0" style="-fx-background-color:black;" VBox.vgrow="NEVER">
               <children>
-                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                <Label id="srText" text="Units" textFill="WHITE" />
-                <Label id="srText" fx:id="srUnits" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?">
+                <Label id="srText" text="Gcode Line" textFill="WHITE" />
+                <Label id="srText" fx:id="srGcodeLine" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?">
                   <textFill>
                     <Color blue="0.624" green="0.624" red="0.624" fx:id="x1" />
                   </textFill>
                 </Label>
+                <Separator id="separatorVertical4" orientation="VERTICAL" />
+                <Label id="srText" text="Units" textFill="WHITE" />
+                <Label id="srText" fx:id="srUnits" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
                 <Separator id="separatorVertical4" orientation="VERTICAL" />
                 <Label id="srText" text="Ver" textFill="WHITE" />
                 <Label id="srText" fx:id="srVer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1">
@@ -86,8 +88,14 @@
                   </FlowPane.margin>
                 </Separator>
                 <Label id="srText" text="Coord System" textFill="WHITE" />
-                <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="#9f9f9f" />
+                <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?">
+                  <textFill>
+                    <Color blue="0.624" green="0.624" red="0.624" fx:id="x5" />
+                  </textFill>
+                </Label>
                 <Separator id="separatorVertical4" orientation="VERTICAL" />
+                <Label id="srText" text="Buffer" textFill="WHITE" />
+                <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x5" />
               </children>
               <hgap>
                 <Long fx:value="0" />

@@ -55,7 +55,6 @@ import org.apache.log4j.BasicConfigurator;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.MissingResourceException;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -157,7 +156,7 @@ public class Main implements Initializable, Observer {
     @FXML
     TextField input, listenerPort;
     @FXML
-    private Label xAxisVal, yAxisVal, zAxisVal, aAxisVal, srMomo, srState, srBuild,
+    private Label  srMomo, srState, srBuild, srBuffer, srGcodeLine,
             srVer, srUnits, srCoord, tgfxBuildNumber, tgfxBuildDate, tgfxVersion, tinygHardwareVersion, tinygIdNumber;
     @FXML
     StackPane cursorPoint;
@@ -573,34 +572,22 @@ public class Main implements Initializable, Observer {
     /**
      * These are the actions that need to be ran upon successful serial port
      * connection. If you have something that you want to "auto run" on connect.
-     * This is the place to do so. This method is called in handleConnect.
+     * This is the place to do so. This met0 hod is called in handleConnect.
      */
     private void onConnectActions() {
         try {
 
-//            
-//            tg.write("{\"1ma\":1}");
-//            tg.write("{\"gun\":null}");
-//
-//            tg.write("{\"xfr\":1500}");
-//            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);
-            tg.write(CommandManager.CMD_DEFAULT_ENABLE_JSON);
-            tg.cmdManager.queryStatusReport(); //If TinyG current positions are other than zero
-
-            tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
-            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);
-
-
-
-            /*
-             * Do CMD_QUERY_SYSTEM_SETTINGS FIRST
-             */
-            //FIRST
-            tg.cmdManager.queryAllMachineSettings();  //One command to rule them all.
-            //FIRST
-
-            tg.cmdManager.queryAllMotorSettings();
-            tg.cmdManager.queryAllHardwareAxisSettings();
+            
+            
+            tg.write(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //FIRST
+//            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //SECOND - There is an issue with this.  It returns stuff like "true"
+            tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);          //THIRD
+            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);          //FORTH
+            tg.write(CommandManager.CMD_DEFAULT_ENABLE_JSON);           //FIFTH
+            tg.cmdManager.queryAllMachineSettings();                    //SIXtH
+            tg.cmdManager.queryStatusReport();                          //SEVENTH - Get Positions if the board is not at zero
+            tg.cmdManager.queryAllMotorSettings();                      //EIGTH
+            tg.cmdManager.queryAllHardwareAxisSettings();               //NINETH
 
 
 //            Circle c1 = new Circle();
@@ -652,7 +639,6 @@ public class Main implements Initializable, Observer {
 
             }
         } else {
-            tg.write(CommandManager.CMD_QUERY_OK_PROMPT);
             tg.disconnect();
             if (!tg.isConnected()) {
                 console.appendText("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
@@ -665,8 +651,13 @@ public class Main implements Initializable, Observer {
 
     public void onDisconnectActions() {
         TinygDriver.getInstance().m.setFirmwareBuild(0.0);
-//        srVer.setText("?");
-//        srMomo.setText("?");
+        TinygDriver.getInstance().m.firmwareBuild.set(0);
+        TinygDriver.getInstance().m.firmwareVersion.set("?");
+        TinygDriver.getInstance().m.m_state.set("?");
+        
+        
+        
+        
 //        TinygDriver.getInstance().m.setVelocity(0.0);
 //        srState.setText("?");
 //        tg.resetSpaceBuffer();
@@ -910,6 +901,7 @@ public class Main implements Initializable, Observer {
             gcodePane.setScaleY(scale);
         } 
 //        System.out.println(gcodePane.getHeight() - tg.m.getAxisByName("y").getWork_position().get());
+        
         Line l = new Line(xPrevious, yPrevious, newX, newY);
 //        l.setStroke(Color.BLUE);
 
@@ -1065,7 +1057,12 @@ public class Main implements Initializable, Observer {
                 updateGuiMachineSettings(ROUTING_KEY);
             } else if (ROUTING_KEY.equals("TEXTMODE_REPORT")) {
                 console.appendText(KEY_ARGUMENT);
-            } else {
+            }else if (ROUTING_KEY.equals("BUFFER_UPDATE")) {
+                srBuffer.setText(KEY_ARGUMENT);
+            }
+            else if (ROUTING_KEY.equals("UPDATE_LINE_NUMBER")) {
+                srGcodeLine.setText(KEY_ARGUMENT);
+            }else {
                 System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
             }
         }
@@ -1381,7 +1378,7 @@ public class Main implements Initializable, Observer {
 
 //        xtgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
 //        tgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
-        logger.setLevel(Level.ERROR);
+        logger.setLevel(Level.INFO);
 
         xLcd = buildSingleDRO(xLcd, STYLE_MODEL_X, "X Axis Position", tg.m.getGcodeUnitMode().get());
         yLcd = buildSingleDRO(yLcd, STYLE_MODEL_Y, "Y Axis Position", tg.m.getGcodeUnitMode().get());
@@ -1432,6 +1429,8 @@ public class Main implements Initializable, Observer {
             }
         };
 
+        
+   
 
         /*
          * WE CREATE OUR BINDINGS HERE TO BIND OUR INTERNAL GUI (JAVAFX 2) MODEL
@@ -1441,10 +1440,11 @@ public class Main implements Initializable, Observer {
         srMomo.textProperty().bind(tg.m.getMotionMode());
         srVer.textProperty().bind(tg.m.firmwareVersion);
 
-        srBuild.textProperty().bindBidirectional(tg.m.firmwareBuild, sc);
+        srBuild.textProperty().bindBidirectional(tg.m.firmwareBuild,sc);
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
         srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
+//        srBuffer.textProperty().bindBidirectional(tg.serialWriter.getBufferValueSimpleProperty(), sc);
 
         //Bind our Units to each axis
         tg.m.getGcodeUnitMode().addListener(new ChangeListener() {

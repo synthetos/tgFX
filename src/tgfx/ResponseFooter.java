@@ -4,7 +4,8 @@
  */
 package tgfx;
 
-import tgfx.tinyg.TinygDriver;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableIntegerValue;
 
 /**
  *
@@ -18,16 +19,18 @@ public class ResponseFooter {
     
     private int protocolVersion;
     private static int statusCode = 0;
-    private static int rxRecvd = 254;
+    public static int rxRecvd = 254;
     private static long checkSum;    
     public ResponseFooter(){
        
     }
 
+    
     public int getRxRecvd() {
         return rxRecvd;
     }
 
+    
     public  long getCheckSum() {
         return checkSum;
     }

@@ -5,6 +5,7 @@
 package tgfx;
 
 import java.util.concurrent.BlockingQueue;
+import javafx.beans.property.SimpleIntegerProperty;
 
 /**
  *
@@ -34,6 +35,8 @@ public class SerialWriter implements Runnable {
         this.RUN = RUN;
     }
 
+
+    
     public synchronized int getBufferValue() {
         return buffer_available;
     }
@@ -43,7 +46,7 @@ public class SerialWriter implements Runnable {
         Main.logger.info("Got a BUFFER Response.. reset it to: " + val);
     }
     public synchronized void addBytesReturnedToBuffer(int lenBytesReturned) {
-        buffer_available = buffer_available + lenBytesReturned;
+        buffer_available = (buffer_available + lenBytesReturned);
 //        Main.logger.info("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");
     }
 
@@ -83,7 +86,8 @@ public class SerialWriter implements Runnable {
                 if (str.length() > getBufferValue()) {
                     setThrottled(true);
                 } else {
-                   buffer_available = getBufferValue() - str.length();
+                   buffer_available = (getBufferValue() - str.length());
+                  
                 }
 
                 while (throttled) {
@@ -92,7 +96,7 @@ public class SerialWriter implements Runnable {
                         setThrottled(true);
                     } else {
                         setThrottled(false);
-                        buffer_available = getBufferValue() - str.length();
+                        buffer_available = (getBufferValue() - str.length());
                         break;
                     }
                     Main.logger.info("We are Throttled in the write method for SerialWriter");

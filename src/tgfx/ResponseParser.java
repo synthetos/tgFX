@@ -41,7 +41,7 @@ public class ResponseParser extends Observable implements Runnable {
     private BlockingQueue responseQueue;
     boolean RUN = true;
     String buf = "";
-    private ResponseFooter responseFooter = new ResponseFooter();  //our holder for ResponseFooter Data
+    public ResponseFooter responseFooter = new ResponseFooter();  //our holder for ResponseFooter Data
     private static Logger logger = Logger.getLogger(ResponseParser.class);
     //These values are for mapping what n'Th element inthe json footer array maps to which values.
     private static final int FOOTER_ELEMENT_PROTOCOL_VERSION = 0;
@@ -71,7 +71,7 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
-        logger.setLevel(org.apache.log4j.Level.ERROR);
+        logger.setLevel(org.apache.log4j.Level.INFO);
 
     }
 
@@ -103,7 +103,7 @@ public class ResponseParser extends Observable implements Runnable {
                     }
                     parseJSON(line);  //Take a line from the response queue when its ready and parse it.
 //                    System.out.println("GOT LINE: " + line);
-                } else  {
+                } else {
                     //Text Mode Response
                     if (!isTEXT_MODE()) {
                         //We are just entering text mode and need to alert the user. 
@@ -120,7 +120,7 @@ public class ResponseParser extends Observable implements Runnable {
                     notifyObservers(message);
                 }
             } catch (InterruptedException | JSONException ex) {
-                logger.error("[!]Error in responseParser run() ");
+                logger.error("[!]Error in responseParser run(): " + ex.getMessage());
 
             }
         }
@@ -229,21 +229,30 @@ public class ResponseParser extends Observable implements Runnable {
                 //This is a special multi single value response object
                 while (ii.hasNext()) {
                     String key = ii.next().toString();
-                    if (key.equals("f")) {
-                        parseFooter(js.getJSONArray("f"));  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.               
-                    } else if (key.equals("n")) {
-                        //Got a line number
-                        TinygDriver.getInstance().m.setLine_number((int) js.getInt(key));
-                    } else {
-                        if (TinygDriver.getInstance().mneManager.isMasterGroupObject(key)) {
-                            logger.info("Group Status Report Detected: " + key);
-                            applySettingMasterGroup(js.getJSONObject(key), key);
-                            continue;
-                        }
-                        responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroup(key);
-                        rc.setSettingValue(js.get(key).toString());
-                        parentGroup = rc.getSettingParent();
-                        _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pair
+                    switch (key) {
+                        case "f":
+                            parseFooter(js.getJSONArray("f"));  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.
+                            break;
+                        case "n":
+                            //Got a line number
+                            int lineNumber = (int) js.getInt(key);
+                            TinygDriver.getInstance().m.setLine_number(lineNumber);
+                            message[0] = "UPDATE_LINE_NUMBER";
+                            message[1] = String.valueOf(lineNumber);
+                            setChanged();
+                            notifyObservers(message);  //Update the GUI with our line number
+                            break;
+                        default:
+                            if (TinygDriver.getInstance().mneManager.isMasterGroupObject(key)) {
+    //                            logger.info("Group Status Report Detected: " + key);
+                                applySettingMasterGroup(js.getJSONObject(key), key);
+                                continue;
+                            }
+                            responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroup(key);
+                            rc.setSettingValue(js.get(key).toString());
+                            parentGroup = rc.getSettingParent();
+                            _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pair
+                            break;
                     }
                 }
             } else {
@@ -371,7 +380,7 @@ public class ResponseParser extends Observable implements Runnable {
                 Main.logger.info("HOME");
                 break;
             case (MNEMONIC_GROUP_SYSTEM):
-                Main.logger.info(MNEMONIC_GROUP_SYSTEM);
+//                Main.logger.info(MNEMONIC_GROUP_SYSTEM);
                 TinygDriver.getInstance().m.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
 
                 setChanged();
@@ -468,6 +477,11 @@ public class ResponseParser extends Observable implements Runnable {
                 int afterBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
                 logger.info("Returned " + responseFooter.getRxRecvd() + " to buffer... Buffer was " + beforeBytesReturned + " is now " + afterBytesReturned);
                 TinygDriver.getInstance().serialWriter.notifyAck();  //We let our serialWriter thread know we have added some space to the buffer.
+                //Lets tell the UI the new size of the buffer
+                message[0] = "BUFFER_UPDATE";
+                message[1] = String.valueOf(afterBytesReturned);
+                setChanged();
+                notifyObservers(message);
             }
         } catch (Exception ex) {
             logger.error("Error parsing json footer");
@@ -475,9 +489,7 @@ public class ResponseParser extends Observable implements Runnable {
     }
 
     public synchronized void parseJSON(String line) throws JSONException {
-        String axis;
-        String[] statusResponse;
-        int motor;
+
         logger.info("Got Line: " + line + " from TinyG.");
 
         final JSONObject js = new JSONObject(line);
