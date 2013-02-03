@@ -114,16 +114,8 @@ public class SerialDriver implements SerialPortEventListener {
             try {
                 int cnt = input.read(inbuffer, 0, inbuffer.length);
                 for (int i = 0; i < cnt; i++) {
-//                    if (inbuffer[i] == 0x13) {
-//                        System.out.println("Got XOFF");
-//                        setThrottled(true);
-//                    } else if (inbuffer[i] == 0x11) {
-//                        System.out.println("Got XON");
-//                        setThrottled(false);
-//                    } else 
                     if (inbuffer[i] == '\n') {
                         String f = new String(lineBuffer, 0, lineIdx);
-                        //                       Main.logger.debug("full line |" + f + "|");                        
                         TinygDriver.getInstance().resParse.appendJsonQueue(f);
                         lineIdx = 0;
                     } else {
@@ -131,8 +123,6 @@ public class SerialDriver implements SerialPortEventListener {
                     }
                 }
 
-                //Flow.logger.debug("Serial Event Read In: <-- " + String.valueOf(chunk.length) + " Bytes...");
-                //               TinygDriver.getInstance().appendResponseQueue(chunk);
             } catch (Exception ex) {
                 System.out.println("Exception in Serial Event");
             }
@@ -180,13 +170,9 @@ public class SerialDriver implements SerialPortEventListener {
             // add event listeners
             serialPort.addEventListener(this);
             serialPort.notifyOnDataAvailable(true);
-//            serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN);
-//            serialPort.setInputBufferSize(15000);
-//            serialPort.setOutputBufferSize(500);
 
             Main.logger.debug("[+]Opened " + port + " successfully.");
             setConnected(true); //Register that this is connectionState.
-//            TinygDriver.getInstance().setClearToSend(true);
             return true;
 
         } catch (PortInUseException ex) {

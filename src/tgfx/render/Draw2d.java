@@ -29,6 +29,17 @@ public class Draw2d {
     public static double magnification = 3;
     private static double magZoomIncrement = 2;
     private static double strokeIncrement = .1;
+    private static boolean firstDraw = true;
+
+    public static boolean isFirstDraw() {
+        return firstDraw;
+    }
+
+    public static void setFirstDraw(boolean firstDraw) {
+        Draw2d.firstDraw = firstDraw;
+    }
+    
+    
 
     public static double getMagnification() {
         return magnification;

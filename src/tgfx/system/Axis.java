@@ -7,6 +7,7 @@ package tgfx.system;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -35,6 +36,7 @@ public class Axis {
     static final Logger logger = Logger.getLogger(TinygDriver.class);
     private String CURRENT_AXIS_JSON_OBJECT;
     private AXIS_TYPE axis_type;
+    private SimpleBooleanProperty homed = new SimpleBooleanProperty(false);
     private float latch_velocity;
 //    private float seek_rate_maximum;
     private double latch_backoff;
@@ -46,7 +48,7 @@ public class Axis {
     private double search_velocity;
     private double feed_rate_maximum;
     private double velocity_maximum;
-    private double travel_maximum;
+    private SimpleDoubleProperty travel_maximum = new SimpleDoubleProperty();
     private double jerk_maximum;
     private double junction_devation;
     private SWITCH_MODES max_switch_mode;
@@ -104,6 +106,11 @@ public class Axis {
 ////        jerk_maximum = 0;
 //        
 //    }
+    
+    public void setHomed(boolean choice){
+        homed.set(choice);
+    }
+    
     public void setAxisCommand(String cmd, String value) {
         //This is a blind commmand mode...  meaning that
         //if 2 strings (key, val) are passed to the axis class
@@ -603,12 +610,15 @@ public class Axis {
         return false;
     }
 
+    public SimpleDoubleProperty getTravelMaxSimple(){
+        return(travel_maximum);
+    }
     public double getTravel_maximum() {
-        return travel_maximum;
+        return travel_maximum.getValue();
     }
 
     public boolean setTravel_maximum(float travel_maximum) {
-        this.travel_maximum = travel_maximum;
+        this.travel_maximum.set(travel_maximum);
         return true;
     }
 

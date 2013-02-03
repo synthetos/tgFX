@@ -7,6 +7,7 @@ package tgfx.system;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -15,6 +16,7 @@ import org.json.JSONObject;
 import tgfx.tinyg.TinygDriver;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
+import tgfx.tinyg.CommandManager;
 import tgfx.tinyg.responseCommand;
 
 /**
@@ -177,8 +179,8 @@ public class Machine {
     public static enum Gcode_unit_modes {
         //gun
 
-        INCHES, //G20
-        MM      //G21
+        inches, //G20
+        mm      //G21
     };
 
     public static enum Gcode_select_plane {
@@ -278,23 +280,24 @@ public class Machine {
 
     public void setGcodeUnits(int unitMode) {
         if (unitMode == 0) {
-            gcodeUnitMode.setValue(Gcode_unit_modes.INCHES.toString());
-            
-        } else if(unitMode == 1) {
-            gcodeUnitMode.setValue(Gcode_unit_modes.MM.toString());
+            gcodeUnitMode.setValue(Gcode_unit_modes.inches.toString());
+
+        } else if (unitMode == 1) {
+            gcodeUnitMode.setValue(Gcode_unit_modes.mm.toString());
         }
+
     }
 
     public SimpleStringProperty getGcodeUnitMode() {
         return gcodeUnitMode;
     }
-    
+
     public int getGcodeUnitModeAsInt() {
-       if(gcodeUnitMode.get().equals(Gcode_unit_modes.MM.toString())){
-           return(1);
-       }else{
-           return(0);
-       }
+        if (gcodeUnitMode.get().equals(Gcode_unit_modes.mm.toString())) {
+            return (1);
+        } else {
+            return (0);
+        }
     }
 
     public void setGcodeUnits(String gcu) {
@@ -302,10 +305,10 @@ public class Machine {
 
         switch (_tmpgcu) {
             case (0):
-                gcodeUnitMode.set(Gcode_unit_modes.INCHES.toString());
+                gcodeUnitMode.set(Gcode_unit_modes.inches.toString());
                 break;
             case (1):
-                gcodeUnitMode.set(Gcode_unit_modes.MM.toString());
+                gcodeUnitMode.set(Gcode_unit_modes.mm.toString());
                 break;
         }
     }
@@ -313,7 +316,6 @@ public class Machine {
 //    public void setGcodeUnits(Gcode_unit_modes gcode_units) {
 //        this.gcode_unit_mode = gcode_units;
 //    }
-
     public SimpleStringProperty getMotionMode() {
         return (m_mode);
     }
@@ -536,7 +538,7 @@ public class Machine {
         axis.add(a);
         axis.add(b);
         axis.add(c);
-        
+
         setMotionMode(0);
 
     }
@@ -544,9 +546,9 @@ public class Machine {
     public List<Axis> getAllAxis() {
         return axis;
     }
-    
-    public Axis getAxisByName(char c){
-        return(getAxisByName(String.valueOf(c)));
+
+    public Axis getAxisByName(char c) {
+        return (getAxisByName(String.valueOf(c)));
     }
 
     public Axis getAxisByName(String name) {
@@ -590,34 +592,34 @@ public class Machine {
 //                String _val = js.get(_key).toString();
 //                final responseCommand rc = new responseCommand(parent, _key, _val);
 
-                switch (rc.getSettingKey()) {
-                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
-                        TinygDriver.getInstance().m.setLine_number(Integer.valueOf(rc.getSettingValue()));
-                        break;
-                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_MOTION_MODE):
-                        TinygDriver.getInstance().m.setMotionMode(Integer.valueOf(rc.getSettingValue()));
-                        break;
-                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
-                        break;
-                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
-                        break;
-                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
-                        break;
-                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
-                        break;
-                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
-                        TinygDriver.getInstance().m.setMachineState(Integer.valueOf(rc.getSettingValue()));
-                        break;
-                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_UNITS):
-                        TinygDriver.getInstance().m.setGcodeUnits(Integer.valueOf(rc.getSettingValue()));
-                        break;
-                    case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
-                        TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
-                        break;
+        switch (rc.getSettingKey()) {
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
+                TinygDriver.getInstance().m.setLine_number(Integer.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_MOTION_MODE):
+                TinygDriver.getInstance().m.setMotionMode(Integer.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
+                TinygDriver.getInstance().m.setMachineState(Integer.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_UNITS):
+                TinygDriver.getInstance().m.setGcodeUnits(Integer.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
+                TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
+                break;
 //                }
 //
 ////
@@ -733,9 +735,9 @@ public class Machine {
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
-                    case (MnemonicManager.MNEMONIC_SYSTEM_LAST_MESSAGE):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
+//                    case (MnemonicManager.MNEMONIC_SYSTEM_LAST_MESSAGE):
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        break;
 
                 }
 

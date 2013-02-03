@@ -31,7 +31,7 @@ public class TgFX extends Application {
         
         
         Scene scene = new Scene(root);
-//        scene.getStylesheets().add(this.getClass().getResource("composer.css").toExternalForm());
+//        scene.getStylesheets().add(this.getClass().getResource("new_main.css.css").toExternalForm());
         
         
         

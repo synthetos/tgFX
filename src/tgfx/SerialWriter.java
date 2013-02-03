@@ -5,7 +5,11 @@
 package tgfx;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleIntegerProperty;
+import tgfx.tinyg.CommandManager;
+import tgfx.tinyg.TinygDriver;
 
 /**
  *
@@ -16,7 +20,8 @@ public class SerialWriter implements Runnable {
     private BlockingQueue queue;
     private boolean RUN = true;
     private String tmpCmd;
-    private int buffer_available = 254;
+    private int BUFFER_SIZE = 254;
+    public int buffer_available = BUFFER_SIZE;
     private SerialDriver ser = SerialDriver.getInstance();
     private static final Object mutex = new Object();
     private static boolean throttled = false;
@@ -26,7 +31,25 @@ public class SerialWriter implements Runnable {
         this.queue = q;
         
     }
+    
+    public void resetBuffer(){
+        //Called onDisconnectActions
+        buffer_available = BUFFER_SIZE;
+    }
+    
+    public void setSerialBufferLenght(int bufflen){
+        buffer_available = bufflen;  //If the firmware build uses a different serial buffer len for whatever reason this will catch it.
+    }
 
+    public void clearQueueBuffer(){
+        queue.clear();
+        try {
+            SerialDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESET);
+        } catch (Exception ex) {
+            Logger.getLogger(SerialWriter.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public boolean isRUN() {
         return RUN;
     }
@@ -45,6 +68,8 @@ public class SerialWriter implements Runnable {
         buffer_available = val;
         Main.logger.info("Got a BUFFER Response.. reset it to: " + val);
     }
+    
+    
     public synchronized void addBytesReturnedToBuffer(int lenBytesReturned) {
         buffer_available = (buffer_available + lenBytesReturned);
 //        Main.logger.info("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");

@@ -89,7 +89,7 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_TEXT_VOBERSITY = "tv";
     public static final String MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL = "si";
     public static final String MNEMONIC_SYSTEM_BAUDRATE = "baud";
-    public static final String MNEMONIC_SYSTEM_LAST_MESSAGE = "msg";
+//    public static final String MNEMONIC_SYSTEM_LAST_MESSAGE = "msg";
     public static final String MNEMONIC_SYSTEM_EXPAND_LF_TO_CRLF_ON_TX  = "ec";
     public static final String MNEMONIC_SYSTEM_HARDWARE_VERSION = "hv";
     public static final String MNEMONIC_SYSTEM_CHORDAL_TOLERANCE = "ct";
@@ -141,7 +141,7 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_SWITCH_TYPE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_TEXT_VOBERSITY);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_LAST_MESSAGE); //EEPROM values loading.. System Ready etc..
+//        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_LAST_MESSAGE); //EEPROM values loading.. System Ready etc..
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_HARDWARE_VERSION);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_EXPAND_LF_TO_CRLF_ON_TX);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_UNIT_MODE);

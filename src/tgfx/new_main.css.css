@@ -6,15 +6,56 @@
         Purpose of the stylesheet follows.
 */
 
+#motor1{
+    -fx-background-image: url("background.jpg");
+    -fx-padding: 10
+    
+}
+
+#motor2{
+    -fx-background-image: url("background.jpg");
+    -fx-padding: 10
+}
+#motor3{
+    -fx-background-image: url("background.jpg");
+    -fx-padding: 10
+}
+#motor4{
+    -fx-background-image: url("background.jpg");
+    -fx-padding: 10
+    
+}
+#motorTxt{
+    -fx-text-fill: white;
+}
+
+#gcodeWindow {
+    -fx-background-color: black;
+}
+
+#previewVbox{
+   -fx-background-image: url("background.jpg");
+}
+
+#machineSettingsVbox{
+    -fx-background-image: url("carbongcode.png");
+}
+
+#gcodeTabHbox{
+/*     -fx-background-color:
+        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+        linear-gradient(#20262b, #191d22),
+        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+    -fx-background-image: url("carbon.png");
+
+}
+
 .button {
     -fx-padding: 5 22 5 22;   
     -fx-border-color: #e2e2e2;
     -fx-border-width: 2;
-
     -fx-background-radius: 0;
-
     -fx-background-color: #1d1d1d;
-  
      -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
     -fx-font-size: 11pt;
     -fx-text-fill: #d8d8d8;
@@ -95,10 +136,17 @@ root {
     -fx-font-weight: bold;
     -fx-text-fill: linear-gradient(white, #d0d0d0);
 }
-
+#settingsContent{
+    
+     -fx-background-image: url("carbon.png");
+/*     -fx-background-color:
+        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+        linear-gradient(#20262b, #191d22),
+        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));*/
+}
 #topMainTitle {
     
-    
+    -fx-background-image: url("carbon.png");
 -fx-background-color:
         #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
         linear-gradient(#20262b, #191d22),

@@ -54,28 +54,45 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.MissingResourceException;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.Path;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.util.StringConverter;
 import jfxtras.labs.scene.control.gauge.Gauge;
 import jfxtras.labs.scene.control.gauge.Lcd;
 import jfxtras.labs.scene.control.gauge.LcdBuilder;
 import jfxtras.labs.scene.control.gauge.LcdDesign;
+import jfxtras.labs.scene.control.gauge.LedColor;
 import jfxtras.labs.scene.control.gauge.StyleModel;
 import jfxtras.labs.scene.control.gauge.StyleModelBuilder;
 import jfxtras.labs.scene.control.window.Window;
 import org.apache.log4j.Level;
+import org.apache.log4j.Priority;
+import tgfx.gcode.GcodeHistory;
 import tgfx.gcode.GcodeLine;
 import tgfx.system.Machine.Gcode_unit_modes;
 import tgfx.system.StatusCode;
@@ -91,12 +108,20 @@ public class Main implements Initializable, Observer {
     private TinygDriver tg = TinygDriver.getInstance();
     public ObservableList data;
     private String PROMPT = "tinyg>";
+    private GcodeHistory gcodeCommandHistory = new GcodeHistory();
     final static ResourceBundle rb = ResourceBundle.getBundle("version");   //Used to track build date and build number
 
     /*
      * LCD DRO PROFILE CREATION
      */
+    
+    private Pane machineOutline = new Pane();
+    
+    @FXML
     private Lcd xLcd, yLcd, zLcd, aLcd, velLcd; //DRO Lcds
+    @FXML
+    StackPane machineWorkspace;
+    
     private StyleModel STYLE_MODEL_X = StyleModelBuilder.create()
             .lcdDesign(LcdDesign.BLACK)
             .lcdDecimals(3)
@@ -122,19 +147,20 @@ public class Main implements Initializable, Observer {
             .lcdUnitStringVisible(true)
             .build();
     private StyleModel STYLE_MODEL_VEL = StyleModelBuilder.create()
-            .lcdDesign(LcdDesign.RED)
-            .lcdDecimals(3)
+            .lcdDesign(LcdDesign.RED_DARKRED)
+            .lcdDecimals(0)
             .lcdValueFont(Gauge.LcdFont.LCD)
-            //            .lcdUnitStringVisible(true)
+            .lcdUnitStringVisible(true)
             .build();
     /**
      * JFXtras stuff
      */
-    private Window w;
-    private Pane gcodePane;
+    @FXML
+    private StackPane gcodePane=new StackPane();
     /**
      * FXML UI Components
      */
+//    Window gcodeWindow;
     @FXML
     private Circle cursor;
     @FXML
@@ -156,7 +182,7 @@ public class Main implements Initializable, Observer {
     @FXML
     TextField input, listenerPort;
     @FXML
-    private Label  srMomo, srState, srBuild, srBuffer, srGcodeLine,
+    private Label srMomo, srState, srBuild, srBuffer, srGcodeLine,
             srVer, srUnits, srCoord, tgfxBuildNumber, tgfxBuildDate, tgfxVersion, tinygHardwareVersion, tinygIdNumber;
     @FXML
     StackPane cursorPoint;
@@ -166,6 +192,8 @@ public class Main implements Initializable, Observer {
     Label xposT, yposT;
     @FXML
     WebView html;
+    @FXML
+    Text heightSize, widthSize;
     @FXML
     ChoiceBox serialPorts;
     //##########Config FXML##############//
@@ -195,11 +223,13 @@ public class Main implements Initializable, Observer {
     @FXML
     Group motor1Node;
     @FXML
-    HBox bottom, xposhbox;
+    HBox bottom, xposhbox, gcodeWindowButtonBar, gcodePreviewHbox;
     @FXML
     HBox canvasHolder;
     @FXML
-    VBox topvbox, positionsVbox;
+    VBox topvbox, positionsVbox, tester;
+    @FXML
+    ContextMenu xAxisContextMenu;
     /**
      * Drawing Code Vars
      *
@@ -209,9 +239,6 @@ public class Main implements Initializable, Observer {
     double magnification = 1;
 
     public Main() {
-        this.gcodePane = new Pane();
-        double xPrevious = gcodePane.getWidth() / 2;
-        double yPrevious = gcodePane.getHeight() / 2;
     }
 
 //    float x = 0;
@@ -294,11 +321,13 @@ public class Main implements Initializable, Observer {
         console.appendText("[!]Canceling File Sending Task...\n");
 //        tg.setCANCELLED(true);
         setTaskActive(false);
+        tg.serialWriter.clearQueueBuffer();
+        console.appendText("[!]Resetting TinyG....\n.");
 //        Byte reset = 0x18;
 //        tg.resetSpaceBuffer();
 //        tg.priorityWrite(reset); //This resets TinyG
 //        Thread.sleep(3000); //We need to sleep a bit until TinyG comes back
-        tg.write(CommandManager.CMD_QUERY_STATUS_REPORT);  //This will reset our DRO readings
+//        tg.write(CommandManager.CMD_QUERY_STATUS_REPORT);  //This will reset our DRO readings
     }
 
     @FXML
@@ -318,7 +347,31 @@ public class Main implements Initializable, Observer {
     @FXML
     void handleTestButton(ActionEvent evt) throws Exception {
         logger.info("Test Button....");
-        tg.write(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
+//        Iterator ii = machineOutline.getChildren().iterator();
+//        ArrayList _tmpLines = new ArrayList<Line>();
+//        machineOutline.setMaxSize(400, 400);
+        machineOutline.setScaleX(2);
+        machineOutline.setScaleY(2);
+//        while(ii.hasNext()){
+//            if(ii.next().getClass().getName().endsWith("Line")){
+//                //this is a line object
+//                Line l = (Line) ii.next();
+//                _tmpLines.add(l);
+////                 machineOutline.getChildren().remove(l);
+//            }
+//        }
+//           machineOutline.getChildren().clear();
+//           System.out.println("Done Adding Lines");
+//           
+//           Iterator newii = _tmpLines.iterator();
+//           
+//           while(newii.hasNext()){
+//               machineOutline.getChildren().add((Line)newii.next());
+//           }
+        
+        
+        
+        //tg.write(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
 //        tg.write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
 //        TinygDriver.getInstance().priorityWrite((byte)0x18);
 //        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_SYSTEM_MNEMONIC_SYSTEM_SWITCH_TYPE_NC);
@@ -410,8 +463,7 @@ public class Main implements Initializable, Observer {
         try {
             tg.applyHardwareMotorSettings(motorTabPane.getSelectionModel().getSelectedItem());
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-            System.out.println("ERROR IN HANDLEAPPLYAXISSETTINGS");
+            logger.error("Exception in handleMotorApplySettings" + ex.getMessage());
         }
     }
 
@@ -458,24 +510,39 @@ public class Main implements Initializable, Observer {
 
     @FXML
     void handleMouseScroll(ScrollEvent evt) {
-        if (evt.getDeltaX() == 0 && evt.getDeltaY() == 40) {
-            //Mouse Wheel Up
-            Draw2d.setMagnification(true);
-            console.appendText("[+]Zooming in " + String.valueOf(Draw2d.getMagnification()) + "\n");
+//        if (evt.getDeltaX() == 0 && evt.getDeltaY() == 40) {
+        //Mouse Wheel Up
+        Draw2d.setMagnification(true);
+        console.appendText("[+]Zooming in " + String.valueOf(Draw2d.getMagnification()) + "\n");
 
 
-        } else if (evt.getDeltaX() == 0 && evt.getDeltaY() == -40) {
-            //Mouse Wheel Down
-            Draw2d.setMagnification(false);
-            console.appendText("[+]Zooming out " + String.valueOf(Draw2d.getMagnification()) + "\n");
+//        } else if (evt.getDeltaX() == 0 && evt.getDeltaY() == -40) {
+//            //Mouse Wheel Down
+//            Draw2d.setMagnification(false);
+//            console.appendText("[+]Zooming out " + String.valueOf(Draw2d.getMagnification()) + "\n");
+//        }
+
+
+        if (gcodePane.getChildren().size() > 0) {
+            Iterator ii = gcodePane.getChildren().iterator();
+
+            while (ii.hasNext()) {
+                Line tmpl = (Line) ii.next();
+                tmpl.setStartX(tmpl.getStartX() + 20);
+                tmpl.setStartY(tmpl.getStartY() + 20);
+                tmpl.setEndX(tmpl.getEndY() + 20);
+                tmpl.setEndY(tmpl.getEndY() + 20);
+
+//                Path p = new Path();
+//                p.setStroke(Color.BLUE);
+//                p.getElements().add(tmpl);
+
+            }
         }
-
-        previewPane.setScaleX(Draw2d.getMagnification());
-        previewPane.setScaleY(Draw2d.getMagnification());
-
-
-//        canvsGroup.setScaleX(Draw2d.getMagnification());
-//        canvsGroup.setScaleY(Draw2d.getMagnification());
+        //        previewPane.setScaleX(Draw2d.getMagnification());
+        //        previewPane.setScaleY(Draw2d.getMagnification());
+        //        canvsGroup.setScaleX(Draw2d.getMagnification());
+        //        canvsGroup.setScaleY(Draw2d.getMagnification());
     }
 
 //    private void reDrawPreview() {
@@ -495,7 +562,7 @@ public class Main implements Initializable, Observer {
                 tg.write(CommandManager.CMD_QUERY_STATUS_REPORT);
                 //We need to set these to 0 so we do not draw a line from the last place we were to 0,0
                 xPrevious = 0;
-                yPrevious = 0;
+                yPrevious = 0;//(gcodePane..getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get())));
             } catch (Exception ex) {
             }
         }
@@ -577,8 +644,8 @@ public class Main implements Initializable, Observer {
     private void onConnectActions() {
         try {
 
-            
-            
+
+//            tg.write(CommandManager.CMD_QUERY_SYSTEM_SERIAL_BUFFER_LENGTH);//SECOND.5 :)
             tg.write(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //FIRST
 //            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //SECOND - There is an issue with this.  It returns stuff like "true"
             tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);          //THIRD
@@ -588,7 +655,13 @@ public class Main implements Initializable, Observer {
             tg.cmdManager.queryStatusReport();                          //SEVENTH - Get Positions if the board is not at zero
             tg.cmdManager.queryAllMotorSettings();                      //EIGTH
             tg.cmdManager.queryAllHardwareAxisSettings();               //NINETH
-
+           
+            
+            machineOutline.setStyle("-fx-background-color:grey;");
+            machineOutline.setMaxSize(200, 200);
+            
+            
+            
 
 //            Circle c1 = new Circle();
 //            c1.setRadius(50d);
@@ -654,10 +727,13 @@ public class Main implements Initializable, Observer {
         TinygDriver.getInstance().m.firmwareBuild.set(0);
         TinygDriver.getInstance().m.firmwareVersion.set("?");
         TinygDriver.getInstance().m.m_state.set("?");
-        
-        
-        
-        
+        TinygDriver.getInstance().m.setLine_number(0);
+        Draw2d.setFirstDraw(true);
+        TinygDriver.getInstance().serialWriter.resetBuffer();
+
+
+
+
 //        TinygDriver.getInstance().m.setVelocity(0.0);
 //        srState.setText("?");
 //        tg.resetSpaceBuffer();
@@ -667,7 +743,8 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleClearScreen(ActionEvent evt) {
         console.appendText("[+]Clearning Screen...\n");
-        gcodePane.getChildren().clear();
+        machineOutline.getChildren().clear();
+        Draw2d.setFirstDraw(true);  //clear this so our first line added draws correctly
     }
 
 //    private void handleTilda() {
@@ -831,8 +908,93 @@ public class Main implements Initializable, Observer {
         }
     }
 
+    private Lcd getLcdByAxisName(String _axis) {
+        switch (_axis) {
+            case ("x"):
+                return (xLcd);
+            case ("y"):
+                return (yLcd);
+
+            case ("z"):
+                return (zLcd);
+            case ("a"):
+                return (aLcd);
+            case ("vel"):
+                return (velLcd);
+        }
+        return (null);
+    }
+
     @FXML
-    private void handleEnter(final InputEvent event) throws Exception {
+    private void handleHomeAxisClick(ActionEvent evt) {
+        MenuItem m = (MenuItem) evt.getSource();
+        String _axis = String.valueOf(m.getId().charAt(0));
+        if (tg.isConnected()) {
+            try {
+                switch (_axis) {
+                    case "x":
+                        tg.write(CommandManager.CMD_APPLY_HOME_X_AXIS);
+                        break;
+                    case "y":
+                        tg.write(CommandManager.CMD_APPLY_HOME_Y_AXIS);
+                        break;
+                    case "z":
+                        tg.write(CommandManager.CMD_APPLY_HOME_Z_AXIS);
+                        break;
+                    case "a":
+                        tg.write(CommandManager.CMD_APPLY_HOME_A_AXIS);
+                        break;
+                }
+            } catch (Exception ex) {
+                logger.error("Exception in handleHomeAxisClick for Axis: " + _axis + " " + ex.getMessage());
+            }
+        }
+        console.appendText("[+]Homing " + _axis.toUpperCase() + " Axis...\n");
+
+    }
+
+    @FXML
+    private void handleZeroAxisClick(ActionEvent evt) {
+        MenuItem m = (MenuItem) evt.getSource();
+        String _axis = String.valueOf(m.getId().charAt(0));
+        if (tg.isConnected()) {
+            Draw2d.setFirstDraw(true);  //We set this so we do not draw lines for the previous position to the new zero.
+            try {
+                switch (_axis) {
+                    case "x":
+                        tg.write(CommandManager.CMD_APPLY_ZERO_X_AXIS);
+                        break;
+                    case "y":
+                        tg.write(CommandManager.CMD_APPLY_ZERO_Y_AXIS);
+                        break;
+                    case "z":
+                        tg.write(CommandManager.CMD_APPLY_ZERO_Z_AXIS);
+                        break;
+                    case "a":
+                        tg.write(CommandManager.CMD_APPLY_ZERO_A_AXIS);
+                        break;
+                }
+            } catch (Exception ex) {
+                logger.error("Exception in handleZeroAxisClick for Axis: " + _axis + " " + ex.getMessage());
+            }
+        }
+        console.appendText("[+]Zeroed " + _axis.toUpperCase() + " Axis...\n");
+
+    }
+
+    @FXML
+    private void handleDroMouseClick(MouseEvent me) {
+        if (me.isSecondaryButtonDown()) { //Check to see if its a Right Click
+            String t;
+            String _axis;
+            Lcd l;
+            l = (Lcd) me.getSource();
+            t = String.valueOf(l.idProperty().get().charAt(0));
+        }
+    }
+
+    @FXML
+    private void handleKeyPress(final InputEvent event) throws Exception {
         //private void handleEnter(ActionEvent event) throws Exception {
         final KeyEvent keyEvent = (KeyEvent) event;
 
@@ -853,8 +1015,13 @@ public class Main implements Initializable, Observer {
             }
             tg.write(command);
             console.appendText(command);
+            gcodeCommandHistory.addCommandToHistory(command);  //Add this command to the history
             input.clear();
             input.setPromptText(PROMPT);
+        } else if (keyEvent.getCode().equals(KeyCode.UP)) {
+            input.setText(gcodeCommandHistory.getNextHistoryCommand());
+        } else if (keyEvent.getCode().equals(KeyCode.DOWN)) {
+            input.setText(gcodeCommandHistory.getPreviousHistoryCommand());
         } else if (keyEvent.getCode().equals(KeyCode.F5)) {
             console.appendText("[+]System GUI State Requested....");
             tg.cmdManager.queryAllHardwareAxisSettings();
@@ -879,31 +1046,54 @@ public class Main implements Initializable, Observer {
     }
 
     public void drawLine(String moveType, double vel) {
-
-
-
+        Line l = new Line();
+        l.setSmooth(true);
         //Code to make mm's look the same size as inches
         double scale = 1;
         double unitMagnication = 1;
-        if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.INCHES.toString())) {
-            unitMagnication = 5;  //INCHES
-        } else {
-            unitMagnication = 2; //MM
-        }
+
+//        if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.inches.toString())) {
+//            unitMagnication = 5;  //INCHES
+//        } else {
+//            unitMagnication = 2; //MM
+//        }
 //        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get()) + 80);// + magnification;
 //        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get()) + 80);// + magnification;
 
-        double newX = (Double.valueOf(tg.m.getAxisByName("x").getWork_position().get())) + (gcodePane.getWidth() / 2);// + magnification;
-        double newY = (gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get()))) - (gcodePane.getHeight() / 2);// + magnification;
-        if (newX > gcodePane.getWidth() || newX > gcodePane.getWidth()) {
-            scale = scale / 2;
-            gcodePane.setScaleX(scale);
-            gcodePane.setScaleY(scale);
-        } 
+
+//        if (newX > gcodePane.getWidth() || newX > gcodePane.getWidth()) {
+//            scale = scale / 2;
+//            Line line = new Line();
+//            Iterator ii = gcodePane.getChildren().iterator();
+//            gcodePane.getChildren().clear(); //remove them after we have the iterator
+//            while (ii.hasNext()) {
+//                if (ii.next().getClass().toString().contains("Line")) {
+//                    //This is a line.
+//                    line = (Line) ii.next();
+//                    line.setStartX(line.getStartX() / 2);
+//                    line.setStartY(line.getStartY() / 2);
+//                    line.setEndX(line.getEndX() / 2);
+//                    line.setEndY(line.getEndY() / 2);
+//                    gcodePane.getChildren().add(line);
+//
+//                }
+
+//            }
+//            console.appendText("[+]Finished Drawing Prevew Scale Change.\n");
+//            gcodeWindow.setScaleX(scale);
+//            gcodeWindow.setScaleY(scale);
+//        }
 //        System.out.println(gcodePane.getHeight() - tg.m.getAxisByName("y").getWork_position().get());
-        
-        Line l = new Line(xPrevious, yPrevious, newX, newY);
-//        l.setStroke(Color.BLUE);
+        double newX = tg.m.getAxisByName("x").getWork_position().get();// + magnification;
+        double newY = tg.m.getAxisByName("y").getWork_position().get();//(gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get())));// + magnification;
+
+        if (Draw2d.isFirstDraw()) {
+            //This is to not have us draw a line on the first connect.
+            l = new Line(newX, newY, newX, newY);
+            Draw2d.setFirstDraw(false);
+        } else {
+            l = new Line(xPrevious, yPrevious, newX, newY);
+        }
 
 
         if (tg.m.getMotionMode().get().equals("traverse")) {
@@ -929,7 +1119,7 @@ public class Main implements Initializable, Observer {
         yPrevious = newY;
 
         if (l != null) {
-            gcodePane.getChildren().add(l);
+            machineOutline.getChildren().add(l);
         }
 
 
@@ -981,8 +1171,8 @@ public class Main implements Initializable, Observer {
                         }
                     }
                 } catch (Exception ex) {
-                    System.out.println("$$$$$$$$$$$$$EXCEPTION in CMD_SETTINGS_UPDATE$$$$$$$$$$$$$$");
-                    System.out.println(ex.getMessage());
+                    logger.error("Exception in updateGUIConfigState");
+                    logger.error(ex.getMessage());
                 }
 
             }
@@ -991,6 +1181,7 @@ public class Main implements Initializable, Observer {
 
     private void drawCanvasUpdate(String line) {
         final String l = line;
+
         if (drawPreview) {
             drawLine(tg.m.getMotionMode().get(), tg.m.getVelocity());
         }
@@ -1033,41 +1224,60 @@ public class Main implements Initializable, Observer {
             StatusCode statuscode = (StatusCode) arg;
             console.appendText("[->] TinyG Response: " + statuscode.getStatusType() + ":" + statuscode.getMessage() + "\n");
         } else {
-            final String[] UPDATE_MESSAGE = (String[]) arg;
-            final String ROUTING_KEY = UPDATE_MESSAGE[0];
-            final String KEY_ARGUMENT = UPDATE_MESSAGE[1];
+            try {
+                final String[] UPDATE_MESSAGE = (String[]) arg;
+                final String ROUTING_KEY = UPDATE_MESSAGE[0];
+                final String KEY_ARGUMENT = UPDATE_MESSAGE[1];
 
-//            if (ROUTING_KEY.startsWith("[!]")) {
-//                String line = ROUTING_KEY.split("#")[1];
-//                String msg = ROUTING_KEY.split("#")[0];
-//                
-//                Main.logger.error("Invalid Routing Key: \n\tMessage: " + msg + "\n\tLine: " + line);
-//            } else 
-            if (ROUTING_KEY.equals("STATUS_REPORT")) {
-                drawCanvasUpdate(ROUTING_KEY);
-            } else if (ROUTING_KEY.equals("CMD_GET_AXIS_SETTINGS")) {
-                updateGuiAxisSettings(KEY_ARGUMENT);
-            } else if (ROUTING_KEY.equals("CMD_GET_MACHINE_SETTINGS")) {
-                //updateGuiMachineSettings(ROUTING_KEY);
-            } else if (ROUTING_KEY.contains("CMD_GET_MOTOR_SETTINGS")) {
-                updateGuiMotorSettings(KEY_ARGUMENT);
-            } else if (ROUTING_KEY.equals("NETWORK_MESSAGE")) {  //unused
-                //updateExternal();
-            } else if (ROUTING_KEY.equals("MACHINE_UPDATE")) {
-                updateGuiMachineSettings(ROUTING_KEY);
-            } else if (ROUTING_KEY.equals("TEXTMODE_REPORT")) {
-                console.appendText(KEY_ARGUMENT);
-            }else if (ROUTING_KEY.equals("BUFFER_UPDATE")) {
-                srBuffer.setText(KEY_ARGUMENT);
-            }
-            else if (ROUTING_KEY.equals("UPDATE_LINE_NUMBER")) {
-                srGcodeLine.setText(KEY_ARGUMENT);
-            }else {
-                System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
+                /**
+                 * This is our update routing switch From here we update
+                 * different parts of the GUI that is not bound to properties.
+                 */
+                switch (ROUTING_KEY) {
+                    case ("STATUS_REPORT"):
+                        drawCanvasUpdate(ROUTING_KEY);
+                        break;
+                    case ("CMD_GET_AXIS_SETTINGS"):
+                        updateGuiAxisSettings(KEY_ARGUMENT);
+                        break;
+                    case ("CMD_GET_MACHINE_SETTINGS"):
+                        //updateGuiMachineSettings(ROUTING_KEY);
+                        break;
+                    case ("CMD_GET_MOTOR_SETTINGS"):
+                        updateGuiMotorSettings(KEY_ARGUMENT);
+                        break;
+                    case ("NETWORK_MESSAGE"):
+                        //updateExternal();
+                        break;
+                    case ("MACHINE_UPDATE"):
+                        updateGuiMachineSettings(ROUTING_KEY);
+                        break;
+                    case ("TEXTMODE_REPORT"):
+                        console.appendText(KEY_ARGUMENT);
+                        break;
+                    case ("BUFFER_UPDATE"):
+                        srBuffer.setText(KEY_ARGUMENT);
+                        break;
+                    case ("UPDATE_LINE_NUMBER"):
+                        srGcodeLine.setText(KEY_ARGUMENT);
+                        break;
+                    case ("TINYG_USER_MESSAGE"):
+                        console.appendText("TinyG Board Message >> " + KEY_ARGUMENT);
+//                        Thread.sleep(1000);//we need to let the board load its configs
+
+                        tg.cmdManager.queryStatusReport();
+                        break;
+                    default:
+                        System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
+
+
+                }
+            } catch (Exception ex) {
+                java.util.logging.Logger.getLogger(Main.class
+                        .getName()).log(java.util.logging.Level.SEVERE, null, ex);
             }
         }
     }
-//
 
     private void updateGuiMotorSettings() {
         //No motor was provided... Update them all.
@@ -1324,26 +1534,36 @@ public class Main implements Initializable, Observer {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-
+        
+        machineOutline.setMaxSize(0, 0);  //hide this element until we connect
+        gcodePane.getChildren().add(machineOutline);
         buildNumber = Integer.valueOf(getBuildInfo("BUILD"));
         buildDate = getBuildInfo("DATE");
 
         //Set our build / versions in the tgFX settings tab.
         tgfxBuildDate.setText(buildDate);
         tgfxBuildNumber.setText(getBuildInfo("BUILD"));
-        tgfxVersion.setText(".9");
+        tgfxVersion.setText(".95");
 
 //  
 
-        w = new Window("Gcode Preview");
+//        gcodeWindow = new Window("Gcode Preview");
+
+//        gcodeWindow.setResizableBorderWidth(5);
+
+//        gcodeWindow.setOpacity(100);
+
         // set the window position to 10,10 (coordinates inside canvas)
-        w.setLayoutX(10);
-        w.setLayoutY(10);
-        w.setStyle("-fx-background-color:black");
-        // define the initial window size
-        w.setPrefSize(700, 450);
-        w.setTooltip(new Tooltip("This GUI is draggable and can be resized \nby clicking the bottom right corner and dragging."));
+//        w.setLayoutX(10);
+//        w.setLayoutY(10);
+//        w.setStyle("-fx-background-color:black");
+//        // define the initial window size
+//        gcodeWindow.setPrefSize(800, 500);
+//        gcodeWindow.setStyle("-fx-background-color:black;");
+        Text t = new Text();
+        t.setStyle("-fx-background-color:red;");
+        gcodeWindowButtonBar.getChildren().add(t);
+//        w.setTooltip(new Tooltip("This GUI is draggable and can be resized \nby clicking the bottom right corner and dragging."));
 
         // either to the left
 //        w.getLeftIcons().add(new CloseIcon(w));
@@ -1369,39 +1589,78 @@ public class Main implements Initializable, Observer {
 //        gcodePane.getChildren().add(hGcodePreviewScrollBar);
 //       
 //        gcodePane.setTranslateX(gcodePane.getWidth());
-        w.getContentPane().getChildren().add(gcodePane);
-        // add some content
-//        w.getContentPane().getChildren().add(new Label("Content"));
-        previewPane.getChildren().add(w);
 
+//        gcodeWindow.getContentPane().getChildren().add(gcodeWindowButtonBar);
+//        gcodeWindow.getChildren().add(tester);
+//         add some content
+//        w.getContentPane().getChildren().add(new Label("Content"));
+//        previewPane.getChildren().add(gcodeWindow);
+        machineOutline.setCursor(Cursor.CROSSHAIR);
+//        gcodePane.getChildren().addListener(t);
+
+        final Circle c = new Circle(2, Color.RED);
+
+        final Text cursorText = new Text("None");
+        cursorText.setStroke(Color.YELLOW);
+        cursorText.setFill(Color.YELLOW);
+        cursorText.setFont(Font.font("Arial", 10));
+
+
+
+        machineOutline.setOnMouseExited(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent me) {
+//                gcodePane.getChildren().remove(c);
+                machineOutline.getChildren().remove(cursorText);
+
+            }
+        });
+
+        machineOutline.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent me) {
+//                gcodePane.getChildren().remove(c);
+                machineOutline.getChildren().add(cursorText);
+
+            }
+        });
+
+        machineOutline.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent me) {
+                cursorText.setText("(xpos: " + me.getX() + ")\n(ypos: " + me.getY() + ")");
+                cursorText.setX(me.getX() + 10);
+                cursorText.setY(me.getY());
+
+            }
+        });
+
+        machineOutline.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent me) {
+                Circle c = new Circle(2, Color.YELLOWGREEN);
+                c.setLayoutX(me.getX());
+                c.setLayoutY(me.getY());
+                Text coordsText = new Text("(" + me.getX() + "," + me.getY() + ")");
+                coordsText.setStroke(Color.YELLOW);
+                coordsText.setFill(Color.YELLOW);
+                coordsText.setFont(Font.font("Arial", 10));
+                coordsText.setX(me.getX() + 10);
+                coordsText.setY(me.getY());
+                machineOutline.getChildren().add(coordsText);
+                machineOutline.getChildren().add(c);
+            }
+        });
 
 
 //        xtgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
 //        tgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
-        logger.setLevel(Level.INFO);
+        logger.setLevel(Level.ERROR);
 
-        xLcd = buildSingleDRO(xLcd, STYLE_MODEL_X, "X Axis Position", tg.m.getGcodeUnitMode().get());
-        yLcd = buildSingleDRO(yLcd, STYLE_MODEL_Y, "Y Axis Position", tg.m.getGcodeUnitMode().get());
-        zLcd = buildSingleDRO(zLcd, STYLE_MODEL_Z, "Z Axis Position", tg.m.getGcodeUnitMode().get());
-        aLcd = buildSingleDRO(aLcd, STYLE_MODEL_A, "A Axis Position", "°");
-        velLcd = buildSingleDRO(velLcd, STYLE_MODEL_VEL, "Velocity", null);
-//
-//        StackPane droStackPane = new StackPane();
-//        droStackPane.getChildren().addAll(xLcd, yLcd, zLcd, aLcd);
 
-//        
-        positionsVbox.getChildren().add(xLcd);
-        positionsVbox.getChildren().add(yLcd);
-        positionsVbox.getChildren().add(zLcd);
-        positionsVbox.getChildren().add(aLcd);
-        positionsVbox.getChildren().add(velLcd);
 
         xLcd.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
                 double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5;
-                xposT.setText(String.valueOf(tmp));
-                cursorPoint.setLayoutY(tmp);
+//                xposT.setText(String.valueOf(tmp));
+//                cursorPoint.setLayoutY(tmp);
             }
         });
 
@@ -1410,8 +1669,8 @@ public class Main implements Initializable, Observer {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
                 double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5;
-                yposT.setText(String.valueOf(tmp));
-                cursorPoint.setLayoutY(tmp);
+//                yposT.setText(String.valueOf(tmp));
+//                cursorPoint.setLayoutY(tmp);
                 //cursor.setLayoutY(canvasHolder.getHeight() - tg.m.getAxisByName("y").getWork_position().doubleValue());  
             }
         });
@@ -1429,8 +1688,8 @@ public class Main implements Initializable, Observer {
             }
         };
 
-        
-   
+
+
 
         /*
          * WE CREATE OUR BINDINGS HERE TO BIND OUR INTERNAL GUI (JAVAFX 2) MODEL
@@ -1440,10 +1699,19 @@ public class Main implements Initializable, Observer {
         srMomo.textProperty().bind(tg.m.getMotionMode());
         srVer.textProperty().bind(tg.m.firmwareVersion);
 
-        srBuild.textProperty().bindBidirectional(tg.m.firmwareBuild,sc);
+        srBuild.textProperty().bindBidirectional(tg.m.firmwareBuild, sc);
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
         srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
+        
+
+        widthSize.textProperty().bind(machineOutline.widthProperty().asString());
+        heightSize.textProperty().bind(machineOutline.heightProperty().asString());
+
+        machineOutline.maxHeightProperty().bind(tg.m.getAxisByName("x").getTravelMaxSimple());
+        machineOutline.maxHeightProperty().bind(tg.m.getAxisByName("y").getTravelMaxSimple());
+        
+
 //        srBuffer.textProperty().bindBidirectional(tg.serialWriter.getBufferValueSimpleProperty(), sc);
 
         //Bind our Units to each axis
@@ -1451,12 +1719,27 @@ public class Main implements Initializable, Observer {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
                 String tmp = TinygDriver.getInstance().m.getGcodeUnitMode().get();
-//                System.out.println("Gcode Units Changed to: " + tmp);
-                xLcd.setUnit(tmp);
-                yLcd.setUnit(tmp);
-                zLcd.setUnit(tmp);
+
                 gcodeUnitMode.getSelectionModel().select(tg.m.getGcodeUnitModeAsInt());
+                if (tg.m.getGcodeUnitModeAsInt() == 0) {
+                    //A bug in the jfxtras does not allow for units to be updated.. we hide them if they are not mm
+                    xLcd.lcdUnitVisibleProperty().setValue(false);
+                    yLcd.lcdUnitVisibleProperty().setValue(false);
+                    zLcd.lcdUnitVisibleProperty().setValue(false);
+                    aLcd.lcdUnitVisibleProperty().setValue(false);
+                    velLcd.lcdUnitVisibleProperty().setValue(false);
+
+
+
+                } else {
+                    xLcd.lcdUnitVisibleProperty().setValue(true);
+                    yLcd.lcdUnitVisibleProperty().setValue(true);
+                    zLcd.lcdUnitVisibleProperty().setValue(true);
+                    aLcd.lcdUnitVisibleProperty().setValue(true);
+                    velLcd.lcdUnitVisibleProperty().setValue(true);
+                }
                 console.appendText("[+]Gcode Unit Mode Changed to: " + tmp + "\n");
+
                 try {
                     tg.cmdManager.queryAllMotorSettings();
                     tg.cmdManager.queryAllHardwareAxisSettings();

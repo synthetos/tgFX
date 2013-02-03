@@ -16,10 +16,18 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.web.*?>
+<?import jfxtras.labs.scene.control.gauge.*?>
+<?import jfxtras.labs.scene.control.gauge.Gauge?>
+<?import jfxtras.labs.scene.control.gauge.GaugeBuilder.GaugeType ?>
+<?import jfxtras.labs.scene.control.gauge.Lcd?>
+<?import jfxtras.labs.scene.control.gauge.Marker?>
+<?import jfxtras.labs.scene.control.gauge.Section?>
+<?import jfxtras.labs.scene.control.window.*?>
+<?scenebuilder-classpath-element ../../lib/jfxtras-labs-2.2-r5-20121222.173143-8.jar?>
 
-<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" style="&#10;" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
+<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="900.0" prefWidth="1440.0" style="&#10;" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
   <children>
-    <BorderPane prefHeight="800.0" prefWidth="1280.0" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <BorderPane prefHeight="900.0" prefWidth="144.0" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
         <VBox alignment="CENTER" prefHeight="168.0" prefWidth="1280.0" style="-fx-background-color: GREY;" BorderPane.alignment="CENTER">
           <children>
@@ -34,7 +42,7 @@
                 <Long fx:value="-1" />
               </prefWidth>
             </TextArea>
-            <TextField fx:id="input" onKeyPressed="#handleEnter" promptText="TinyG&gt;">
+            <TextField fx:id="input" onKeyPressed="#handleKeyPress" promptText="TinyG&gt;">
               <prefWidth>
                 <Long fx:value="-1" />
               </prefWidth>
@@ -42,7 +50,7 @@
             <FlowPane id="flowPane1" alignment="CENTER_RIGHT" columnHalignment="CENTER" maxHeight="22.0" minHeight="22.0" prefHeight="22.0" style="-fx-background-color:black;" VBox.vgrow="NEVER">
               <children>
                 <Label id="srText" text="Gcode Line" textFill="WHITE" />
-                <Label id="srText" fx:id="srGcodeLine" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?">
+                <Label id="srText" fx:id="srGcodeLine" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="0">
                   <textFill>
                     <Color blue="0.624" green="0.624" red="0.624" fx:id="x1" />
                   </textFill>
@@ -88,14 +96,10 @@
                   </FlowPane.margin>
                 </Separator>
                 <Label id="srText" text="Coord System" textFill="WHITE" />
-                <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?">
-                  <textFill>
-                    <Color blue="0.624" green="0.624" red="0.624" fx:id="x5" />
-                  </textFill>
-                </Label>
+                <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
                 <Separator id="separatorVertical4" orientation="VERTICAL" />
                 <Label id="srText" text="Buffer" textFill="WHITE" />
-                <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x5" />
+                <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
               </children>
               <hgap>
                 <Long fx:value="0" />
@@ -127,22 +131,10 @@
           <tabs>
             <Tab fx:id="gcode_tab" closable="false" text="Gcode">
               <content>
-                <HBox alignment="CENTER" fillHeight="true" prefHeight="-1.0" prefWidth="-1.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));" visible="true">
+                <HBox id="gcodeTabHbox" alignment="TOP_CENTER" fillHeight="true" prefHeight="-1.0" prefWidth="-1.0" style="" visible="true">
                   <children>
-                    <VBox alignment="CENTER" blendMode="SRC_ATOP" maxWidth="300.0" minHeight="-1.0" minWidth="320.0" prefHeight="300.0" prefWidth="320.0" style="" visible="true" HBox.hgrow="NEVER">
+                    <VBox fx:id="gcodeProgramVbox" alignment="CENTER" blendMode="SRC_ATOP" maxWidth="300.0" minHeight="-1.0" minWidth="320.0" prefHeight="300.0" prefWidth="320.0" style="&#10;" visible="true" HBox.hgrow="NEVER">
                       <children>
-                        <HBox id="gcodeFile" alignment="TOP_CENTER">
-                          <children>
-                            <Button fx:id="gcodeZero" onAction="#handleZeroSystem" text="Zero" />
-                            <Button fx:id="btnClearScreen" onAction="#handleClearScreen" text="Clear Screen" />
-                          </children>
-                          <spacing>
-                            <Long fx:value="5" />
-                          </spacing>
-                          <VBox.margin>
-                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-                          </VBox.margin>
-                        </HBox>
                         <TableView fx:id="gcodeView" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
                           <columns>
                             <TableColumn id="gcodeCol" maxWidth="500.0" minWidth="290.0" prefWidth="250.0" resizable="true" sortable="false" text="Gcode Program" fx:id="gcodeCol" />
@@ -151,12 +143,15 @@
                             <Insets bottom="15.0" left="5.0" right="5.0" top="15.0" />
                           </VBox.margin>
                         </TableView>
-                        <HBox id="gcodeFile" fx:id="command_bar" alignment="TOP_CENTER" padding="$x1_x0" spacing="10.0">
+                        <HBox id="gcodeFile" fx:id="command_bar" alignment="TOP_CENTER" spacing="10.0">
                           <children>
                             <Button onAction="#handleOpenFile" text="Open File" />
                             <Button fx:id="runBtn" onAction="#handleRunFile" text="Run" />
                             <Button fx:id="pauseResume" onAction="#handlePauseResumeAct" text="Pause" />
                           </children>
+                          <padding>
+                            <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
+                          </padding>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
                           <children>
@@ -165,7 +160,7 @@
                                 <Insets fx:id="x727" />
                               </HBox.margin>
                             </Button>
-                            <Button fx:id="btnTest" mnemonicParsing="false" onAction="#handleTestButton" text="Test" visible="false" />
+                            <Button fx:id="btnTest" mnemonicParsing="false" onAction="#handleTestButton" text="Test" visible="true" />
                           </children>
                           <padding>
                             <Insets top="10.0" />
@@ -175,50 +170,92 @@
                       <padding>
                         <Insets bottom="15.0" left="5.0" right="5.0" />
                       </padding>
-                      <HBox.margin>
-                        <Insets fx:id="x737" />
-                      </HBox.margin>
                     </VBox>
-                    <StackPane id="StackPane" alignment="CENTER_RIGHT" style="" HBox.hgrow="ALWAYS">
+                    <HBox id="gcodePreviewVbox" fx:id="gcodePreviewHbox" alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
                       <children>
-                        <Pane fx:id="previewPane" blendMode="SRC_ATOP" prefHeight="-1.0" prefWidth="-1.0" style="" StackPane.alignment="BOTTOM_RIGHT">
+                        <!--                           	<Window title="Gcode Preview" prefHeight="400" prefWidth="700"/> -->
+                        <VBox id="previewVbox" fx:id="tester" alignment="BOTTOM_CENTER" disable="false" minHeight="450.0" minWidth="720.0" rotate="180.0" scaleX="1.0" scaleZ="1.0" snapToPixel="true" spacing="5.0" style="-fx-background-radius: 10;&#10;" translateZ="1.0" visible="true" HBox.hgrow="ALWAYS">
                           <children>
-                            <VBox layoutX="384.0" layoutY="195.0" prefHeight="-1.0" prefWidth="-1.0" visible="false">
+                            <StackPane id="topPreviewPane" fx:id="gcodePane" prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: black" VBox.vgrow="ALWAYS" />
+                            <HBox fx:id="gcodeWindowButtonBar" alignment="CENTER_RIGHT" maxHeight="45.0" minHeight="45.0" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" style="&#10;" VBox.vgrow="NEVER">
                               <children>
-                                <HBox prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="NEVER">
-                                  <children>
-                                    <Label fx:id="xposT" text="" />
-                                  </children>
-                                </HBox>
-                                <HBox prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="NEVER">
-                                  <children>
-                                    <Label fx:id="yposT" text="" />
-                                  </children>
-                                </HBox>
-                                <StackPane fx:id="cursorPoint" prefHeight="-1.0" prefWidth="-1.0" rotate="45.0">
-                                  <children>
-                                    <Line endX="0.0" endY="50.0" startX="0.0" stroke="DODGERBLUE" />
-                                    <Circle fx:id="cursor" fill="DODGERBLUE" radius="5.0" stroke="BLACK" strokeType="INSIDE" />
-                                    <Line endX="50.0" startX="0.0" stroke="DODGERBLUE" />
-                                  </children>
-                                </StackPane>
+                                <Label fx:id="heightLabel" text="Height" textFill="WHITE" />
+                                <Text fx:id="heightSize" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                <Label text="Width" textFill="WHITE" />
+                                <Text fx:id="widthSize" fill="WHITE" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                <Button fx:id="btnClearScreen" onAction="#handleClearScreen" text="Clear Screen" />
                               </children>
-                            </VBox>
+                              <padding>
+                                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                              </padding>
+                            </HBox>
                           </children>
-                        </Pane>
-                        <VBox fx:id="positionsVbox" alignment="CENTER" fillWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" style="" StackPane.alignment="TOP_RIGHT">
+                          <effect>
+                            <DropShadow color="WHITE" height="8.865048363095239" radius="3.9305478050595237" spread="0.49206349206349204" width="8.857142857142858" />
+                          </effect>
                           <padding>
-                            <Insets right="15.0" top="15.0" />
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
                           </padding>
-                          <StackPane.margin>
-                            <Insets top="15.0" />
-                          </StackPane.margin>
+                          <rotationAxis>
+                            <Point3D />
+                          </rotationAxis>
+                          <HBox.margin>
+                            <Insets left="15.0" right="15.0" />
+                          </HBox.margin>
                         </VBox>
                       </children>
-                      <HBox.margin>
-                        <Insets fx:id="x747" />
-                      </HBox.margin>
-                    </StackPane>
+                      <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                      </padding>
+                    </HBox>
+                    <VBox fx:id="positionsVbox" alignment="CENTER_RIGHT" fillWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" style="" HBox.hgrow="NEVER">
+                      <children>
+                        <Lcd fx:id="xLcd" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" ledVisible="true" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="X Axis Position" unit="mm">
+                          <contextMenu>
+                            <ContextMenu fx:id="xAxisContextMenu">
+                              <items>
+                                <MenuItem mnemonicParsing="false" onAction="#handleZeroAxisClick" text="Zero X Axis" fx:id="xZeroAxis" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleHomeAxisClick" text="Home X Axis" fx:id="xHomeAxis" />
+                              </items>
+                            </ContextMenu>
+                          </contextMenu>
+                        </Lcd>
+                        <Lcd fx:id="yLcd" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="Y Axis Position" unit="mm">
+                          <contextMenu>
+                            <ContextMenu fx:id="yAxisContextMenu">
+                              <items>
+                                <MenuItem mnemonicParsing="false" onAction="#handleZeroAxisClick" text="Zero Y Axis" fx:id="yZeroAxis" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleHomeAxisClick" text="Home Y Axis" fx:id="yHomeAxis" />
+                              </items>
+                            </ContextMenu>
+                          </contextMenu>
+                        </Lcd>
+                        <Lcd fx:id="zLcd" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="Z Axis Position" unit="mm">
+                          <contextMenu>
+                            <ContextMenu fx:id="zAxisContextMenu">
+                              <items>
+                                <MenuItem mnemonicParsing="false" onAction="#handleZeroAxisClick" text="Zero Z Axis" fx:id="zZeroAxis" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleHomeAxisClick" text="Home Z Axis" fx:id="zHomeAxis" />
+                              </items>
+                            </ContextMenu>
+                          </contextMenu>
+                        </Lcd>
+                        <Lcd fx:id="aLcd" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="A Axis Position" unit="mm">
+                          <contextMenu>
+                            <ContextMenu fx:id="aAxisContextMenu">
+                              <items>
+                                <MenuItem mnemonicParsing="false" onAction="#handleZeroAxisClick" text="Zero A Axis" fx:id="aZeroAxis" />
+                              </items>
+                            </ContextMenu>
+                          </contextMenu>
+                        </Lcd>
+                        <Lcd fx:id="velLcd" lcdDecimals="0" lcdDesign="RED_DARKRED" lcdUnitVisible="true" lcdValueFont="LCD" prefHeight="70.0" prefWidth="200.0" title="Velocity" unit="mm/min" />
+                        <Button fx:id="gcodeZero" onAction="#handleZeroSystem" text="Zero All Axis" />
+                      </children>
+                      <padding>
+                        <Insets right="15.0" top="15.0" />
+                      </padding>
+                    </VBox>
                   </children>
                   <padding>
                     <Insets fx:id="x77" />
@@ -253,13 +290,13 @@
                                     <Long fx:value="350" />
                                   </prefWidth>
                                 </HBox>
-                                <TabPane fx:id="motorTabPane" side="LEFT" VBox.vgrow="ALWAYS">
+                                <TabPane fx:id="motorTabPane" side="LEFT" style="" VBox.vgrow="ALWAYS">
                                   <tabs>
-                                    <Tab fx:id="motor1" closable="false" style="" text="Motor 1">
+                                    <Tab id="" fx:id="motor1" closable="false" style="" text="Motor 1">
                                       <content>
-                                        <GridPane alignment="TOP_LEFT" hgap="15.0" style="-fx-padding: 10; &#10;" vgap="15.0">
+                                        <GridPane id="motor1" alignment="TOP_LEFT" hgap="15.0" style="-fx-padding: 10; &#10;" vgap="15.0">
                                           <children>
-                                            <Label id="lblMotor1Map" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                            <Label id="motorTxt" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                             <ChoiceBox fx:id="motor1ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
@@ -272,7 +309,7 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Micro Steps" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                            <Label id="motorTxt" text="Micro Steps" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                             <ChoiceBox id="cbMotor1MicroStepping" fx:id="motor1ConfigMicroSteps" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
@@ -283,7 +320,7 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Polarity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                            <Label id="motorTxt" text="Polarity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                             <ChoiceBox fx:id="motor1ConfigPolarity" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
@@ -292,7 +329,7 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Power Management" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                            <Label id="motorTxt" text="Power Management" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                                             <ChoiceBox fx:id="motor1ConfigPowerMode" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
@@ -301,9 +338,9 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Step Angle of motor" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                            <Label id="motorTxt" text="Step Angle of motor" GridPane.columnIndex="0" GridPane.rowIndex="4" />
                                             <TextField fx:id="motor1ConfigStepAngle" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                            <Label text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                            <Label id="motorTxt" text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="5" />
                                             <TextField fx:id="motor1ConfigTravelPerRev" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
                                               <children>
@@ -315,11 +352,11 @@
                                         </GridPane>
                                       </content>
                                     </Tab>
-                                    <Tab id="tab3" fx:id="motor2" closable="false" text="Motor 2">
+                                    <Tab id="" fx:id="motor2" closable="false" text="Motor 2">
                                       <content>
-                                        <GridPane hgap="15.0" style="-fx-padding: 10" vgap="15.0">
+                                        <GridPane id="motor2" hgap="15.0" style="-fx-padding: 10" vgap="15.0">
                                           <children>
-                                            <Label id="lblMotor2Map" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                            <Label id="motorTxt" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                             <ChoiceBox fx:id="motor2ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
@@ -332,7 +369,7 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Micro Steps" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                            <Label id="motorTxt" text="Micro Steps" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                             <ChoiceBox id="cbMotor2MicroStepping" fx:id="motor2ConfigMicroSteps" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
@@ -343,7 +380,7 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Polarity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                            <Label id="motorTxt" text="Polarity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                             <ChoiceBox fx:id="motor2ConfigPolarity" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
@@ -352,7 +389,7 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Power Management" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                            <Label id="motorTxt" text="Power Management" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                                             <ChoiceBox fx:id="motor2ConfigPowerMode" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
@@ -361,9 +398,9 @@
                                                 </FXCollections>
                                               </items>
                                             </ChoiceBox>
-                                            <Label text="Step Angle of motor" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                            <Label id="motorTxt" text="Step Angle of motor" GridPane.columnIndex="0" GridPane.rowIndex="4" />
                                             <TextField fx:id="motor2ConfigStepAngle" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                            <Label text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                            <Label id="motorTxt" text="Travel Per Rev." GridPane.columnIndex="0" GridPane.rowIndex="5" />
                                             <TextField fx:id="motor2ConfigTravelPerRev" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                             <HBox id="hBox6" alignment="CENTER" spacing="25.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" GridPane.rowSpan="2147483647">
                                               <children>
@@ -375,11 +412,11 @@
                                         </GridPane>
                                       </content>
                                     </Tab>
-                                    <Tab fx:id="motor3" closable="false" text="Motor 3">
+                                    <Tab id="m" fx:id="motor3" closable="false" text="Motor 3">
                                       <content>
-                                        <GridPane hgap="15.0" style="-fx-padding: 10" vgap="15.0">
+                                        <GridPane id="motor2" hgap="15.0" style="-fx-padding: 10" vgap="15.0">
                                           <children>
-                                            <Label id="lblMotor3Map" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                            <Label id="motorTxt" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                             <ChoiceBox fx:id="motor3ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                               <items>
                                                 <FXCollections fx:factory="observableArrayList">
@@ -437,7 +474,7 @@
                                     </Tab>
                                     <Tab fx:id="motor4" closable="false" text="Motor 4">
                                       <content>
-                                        <GridPane hgap="15.0" style="-fx-padding: 10" vgap="15.0">
+                                        <GridPane id="motor2" hgap="15.0" style="" vgap="15.0">
                                           <children>
                                             <Label id="lblMotor4Map" text="Mapped to axis" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                             <ChoiceBox fx:id="motor4ConfigMapAxis" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -1102,7 +1139,7 @@
                 </AnchorPane>
               </content>
             </Tab>
-            <Tab closable="false" disable="true" text="Machine Settings">
+            <Tab closable="false" disable="false" text="Machine Settings">
               <content>
                 <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                   <children>
@@ -1110,7 +1147,7 @@
                       <center>
                         <HBox prefHeight="-1.0" prefWidth="-1.0" visible="true">
                           <children>
-                            <VBox prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+                            <VBox id="machineSettingsVbox" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
                               <children>
                                 <HBox prefHeight="-1.0" prefWidth="-1.0" style="" visible="true" VBox.vgrow="ALWAYS">
                                   <children>
@@ -1365,7 +1402,7 @@
             </Tab>
             <Tab fx:id="settings_tab" closable="false" text="tgFX Settings">
               <content>
-                <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
+                <AnchorPane id="settingsContent" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
                   <children>
                     <HBox blendMode="SRC_ATOP" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" style="&#10;" AnchorPane.leftAnchor="0.0">
                       <children>
@@ -1443,28 +1480,16 @@
           <children>
             <AnchorPane id="topMainTitle" depthTest="INHERIT" rotate="0.0" style="" HBox.hgrow="ALWAYS">
               <children>
-                <StackPane style="" AnchorPane.bottomAnchor="25.5" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="25.5">
+                <StackPane rotate="0.0" style="" AnchorPane.bottomAnchor="25.5" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="25.5">
                   <children>
-                    <Text fx:id="tgfxTitle" fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="0.0" text="tgFX">
+                    <Text fx:id="tgfxTitle" fill="WHITE" stroke="$x4" strokeType="OUTSIDE" strokeWidth="0.0" text="tgFX" textAlignment="CENTER">
                       <effect>
-                        <Glow level="0.4276729559748428">
-                          <input>
-                            <Bloom threshold="0.8962962962962963" />
-                          </input>
-                        </Glow>
+                        <Glow level="0.841685694828346" />
                       </effect>
                       <StackPane.margin>
                         <Insets left="20.0" />
                       </StackPane.margin>
                     </Text>
-                    <ImageView pickOnBounds="true" preserveRatio="true">
-                      <fitHeight>
-                        <Long fx:value="50" />
-                      </fitHeight>
-                      <fitWidth>
-                        <Long fx:value="50" />
-                      </fitWidth>
-                    </ImageView>
                   </children>
                   <prefHeight>
                     <Long fx:value="-1" />
@@ -1515,12 +1540,6 @@
   <minWidth>
     <Long fx:value="1280" />
   </minWidth>
-  <prefHeight>
-    <Long fx:value="800" />
-  </prefHeight>
-  <prefWidth>
-    <Long fx:value="1280" />
-  </prefWidth>
   <stylesheets>
     <URL value="@new_main.css.css" />
   </stylesheets>

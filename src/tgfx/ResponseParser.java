@@ -71,7 +71,8 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
-        logger.setLevel(org.apache.log4j.Level.INFO);
+        logger.setLevel(org.apache.log4j.Level.ERROR);
+//        logger.setLevel(org.apache.log4j.Level.INFO);
 
     }
 
@@ -83,7 +84,9 @@ public class ResponseParser extends Observable implements Runnable {
         while (RUN) {
             try {
                 line = (String) responseQueue.take();
-//                line = line.trim();  //remove spaces at the begginig and end of lines.
+                if (line.equals("")) {  //Onreset TinyG kicks out a ""
+                    continue;
+                }
                 if (line.startsWith("{")) {
                     if (isTEXT_MODE()) {
                         setTEXT_MODE(false);
@@ -231,7 +234,9 @@ public class ResponseParser extends Observable implements Runnable {
                     String key = ii.next().toString();
                     switch (key) {
                         case "f":
-                            parseFooter(js.getJSONArray("f"));  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.
+                            parseFooter(js.getJSONArray("f"));  
+                            //This is very important.  
+                            //We break out our response footer.. error codes.. bytes availble in hardware buffer etc.
                             break;
                         case "n":
                             //Got a line number
@@ -242,9 +247,19 @@ public class ResponseParser extends Observable implements Runnable {
                             setChanged();
                             notifyObservers(message);  //Update the GUI with our line number
                             break;
+                        case "msg":
+                            message[0] = "TINYG_USER_MESSAGE";
+                            message[1] = (String) js.get(key) + "\n";
+                            logger.info("[+]TinyG Message Sent:  " + js.get(key)+"\n");
+                            setChanged();
+                            notifyObservers(message);
+                            break;
+                        case "rx":
+                            TinygDriver.getInstance().serialWriter.setBuffer(js.getInt(key));
+                            break;
                         default:
                             if (TinygDriver.getInstance().mneManager.isMasterGroupObject(key)) {
-    //                            logger.info("Group Status Report Detected: " + key);
+                                //                            logger.info("Group Status Report Detected: " + key);
                                 applySettingMasterGroup(js.getJSONObject(key), key);
                                 continue;
                             }
@@ -275,7 +290,7 @@ public class ResponseParser extends Observable implements Runnable {
             }
         } catch (Exception ex) {
             logger.error("[!] Error in applySetting(JsonOBject js) : " + ex.getMessage());
-            logger.error("[!]js.tostring " + js.toString());
+            logger.error("[!]JSON String Was: " + js.toString());
 //            logger.error("Got Line: " + js);
 
 
