@@ -62,7 +62,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
@@ -114,14 +113,11 @@ public class Main implements Initializable, Observer {
     /*
      * LCD DRO PROFILE CREATION
      */
-    
     private Pane machineOutline = new Pane();
-    
     @FXML
     private Lcd xLcd, yLcd, zLcd, aLcd, velLcd; //DRO Lcds
     @FXML
     StackPane machineWorkspace;
-    
     private StyleModel STYLE_MODEL_X = StyleModelBuilder.create()
             .lcdDesign(LcdDesign.BLACK)
             .lcdDecimals(3)
@@ -156,7 +152,7 @@ public class Main implements Initializable, Observer {
      * JFXtras stuff
      */
     @FXML
-    private StackPane gcodePane=new StackPane();
+    private StackPane gcodePane = new StackPane();
     /**
      * FXML UI Components
      */
@@ -352,6 +348,7 @@ public class Main implements Initializable, Observer {
 //        machineOutline.setMaxSize(400, 400);
         machineOutline.setScaleX(2);
         machineOutline.setScaleY(2);
+        
 //        while(ii.hasNext()){
 //            if(ii.next().getClass().getName().endsWith("Line")){
 //                //this is a line object
@@ -368,9 +365,9 @@ public class Main implements Initializable, Observer {
 //           while(newii.hasNext()){
 //               machineOutline.getChildren().add((Line)newii.next());
 //           }
-        
-        
-        
+
+
+
         //tg.write(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
 //        tg.write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
 //        TinygDriver.getInstance().priorityWrite((byte)0x18);
@@ -655,13 +652,13 @@ public class Main implements Initializable, Observer {
             tg.cmdManager.queryStatusReport();                          //SEVENTH - Get Positions if the board is not at zero
             tg.cmdManager.queryAllMotorSettings();                      //EIGTH
             tg.cmdManager.queryAllHardwareAxisSettings();               //NINETH
-           
-            
+
+
             machineOutline.setStyle("-fx-background-color:grey;");
             machineOutline.setMaxSize(200, 200);
-            
-            
-            
+
+
+
 
 //            Circle c1 = new Circle();
 //            c1.setRadius(50d);
@@ -866,6 +863,24 @@ public class Main implements Initializable, Observer {
                 }
             }
         });
+    }
+
+    private void populateConfigFiles() {
+        String path = "configs";
+
+        String files;
+        File folder = new File(path);
+        File[] listOfFiles = folder.listFiles();
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+
+            if (listOfFiles[i].isFile()) {
+                files = listOfFiles[i].getName();
+                if (files.endsWith(".config") || files.endsWith(".json")) {
+                    configsListView.getItems().add(files);
+                }
+            }
+        }
     }
 
     @FXML
@@ -1535,6 +1550,9 @@ public class Main implements Initializable, Observer {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
+        //Populate all Config Files
+        populateConfigFiles();
+
         machineOutline.setMaxSize(0, 0);  //hide this element until we connect
         gcodePane.getChildren().add(machineOutline);
         buildNumber = Integer.valueOf(getBuildInfo("BUILD"));
@@ -1703,14 +1721,14 @@ public class Main implements Initializable, Observer {
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
         srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
-        
+
 
         widthSize.textProperty().bind(machineOutline.widthProperty().asString());
         heightSize.textProperty().bind(machineOutline.heightProperty().asString());
 
         machineOutline.maxHeightProperty().bind(tg.m.getAxisByName("x").getTravelMaxSimple());
         machineOutline.maxHeightProperty().bind(tg.m.getAxisByName("y").getTravelMaxSimple());
-        
+
 
 //        srBuffer.textProperty().bindBidirectional(tg.serialWriter.getBufferValueSimpleProperty(), sc);
 
