@@ -114,9 +114,11 @@ public class SerialDriver implements SerialPortEventListener {
             try {
                 int cnt = input.read(inbuffer, 0, inbuffer.length);
                 for (int i = 0; i < cnt; i++) {
-                    if (inbuffer[i] == '\n') {
+                    if ( inbuffer[i] == 0xA) {
                         String f = new String(lineBuffer, 0, lineIdx);
-                        TinygDriver.getInstance().resParse.appendJsonQueue(f);
+                        if(!f.equals("")){ //Do not add "" to the jsonQueue..
+                            TinygDriver.getInstance().resParse.appendJsonQueue(f);
+                        }
                         lineIdx = 0;
                     } else {
                         lineBuffer[lineIdx++] = inbuffer[i];

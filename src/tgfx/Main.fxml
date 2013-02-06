@@ -176,7 +176,7 @@
                         <!--                           	<Window title="Gcode Preview" prefHeight="400" prefWidth="700"/> -->
                         <VBox id="previewVbox" fx:id="tester" alignment="BOTTOM_CENTER" disable="false" minHeight="450.0" minWidth="720.0" rotate="180.0" scaleX="1.0" scaleZ="1.0" snapToPixel="true" spacing="5.0" style="-fx-background-radius: 10;&#10;" translateZ="1.0" visible="true" HBox.hgrow="ALWAYS">
                           <children>
-                            <StackPane id="topPreviewPane" fx:id="gcodePane" prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: black" VBox.vgrow="ALWAYS" />
+                            <StackPane id="topPreviewPane" fx:id="gcodePane" minHeight="400.0" minWidth="400.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: black" VBox.vgrow="ALWAYS" />
                             <HBox fx:id="gcodeWindowButtonBar" alignment="CENTER_RIGHT" maxHeight="45.0" minHeight="45.0" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" style="&#10;" VBox.vgrow="NEVER">
                               <children>
                                 <Label fx:id="heightLabel" text="Height" textFill="WHITE" />
@@ -191,7 +191,7 @@
                             </HBox>
                           </children>
                           <effect>
-                            <DropShadow color="WHITE" height="8.865048363095239" radius="3.9305478050595237" spread="0.49206349206349204" width="8.857142857142858" />
+                            <DropShadow color="WHITE" height="8.859119233630953" radius="3.9290655226934526" spread="0.49206349206349204" width="8.857142857142858" />
                           </effect>
                           <padding>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
@@ -1139,7 +1139,7 @@
                 </AnchorPane>
               </content>
             </Tab>
-            <Tab closable="false" disable="false" text="Machine Settings">
+            <Tab closable="false" disable="true" text="Machine Settings">
               <content>
                 <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                   <children>

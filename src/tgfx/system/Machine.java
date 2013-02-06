@@ -23,7 +23,7 @@ import tgfx.tinyg.responseCommand;
  *
  * @author ril3y
  */
-public class Machine {
+public final class Machine {
 
     //TG Specific
     //Machine EEPROM Values
@@ -61,6 +61,7 @@ public class Machine {
     public static motion_modes motion_mode;
     private List<Motor> motors = new ArrayList<>();
     private List<Axis> axis = new ArrayList<>();
+    private List<GcodeCoordinateSystem> gcodeCoordinateSystems = new ArrayList<>();
     private Axis x = new Axis(Axis.AXIS.X, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
     private Axis y = new Axis(Axis.AXIS.Y, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
     private Axis z = new Axis(Axis.AXIS.Z, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
@@ -71,11 +72,13 @@ public class Machine {
     private Motor Motor2 = new Motor(2);
     private Motor Motor3 = new Motor(3);
     private Motor Motor4 = new Motor(4);
+    private GcodeCoordinateManager gcm = new GcodeCoordinateManager();
+    
 
     public static enum motion_modes {
 //        [momo] motion_mode        - 0=traverse, 1=straight feed, 2=cw arc, 3=ccw arc
 
-        traverse, straight, cw_arc, ccw_arc, invalid
+        traverse, straight, cw_arc, ccw_arc, none
     }
 
     public static enum coordinate_systems {
@@ -287,7 +290,7 @@ public class Machine {
         }
 
     }
-
+//
     public SimpleStringProperty getGcodeUnitMode() {
         return gcodeUnitMode;
     }
@@ -299,7 +302,7 @@ public class Machine {
             return (0);
         }
     }
-
+//
     public void setGcodeUnits(String gcu) {
         int _tmpgcu = Integer.valueOf(gcu);
 
@@ -331,7 +334,7 @@ public class Machine {
         } else if (mode == 3) {
             m_mode.set(motion_modes.ccw_arc.toString());
         } else {
-            m_mode.set(motion_modes.invalid.toString());
+            m_mode.set(motion_modes.none.toString());
         }
     }
 //
@@ -401,50 +404,50 @@ public class Machine {
         return this.m_state;
     }
 
-    public void setCoordinateSystem(String cord) {
-        setCoordinate_mode(Integer.valueOf(cord));
-
-    }
+//    public void setCoordinateSystem(String cord) {
+//        setCoordinate_mode(Integer.valueOf(cord));
+//
+//    }
 
     public SimpleStringProperty getCoordinateSystem() {
         return (this.coordinateSystem);
     }
 
-    public void setCoordinate_mode(double m) {
-        int c = (int) (m); //Convert this to a int
-        setCoordinate_mode(c);
-    }
+//    public void setCoordinate_mode(double m) {
+//        int c = (int) (m); //Convert this to a int
+//        setCoordinate_mode(c);
+//    }
 
-    public int getCoordinateSystemOrd() {
-        coordinate_systems[] cs = coordinate_systems.values();
-        return 1;
-    }
-
-    public void setCoordinate_mode(int c) {
-        switch (c) {
-            case 1:
-                coordinateSystem.set(coordinate_systems.g54.toString());
-                break;
-            case 2:
-                coordinateSystem.set(coordinate_systems.g55.toString());
-                break;
-            case 3:
-                coordinateSystem.set(coordinate_systems.g56.toString());
-                break;
-            case 4:
-                coordinateSystem.set(coordinate_systems.g57.toString());
-                break;
-            case 5:
-                coordinateSystem.set(coordinate_systems.g58.toString());
-                break;
-            case 6:
-                coordinateSystem.set(coordinate_systems.g59.toString());
-                break;
-            default:
-                coordinateSystem.set(coordinate_systems.g54.toString());
-                break;
-        }
-    }
+//    public int getCoordinateSystemOrd() {
+//        coordinate_systems[] cs = coordinate_systems.values();
+//        return 1;
+//    }
+//
+//    public void setCoordinate_mode(int c) {
+//        switch (c) {
+//            case 1:
+//                coordinateSystem.set(coordinate_systems.g54.toString());
+//                break;
+//            case 2:
+//                coordinateSystem.set(coordinate_systems.g55.toString());
+//                break;
+//            case 3:
+//                coordinateSystem.set(coordinate_systems.g56.toString());
+//                break;
+//            case 4:
+//                coordinateSystem.set(coordinate_systems.g57.toString());
+//                break;
+//            case 5:
+//                coordinateSystem.set(coordinate_systems.g58.toString());
+//                break;
+//            case 6:
+//                coordinateSystem.set(coordinate_systems.g59.toString());
+//                break;
+//            default:
+//                coordinateSystem.set(coordinate_systems.g54.toString());
+//                break;
+//        }
+//    }
 
     public void setMachineState(int state) {
 
@@ -539,9 +542,46 @@ public class Machine {
         axis.add(b);
         axis.add(c);
 
+        
         setMotionMode(0);
+        
 
     }
+
+    
+
+  
+
+    public GcodeCoordinateSystem getCoordinateSystemByName(String name) {
+        for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
+            if (_tmpGCS.getCoordinate().equals(name)) {
+                return (_tmpGCS);
+            }
+        }
+        return null;
+    }
+    
+    
+    public GcodeCoordinateSystem getCoordinateSystemByNumberMnemonic(int number) {
+        for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
+            if (_tmpGCS.getCoordinateNumberMnemonic() == number) {
+                logger.info("Returned " + _tmpGCS.getCoordinate() + " coord system");
+                return (_tmpGCS);
+            }
+        }
+        return null;
+    }
+    
+    public GcodeCoordinateSystem getCoordinateSystemByTgNumber(int number) {
+        for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
+            if (_tmpGCS.getCoordinateNumberByTgFormat() == number) {
+                logger.info("Returned " + _tmpGCS.getCoordinate() + " coord system");
+                return (_tmpGCS);
+            }
+        }
+        return null;
+    }
+    
 
     public List<Axis> getAllAxis() {
         return axis;
@@ -614,18 +654,12 @@ public class Machine {
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
                 TinygDriver.getInstance().m.setMachineState(Integer.valueOf(rc.getSettingValue()));
                 break;
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_UNITS):
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_UNIT):
                 TinygDriver.getInstance().m.setGcodeUnits(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
                 TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
                 break;
-//                }
-//
-////
-//            }
-//        } catch (JSONException | NumberFormatException ex) {
-//            logger.error("Error in Machine.java --> Apply Axis Status Report. " + ex.getMessage());
         }
     }
 
@@ -672,7 +706,7 @@ public class Machine {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_COORDINATE_SYSTEM):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().m.setCoordinateSystem(rc.getSettingValue());
+//                        TinygDriver.getInstance().m.setCoordinateSystem(rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_DISTANCE_MODE):
@@ -688,10 +722,7 @@ public class Machine {
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().m.setGcodeSelectPlane(rc.getSettingValue());
                         break;
-                    case (MnemonicManager.MNEMONIC_SYSTEM_GCODE_UNIT_MODE):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().m.setGcodeUnits(rc.getSettingValue());
-                        break;
+                    
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_IGNORE_CR):
 //                        TinygDriver.getInstance().m.setIgnore_cr_lf_RX(rc.getSettingValue());

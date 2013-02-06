@@ -23,7 +23,7 @@ public class Draw2d {
     public static Paint MEDUIM = Color.web("#c1ff66");
     public static Paint FAST = Color.web("#85ff22");
     public static Paint FASTEST = Color.web("#0fee17");
-    public static Paint TRAVERSE = Color.web("#d0d0d0");
+    public static Paint TRAVERSE = Color.GRAY;
     private float MAX_MACHINE_VELOCITY;
     private static double stroke_weight = .5;
     public static double magnification = 3;

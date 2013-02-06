@@ -16,7 +16,9 @@ import tgfx.tinyg.TinygDriver;
  * @author ril3y
  */
 public class SerialWriter implements Runnable {
-
+    
+    
+    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SerialWriter.class);
     private BlockingQueue queue;
     private boolean RUN = true;
     private String tmpCmd;
@@ -29,6 +31,7 @@ public class SerialWriter implements Runnable {
     //   public Condition clearToSend = lock.newCondition();
     public SerialWriter(BlockingQueue q) {
         this.queue = q;
+        logger.setLevel(org.apache.log4j.Level.ERROR);
         
     }
     
@@ -66,13 +69,13 @@ public class SerialWriter implements Runnable {
 
     public synchronized void setBuffer(int val){
         buffer_available = val;
-        Main.logger.info("Got a BUFFER Response.. reset it to: " + val);
+        logger.info("Got a BUFFER Response.. reset it to: " + val);
     }
     
     
     public synchronized void addBytesReturnedToBuffer(int lenBytesReturned) {
         buffer_available = (buffer_available + lenBytesReturned);
-//        Main.logger.info("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");
+//        logger.info("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");
     }
 
     public void addCommandToBuffer(String cmd) {
@@ -83,10 +86,10 @@ public class SerialWriter implements Runnable {
         
         synchronized (mutex) {
             if (t == throttled) {
-                Main.logger.info("Throttled already set");
+                logger.info("Throttled already set");
                 return false;
             }
-            Main.logger.info("Setting Throttled " + t);
+            logger.info("Setting Throttled " + t);
             throttled = t;
 //            if (!throttled) {
 //                mutex.notify();
@@ -100,7 +103,7 @@ public class SerialWriter implements Runnable {
         //Will wake up the mutex that is sleeping in the write method of the serialWriter
         //(this) class.
         synchronized (mutex) {
-            Main.logger.info("Notifying the SerialWriter we have recvd an ACK");
+            logger.info("Notifying the SerialWriter we have recvd an ACK");
             mutex.notify();
         }
     }
@@ -117,24 +120,24 @@ public class SerialWriter implements Runnable {
 
                 while (throttled) {
                     if (str.length() > getBufferValue()) {
-                        Main.logger.info("Throttling: Line Length: " + str.length() + " is smaller than buffer length: " + buffer_available);
+                        logger.info("Throttling: Line Length: " + str.length() + " is smaller than buffer length: " + buffer_available);
                         setThrottled(true);
                     } else {
                         setThrottled(false);
                         buffer_available = (getBufferValue() - str.length());
                         break;
                     }
-                    Main.logger.info("We are Throttled in the write method for SerialWriter");
+                    logger.info("We are Throttled in the write method for SerialWriter");
                     //We wait here until the an ack comes in to the response parser
                     // frees up some buffer space.  Then we unlock the mutex and write the next line.
                     mutex.wait();
-                    Main.logger.info("We are free from Throttled!");
+                    logger.info("We are free from Throttled!");
                 }
             }
             ser.write(str);
-            Main.logger.debug("Wrote Line --> " + str );
+            logger.debug("Wrote Line --> " + str );
         } catch (Exception ex) {
-            Main.logger.error("Error in SerialDriver Write");
+            logger.error("Error in SerialDriver Write");
         }
     }
 

@@ -339,8 +339,7 @@ public class ResponseParser extends Observable implements Runnable {
                 break;
 
             case (MNEMONIC_GROUP_AXIS_X):
-                TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_X)
-                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_X), MNEMONIC_GROUP_AXIS_X);
+                TinygDriver.getInstance().m.getAxisByName(MNEMONIC_GROUP_AXIS_X).applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_X), MNEMONIC_GROUP_AXIS_X);
                 setChanged();
                 message[0] = "CMD_GET_AXIS_SETTINGS";
                 message[1] = MNEMONIC_GROUP_AXIS_X;
@@ -392,10 +391,10 @@ public class ResponseParser extends Observable implements Runnable {
                 break;
 
             case ("hom"):
-                Main.logger.info("HOME");
+                logger.info("HOME");
                 break;
             case (MNEMONIC_GROUP_SYSTEM):
-//                Main.logger.info(MNEMONIC_GROUP_SYSTEM);
+//                logger.info(MNEMONIC_GROUP_SYSTEM);
                 TinygDriver.getInstance().m.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
 
                 setChanged();
@@ -404,7 +403,7 @@ public class ResponseParser extends Observable implements Runnable {
                 notifyObservers(message);
                 break;
 //            case (MNEMONIC_GROUP_STATUS_REPORT):
-//                Main.logger.info("Status Report");
+//                logger.info("Status Report");
 //                TinygDriver.getInstance().m.applyJsonStatusReport(js.getJSONObject(MNEMONIC_GROUP_STATUS_REPORT), MNEMONIC_GROUP_STATUS_REPORT); //Send in the jsobject 
 //                setChanged();
 //                message[0] = "STATUS_REPORT";

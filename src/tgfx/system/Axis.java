@@ -106,11 +106,10 @@ public class Axis {
 ////        jerk_maximum = 0;
 //        
 //    }
-    
-    public void setHomed(boolean choice){
+    public void setHomed(boolean choice) {
         homed.set(choice);
     }
-    
+
     public void setAxisCommand(String cmd, String value) {
         //This is a blind commmand mode...  meaning that
         //if 2 strings (key, val) are passed to the axis class
@@ -610,16 +609,22 @@ public class Axis {
         return false;
     }
 
-    public SimpleDoubleProperty getTravelMaxSimple(){
-        return(travel_maximum);
+    public SimpleDoubleProperty getTravelMaxSimple() {
+        return (travel_maximum);
     }
+
     public double getTravel_maximum() {
         return travel_maximum.getValue();
     }
 
     public boolean setTravel_maximum(float travel_maximum) {
-        this.travel_maximum.set(travel_maximum);
-        return true;
+        try {
+            this.travel_maximum.set(travel_maximum);
+            return true;
+        } catch (Exception ex) {
+           //supress this error
+            return false;
+        }
     }
 
     public double getVelocity_maximum() {
@@ -639,6 +644,10 @@ public class Axis {
         this.work_position.set(workpos);
     }
 
+    public void applyJsonSystemSetting(responseCommand rc) {
+        _applyJsonSystemSetting(rc);
+    }
+
     //This is the main method to parser a JSON Axis object
     public void applyJsonSystemSetting(JSONObject js, String parent) {
         logger.info("Applying JSON Object to " + parent + " Group");
@@ -648,80 +657,83 @@ public class Axis {
                 String _key = ii.next().toString();
                 String _val = js.get(_key).toString();
                 responseCommand rc = new responseCommand(parent, _key, _val);
-
-                switch (_key) {
-                    case (MnemonicManager.MNEMONIC_AXIS_AXIS_MODE):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setAxis_mode(Integer.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_FEEDRATE_MAXIMUM):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setFeed_rate_maximum(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_JERK_MAXIMUM):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setJerk_maximum(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_JUNCTION_DEVIATION):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setJunction_devation(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_LATCH_BACKOFF):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setLatch_backoff(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_LATCH_VELOCITY):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setLatch_velocity(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_MAX_SWITCH_MODE):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setMaxSwitch_mode(Integer.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_MIN_SWITCH_MODE):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setMinSwitch_mode(Integer.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_RADIUS):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setRadius(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_SEARCH_VELOCITY):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setSearch_velocity(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_TRAVEL_MAXIMUM):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setTravel_maximum(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_VELOCITY_MAXIMUM):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setVelocity_maximum(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_AXIS_ZERO_BACKOFF):
-                        TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setZero_backoff(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-                    default:
-                        logger.info("Default Switch");
-                }
+                _applyJsonSystemSetting(rc);
             }
 
         } catch (JSONException | NumberFormatException ex) {
             logger.error("Error in ApplyJsonSetting in Machine:SYS group");
         }
 
+    }
+
+    private void _applyJsonSystemSetting(responseCommand rc) {
+        switch (rc.getSettingKey()) {
+            case (MnemonicManager.MNEMONIC_AXIS_AXIS_MODE):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setAxis_mode(Integer.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_FEEDRATE_MAXIMUM):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setFeed_rate_maximum(Float.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_JERK_MAXIMUM):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setJerk_maximum(Float.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_JUNCTION_DEVIATION):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setJunction_devation(Float.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_LATCH_BACKOFF):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setLatch_backoff(Float.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_LATCH_VELOCITY):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setLatch_velocity(Float.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_MAX_SWITCH_MODE):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setMaxSwitch_mode(Integer.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_MIN_SWITCH_MODE):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setMinSwitch_mode(Integer.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_RADIUS):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setRadius(Float.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_SEARCH_VELOCITY):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setSearch_velocity(Float.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_TRAVEL_MAXIMUM):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setTravel_maximum(Float.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_VELOCITY_MAXIMUM):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setVelocity_maximum(Float.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_AXIS_ZERO_BACKOFF):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setZero_backoff(Float.valueOf(rc.getSettingValue()));
+                logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+            default:
+                logger.info("Default Switch");
+        }
     }
 }

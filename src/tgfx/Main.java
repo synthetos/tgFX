@@ -54,16 +54,13 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.MissingResourceException;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
@@ -72,12 +69,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.Path;
-import javafx.scene.text.Font;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.util.StringConverter;
@@ -85,27 +78,31 @@ import jfxtras.labs.scene.control.gauge.Gauge;
 import jfxtras.labs.scene.control.gauge.Lcd;
 import jfxtras.labs.scene.control.gauge.LcdBuilder;
 import jfxtras.labs.scene.control.gauge.LcdDesign;
-import jfxtras.labs.scene.control.gauge.LedColor;
 import jfxtras.labs.scene.control.gauge.StyleModel;
 import jfxtras.labs.scene.control.gauge.StyleModelBuilder;
-import jfxtras.labs.scene.control.window.Window;
 import org.apache.log4j.Level;
-import org.apache.log4j.Priority;
 import tgfx.gcode.GcodeHistory;
 import tgfx.gcode.GcodeLine;
-import tgfx.system.Machine.Gcode_unit_modes;
+import tgfx.render.CNCMachine;
 import tgfx.system.StatusCode;
 import tgfx.tinyg.CommandManager;
 
 public class Main implements Initializable, Observer {
 
-    private String buildDate;
+    /*
+     * 
+     * TEST NUMBER BINDINGS
+     */
+    private DoubleProperty machineX;
+    private DoubleProperty machineY;
+    private double scaleAmount;
     private int buildNumber;
+    private String buildDate;
     private boolean drawPreview = true;
     private boolean taskActive = false;
     static final Logger logger = Logger.getLogger(Main.class);
     private TinygDriver tg = TinygDriver.getInstance();
-    public ObservableList data;
+    public ObservableList data; //List to store the gcode file
     private String PROMPT = "tinyg>";
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
     final static ResourceBundle rb = ResourceBundle.getBundle("version");   //Used to track build date and build number
@@ -113,7 +110,8 @@ public class Main implements Initializable, Observer {
     /*
      * LCD DRO PROFILE CREATION
      */
-    private Pane machineOutline = new Pane();
+    private CNCMachine cncMachine = new CNCMachine();
+//    private Pane cncMachine = new Pane();
     @FXML
     private Lcd xLcd, yLcd, zLcd, aLcd, velLcd; //DRO Lcds
     @FXML
@@ -237,15 +235,6 @@ public class Main implements Initializable, Observer {
     public Main() {
     }
 
-//    float x = 0;
-//    float y = 0;
-//    float z = 0;
-//    float vel = 0;
-//    String state = new String();
-//    LineTo xl = new LineTo();
-//    LineTo y1 = new LineTo();
-//    LineTo z1 = new LineTo();
-//    Path path = new Path();
     @FXML
     private void handleTogglePreview(ActionEvent event) {
         if (settingDrawBtn.getText().equals("ON")) {
@@ -290,19 +279,15 @@ public class Main implements Initializable, Observer {
 
                         if (!strLine.equals("")) {
                             //Do not add empty lines to the list
-//                            gcodesList.appendText(strLine + "\n");
-
+                            //gcodesList.appendText(strLine + "\n");
                             if (!strLine.toUpperCase().startsWith("N")) {
                                 strLine = "N" + String.valueOf(_linenumber) + " " + strLine;
                             }
-
                             data.add(new GcodeLine(strLine, _linenumber));
                             _linenumber++;
-//                        System.out.println(strLine);
                         }
                     }
                     System.out.println("[*]File Loading Complete");
-
                 } catch (FileNotFoundException ex) {
                     System.out.println("File Not Found.");
                 } catch (Exception ex) {
@@ -315,15 +300,10 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleCancelFile(ActionEvent evt) throws Exception {
         console.appendText("[!]Canceling File Sending Task...\n");
-//        tg.setCANCELLED(true);
         setTaskActive(false);
         tg.serialWriter.clearQueueBuffer();
         console.appendText("[!]Resetting TinyG....\n.");
-//        Byte reset = 0x18;
-//        tg.resetSpaceBuffer();
-//        tg.priorityWrite(reset); //This resets TinyG
-//        Thread.sleep(3000); //We need to sleep a bit until TinyG comes back
-//        tg.write(CommandManager.CMD_QUERY_STATUS_REPORT);  //This will reset our DRO readings
+        tg.priorityWrite(CommandManager.CMD_APPLY_RESET); //This resets TinyG
     }
 
     @FXML
@@ -331,11 +311,9 @@ public class Main implements Initializable, Observer {
         if ("Pause".equals(pauseResume.getText())) {
             pauseResume.setText("Resume");
             tg.priorityWrite("!\n");
-//            tg.setPAUSED(true);
 
         } else {
             pauseResume.setText("Pause");
-//            tg.setPAUSED(false);
             tg.priorityWrite("~\n");
         }
     }
@@ -343,37 +321,7 @@ public class Main implements Initializable, Observer {
     @FXML
     void handleTestButton(ActionEvent evt) throws Exception {
         logger.info("Test Button....");
-//        Iterator ii = machineOutline.getChildren().iterator();
-//        ArrayList _tmpLines = new ArrayList<Line>();
-//        machineOutline.setMaxSize(400, 400);
-        machineOutline.setScaleX(2);
-        machineOutline.setScaleY(2);
-        
-//        while(ii.hasNext()){
-//            if(ii.next().getClass().getName().endsWith("Line")){
-//                //this is a line object
-//                Line l = (Line) ii.next();
-//                _tmpLines.add(l);
-////                 machineOutline.getChildren().remove(l);
-//            }
-//        }
-//           machineOutline.getChildren().clear();
-//           System.out.println("Done Adding Lines");
-//           
-//           Iterator newii = _tmpLines.iterator();
-//           
-//           while(newii.hasNext()){
-//               machineOutline.getChildren().add((Line)newii.next());
-//           }
 
-
-
-        //tg.write(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
-//        tg.write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
-//        TinygDriver.getInstance().priorityWrite((byte)0x18);
-//        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_SYSTEM_MNEMONIC_SYSTEM_SWITCH_TYPE_NC);
-//        TinygDriver.getInstance().m.setFirmwareVersion("867543");
-//        TinygDriver.getInstance().m.setFirmwareBuild(0.01);
     }
 
     @FXML
@@ -448,8 +396,6 @@ public class Main implements Initializable, Observer {
                     logger.error(ex.getMessage());
                     tg.queryHardwareSingleAxisSettings(_axis.getAxis_name()); //This will reset the input that was bad to the current settings
                 }
-
-
             }
         }
     }
@@ -478,11 +424,11 @@ public class Main implements Initializable, Observer {
             if (checkConectedMessage().equals("true")) {
                 TinygDriver.getInstance().write(CommandManager.CMD_APPLY_DEFAULT_SETTINGS);
             } else {
-                Main.logger.error(checkConectedMessage());
+                logger.error(checkConectedMessage());
                 console.appendText(checkConectedMessage());
             }
         } catch (Exception ex) {
-            Main.logger.error("[!]Error Applying Default Settings");
+            logger.error("[!]Error Applying Default Settings");
         }
     }
 
@@ -499,11 +445,7 @@ public class Main implements Initializable, Observer {
 //            console.appendText("[!] Must be connected to TinyG First.");
 //        }
     }
-//    
-//    @FXML
-//    void handleMotorQuery(ActionEvent evt){
-//        
-//    }
+
 
     @FXML
     void handleMouseScroll(ScrollEvent evt) {
@@ -584,14 +526,10 @@ public class Main implements Initializable, Observer {
                 String tmp;
                 for (int i = 0; i < gcodeCharLength; i++) {
                     GcodeLine _gcl = (GcodeLine) data.get(i);
-
-
                     if (isTaskActive() == false) {
                         //Cancel Button was pushed
                         console.appendText("[!]File Sending Task Killed....\n");
-
                         break;
-
                     } else {
                         if (_gcl.getCodeLine().startsWith("(")) {
                             console.appendText("GCODE COMMENT:" + _gcl.getCodeLine() + "\n");
@@ -640,8 +578,7 @@ public class Main implements Initializable, Observer {
      */
     private void onConnectActions() {
         try {
-
-
+            Draw2d.setFirstDraw(true);
 //            tg.write(CommandManager.CMD_QUERY_SYSTEM_SERIAL_BUFFER_LENGTH);//SECOND.5 :)
             tg.write(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //FIRST
 //            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //SECOND - There is an issue with this.  It returns stuff like "true"
@@ -652,32 +589,10 @@ public class Main implements Initializable, Observer {
             tg.cmdManager.queryStatusReport();                          //SEVENTH - Get Positions if the board is not at zero
             tg.cmdManager.queryAllMotorSettings();                      //EIGTH
             tg.cmdManager.queryAllHardwareAxisSettings();               //NINETH
-
-
-            machineOutline.setStyle("-fx-background-color:grey;");
-            machineOutline.setMaxSize(200, 200);
-
-
-
-
-//            Circle c1 = new Circle();
-//            c1.setRadius(50d);
-//            
-
-//            c1.fillProperty().setValue(new Color(0,255,0,100));
-//            drawingCanvas.getChildren().add(c1);
-
-            /**
-             * Draw the workspace area in the preview
-             */
-//            Float width = Float.valueOf(tg.m.getAxisByName("X").getTravel_maximum());
-//            Float height = Float.valueOf(tg.m.getAxisByName("Y").getTravel_maximum());
-//            Label hLabel = new Label("Table Width: " + width);
-            //Rectangle rect1 = RectangleBuilder.create().strokeDashOffset(5).opacity(100).width(width).height(height).build();
-            //canvsGroup.getChildren().add(rect1);
-            //canvsGroup.getChildren().add(hLabel);
+            gcodePane.getChildren().add(cncMachine);
+            cncMachine.setStyle("-fx-background-color: black; -fx-border-color: red; -fx-border-style: dotted");
         } catch (Exception ex) {
-            console.appendText("[!]Error: " + ex.getMessage());
+            console.appendText("[!]Error in onConnectActions: " + ex.getMessage());
             System.out.println(ex.getMessage());
         }
     }
@@ -702,7 +617,8 @@ public class Main implements Initializable, Observer {
 
                 /**
                  * *****************************
-                 * OnConnect Actions Called Here *****************************
+                 * OnConnect Actions Called Here 
+                 * *****************************
                  */
                 onConnectActions();
 
@@ -725,22 +641,16 @@ public class Main implements Initializable, Observer {
         TinygDriver.getInstance().m.firmwareVersion.set("?");
         TinygDriver.getInstance().m.m_state.set("?");
         TinygDriver.getInstance().m.setLine_number(0);
+        TinygDriver.getInstance().m.setMotionMode(0);
         Draw2d.setFirstDraw(true);
         TinygDriver.getInstance().serialWriter.resetBuffer();
-
-
-
-
-//        TinygDriver.getInstance().m.setVelocity(0.0);
-//        srState.setText("?");
-//        tg.resetSpaceBuffer();
-
+        gcodePane.getChildren().remove(cncMachine);
     }
 
     @FXML
     private void handleClearScreen(ActionEvent evt) {
         console.appendText("[+]Clearning Screen...\n");
-        machineOutline.getChildren().clear();
+        cncMachine.getChildren().clear();
         Draw2d.setFirstDraw(true);  //clear this so our first line added draws correctly
     }
 
@@ -754,72 +664,10 @@ public class Main implements Initializable, Observer {
 //            topvbox.getChildren().add(topvbox.getChildren().size() - 1, bottom);
 //        }
 //    }
+    
     @FXML
     private void handleKeyInput(final InputEvent event) {
-//        if (event instanceof KeyEvent) {
-//            final KeyEvent keyEvent = (KeyEvent) event;
-//            if (keyEvent.getCode() == KeyCode.BACK_QUOTE) {
-//
-//                handleTilda();
-//
-//            } else if (keyEvent.getCode() == KeyCode.F10) {
-//                if (!tg.isConnected()) {
-//                    String msg = new String("[!]Getting Status Report Aborted... Serial Port Not Connected...");
-//                    console.appendText(msg);
-//                    return;
-//                } else {
-//                    String msg = new String("F10 Key Pressed - Getting Status Report\n");
-//                    console.appendText(msg);
-//                    System.out.println(msg);
-//                    try {
-//                        tg.requestStatusUpdate();
-//                    } catch (Exception ex) {
-//                        System.out.println("Error in getting status report");
-//                    }
-//                }
-//            } else if (keyEvent.getCode() == KeyCode.F5) {
-//                if (!tg.isConnected()) {
-//                    String msg = new String("[!]Getting Settings Aborted... Serial Port Not Connected...");
-//                    console.appendText(msg);
-//                    return;
-//                }
-//                String msg = new String("F5 Key Pressed - Getting Machine Settings\n");
-//                console.appendText(msg);
-//                System.out.println(msg);
-//                try {
-////                    tg.requestStatusUpdate();
-////                    tg.getMachineSettings();
-//                    tg.getMotorSettings(1);
-//                    tg.getMotorSettings(2);
-//                    tg.getMotorSettings(3);
-//                    tg.getMotorSettings(4);
-//
-//                } catch (Exception ex) {
-//                    System.out.println(ex.getMessage());
-//                }
-//
-//
-//            } else if (keyEvent.getCode() == KeyCode.F12) {
-//                System.out.println("Writing DEBUG file");
-//                try {
-//                    BufferedWriter out = new BufferedWriter(new FileWriter("debugTest.txt"));
-//                    DataOutputStream dos;
-//                    dos = new DataOutputStream(new FileOutputStream("debug.txt", true));
-//                    out.close();
-//
-//                } catch (Exception e) {
-//                    System.out.println("Exception ");
-//                }
-//            } else if (keyEvent.getCode() == KeyCode.F1) {
-//                Draw2d.incrementSetStrokeWeight();
-////                reDrawPreview();
-//                console.appendText("[+]Increasing Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
-//            } else if (keyEvent.getCode() == KeyCode.F2) {
-//                Draw2d.decrementSetStrokeWeight();
-////                reDrawPreview();
-//                console.appendText("[+]Decreasing Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
-//            }
-//        }
+        
     }
 
 //    @FXML
@@ -848,13 +696,12 @@ public class Main implements Initializable, Observer {
 ////            };
 //        }
 //    }
+    
     @FXML
     private void handleSaveConfig(ActionEvent event) throws Exception {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-
-
                 FileChooser fc = new FileChooser();
                 fc.setInitialDirectory(new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator")));
                 fc.setTitle("Save Current TinyG Configuration");
@@ -871,9 +718,7 @@ public class Main implements Initializable, Observer {
         String files;
         File folder = new File(path);
         File[] listOfFiles = folder.listFiles();
-
         for (int i = 0; i < listOfFiles.length; i++) {
-
             if (listOfFiles[i].isFile()) {
                 files = listOfFiles[i].getName();
                 if (files.endsWith(".config") || files.endsWith(".json")) {
@@ -889,9 +734,7 @@ public class Main implements Initializable, Observer {
         InputStream fis;
         BufferedReader br;
         String line;
-
         File selected_config = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + configsListView.getSelectionModel().getSelectedItem());
-
         fis = new FileInputStream(selected_config);
         br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 
@@ -929,7 +772,6 @@ public class Main implements Initializable, Observer {
                 return (xLcd);
             case ("y"):
                 return (yLcd);
-
             case ("z"):
                 return (zLcd);
             case ("a"):
@@ -965,7 +807,6 @@ public class Main implements Initializable, Observer {
             }
         }
         console.appendText("[+]Homing " + _axis.toUpperCase() + " Axis...\n");
-
     }
 
     @FXML
@@ -1012,13 +853,11 @@ public class Main implements Initializable, Observer {
     private void handleKeyPress(final InputEvent event) throws Exception {
         //private void handleEnter(ActionEvent event) throws Exception {
         final KeyEvent keyEvent = (KeyEvent) event;
-
-
         if (keyEvent.getCode().equals(KeyCode.ENTER)) {
             String command = (input.getText() + "\n");
-            Main.logger.info("Entered Command: " + command);
+            logger.info("Entered Command: " + command);
             if (!tg.isConnected()) {
-                Main.logger.error("TinyG is not connected....\n");
+                logger.error("TinyG is not connected....\n");
                 console.appendText("[!]TinyG is not connected....\n");
                 input.setPromptText(PROMPT);
                 return;
@@ -1044,8 +883,6 @@ public class Main implements Initializable, Observer {
             tg.cmdManager.queryAllMotorSettings();
         }
     }
-//        }
-//    }
 
     private Task initRemoteServer(String port) {
         final String Port = port;
@@ -1100,11 +937,11 @@ public class Main implements Initializable, Observer {
 //        }
 //        System.out.println(gcodePane.getHeight() - tg.m.getAxisByName("y").getWork_position().get());
         double newX = tg.m.getAxisByName("x").getWork_position().get();// + magnification;
-        double newY = tg.m.getAxisByName("y").getWork_position().get();//(gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get())));// + magnification;
+        double newY = cncMachine.getHeight() - tg.m.getAxisByName("y").getWork_position().get();//(gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get())));// + magnification;
 
         if (Draw2d.isFirstDraw()) {
             //This is to not have us draw a line on the first connect.
-            l = new Line(newX, newY, newX, newY);
+            l = new Line(newX, cncMachine.getHeight(), newX, cncMachine.getHeight());
             Draw2d.setFirstDraw(false);
         } else {
             l = new Line(xPrevious, yPrevious, newX, newY);
@@ -1112,32 +949,20 @@ public class Main implements Initializable, Observer {
 
 
         if (tg.m.getMotionMode().get().equals("traverse")) {
-            //G0 Move
-//            l.setStrokeWidth(Draw2d.getStrokeWeight() / 2);
-//            l.setStrokeDashOffset(5);
+            //G0 Moves
+            l.getStrokeDashArray().addAll(2d, 21d);
             l.setStroke(Draw2d.TRAVERSE);
         } else {
             l.setStroke(Draw2d.getLineColorFromVelocity(vel));
+            
         }
-
-
-        //CODE TO ONLY DRAW CUTTING MOVEMENTS
-//        if (tg.m.getAxisByName("Z").getWork_position() > 0) {
-//            l = null;
-//        } else {
-//            l.setStrokeWidth(Draw2d.getStrokeWeight());
-//        }
-
-        l.setStrokeWidth(1);
 
         xPrevious = newX;
         yPrevious = newY;
 
         if (l != null) {
-            machineOutline.getChildren().add(l);
+            cncMachine.getChildren().add(l);  //Add the line to the Pane
         }
-
-
     }
 
     private void updateGUIConfigState() {
@@ -1549,150 +1374,20 @@ public class Main implements Initializable, Observer {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
-        //Populate all Config Files
-        populateConfigFiles();
 
-        machineOutline.setMaxSize(0, 0);  //hide this element until we connect
-        gcodePane.getChildren().add(machineOutline);
-        buildNumber = Integer.valueOf(getBuildInfo("BUILD"));
-        buildDate = getBuildInfo("DATE");
+        /*####################################
+         *MISC INIT CODE 
+         #################################### */
 
-        //Set our build / versions in the tgFX settings tab.
-        tgfxBuildDate.setText(buildDate);
-        tgfxBuildNumber.setText(getBuildInfo("BUILD"));
-        tgfxVersion.setText(".95");
-
-//  
-
-//        gcodeWindow = new Window("Gcode Preview");
-
-//        gcodeWindow.setResizableBorderWidth(5);
-
-//        gcodeWindow.setOpacity(100);
-
-        // set the window position to 10,10 (coordinates inside canvas)
-//        w.setLayoutX(10);
-//        w.setLayoutY(10);
-//        w.setStyle("-fx-background-color:black");
-//        // define the initial window size
-//        gcodeWindow.setPrefSize(800, 500);
-//        gcodeWindow.setStyle("-fx-background-color:black;");
-        Text t = new Text();
-        t.setStyle("-fx-background-color:red;");
-        gcodeWindowButtonBar.getChildren().add(t);
-//        w.setTooltip(new Tooltip("This GUI is draggable and can be resized \nby clicking the bottom right corner and dragging."));
-
-        // either to the left
-//        w.getLeftIcons().add(new CloseIcon(w));
-
-        // .. or to the right
-//        w.getRightIcons().add(new MinimizeIcon(w));
-//        ScrollBar vGcodePreviewScrollBar = new ScrollBar();
-//        ScrollBar hGcodePreviewScrollBar = new ScrollBar();
-//        vGcodePreviewScrollBar.setOrientation(Orientation.VERTICAL);
-//        hGcodePreviewScrollBar.setOrientation(Orientation.HORIZONTAL);
-//        
-//        
-//        hGcodePreviewScrollBar.valueProperty().addListener(new ChangeListener<Number>() {
-//            public void changed(ObservableValue<? extends Number> ov,
-//                Number old_val, Number new_val) {
-//                System.out.println(new_val);
-//                    gcodePane.setLayoutY(-new_val.doubleValue());
-//            }
-//        });
-
-//   
-//        gcodePane.getChildren().add(vGcodePreviewScrollBar);
-//        gcodePane.getChildren().add(hGcodePreviewScrollBar);
-//       
-//        gcodePane.setTranslateX(gcodePane.getWidth());
-
-//        gcodeWindow.getContentPane().getChildren().add(gcodeWindowButtonBar);
-//        gcodeWindow.getChildren().add(tester);
-//         add some content
-//        w.getContentPane().getChildren().add(new Label("Content"));
-//        previewPane.getChildren().add(gcodeWindow);
-        machineOutline.setCursor(Cursor.CROSSHAIR);
-//        gcodePane.getChildren().addListener(t);
-
-        final Circle c = new Circle(2, Color.RED);
-
-        final Text cursorText = new Text("None");
-        cursorText.setStroke(Color.YELLOW);
-        cursorText.setFill(Color.YELLOW);
-        cursorText.setFont(Font.font("Arial", 10));
+        tg.resParse.addObserver(this);  //Add the tinygdriver to this observer
+        this.reScanSerial();            //Populate our serial ports
+        populateConfigFiles();          //Populate all Config Files
 
 
 
-        machineOutline.setOnMouseExited(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent me) {
-//                gcodePane.getChildren().remove(c);
-                machineOutline.getChildren().remove(cursorText);
-
-            }
-        });
-
-        machineOutline.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent me) {
-//                gcodePane.getChildren().remove(c);
-                machineOutline.getChildren().add(cursorText);
-
-            }
-        });
-
-        machineOutline.setOnMouseMoved(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent me) {
-                cursorText.setText("(xpos: " + me.getX() + ")\n(ypos: " + me.getY() + ")");
-                cursorText.setX(me.getX() + 10);
-                cursorText.setY(me.getY());
-
-            }
-        });
-
-        machineOutline.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent me) {
-                Circle c = new Circle(2, Color.YELLOWGREEN);
-                c.setLayoutX(me.getX());
-                c.setLayoutY(me.getY());
-                Text coordsText = new Text("(" + me.getX() + "," + me.getY() + ")");
-                coordsText.setStroke(Color.YELLOW);
-                coordsText.setFill(Color.YELLOW);
-                coordsText.setFont(Font.font("Arial", 10));
-                coordsText.setX(me.getX() + 10);
-                coordsText.setY(me.getY());
-                machineOutline.getChildren().add(coordsText);
-                machineOutline.getChildren().add(c);
-            }
-        });
-
-
-//        xtgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
-//        tgPA.bindBidirectional("firmwareBuild", srBuild.textProperty());
-        logger.setLevel(Level.ERROR);
-
-
-
-        xLcd.valueProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5;
-//                xposT.setText(String.valueOf(tmp));
-//                cursorPoint.setLayoutY(tmp);
-            }
-        });
-
-
-        yLcd.valueProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5;
-//                yposT.setText(String.valueOf(tmp));
-//                cursorPoint.setLayoutY(tmp);
-                //cursor.setLayoutY(canvasHolder.getHeight() - tg.m.getAxisByName("y").getWork_position().doubleValue());  
-            }
-        });
-
+        /*#######################################################
+         * BINDINGS
+         * #####################################################*/
 
         StringConverter sc = new StringConverter<Number>() {
             @Override
@@ -1706,33 +1401,146 @@ public class Main implements Initializable, Observer {
             }
         };
 
-
-
-
-        /*
-         * WE CREATE OUR BINDINGS HERE TO BIND OUR INTERNAL GUI (JAVAFX 2) MODEL
-         * TO OUR TINYG INTERNAL MODEL... READ EMBEDDED SYSTEM MODEL
-         */
-
         srMomo.textProperty().bind(tg.m.getMotionMode());
         srVer.textProperty().bind(tg.m.firmwareVersion);
 
         srBuild.textProperty().bindBidirectional(tg.m.firmwareBuild, sc);
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
-        srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
+//        srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
+
+        widthSize.textProperty().bind(cncMachine.widthProperty().asString());
+        heightSize.textProperty().bind(cncMachine.heightProperty().asString());
+        
+        
+        
+        
+        xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWork_position());
+        yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWork_position());
+        zLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWork_position());
+        aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWork_position());
+        velLcd.valueProperty().bind(TinygDriver.getInstance().m.velocity);
+        
+
+        /*######################################
+         * LOGGER CONFIG
+         ######################################*/
+        BasicConfigurator.configure();
+        logger.setLevel(Level.ERROR);
+        logger.info("[+]tgFX is starting....");
 
 
-        widthSize.textProperty().bind(machineOutline.widthProperty().asString());
-        heightSize.textProperty().bind(machineOutline.heightProperty().asString());
 
-        machineOutline.maxHeightProperty().bind(tg.m.getAxisByName("x").getTravelMaxSimple());
-        machineOutline.maxHeightProperty().bind(tg.m.getAxisByName("y").getTravelMaxSimple());
+        /*##########################
+         * SOCKET NETWORK INIT CODE
+         ##########################/*
+         //SocketMonitor sm;
+         //Thread remoteListener = new Thread(initRemoteServer("8888"));
+         //remoteListener.setName("Remote Listener Thread");
+         //remoteListener.start();
+
+        
+         /*######################################
+         * WEB PAGE SUPPORT
+         ######################################*/
+        WebEngine webEngine = html.getEngine();
+        webEngine.load("https://github.com/synthetos/TinyG/wiki");
 
 
-//        srBuffer.textProperty().bindBidirectional(tg.serialWriter.getBufferValueSimpleProperty(), sc);
 
-        //Bind our Units to each axis
+
+
+        /*######################################
+         * GCODE FILE CODE
+         ######################################*/
+        data = FXCollections.observableArrayList();
+        gcodeCol.setCellValueFactory(new PropertyValueFactory<GcodeLine, String>("codeLine"));
+        GcodeLine n = new GcodeLine("Click open to load..", 0);
+        gcodeView.getItems().setAll(data);
+        data.add(n);
+        gcodeView.setItems(data);
+
+
+
+        /*######################################
+         * THREAD INITS
+         ######################################*/
+
+        Thread serialWriterThread = new Thread(tg.serialWriter);
+        serialWriterThread.setName("SerialWriter");
+        serialWriterThread.setDaemon(true);
+        serialWriterThread.start();
+
+        Thread threadResponseParser = new Thread(tg.resParse);
+        threadResponseParser.setDaemon(true);
+        threadResponseParser.setName("ResponseParser");
+        threadResponseParser.start();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /*#################################################################
+         * 
+         * CHANGE LISTENERS
+         ##################################################################*/
+
+        cncMachine.maxWidthProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
+                if (gcodePane.getWidth() - tg.m.getAxisByName("x").getTravelMaxSimple().get() < gcodePane.getHeight() - tg.m.getAxisByName("y").getTravelMaxSimple().get()) {
+                    //X is longer use this code
+                    scaleAmount = (gcodePane.widthProperty().get() / tg.m.getAxisByName("x").getTravelMaxSimple().get()) * .80;  //%80 of the scale
+                } else {
+                    //Y is longer use this code
+                    scaleAmount = ((gcodePane.heightProperty().get() / tg.m.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
+                }
+                cncMachine.autoScaleWorkTravelSpace(scaleAmount);
+            }
+        });
+
+        cncMachine.maxHeightProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
+                if (gcodePane.getWidth() - tg.m.getAxisByName("x").getTravelMaxSimple().get() < gcodePane.getHeight() - tg.m.getAxisByName("y").getTravelMaxSimple().get()) {
+                    //X is longer use this code
+                    scaleAmount = (gcodePane.widthProperty().get() / tg.m.getAxisByName("x").getTravelMaxSimple().get()) * .80;  //%80 of the scale
+                } else {
+                    //Y is longer use this code
+                    scaleAmount = ((gcodePane.heightProperty().get() / tg.m.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
+                }
+                cncMachine.autoScaleWorkTravelSpace(scaleAmount);
+            }
+        });
+
+
+        xLcd.valueProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
+                double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5;
+            }
+        });
+
+
+        yLcd.valueProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue ov, Object oldValue, Object newValue) {
+                double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5;
+            }
+        });
+
         tg.m.getGcodeUnitMode().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
@@ -1746,8 +1554,6 @@ public class Main implements Initializable, Observer {
                     zLcd.lcdUnitVisibleProperty().setValue(false);
                     aLcd.lcdUnitVisibleProperty().setValue(false);
                     velLcd.lcdUnitVisibleProperty().setValue(false);
-
-
 
                 } else {
                     xLcd.lcdUnitVisibleProperty().setValue(true);
@@ -1767,55 +1573,18 @@ public class Main implements Initializable, Observer {
             }
         });
 
-//        yLcd.lcdUnitProperty().bind(tg.m.getGcodeUnitMode());
-//        zLcd.lcdUnitProperty().bind(tg.m.getGcodeUnitMode());
-//        aLcd.lcdUnitProperty().bind(tg.m.getCoordinateSystem());  Always degress
 
-        xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWork_position());
-        yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWork_position());
-        zLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWork_position());
-        aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWork_position());
-        velLcd.valueProperty().bind(TinygDriver.getInstance().m.velocity);
+        /*############################################
+         * BUILD VERSIONING CODE
+         ############################################*/
+        buildNumber = Integer.valueOf(getBuildInfo("BUILD"));
+        buildDate = getBuildInfo("DATE");
 
-        //cursor
-//        cursorPoint.layoutXProperty().bind(tg.m.getAxisByName("x").getWork_position());
-//        cursorPoint.layoutYProperty().bind(tg.m.getAxisByName("y").getWork_position());
+        //Set our build / versions in the tgFX settings tab.
+        tgfxBuildDate.setText(buildDate);
+        tgfxBuildNumber.setText(getBuildInfo("BUILD"));
+        tgfxVersion.setText(".95");
 
-
-        BasicConfigurator.configure();
-        SocketMonitor sm;
-
-        WebEngine webEngine = html.getEngine();
-        webEngine.load("https://github.com/synthetos/TinyG/wiki");
-
-
-        logger.info("[+]tgFX is starting....");
-
-
-        //Gcode Mapping
-        data = FXCollections.observableArrayList();
-        gcodeCol.setCellValueFactory(new PropertyValueFactory<GcodeLine, String>("codeLine"));
-        GcodeLine n = new GcodeLine("Click open to load..", 0);
-        gcodeView.getItems().setAll(data);
-        data.add(n);
-        gcodeView.setItems(data);
-
-        Thread serialWriterThread = new Thread(tg.serialWriter);
-        serialWriterThread.setName("SerialWriter");
-        serialWriterThread.setDaemon(true);
-        serialWriterThread.start();
-
-        Thread threadResponseParser = new Thread(tg.resParse);
-        threadResponseParser.setDaemon(true);
-        threadResponseParser.setName("ResponseParser");
-        threadResponseParser.start();
-
-//        Thread remoteListener = new Thread(initRemoteServer("8888"));
-//        remoteListener.setName("Remote Listener Thread");
-//        remoteListener.start();
-
-        tg.resParse.addObserver(this);
-        this.reScanSerial();//Populate our serial ports
 
 
     }
