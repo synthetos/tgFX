@@ -661,7 +661,7 @@ public class Axis {
             }
 
         } catch (JSONException | NumberFormatException ex) {
-            logger.error("Error in ApplyJsonSetting in Machine:SYS group");
+            logger.error("Error in applyJsonSystemSetting in Axis");
         }
 
     }
@@ -669,7 +669,7 @@ public class Axis {
     private void _applyJsonSystemSetting(responseCommand rc) {
         switch (rc.getSettingKey()) {
             case (MnemonicManager.MNEMONIC_AXIS_AXIS_MODE):
-                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setAxis_mode(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setAxis_mode(Double.valueOf(rc.getSettingValue()).intValue());
                 logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 

@@ -199,7 +199,7 @@ public class Motor {
             }
 
         } catch (Exception ex) {
-            logger.error("Error in ApplyJsonSetting in Machine:SYS group");
+            logger.error("Error in applyJsonSystemSetting in Motor");
         }
 
     }

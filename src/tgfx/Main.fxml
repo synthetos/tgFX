@@ -191,7 +191,7 @@
                             </HBox>
                           </children>
                           <effect>
-                            <DropShadow color="WHITE" height="8.859119233630953" radius="3.9290655226934526" spread="0.49206349206349204" width="8.857142857142858" />
+                            <DropShadow color="WHITE" height="8.858131045386905" radius="3.9288184756324407" spread="0.49206349206349204" width="8.857142857142858" />
                           </effect>
                           <padding>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
@@ -268,13 +268,13 @@
             </Tab>
             <Tab fx:id="config_tab" closable="false" text="Axis / Motor Settings">
               <content>
-                <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0">
                   <children>
                     <VBox prefHeight="-1.0" spacing="1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                       <children>
                         <HBox id="machine_settings_bottom" fx:id="config_bottom_settings" alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="1.0" style="-fx-background-color:#777785&#10;&#10;" visible="true" VBox.vgrow="ALWAYS">
                           <children>
-                            <VBox id="motor_config_vbox" fx:id="MotorConfiguration" minHeight="-1.0" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+                            <VBox id="motor_config_vbox" fx:id="MotorConfiguration" alignment="CENTER_LEFT" minHeight="-1.0" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
                               <children>
                                 <HBox id="motor_config_hbox" alignment="TOP_CENTER" style="-fx-background-color: black;" VBox.vgrow="NEVER">
                                   <children>
@@ -290,7 +290,7 @@
                                     <Long fx:value="350" />
                                   </prefWidth>
                                 </HBox>
-                                <TabPane fx:id="motorTabPane" side="LEFT" style="" VBox.vgrow="ALWAYS">
+                                <TabPane fx:id="motorTabPane" side="LEFT" style="" tabMaxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                                   <tabs>
                                     <Tab id="" fx:id="motor1" closable="false" style="" text="Motor 1">
                                       <content>
@@ -534,12 +534,20 @@
                                     </Tab>
                                   </tabs>
                                   <VBox.margin>
-                                    <Insets bottom="5.0" fx:id="x51" />
+                                    <Insets fx:id="x77" />
                                   </VBox.margin>
                                 </TabPane>
+                                <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" style="-fx-background-color: black" VBox.margin="$x77" VBox.vgrow="NEVER">
+                                  <children>
+                                    <Button mnemonicParsing="false" text="Button" visible="false" />
+                                  </children>
+                                  <padding>
+                                    <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
+                                  </padding>
+                                </HBox>
                               </children>
                             </VBox>
-                            <VBox id="AxisConfig" fx:id="AxisConfiguration" alignment="TOP_CENTER" fillWidth="true" padding="$x77" HBox.hgrow="ALWAYS">
+                            <VBox id="AxisConfig" fx:id="AxisConfiguration" alignment="TOP_CENTER" fillWidth="true" HBox.hgrow="ALWAYS">
                               <children>
                                 <HBox id="hBox4" alignment="TOP_CENTER" style="-fx-background-color: black;" visible="true" VBox.vgrow="NEVER">
                                   <children>
@@ -1114,10 +1122,19 @@
                                     </Tab>
                                   </tabs>
                                 </TabPane>
+                                <HBox alignment="CENTER" padding="$x1_x0" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" style="-fx-background-color: black" VBox.vgrow="NEVER">
+                                  <children>
+                                    <Button id="handleInhibitAxis" fx:id="btnHandleInhibitAllAxis" mnemonicParsing="false" onAction="#handleInhibitAllAxis" text="Inhibit All Axis" />
+                                    <Button id="btnHandleInhibitAllAxis" fx:id="btnHandleEnableAllAxis" mnemonicParsing="false" onAction="#handleEnableAllAxis" text="Enable All Axis" />
+                                  </children>
+                                </HBox>
                               </children>
                               <minWidth>
                                 <Long fx:value="640" />
                               </minWidth>
+                              <padding>
+                                <Insets left="2.0" />
+                              </padding>
                               <prefWidth>
                                 <Long fx:value="640" />
                               </prefWidth>

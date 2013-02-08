@@ -170,7 +170,7 @@ public class Main implements Initializable, Observer {
     @FXML
     private Pane previewPane;
     @FXML
-    private Button Con, Run, Connect, gcodeZero, btnClearScreen, btnRemoteListener, pauseResume, btnTest;
+    private Button Con, Run, Connect, gcodeZero, btnClearScreen, btnRemoteListener, pauseResume, btnTest, btnHandleInhibitAllAxis;
     @FXML
     TextArea console;
     @FXML
@@ -321,9 +321,46 @@ public class Main implements Initializable, Observer {
     @FXML
     void handleTestButton(ActionEvent evt) throws Exception {
         logger.info("Test Button....");
+//        Iterator ii = null;
+//        Line l;
+//        cncMachine.getChildren().iterator();
+//        while(ii.hasNext()){
+//            l = (Line) ii.next();
+//            
+//        }
+    }
+
+    @FXML
+    void handleEnableAllAxis(ActionEvent evt) throws Exception {
+        if (tg.isConnected()) {
+            console.appendText("[+]Enabling All Axis.... Motors Live!.\n");
+            logger.info("Enabling All Axis");
+            tg.serialWriter.write(CommandManager.CMD_APPLY_ENABLE_ALL_AXIS);
+//            btnHandleInhibitAllAxis.setText("Un-Inhibit All Axis");
+
+        } else {
+            console.appendText("[!]TinyG is Not Connected...\n");
+        }
 
     }
 
+    
+    
+    @FXML
+    void handleInhibitAllAxis(ActionEvent evt) throws Exception {
+        if (tg.isConnected()) {
+            console.appendText("[+]Un-Inhibiting All Axis.... Motors Live!.\n");
+            logger.info("Un-Inhibiting All Axis");
+            tg.serialWriter.write(CommandManager.CMD_APPLY_INHIBIT_ALL_AXIS);
+//            btnHandleInhibitAllAxis.setText("Un-Inhibit All Axis");
+
+        } else {
+            console.appendText("[!]TinyG is Not Connected...\n");
+        }
+
+    }
+    
+    
     @FXML
     void handleMotorQuerySettings(ActionEvent evt) {
         System.out.println("[+]Querying Motor Config...");
@@ -445,7 +482,6 @@ public class Main implements Initializable, Observer {
 //            console.appendText("[!] Must be connected to TinyG First.");
 //        }
     }
-
 
     @FXML
     void handleMouseScroll(ScrollEvent evt) {
@@ -581,10 +617,14 @@ public class Main implements Initializable, Observer {
             Draw2d.setFirstDraw(true);
 //            tg.write(CommandManager.CMD_QUERY_SYSTEM_SERIAL_BUFFER_LENGTH);//SECOND.5 :)
             tg.write(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //FIRST
+            Thread.sleep(100);
 //            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //SECOND - There is an issue with this.  It returns stuff like "true"
             tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);          //THIRD
+            Thread.sleep(100);
             tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);          //FORTH
+            Thread.sleep(100);
             tg.write(CommandManager.CMD_DEFAULT_ENABLE_JSON);           //FIFTH
+            Thread.sleep(100);
             tg.cmdManager.queryAllMachineSettings();                    //SIXtH
             tg.cmdManager.queryStatusReport();                          //SEVENTH - Get Positions if the board is not at zero
             tg.cmdManager.queryAllMotorSettings();                      //EIGTH
@@ -617,8 +657,7 @@ public class Main implements Initializable, Observer {
 
                 /**
                  * *****************************
-                 * OnConnect Actions Called Here 
-                 * *****************************
+                 * OnConnect Actions Called Here *****************************
                  */
                 onConnectActions();
 
@@ -664,10 +703,8 @@ public class Main implements Initializable, Observer {
 //            topvbox.getChildren().add(topvbox.getChildren().size() - 1, bottom);
 //        }
 //    }
-    
     @FXML
     private void handleKeyInput(final InputEvent event) {
-        
     }
 
 //    @FXML
@@ -696,7 +733,6 @@ public class Main implements Initializable, Observer {
 ////            };
 //        }
 //    }
-    
     @FXML
     private void handleSaveConfig(ActionEvent event) throws Exception {
         Platform.runLater(new Runnable() {
@@ -954,7 +990,7 @@ public class Main implements Initializable, Observer {
             l.setStroke(Draw2d.TRAVERSE);
         } else {
             l.setStroke(Draw2d.getLineColorFromVelocity(vel));
-            
+
         }
 
         xPrevious = newX;
@@ -1027,34 +1063,33 @@ public class Main implements Initializable, Observer {
         }
     }
 
-    private void updateGuiMachineSettings(String line) {
-        final String l = line;
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                //We are now back in the EventThread and can update the GUI
-                try {
-                    Machine m = TinygDriver.getInstance().m;
-//                    srBuild.setText(String.valueOf(m.getFirmwareBuild()));
-//                    srVer.setText(String.valueOf(m.getFirmwareVersion()));
-//                    gcodePlane.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_select_plane().ordinal());
-//                    gcodeUnitMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcodeUnitMode());
-//                    gcodeCoordSystem.getSelectionModel().select(TinygDriver.getInstance().m.getCoordinateSystem().ordinal());
-//                    gcodePathControl.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
-//                    gcodeDistanceMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
-
-//                    if (m.getCoordinateSystem() != null) {
-//                        srCoord.setText(TinygDriver.getInstance().m.getCoordinateSystem().toString());
-//                    }
-                } catch (Exception ex) {
-                    System.out.println("[!] Exception in updateGuiMachineSettings");
-                    System.out.println(ex.getMessage());
-                }
-            }
-        });
-
-    }
-
+//    private void updateGuiMachineSettings(String line) {
+//        final String l = line;
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                //We are now back in the EventThread and can update the GUI
+//                try {
+//                    Machine m = TinygDriver.getInstance().m;
+////                    srBuild.setText(String.valueOf(m.getFirmwareBuild()));
+////                    srVer.setText(String.valueOf(m.getFirmwareVersion()));
+////                    gcodePlane.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_select_plane().ordinal());
+////                    gcodeUnitMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcodeUnitMode());
+////                    gcodeCoordSystem.getSelectionModel().select(TinygDriver.getInstance().m.getCoordinateSystem().ordinal());
+////                    gcodePathControl.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
+////                    gcodeDistanceMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcode_distance_mode().ordinal());
+//
+////                    if (m.getCoordinateSystem() != null) {
+////                        srCoord.setText(TinygDriver.getInstance().m.getCoordinateSystem().toString());
+////                    }
+//                } catch (Exception ex) {
+//                    System.out.println("[!] Exception in updateGuiMachineSettings");
+//                    System.out.println(ex.getMessage());
+//                }
+//            }
+//        });
+//
+//    }
     @Override
     public synchronized void update(Observable o, Object arg) {
 //
@@ -1089,9 +1124,9 @@ public class Main implements Initializable, Observer {
                     case ("NETWORK_MESSAGE"):
                         //updateExternal();
                         break;
-                    case ("MACHINE_UPDATE"):
-                        updateGuiMachineSettings(ROUTING_KEY);
-                        break;
+//                    case ("MACHINE_UPDATE"):
+//                        updateGuiMachineSettings(ROUTING_KEY);
+//                        break;
                     case ("TEXTMODE_REPORT"):
                         console.appendText(KEY_ARGUMENT);
                         break;
@@ -1411,16 +1446,16 @@ public class Main implements Initializable, Observer {
 
         widthSize.textProperty().bind(cncMachine.widthProperty().asString());
         heightSize.textProperty().bind(cncMachine.heightProperty().asString());
-        
-        
-        
-        
+
+
+
+
         xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWork_position());
         yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWork_position());
         zLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWork_position());
         aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWork_position());
         velLcd.valueProperty().bind(TinygDriver.getInstance().m.velocity);
-        
+
 
         /*######################################
          * LOGGER CONFIG

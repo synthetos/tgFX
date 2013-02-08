@@ -45,18 +45,24 @@ public class CNCMachine extends Pane {
         Text xText = new Text("X Axis");
         Text yText = new Text("Y Axis");
         
-        xText.setY(-150);
+        xText.setY(-10);
         xText.xProperty().bind(this.heightProperty().divide(2));
         xText.setRotate(0);
         xText.setStroke(Color.YELLOW);
         xText.setFill(Color.YELLOW);
         xText.setFont(Font.font("Arial", 10));
         
-        
+        yText.setX(-25);
+        yText.yProperty().bind(this.widthProperty().divide(2));
+        yText.setRotate(-90);
+        yText.setStroke(Color.YELLOW);
+        yText.setFill(Color.YELLOW);
+        yText.setFont(Font.font("Arial", 10));
         
         
         
         this.getChildren().add(xText);
+        this.getChildren().add(yText);
 
         this.setCursor(Cursor.CROSSHAIR);
 

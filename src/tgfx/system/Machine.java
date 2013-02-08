@@ -782,7 +782,7 @@ public final class Machine {
             }
 
         } catch (JSONException | NumberFormatException ex) {
-            logger.error("Error in ApplyJsonSetting in Machine:SYS group");
+            logger.error("Error in ApplyJsonSystemSetting in Machine:SYS group");
         }
 
     }
