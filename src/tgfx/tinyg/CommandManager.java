@@ -32,7 +32,8 @@ public class CommandManager {
     public static final String CMD_QUERY_MOTOR_3_SETTINGS = "{\"3\":null}\n";
     public static final String CMD_QUERY_MOTOR_4_SETTINGS = "{\"4\":null}\n";
     public static final String CMD_QUERY_SYSTEM_SETTINGS = "{\"sys\":null}\n";
-    public static final String CMD_APPLY_SYSTEM_ZERO_ALL_AXIS = "{\"gc\":\"g92x0y0z0a0\"}\n";
+    public static final String CMD_APPLY_SYSTEM_ZERO_ALL_AXES = "{\"gc\":\"g92x0y0z0a0\"}\n";
+    public static final String CMD_APPLY_SYSTEM_HOME_XYZ_AXES = "{\"gc\":\"g28.2x0y0z0\"}\n";
     public static final String CMD_APPLY_SYSTEM_GCODE_UNITS_INCHES = "{\"" + MnemonicManager.MNEMONIC_STATUS_REPORT_UNIT + "\":0}\n"; //0=inches
     public static final String CMD_APPLY_SYSTEM_GCODE_UNITS_MM = "{\"" + MnemonicManager.MNEMONIC_STATUS_REPORT_UNIT + "\":1}\n"; //1=mm
     public static final String CMD_APPLY_SYSTEM_DISABLE_LOCAL_ECHO = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO + "\":0}\n";

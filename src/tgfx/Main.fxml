@@ -49,7 +49,7 @@
             </TextField>
             <FlowPane id="flowPane1" alignment="CENTER_RIGHT" columnHalignment="CENTER" maxHeight="22.0" minHeight="22.0" prefHeight="22.0" style="-fx-background-color:black;" VBox.vgrow="NEVER">
               <children>
-                <Label id="srText" text="Gcode Line" textFill="WHITE" />
+                <Label id="srText" text="Gcode Block #" textFill="WHITE" />
                 <Label id="srText" fx:id="srGcodeLine" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="0">
                   <textFill>
                     <Color blue="0.624" green="0.624" red="0.624" fx:id="x1" />
@@ -98,8 +98,8 @@
                 <Label id="srText" text="Coord System" textFill="WHITE" />
                 <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
                 <Separator id="separatorVertical4" orientation="VERTICAL" />
-                <Label id="srText" text="Buffer" textFill="WHITE" />
-                <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
+                <Label id="srText" text="Buffer" textFill="WHITE" visible="false" />
+                <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" visible="false" />
               </children>
               <hgap>
                 <Long fx:value="0" />
@@ -191,7 +191,7 @@
                             </HBox>
                           </children>
                           <effect>
-                            <DropShadow color="WHITE" height="8.858131045386905" radius="3.9288184756324407" spread="0.49206349206349204" width="8.857142857142858" />
+                            <DropShadow color="WHITE" height="8.857266380673364" radius="3.928602309454055" spread="0.49206349206349204" width="8.857142857142858" />
                           </effect>
                           <padding>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
@@ -208,7 +208,7 @@
                         <Insets bottom="10.0" top="10.0" />
                       </padding>
                     </HBox>
-                    <VBox fx:id="positionsVbox" alignment="CENTER_RIGHT" fillWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" style="" HBox.hgrow="NEVER">
+                    <VBox fx:id="positionsVbox" alignment="CENTER" fillWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" style="" HBox.hgrow="NEVER">
                       <children>
                         <Lcd fx:id="xLcd" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" ledVisible="true" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="X Axis Position" unit="mm">
                           <contextMenu>
@@ -250,7 +250,8 @@
                           </contextMenu>
                         </Lcd>
                         <Lcd fx:id="velLcd" lcdDecimals="0" lcdDesign="RED_DARKRED" lcdUnitVisible="true" lcdValueFont="LCD" prefHeight="70.0" prefWidth="200.0" title="Velocity" unit="mm/min" />
-                        <Button fx:id="gcodeZero" onAction="#handleZeroSystem" text="Zero All Axis" />
+                        <Button fx:id="gcodeZero" onAction="#handleZeroSystem" text="Zero All Axes" VBox.vgrow="NEVER" />
+                        <Button mnemonicParsing="false" text="Home XYZ Axes" />
                       </children>
                       <padding>
                         <Insets right="15.0" top="15.0" />
@@ -1124,8 +1125,8 @@
                                 </TabPane>
                                 <HBox alignment="CENTER" padding="$x1_x0" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" style="-fx-background-color: black" VBox.vgrow="NEVER">
                                   <children>
-                                    <Button id="handleInhibitAxis" fx:id="btnHandleInhibitAllAxis" mnemonicParsing="false" onAction="#handleInhibitAllAxis" text="Inhibit All Axis" />
-                                    <Button id="btnHandleInhibitAllAxis" fx:id="btnHandleEnableAllAxis" mnemonicParsing="false" onAction="#handleEnableAllAxis" text="Enable All Axis" />
+                                    <Button id="handleInhibitAxis" fx:id="btnHandleInhibitAllAxis" mnemonicParsing="false" onAction="#handleInhibitAllAxis" text="Inhibit All Axes" />
+                                    <Button id="btnHandleInhibitAllAxis" fx:id="btnHandleEnableAllAxis" mnemonicParsing="false" onAction="#handleEnableAllAxis" text="Enable All Axes" />
                                   </children>
                                 </HBox>
                               </children>

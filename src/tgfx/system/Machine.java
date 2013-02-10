@@ -75,7 +75,7 @@ public final class Machine {
     public static enum motion_modes {
 //        [momo] motion_mode        - 0=traverse, 1=straight feed, 2=cw arc, 3=ccw arc
 
-        traverse, straight, cw_arc, ccw_arc, none
+        traverse, feed, cw_arc, ccw_arc, cancel
     }
 
     public static enum coordinate_systems {
@@ -327,13 +327,13 @@ public final class Machine {
         if (mode == 0) {
             m_mode.set(motion_modes.traverse.toString());
         } else if (mode == 1) {
-            m_mode.set(motion_modes.straight.toString());
+            m_mode.set(motion_modes.feed.toString());
         } else if (mode == 2) {
             m_mode.set(motion_modes.cw_arc.toString());
         } else if (mode == 3) {
             m_mode.set(motion_modes.ccw_arc.toString());
         } else {
-            m_mode.set(motion_modes.none.toString());
+            m_mode.set(motion_modes.cancel.toString());
         }
     }
 //

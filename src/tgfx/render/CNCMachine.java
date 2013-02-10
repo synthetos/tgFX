@@ -56,7 +56,61 @@ public class CNCMachine extends Pane {
         cursorText.setFill(Color.YELLOW);
         cursorText.setFont(Font.font("Arial", 10));
         
-        Text xText = new Text("X Axis");
+      setupLayout(); //initial layout setup in constructor
+
+//        this.setOnMouseExited(new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent me) {
+////                gcodePane.getChildren().remove(c);
+//                getChildren().remove(cursorText);
+//
+//            }
+//        });
+//
+//        this.setOnMouseEntered(new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent me) {
+////                gcodePane.getChildren().remove(c);
+//                getChildren().add(cursorText);
+//
+//            }
+//        });
+
+//        this.setOnMouseMoved(new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent me) {
+//                cursorText.setText("(xpos: " + me.getX() + ")\n(ypos: " + me.getY() + ")");
+//                cursorText.setX(me.getX() + 10);
+//                cursorText.setY(me.getY());
+//
+//            }
+//        });
+//
+//        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
+//            public void handle(MouseEvent me) {
+//                Circle c = new Circle(2, Color.YELLOWGREEN);
+//                c.setLayoutX(me.getX());
+//                c.setLayoutY(me.getY());
+//                Text coordsText = new Text("(" + me.getX() + "," + me.getY() + ")");
+//                coordsText.setStroke(Color.YELLOW);
+//                coordsText.setFill(Color.YELLOW);
+//                coordsText.setFont(Font.font("Arial", 10));
+//                coordsText.setX(me.getX() + 10);
+//                coordsText.setY(me.getY());
+//                getChildren().add(coordsText);
+//                getChildren().add(c);
+//            }
+//        });
+
+
+
+    }
+    
+    public void clearScreen(){
+        this.getChildren().clear();
+        setupLayout();  //re-draw the needed elements.
+    }
+    
+    private void setupLayout(){
+        //This draws the x axis text as well as grid etc
+          Text xText = new Text("X Axis");
         Text yText = new Text("Y Axis");
         
         xText.setY(-10);
@@ -79,50 +133,6 @@ public class CNCMachine extends Pane {
         this.getChildren().add(yText);
 
         this.setCursor(Cursor.CROSSHAIR);
-
-        this.setOnMouseExited(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent me) {
-//                gcodePane.getChildren().remove(c);
-                getChildren().remove(cursorText);
-
-            }
-        });
-
-        this.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent me) {
-//                gcodePane.getChildren().remove(c);
-                getChildren().add(cursorText);
-
-            }
-        });
-
-        this.setOnMouseMoved(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent me) {
-                cursorText.setText("(xpos: " + me.getX() + ")\n(ypos: " + me.getY() + ")");
-                cursorText.setX(me.getX() + 10);
-                cursorText.setY(me.getY());
-
-            }
-        });
-
-        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent me) {
-                Circle c = new Circle(2, Color.YELLOWGREEN);
-                c.setLayoutX(me.getX());
-                c.setLayoutY(me.getY());
-                Text coordsText = new Text("(" + me.getX() + "," + me.getY() + ")");
-                coordsText.setStroke(Color.YELLOW);
-                coordsText.setFill(Color.YELLOW);
-                coordsText.setFont(Font.font("Arial", 10));
-                coordsText.setX(me.getX() + 10);
-                coordsText.setY(me.getY());
-                getChildren().add(coordsText);
-                getChildren().add(c);
-            }
-        });
-
-
-
     }
 
     public void autoScaleWorkTravelSpace(double scaleAmount) {

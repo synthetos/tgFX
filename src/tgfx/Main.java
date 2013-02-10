@@ -534,13 +534,29 @@ public class Main implements Initializable, Observer {
     private void handleZeroSystem(ActionEvent evt) {
         if (tg.isConnected()) {
             try {
-                tg.write(CommandManager.CMD_APPLY_SYSTEM_ZERO_ALL_AXIS);
+                tg.write(CommandManager.CMD_APPLY_SYSTEM_ZERO_ALL_AXES);
                 //G92 does not invoke a status report... So we need to generate one to have
                 //Our GUI update the coordinates to zero
                 tg.write(CommandManager.CMD_QUERY_STATUS_REPORT);
                 //We need to set these to 0 so we do not draw a line from the last place we were to 0,0
                 xPrevious = 0;
                 yPrevious = 0;//(gcodePane..getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get())));
+            } catch (Exception ex) {
+            }
+        }
+    }
+    
+    @FXML
+    private void handleHomeXYZ(ActionEvent evt) {
+        if (tg.isConnected()) {
+            try {
+                tg.write(CommandManager.CMD_APPLY_SYSTEM_HOME_XYZ_AXES);
+//                //G92 does not invoke a status report... So we need to generate one to have
+//                //Our GUI update the coordinates to zero
+//                tg.write(CommandManager.CMD_QUERY_STATUS_REPORT);
+//                //We need to set these to 0 so we do not draw a line from the last place we were to 0,0
+//                xPrevious = 0;
+//                yPrevious = 0;//(gcodePane..getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get())));
             } catch (Exception ex) {
             }
         }
@@ -692,7 +708,7 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleClearScreen(ActionEvent evt) {
         console.appendText("[+]Clearning Screen...\n");
-        cncMachine.getChildren().clear();
+        cncMachine.clearScreen();
         Draw2d.setFirstDraw(true);  //clear this so our first line added draws correctly
     }
 
@@ -992,8 +1008,8 @@ public class Main implements Initializable, Observer {
             l.getStrokeDashArray().addAll(2d, 21d);
             l.setStroke(Draw2d.TRAVERSE);
         } else {
-            l.setStroke(Draw2d.getLineColorFromVelocity(vel));
-
+//            l.setStroke(Draw2d.getLineColorFromVelocity(vel));
+            l.setStroke(Draw2d.FAST);
         }
 
         xPrevious = newX;
@@ -1622,12 +1638,16 @@ public class Main implements Initializable, Observer {
          ############################################*/
         buildNumber = Integer.valueOf(getBuildInfo("BUILD"));
         buildDate = getBuildInfo("DATE");
-
+        
         //Set our build / versions in the tgFX settings tab.
         tgfxBuildDate.setText(buildDate);
         tgfxBuildNumber.setText(getBuildInfo("BUILD"));
         tgfxVersion.setText(".95");
 
+        tgfxBuildDate.setId("lblMachine");
+        tgfxBuildNumber.setId("lblMachine");
+        tgfxVersion.setId("lblMachine");
+        
 
 
     }
