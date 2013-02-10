@@ -4,13 +4,16 @@
  */
 package tgfx.system;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 /**
  *
  * @author rileyporter
  */
 public final class GcodeCoordinateSystem {
 
-    private String coordinateSystemName;
+    private StringProperty coordinateSystemName = new SimpleStringProperty();
     private int coordinateNumber;
     private int coordinateNumberTgFormat;
     private double xOffset;
@@ -19,11 +22,16 @@ public final class GcodeCoordinateSystem {
     private double aOffset;
     private double bOffset;
     private double cOffset;
+    
 
     public GcodeCoordinateSystem(String coordinateName) {
         setCoordinate(coordinateName);
         setCoordinateNumberMnemonic(Integer.valueOf(String.valueOf(coordinateName).substring(1, 2)));
 
+    }
+    
+    public StringProperty getGcodeCoordinateSystemProperty() {
+        return(this.coordinateSystemName);
     }
     
     public GcodeCoordinateSystem() {
@@ -93,11 +101,12 @@ public final class GcodeCoordinateSystem {
     }
 
     public String getCoordinate() {
-        return coordinateSystemName;
+        return coordinateSystemName.get();
     }
 
     public void setCoordinate(String coordinate) {
-        this.coordinateSystemName = coordinate;
+        this.coordinateSystemName.set(coordinate);
+        this.coordinateSystemName.set(coordinate);
     }
 
     public double getxOffset() {

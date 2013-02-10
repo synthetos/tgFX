@@ -35,9 +35,7 @@ public final class Machine {
     public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
     private SimpleStringProperty gcodeUnitMode = new SimpleStringProperty("MM");
     private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
-//    private float firmware_version;
     private int status_report_interval;
-//    public Gcode_unit_modes gcode_unit_mode;
     public Gcode_unit_modes gcode_startup_units;
     public Gcode_select_plane gcode_select_plane;
     public Gcode_coord_system gcode_select_coord_system;
@@ -72,8 +70,7 @@ public final class Machine {
     private Motor Motor2 = new Motor(2);
     private Motor Motor3 = new Motor(3);
     private Motor Motor4 = new Motor(4);
-    private GcodeCoordinateManager gcm = new GcodeCoordinateManager();
-    
+    public GcodeCoordinateManager gcm = new GcodeCoordinateManager();
 
     public static enum motion_modes {
 //        [momo] motion_mode        - 0=traverse, 1=straight feed, 2=cw arc, 3=ccw arc
@@ -102,10 +99,10 @@ public final class Machine {
 
         switch (gdm) {
             case 0:
-                this.gcode_distance_mode = gcode_distance_mode.ABSOLUTE;
+                this.gcode_distance_mode = Gcode_distance_mode.ABSOLUTE;
                 break;
             case 1:
-                this.gcode_distance_mode = gcode_distance_mode.INCREMENTAL;
+                this.gcode_distance_mode = Gcode_distance_mode.INCREMENTAL;
         }
 
     }
@@ -125,11 +122,11 @@ public final class Machine {
     public void setGcodeSelectPlane(int gsp) {
         switch (gsp) {
             case 0:
-                this.gcode_select_plane = gcode_select_plane.XY;
+                this.gcode_select_plane = Gcode_select_plane.XY;
             case 1:
-                this.gcode_select_plane = gcode_select_plane.XZ;
+                this.gcode_select_plane = Gcode_select_plane.XZ;
             case 2:
-                this.gcode_select_plane = gcode_select_plane.YZ;
+                this.gcode_select_plane = Gcode_select_plane.YZ;
         }
     }
 
@@ -212,13 +209,13 @@ public final class Machine {
     public void setGcodePathControl(int gpc) {
         switch (gpc) {
             case 0:
-                this.gcode_path_control = gcode_path_control.G61;
+                this.gcode_path_control = Gcode_path_control.G61;
                 break;
             case 1:
-                this.gcode_path_control = gcode_path_control.G61POINT1;
+                this.gcode_path_control = Gcode_path_control.G61POINT1;
                 break;
             case 2:
-                this.gcode_path_control = gcode_path_control.G64;
+                this.gcode_path_control = Gcode_path_control.G64;
                 break;
         }
     }
@@ -291,6 +288,7 @@ public final class Machine {
 
     }
 //
+
     public SimpleStringProperty getGcodeUnitMode() {
         return gcodeUnitMode;
     }
@@ -303,6 +301,7 @@ public final class Machine {
         }
     }
 //
+
     public void setGcodeUnits(String gcu) {
         int _tmpgcu = Integer.valueOf(gcu);
 
@@ -408,7 +407,6 @@ public final class Machine {
 //        setCoordinate_mode(Integer.valueOf(cord));
 //
 //    }
-
     public SimpleStringProperty getCoordinateSystem() {
         return (this.coordinateSystem);
     }
@@ -417,7 +415,6 @@ public final class Machine {
 //        int c = (int) (m); //Convert this to a int
 //        setCoordinate_mode(c);
 //    }
-
 //    public int getCoordinateSystemOrd() {
 //        coordinate_systems[] cs = coordinate_systems.values();
 //        return 1;
@@ -448,7 +445,6 @@ public final class Machine {
 //                break;
 //        }
 //    }
-
     public void setMachineState(int state) {
 
         switch (state) {
@@ -542,15 +538,11 @@ public final class Machine {
         axis.add(b);
         axis.add(c);
 
-        
+
         setMotionMode(0);
-        
+
 
     }
-
-    
-
-  
 
     public GcodeCoordinateSystem getCoordinateSystemByName(String name) {
         for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
@@ -560,8 +552,7 @@ public final class Machine {
         }
         return null;
     }
-    
-    
+
     public GcodeCoordinateSystem getCoordinateSystemByNumberMnemonic(int number) {
         for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
             if (_tmpGCS.getCoordinateNumberMnemonic() == number) {
@@ -571,7 +562,7 @@ public final class Machine {
         }
         return null;
     }
-    
+
     public GcodeCoordinateSystem getCoordinateSystemByTgNumber(int number) {
         for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
             if (_tmpGCS.getCoordinateNumberByTgFormat() == number) {
@@ -581,7 +572,6 @@ public final class Machine {
         }
         return null;
     }
-    
 
     public List<Axis> getAllAxis() {
         return axis;
@@ -640,22 +630,43 @@ public final class Machine {
                 TinygDriver.getInstance().m.setMotionMode(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
-                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWorkPosition(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
-                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWorkPosition(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
-                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWorkPosition(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
-                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWork_position(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWorkPosition(Double.valueOf(rc.getSettingValue()));
                 break;
+                //Machine Position Cases
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSX):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSY):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSZ):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSA):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
+                break;
+                
+                /*
+                 * INSERT HOMED HERE
+                 */
+
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
                 TinygDriver.getInstance().m.setMachineState(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_UNIT):
                 TinygDriver.getInstance().m.setGcodeUnits(Integer.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_COORDNIATE_MODE):
+                TinygDriver.getInstance().m.gcm.setCurrentGcodeCoordinateSystem(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
                 TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
@@ -722,7 +733,7 @@ public final class Machine {
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().m.setGcodeSelectPlane(rc.getSettingValue());
                         break;
-                    
+
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_IGNORE_CR):
 //                        TinygDriver.getInstance().m.setIgnore_cr_lf_RX(rc.getSettingValue());

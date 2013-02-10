@@ -6,6 +6,7 @@
  */
 package tgfx;
 
+import java.awt.Color;
 import tgfx.tinyg.TinygDriver;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -70,7 +71,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.CircleBuilder;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.util.StringConverter;
@@ -972,8 +975,8 @@ public class Main implements Initializable, Observer {
 //            gcodeWindow.setScaleY(scale);
 //        }
 //        System.out.println(gcodePane.getHeight() - tg.m.getAxisByName("y").getWork_position().get());
-        double newX = tg.m.getAxisByName("x").getWork_position().get();// + magnification;
-        double newY = cncMachine.getHeight() - tg.m.getAxisByName("y").getWork_position().get();//(gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get())));// + magnification;
+        double newX = tg.m.getAxisByName("x").getMachinePositionSimple().get();// + magnification;
+        double newY = cncMachine.getHeight() - tg.m.getAxisByName("y").getMachinePositionSimple().get();//(gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get())));// + magnification;
 
         if (Draw2d.isFirstDraw()) {
             //This is to not have us draw a line on the first connect.
@@ -1234,7 +1237,7 @@ public class Main implements Initializable, Observer {
                 axisAmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
                 axisAmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisAjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
-                axisAmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                axisAmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisAmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
                 axisAradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
                 axisAsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
@@ -1246,7 +1249,7 @@ public class Main implements Initializable, Observer {
                 axisAswitchModeMax.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
                 axisAswitchModeMin.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
 
-                axisAmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                axisAmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisAlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
                 axisAlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
 
@@ -1260,7 +1263,7 @@ public class Main implements Initializable, Observer {
                 axisBmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
                 axisBmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisBjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
-                axisBmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                axisBmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisBmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
                 axisBradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
                 //Rotational Do not have these.
@@ -1277,7 +1280,7 @@ public class Main implements Initializable, Observer {
                 axisCmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
                 axisCmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisCjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
-                axisCmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                axisCmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisCmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
                 axisCradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
 
@@ -1304,7 +1307,7 @@ public class Main implements Initializable, Observer {
                 axisXswitchModeMin.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
                 axisXmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
 
-                axisXmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                axisXmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisXlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
                 axisXlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
                 break;
@@ -1321,7 +1324,7 @@ public class Main implements Initializable, Observer {
                 axisYzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
                 axisYswitchModeMax.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
                 axisYswitchModeMin.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
-                axisYmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                axisYmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisYmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
 //                                axisYmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 // axisYradius.setText(String.valueOf(ax.getRadius()));
@@ -1341,7 +1344,7 @@ public class Main implements Initializable, Observer {
                 axisZzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
                 axisZswitchModeMin.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
                 axisZswitchModeMax.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
-                axisZmaxVelocity.setText(String.valueOf(ax.getVelocity_maximum()));
+                axisZmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisZmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
 //                                axisZmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 //axisZradius.setText(String.valueOf(ax.getRadius()));
@@ -1418,6 +1421,9 @@ public class Main implements Initializable, Observer {
         this.reScanSerial();            //Populate our serial ports
         populateConfigFiles();          //Populate all Config Files
 
+        
+        
+         
 
 
         /*#######################################################
@@ -1446,14 +1452,16 @@ public class Main implements Initializable, Observer {
 
         widthSize.textProperty().bind(cncMachine.widthProperty().asString());
         heightSize.textProperty().bind(cncMachine.heightProperty().asString());
+        
+        
+        srCoord.textProperty().bind(TinygDriver.getInstance().m.gcm.getCurrentGcodeCoordinateSystemName());
 
+        
 
-
-
-        xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWork_position());
-        yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWork_position());
-        zLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWork_position());
-        aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWork_position());
+        xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWorkPosition());
+        yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWorkPosition());
+        zLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWorkPosition());
+        aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWorkPosition());
         velLcd.valueProperty().bind(TinygDriver.getInstance().m.velocity);
 
 
@@ -1564,7 +1572,7 @@ public class Main implements Initializable, Observer {
         xLcd.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5;
+                double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWorkPosition().doubleValue() + 5;
             }
         });
 
@@ -1572,7 +1580,7 @@ public class Main implements Initializable, Observer {
         yLcd.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWork_position().doubleValue() + 5;
+                double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWorkPosition().doubleValue() + 5;
             }
         });
 

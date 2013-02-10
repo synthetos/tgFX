@@ -71,8 +71,8 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
-//        logger.setLevel(org.apache.log4j.Level.ERROR);
-        logger.setLevel(org.apache.log4j.Level.INFO);
+        logger.setLevel(org.apache.log4j.Level.ERROR);
+//        logger.setLevel(org.apache.log4j.Level.INFO);
 
     }
 
@@ -396,11 +396,14 @@ public class ResponseParser extends Observable implements Runnable {
             case (MNEMONIC_GROUP_SYSTEM):
 //                logger.info(MNEMONIC_GROUP_SYSTEM);
                 TinygDriver.getInstance().m.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
-
-                setChanged();
+//*
+                /**
+                 * UNCOMMENT THIS BELOW WHEN WE HAVE MACHINE SETTINGS THAT NEED TO UPDATE THE GU
+                 */
+//                setChanged();
                 message[0] = "MACHINE_UPDATE";
                 message[1] = null;
-                notifyObservers(message);
+//                notifyObservers(message);
                 break;
 //            case (MNEMONIC_GROUP_STATUS_REPORT):
 //                logger.info("Status Report");

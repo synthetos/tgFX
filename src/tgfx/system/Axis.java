@@ -42,12 +42,13 @@ public class Axis {
     private double latch_backoff;
     private double zero_backoff;
     private double machine_position;
-    private SimpleDoubleProperty work_position = new SimpleDoubleProperty();  //This has to be public if we are going to allow it to be updated.
+    private SimpleDoubleProperty workPosition = new SimpleDoubleProperty();     //This has to be public if we are going to allow it to be updated.
+    private SimpleDoubleProperty machinePosition = new SimpleDoubleProperty();  //This has to be public if we are going to allow it to be updated.
     private AXIS_MODES axis_mode;
     private double radius;
-    private double search_velocity;
-    private double feed_rate_maximum;
-    private double velocity_maximum;
+    private double searchVelocity;
+    private double feedRateMaximum;
+    private double velocityMaximum;
     private SimpleDoubleProperty travel_maximum = new SimpleDoubleProperty();
     private double jerk_maximum;
     private double junction_devation;
@@ -174,8 +175,8 @@ public class Axis {
             }
             case "vm": {
                 int val = (int) Double.parseDouble(value);
-                this.setVelocity_maximum(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Velocity Max to: " + this.getVelocity_maximum());
+                this.setVelocityMaximum(val);
+                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Velocity Max to: " + this.getVelocityMaximum());
                 return;
             }
             case "fr": {
@@ -311,11 +312,11 @@ public class Axis {
 //        this.seek_rate_maximum = seek_rate_maximum;
 //    }
     public double getSearch_velocity() {
-        return search_velocity;
+        return searchVelocity;
     }
 
     public boolean setSearch_velocity(double search_velocity) {
-        this.search_velocity = search_velocity;
+        this.searchVelocity = search_velocity;
         return true;
     }
 
@@ -391,7 +392,7 @@ public class Axis {
                 return (this.setAxis_mode(val));
             }
             case MnemonicManager.MNEMONIC_AXIS_VELOCITY_MAXIMUM:
-                return (this.setVelocity_maximum(Float.valueOf(value)));
+                return (this.setVelocityMaximum(Float.valueOf(value)));
             case MnemonicManager.MNEMONIC_AXIS_FEEDRATE_MAXIMUM:
                 return (this.setFeed_rate_maximum(Float.valueOf(value)));
             case MnemonicManager.MNEMONIC_AXIS_TRAVEL_MAXIMUM:
@@ -472,11 +473,11 @@ public class Axis {
     }
 
     public double getFeed_rate_maximum() {
-        return feed_rate_maximum;
+        return feedRateMaximum;
     }
 
     public boolean setFeed_rate_maximum(float feed_rate_maximum) {
-        this.feed_rate_maximum = feed_rate_maximum;
+        this.feedRateMaximum = feed_rate_maximum;
         return true;
     }
 
@@ -627,23 +628,31 @@ public class Axis {
         }
     }
 
-    public double getVelocity_maximum() {
-        return velocity_maximum;
+    public double getVelocityMaximum() {
+        return velocityMaximum;
     }
 
-    public boolean setVelocity_maximum(double velocity_maximum) {
-        this.velocity_maximum = velocity_maximum;
+    public boolean setVelocityMaximum(double velocity_maximum) {
+        this.velocityMaximum = velocity_maximum;
         return true;
     }
 
-    public SimpleDoubleProperty getWork_position() {
-        return work_position;
+    public SimpleDoubleProperty getWorkPosition() {
+        return workPosition;
     }
 
-    public void setWork_position(double workpos) {
-        this.work_position.set(workpos);
+    public void setWorkPosition(double workpos) {
+        this.workPosition.set(workpos);
+    }
+    
+    public void setMachinePosition(double workpos) {
+        this.machinePosition.set(workpos);
     }
 
+    public SimpleDoubleProperty getMachinePositionSimple() {
+        return machinePosition;
+    }
+    
     public void applyJsonSystemSetting(responseCommand rc) {
         _applyJsonSystemSetting(rc);
     }
@@ -724,7 +733,7 @@ public class Axis {
                 break;
 
             case (MnemonicManager.MNEMONIC_AXIS_VELOCITY_MAXIMUM):
-                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setVelocity_maximum(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setVelocityMaximum(Float.valueOf(rc.getSettingValue()));
                 logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 

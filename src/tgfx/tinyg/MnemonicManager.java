@@ -56,24 +56,33 @@ public class MnemonicManager {
     public static final String MNEMONIC_MOTOR_POLARITY = "po";
     public static final String MNEMONIC_MOTOR_POWER_MANAGEMENT = "pm";
     //Status Report
-    public static final String MNEMONIC_STATUS_REPORT_LINE = "line";
     public static final String MNEMONIC_STATUS_REPORT_POSX = "posx";
     public static final String MNEMONIC_STATUS_REPORT_POSY = "posy";
     public static final String MNEMONIC_STATUS_REPORT_POSZ = "posz";
     public static final String MNEMONIC_STATUS_REPORT_POSA = "posa";
+    //Homed Status
+    public static final String MNEMONIC_STATUS_REPORT_HOMEDX = "homx";
+    public static final String MNEMONIC_STATUS_REPORT_HOMEDY = "homy";
+    public static final String MNEMONIC_STATUS_REPORT_HOMEDZ = "homz";
+    public static final String MNEMONIC_STATUS_REPORT_HOMEDA = "homa";
+    //Machine Positions
+    public static final String MNEMONIC_STATUS_REPORT_MACHINEPOSX = "mpox"; //Machine Position
+    public static final String MNEMONIC_STATUS_REPORT_MACHINEPOSY = "mpoy"; //Machine Position
+    public static final String MNEMONIC_STATUS_REPORT_MACHINEPOSZ = "mpoz"; //Machine Position
+    public static final String MNEMONIC_STATUS_REPORT_MACHINEPOSA = "mpoa"; //Machine Position
+    //
+    public static final String MNEMONIC_STATUS_REPORT_LINE = "line";
     public static final String MNEMONIC_STATUS_REPORT_VELOCITY = "vel";
     public static final String MNEMONIC_STATUS_REPORT_MOTION_MODE = "momo";
     public static final String MNEMONIC_STATUS_REPORT_STAT = "stat";
     public static final String MNEMONIC_STATUS_REPORT_UNIT = "unit";
-     public static final String MNEMONIC_STATUS_REPORT_COORDNIATE_MODE = "coor";
+    public static final String MNEMONIC_STATUS_REPORT_COORDNIATE_MODE = "coor";
     //System MNEMONICS
     public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_UNIT_MODE = "gun";
     public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE = "gpl";
     public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_COORDINATE_SYSTEM = "gco";
     public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL = "gpa";
     public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_DISTANCE_MODE = "gdi";
-    
-   
     public static final String MNEMONIC_SYSTEM_FIRMWARE_BUILD = "fb";
     public static final String MNEMONIC_SYSTEM_FIRMWARE_VERSION = "fv";
     public static final String MNEMONIC_SYSTEM_JUNCTION_ACCELERATION = "ja";
@@ -91,11 +100,11 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL = "si";
     public static final String MNEMONIC_SYSTEM_BAUDRATE = "baud";
 //    public static final String MNEMONIC_SYSTEM_LAST_MESSAGE = "msg";
-    public static final String MNEMONIC_SYSTEM_EXPAND_LF_TO_CRLF_ON_TX  = "ec";
+    public static final String MNEMONIC_SYSTEM_EXPAND_LF_TO_CRLF_ON_TX = "ec";
     public static final String MNEMONIC_SYSTEM_HARDWARE_VERSION = "hv";
     public static final String MNEMONIC_SYSTEM_CHORDAL_TOLERANCE = "ct";
     public static final String MNEMONIC_SYSTEM_TINYG_ID_VERSION = "id";
-   
+
     public MnemonicManager() {
         //When new settings are added we need to add them to the this class.
         //Axis
@@ -125,7 +134,7 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE);
-        
+
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_BAUDRATE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_ECHO);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_JSON_MODE);
@@ -148,7 +157,7 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_UNIT_MODE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_CHORDAL_TOLERANCE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_TINYG_ID_VERSION);
-        
+
         //Status Report
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_LINE);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_MOTION_MODE);
@@ -160,6 +169,16 @@ public class MnemonicManager {
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_VELOCITY);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_STAT);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_COORDNIATE_MODE);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_MACHINEPOSA);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_MACHINEPOSX);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_MACHINEPOSY);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_MACHINEPOSZ);
+        //Homed Group
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_HOMEDX);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_HOMEDY);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_HOMEDZ);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_HOMEDA);
+
         //Master Group
         GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_A);
         GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_B);
@@ -176,25 +195,24 @@ public class MnemonicManager {
         GROUP_MNEMONICS.add(MNEMONIC_GROUP_POS);
         GROUP_MNEMONICS.add(MNEMONIC_GROUP_STATUS_REPORT);
         GROUP_MNEMONICS.add(MNEMONIC_GROUP_SYSTEM);
-        
-        
+
+
     }
 
-    
-    public boolean isMasterGroupObject(String strToLookup){
-        if(GROUP_MNEMONICS.contains(strToLookup)){
+    public boolean isMasterGroupObject(String strToLookup) {
+        if (GROUP_MNEMONICS.contains(strToLookup)) {
             return true;
         }
-        
+
         return false;
     }
-    
-    public responseCommand lookupSingleGroupMaster(String strToLookup, String parentGroup){
+
+    public responseCommand lookupSingleGroupMaster(String strToLookup, String parentGroup) {
         //This will iterate all group mnemoics to see if the single group object
         // belongs in which group.
 
         responseCommand rc = new responseCommand(parentGroup, null, null);
-        
+
         if (AXIS_MNEMONICS.contains(strToLookup)) {
             rc.setSettingKey(strToLookup);
             return (rc);
@@ -211,13 +229,12 @@ public class MnemonicManager {
         return null;
     }
 
-    
     public responseCommand lookupSingleGroup(String strToLookup) {
         //This will iterate all group mnemoics to see if the single group object
         // belongs in which group.
 
         responseCommand rc = new responseCommand();
-        
+
         if (AXIS_MNEMONICS.contains(strToLookup.substring(1))) {
             rc.setSettingParent(String.valueOf(strToLookup.charAt(0)));
             rc.setSettingKey(strToLookup.substring(1));

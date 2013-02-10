@@ -27,6 +27,20 @@ import tgfx.tinyg.TinygDriver;
 public class CNCMachine extends Pane {
 
     public CNCMachine() {
+        
+        
+        /*####################################
+         *Cursor Set
+         #################################### */
+//        final Circle cursorPoint = new Circle(2, javafx.scene.paint.Color.RED);
+//        this.getChildren().add(cursorPoint);
+        
+//        cursorPoint.translateYProperty().bind(this.heightProperty());
+//        cursorPoint.layoutXProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getMachinePositionSimple());
+//        cursorPoint.layoutYProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getMachinePositionSimple());
+       
+//        cncMachine.getHeight() - tg.m.getAxisByName("y").getMachinePosition().get();
+        
         this.setMaxSize(0, 0);  //hide this element until we connect
         //Set our machine size from tinyg travel max
         this.maxHeightProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getTravelMaxSimple());

@@ -153,7 +153,7 @@ public class TinygDriver extends Observable {
          * Apply Axis Settings to TinyG from GUI
          */
         if (tf.getId().contains("maxVelocity")) {
-            if (_axis.getVelocity_maximum() != Double.valueOf(tf.getText())) {
+            if (_axis.getVelocityMaximum() != Double.valueOf(tf.getText())) {
                 //We check to see if the value passed was already set in TinyG 
                 //To avoid un-needed EEPROM Writes.
                 this.write("{\"" + _axis.getAxis_name().toLowerCase() + MnemonicManager.MNEMONIC_AXIS_VELOCITY_MAXIMUM + "\":" + tf.getText() + "}\n");
@@ -469,26 +469,26 @@ public class TinygDriver extends Observable {
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWork_position(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
 
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWork_position(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWork_position(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWork_position(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
