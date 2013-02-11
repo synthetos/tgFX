@@ -191,7 +191,7 @@
                             </HBox>
                           </children>
                           <effect>
-                            <DropShadow color="WHITE" height="8.857266380673364" radius="3.928602309454055" spread="0.49206349206349204" width="8.857142857142858" />
+                            <DropShadow color="WHITE" height="8.85720461890811" radius="3.928586869012742" spread="0.49206349206349204" width="8.857142857142858" />
                           </effect>
                           <padding>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
@@ -251,7 +251,7 @@
                         </Lcd>
                         <Lcd fx:id="velLcd" lcdDecimals="0" lcdDesign="RED_DARKRED" lcdUnitVisible="true" lcdValueFont="LCD" prefHeight="70.0" prefWidth="200.0" title="Velocity" unit="mm/min" />
                         <Button fx:id="gcodeZero" onAction="#handleZeroSystem" text="Zero All Axes" VBox.vgrow="NEVER" />
-                        <Button mnemonicParsing="false" text="Home XYZ Axes" />
+                        <Button mnemonicParsing="false" onAction="#handleHomeXYZ" text="Home XYZ Axes" />
                       </children>
                       <padding>
                         <Insets right="15.0" top="15.0" />

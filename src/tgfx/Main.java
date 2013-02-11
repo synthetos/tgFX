@@ -1468,8 +1468,7 @@ public class Main implements Initializable, Observer {
 
         widthSize.textProperty().bind(cncMachine.widthProperty().asString().concat(tg.m.getGcodeUnitMode().get()));
         heightSize.textProperty().bind(cncMachine.heightProperty().asString().concat(tg.m.getGcodeUnitMode().get()));
-        
-        
+
         srCoord.textProperty().bind(TinygDriver.getInstance().m.gcm.getCurrentGcodeCoordinateSystemName());
 
         
