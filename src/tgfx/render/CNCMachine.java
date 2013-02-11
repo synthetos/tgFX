@@ -4,6 +4,7 @@
  */
 package tgfx.render;
 
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -26,64 +27,65 @@ import tgfx.tinyg.TinygDriver;
  */
 public class CNCMachine extends Pane {
 
+    private DecimalFormat df = new DecimalFormat("#.##");
+
     public CNCMachine() {
-        
-        
+
         /*####################################
          *Cursor Set
          #################################### */
 //        final Circle cursorPoint = new Circle(2, javafx.scene.paint.Color.RED);
 //        this.getChildren().add(cursorPoint);
-        
+
 //        cursorPoint.translateYProperty().bind(this.heightProperty());
 //        cursorPoint.layoutXProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getMachinePositionSimple());
 //        cursorPoint.layoutYProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getMachinePositionSimple());
-       
 //        cncMachine.getHeight() - tg.m.getAxisByName("y").getMachinePosition().get();
-        
+
         this.setMaxSize(0, 0);  //hide this element until we connect
         //Set our machine size from tinyg travel max
         this.maxHeightProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getTravelMaxSimple());
         this.maxWidthProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getTravelMaxSimple());
-//        machineOutline.scaleXProperty().bind(machineX);
-//        machineOutline.scaleYProperty().bind(tester.heightProperty());
 
-//        machineOutline.scaleXProperty().bind((StackPane) machineOutline.getPadding());
         final Circle c = new Circle(2, Color.RED);
 
         final Text cursorText = new Text("None");
         cursorText.setStroke(Color.YELLOW);
         cursorText.setFill(Color.YELLOW);
-        cursorText.setFont(Font.font("Arial", 10));
-        
-      setupLayout(); //initial layout setup in constructor
+        cursorText.setFont(Font.font("Arial", 6));
 
-//        this.setOnMouseExited(new EventHandler<MouseEvent>() {
-//            public void handle(MouseEvent me) {
-////                gcodePane.getChildren().remove(c);
-//                getChildren().remove(cursorText);
-//
-//            }
-//        });
-//
-//        this.setOnMouseEntered(new EventHandler<MouseEvent>() {
-//            public void handle(MouseEvent me) {
-////                gcodePane.getChildren().remove(c);
-//                getChildren().add(cursorText);
-//
-//            }
-//        });
+        setupLayout(); //initial layout setup in constructor
 
-//        this.setOnMouseMoved(new EventHandler<MouseEvent>() {
-//            public void handle(MouseEvent me) {
-//                cursorText.setText("(xpos: " + me.getX() + ")\n(ypos: " + me.getY() + ")");
-//                cursorText.setX(me.getX() + 10);
-//                cursorText.setY(me.getY());
-//
-//            }
-//        });
-//
+        this.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent me) {
+//                gcodePane.getChildren().remove(c);
+                getChildren().remove(cursorText);
+
+            }
+        });
+
+        this.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent me) {
+//                gcodePane.getChildren().remove(c);
+                getChildren().add(cursorText);
+
+            }
+        });
+
+        this.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent me) {
+                cursorText.setText("(X: " + df.format(me.getX()) + ")\n(Y: " + df.format((getHeight() - me.getY())) + ")");
+                cursorText.setX(me.getX() + 10);
+                cursorText.setY(me.getY());
+
+            }
+        });
+
 //        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
+//            @Override
 //            public void handle(MouseEvent me) {
 //                Circle c = new Circle(2, Color.YELLOWGREEN);
 //                c.setLayoutX(me.getX());
@@ -102,33 +104,33 @@ public class CNCMachine extends Pane {
 
 
     }
-    
-    public void clearScreen(){
+
+    public void clearScreen() {
         this.getChildren().clear();
         setupLayout();  //re-draw the needed elements.
     }
-    
-    private void setupLayout(){
+
+    private void setupLayout() {
         //This draws the x axis text as well as grid etc
-          Text xText = new Text("X Axis");
+        Text xText = new Text("X Axis");
         Text yText = new Text("Y Axis");
-        
+
         xText.setY(-10);
         xText.xProperty().bind(this.heightProperty().divide(2));
         xText.setRotate(0);
         xText.setStroke(Color.YELLOW);
         xText.setFill(Color.YELLOW);
         xText.setFont(Font.font("Arial", 10));
-        
+
         yText.setX(-25);
         yText.yProperty().bind(this.widthProperty().divide(2));
         yText.setRotate(-90);
         yText.setStroke(Color.YELLOW);
         yText.setFill(Color.YELLOW);
         yText.setFont(Font.font("Arial", 10));
-        
-        
-        
+
+
+
         this.getChildren().add(xText);
         this.getChildren().add(yText);
 

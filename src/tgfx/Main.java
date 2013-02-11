@@ -1466,8 +1466,8 @@ public class Main implements Initializable, Observer {
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
 //        srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
 
-        widthSize.textProperty().bind(cncMachine.widthProperty().asString());
-        heightSize.textProperty().bind(cncMachine.heightProperty().asString());
+        widthSize.textProperty().bind(cncMachine.widthProperty().asString().concat(tg.m.getGcodeUnitMode().get()));
+        heightSize.textProperty().bind(cncMachine.heightProperty().asString().concat(tg.m.getGcodeUnitMode().get()));
         
         
         srCoord.textProperty().bind(TinygDriver.getInstance().m.gcm.getCurrentGcodeCoordinateSystemName());
@@ -1480,6 +1480,8 @@ public class Main implements Initializable, Observer {
         aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWorkPosition());
         velLcd.valueProperty().bind(TinygDriver.getInstance().m.velocity);
 
+        
+        
 
         /*######################################
          * LOGGER CONFIG
