@@ -7,9 +7,7 @@ package tgfx;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.SimpleIntegerProperty;
 import tgfx.tinyg.CommandManager;
-import tgfx.tinyg.TinygDriver;
 
 /**
  *
@@ -48,6 +46,7 @@ public class SerialWriter implements Runnable {
         queue.clear();
         try {
             SerialDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESET);
+            this.buffer_available = BUFFER_SIZE;
         } catch (Exception ex) {
             Logger.getLogger(SerialWriter.class.getName()).log(Level.SEVERE, null, ex);
         }

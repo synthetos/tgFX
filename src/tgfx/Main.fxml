@@ -99,7 +99,7 @@
                 <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
                 <Separator id="separatorVertical4" orientation="VERTICAL" />
                 <Label id="srText" text="Buffer" textFill="WHITE" visible="false" />
-                <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" visible="false" />
+                <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" visible="true" />
               </children>
               <hgap>
                 <Long fx:value="0" />

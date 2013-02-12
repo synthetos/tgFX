@@ -168,7 +168,6 @@ public class SerialDriver implements SerialPortEventListener {
             input = serialPort.getInputStream();
             output = serialPort.getOutputStream();
 
-
             // add event listeners
             serialPort.addEventListener(this);
             serialPort.notifyOnDataAvailable(true);

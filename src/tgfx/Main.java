@@ -303,10 +303,13 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleCancelFile(ActionEvent evt) throws Exception {
         console.appendText("[!]Canceling File Sending Task...\n");
-        setTaskActive(false);
+        tg.priorityWrite(CommandManager.CMD_APPLY_RESET); //This resets TinyG
+
+//        setTaskActive(false);
+        
         tg.serialWriter.clearQueueBuffer();
         console.appendText("[!]Resetting TinyG....\n.");
-        tg.priorityWrite(CommandManager.CMD_APPLY_RESET); //This resets TinyG
+        tg.serialWriter.notifyAck();
     }
 
     @FXML
@@ -347,8 +350,6 @@ public class Main implements Initializable, Observer {
 
     }
 
-    
-    
     @FXML
     void handleInhibitAllAxis(ActionEvent evt) throws Exception {
         if (tg.isConnected()) {
@@ -362,8 +363,7 @@ public class Main implements Initializable, Observer {
         }
 
     }
-    
-    
+
     @FXML
     void handleMotorQuerySettings(ActionEvent evt) {
         System.out.println("[+]Querying Motor Config...");
@@ -545,7 +545,7 @@ public class Main implements Initializable, Observer {
             }
         }
     }
-    
+
     @FXML
     private void handleHomeXYZ(ActionEvent evt) {
         if (tg.isConnected()) {
@@ -676,11 +676,9 @@ public class Main implements Initializable, Observer {
 
                 /**
                  * *****************************
-                 * OnConnect Actions Called Here *****************************
+                 * OnConnect Actions Called Here ****************************
                  */
                 onConnectActions();
-
-
             }
         } else {
             tg.disconnect();
@@ -698,7 +696,7 @@ public class Main implements Initializable, Observer {
         TinygDriver.getInstance().m.firmwareBuild.set(0);
         TinygDriver.getInstance().m.firmwareVersion.set("?");
         TinygDriver.getInstance().m.m_state.set("?");
-        TinygDriver.getInstance().m.setLine_number(0);
+        TinygDriver.getInstance().m.setLineNumber(0);
         TinygDriver.getInstance().m.setMotionMode(0);
         Draw2d.setFirstDraw(true);
         TinygDriver.getInstance().serialWriter.resetBuffer();
@@ -1005,7 +1003,7 @@ public class Main implements Initializable, Observer {
 
         if (tg.m.getMotionMode().get().equals("traverse")) {
             //G0 Moves
-            l.getStrokeDashArray().addAll(2d, 21d);
+            l.getStrokeDashArray().addAll(1d, 5d);
             l.setStroke(Draw2d.TRAVERSE);
         } else {
 //            l.setStroke(Draw2d.getLineColorFromVelocity(vel));
@@ -1437,9 +1435,9 @@ public class Main implements Initializable, Observer {
         this.reScanSerial();            //Populate our serial ports
         populateConfigFiles();          //Populate all Config Files
 
-        
-        
-         
+
+
+
 
 
         /*#######################################################
@@ -1470,8 +1468,9 @@ public class Main implements Initializable, Observer {
         heightSize.textProperty().bind(cncMachine.heightProperty().asString().concat(tg.m.getGcodeUnitMode().get()));
 
         srCoord.textProperty().bind(TinygDriver.getInstance().m.gcm.getCurrentGcodeCoordinateSystemName());
+        srGcodeLine.textProperty().bind(tg.m.getLineNumberSimple().asString());
 
-        
+
 
         xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWorkPosition());
         yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWorkPosition());
@@ -1479,8 +1478,8 @@ public class Main implements Initializable, Observer {
         aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWorkPosition());
         velLcd.valueProperty().bind(TinygDriver.getInstance().m.velocity);
 
-        
-        
+
+
 
         /*######################################
          * LOGGER CONFIG
@@ -1639,7 +1638,7 @@ public class Main implements Initializable, Observer {
          ############################################*/
         buildNumber = Integer.valueOf(getBuildInfo("BUILD"));
         buildDate = getBuildInfo("DATE");
-        
+
         //Set our build / versions in the tgFX settings tab.
         tgfxBuildDate.setText(buildDate);
         tgfxBuildNumber.setText(getBuildInfo("BUILD"));
@@ -1648,7 +1647,7 @@ public class Main implements Initializable, Observer {
         tgfxBuildDate.setId("lblMachine");
         tgfxBuildNumber.setId("lblMachine");
         tgfxVersion.setId("lblMachine");
-        
+
 
 
     }

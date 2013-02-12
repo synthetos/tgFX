@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import tgfx.tinyg.MnemonicManager;
@@ -53,7 +54,8 @@ public final class Machine {
     private boolean enable_xon_xoff;
     private boolean enable_hashcode;
     //Misc
-    private int line_number;
+    
+    public SimpleIntegerProperty lineNumber = new SimpleIntegerProperty(0);
     private String last_message = new String("");
 //    public static motion_modes motion_mode = new SimpleIntegerProperty();
     public static motion_modes motion_mode;
@@ -391,12 +393,16 @@ public final class Machine {
         this.firmwareVersion.setValue(fv);
     }
 
-    public int getLine_number() {
-        return line_number;
+    public int getLineNumber() {
+        return lineNumber.get();
+    }
+    
+    public SimpleIntegerProperty getLineNumberSimple() {
+        return lineNumber;
     }
 
-    public void setLine_number(int line_number) {
-        this.line_number = line_number;
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber.set(lineNumber);
     }
 
     public SimpleStringProperty getMachineState() {
@@ -624,7 +630,8 @@ public final class Machine {
 
         switch (rc.getSettingKey()) {
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
-                TinygDriver.getInstance().m.setLine_number(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.setLineNumber(Integer.valueOf(rc.getSettingValue()));
+                setLineNumber(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MOTION_MODE):
                 TinygDriver.getInstance().m.setMotionMode(Integer.valueOf(rc.getSettingValue()));
@@ -641,7 +648,7 @@ public final class Machine {
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
                 TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWorkPosition(Double.valueOf(rc.getSettingValue()));
                 break;
-                //Machine Position Cases
+            //Machine Position Cases
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSX):
                 TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
                 break;
@@ -654,10 +661,10 @@ public final class Machine {
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSA):
                 TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
                 break;
-                
-                /*
-                 * INSERT HOMED HERE
-                 */
+
+            /*
+             * INSERT HOMED HERE
+             */
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
                 TinygDriver.getInstance().m.setMachineState(Integer.valueOf(rc.getSettingValue()));

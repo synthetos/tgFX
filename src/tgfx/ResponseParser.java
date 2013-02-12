@@ -238,15 +238,7 @@ public class ResponseParser extends Observable implements Runnable {
                             //This is very important.  
                             //We break out our response footer.. error codes.. bytes availble in hardware buffer etc.
                             break;
-                        case "n":
-                            //Got a line number
-                            int lineNumber = (int) js.getInt(key);
-                            TinygDriver.getInstance().m.setLine_number(lineNumber);
-                            message[0] = "UPDATE_LINE_NUMBER";
-                            message[1] = String.valueOf(lineNumber);
-                            setChanged();
-                            notifyObservers(message);  //Update the GUI with our line number
-                            break;
+                      
                         case "msg":
                             message[0] = "TINYG_USER_MESSAGE";
                             message[1] = (String) js.get(key) + "\n";

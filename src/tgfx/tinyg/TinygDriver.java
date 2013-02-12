@@ -400,8 +400,8 @@ public class TinygDriver extends Observable {
         this.ser.setConnected(choice);
     }
 
-    public void initialize(String portName, int dataRate) {
-        this.ser.initialize(portName, dataRate);
+    public boolean initialize(String portName, int dataRate) {
+        return(this.ser.initialize(portName, dataRate));
     }
 
     public void disconnect() {
@@ -458,7 +458,7 @@ public class TinygDriver extends Observable {
         switch (rc.getSettingKey()) {
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
-                TinygDriver.getInstance().m.setLine_number(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().m.setLineNumber(Integer.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
