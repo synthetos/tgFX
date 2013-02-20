@@ -19,7 +19,8 @@ public class CommandManager {
     public static final String CMD_QUERY_HARDWARE_FIRMWARE_NUMBER = "{\"fv\":\"\"}\n";
     public static final String CMD_QUERY_OK_PROMPT = "{\"gc\":\"?\"}\n";
 //    {"sr":{"posx":true,"posy":true,"posz":true,"posa":true,"vel":true,"momo":true,"unit":true}}
-    public static final String CMD_APPLY_STATUS_REPORT_FORMAT = "{\"sr\":{\"posx\":true, \"posy\":true, \"posz\":true, \"posa\":true, \"vel\":true, \"momo\":true,  \"unit\":true, \"stat\":true, }}\n";
+    public static final String CMD_APPLY_STATUS_REPORT_FORMAT = "{\"sr\":{\"vel\":true,\"mpox\":true,\"mpoy\":true, \"mpoz\":true,\"mpoa\":true,\"coor\":true, \"ofsa\":true,\"ofsx\":true,\"ofsy\":true,\"ofsz\":true,\"unit\":true,\"homz\":true,\"homy\":true,\"homx\":true,\"momo\":true}}\n";
+//    public static final String CMD_APPLY_STATUS_REPORT_FORMAT = "{\"sr\":{\"vel\":true,\"mpox\":true,\"mpoy\":true, \"mpoz\":true,\"mpoa\":true,\"coor\":true, \"ofsa\":true,\"ofsx\":true,\"ofsy\":true,\"ofsz\":true,\"unit\":true,\"homz\":true,\"homy\":true,\"homx\":true,\"momo\":true}}\n";
     public static final String CMD_QUERY_STATUS_REPORT = "{\"sr\":\"\"}\n";
     public static final String CMD_QUERY_AXIS_X = "{\"x\":null}\n";
     public static final String CMD_QUERY_AXIS_Y = "{\"y\":null}\n";

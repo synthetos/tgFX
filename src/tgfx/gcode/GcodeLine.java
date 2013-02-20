@@ -27,4 +27,11 @@ public class GcodeLine {
     public String getCodeLine(){
         return codeLine.get();
     } 
+    
+    public String getGcodeLineJsonified(){
+        return("{\"gc\":\""+codeLine.get()+"\"}\n");
+    }
+    
+    
+    
 }

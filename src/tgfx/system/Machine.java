@@ -7,7 +7,6 @@ package tgfx.system;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,7 +16,6 @@ import org.json.JSONObject;
 import tgfx.tinyg.TinygDriver;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
-import tgfx.tinyg.CommandManager;
 import tgfx.tinyg.responseCommand;
 
 /**
@@ -34,7 +32,8 @@ public final class Machine {
     public SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();
     public StringProperty firmwareVersion = new SimpleStringProperty();
     public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
-    private SimpleStringProperty gcodeUnitMode = new SimpleStringProperty("MM");
+    private SimpleStringProperty gcodeUnitMode = new SimpleStringProperty("mm");
+    public SimpleDoubleProperty gcodeUnitDivision = new SimpleDoubleProperty(1);
     private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
     private int status_report_interval;
     public Gcode_unit_modes gcode_startup_units;
@@ -53,8 +52,8 @@ public final class Machine {
     private boolean enable_echo;
     private boolean enable_xon_xoff;
     private boolean enable_hashcode;
+
     //Misc
-    
     public SimpleIntegerProperty lineNumber = new SimpleIntegerProperty(0);
     private String last_message = new String("");
 //    public static motion_modes motion_mode = new SimpleIntegerProperty();
@@ -283,9 +282,10 @@ public final class Machine {
     public void setGcodeUnits(int unitMode) {
         if (unitMode == 0) {
             gcodeUnitMode.setValue(Gcode_unit_modes.inches.toString());
-
+            gcodeUnitDivision.set(25.4);  //mm to inches conversion   
         } else if (unitMode == 1) {
             gcodeUnitMode.setValue(Gcode_unit_modes.mm.toString());
+            gcodeUnitDivision.set(1);
         }
 
     }
@@ -396,7 +396,7 @@ public final class Machine {
     public int getLineNumber() {
         return lineNumber.get();
     }
-    
+
     public SimpleIntegerProperty getLineNumberSimple() {
         return lineNumber;
     }
@@ -417,40 +417,42 @@ public final class Machine {
         return (this.coordinateSystem);
     }
 
-//    public void setCoordinate_mode(double m) {
-//        int c = (int) (m); //Convert this to a int
-//        setCoordinate_mode(c);
-//    }
-//    public int getCoordinateSystemOrd() {
-//        coordinate_systems[] cs = coordinate_systems.values();
-//        return 1;
-//    }
-//
-//    public void setCoordinate_mode(int c) {
-//        switch (c) {
-//            case 1:
-//                coordinateSystem.set(coordinate_systems.g54.toString());
-//                break;
-//            case 2:
-//                coordinateSystem.set(coordinate_systems.g55.toString());
-//                break;
-//            case 3:
-//                coordinateSystem.set(coordinate_systems.g56.toString());
-//                break;
-//            case 4:
-//                coordinateSystem.set(coordinate_systems.g57.toString());
-//                break;
-//            case 5:
-//                coordinateSystem.set(coordinate_systems.g58.toString());
-//                break;
-//            case 6:
-//                coordinateSystem.set(coordinate_systems.g59.toString());
-//                break;
-//            default:
-//                coordinateSystem.set(coordinate_systems.g54.toString());
-//                break;
-//        }
-//    }
+    //    public void setCoordinate_mode(double m) {
+    //        int c = (int) (m); //Convert this to a int
+    //        setCoordinate_mode(c);
+    //    }
+    //    public int getCoordinateSystemOrd() {
+    //        coordinate_systems[] cs = coordinate_systems.values();
+    //        return 1;
+    //    }
+    //
+    //    public void setCoordinate_mode(int c) {
+    //        switch (c) {
+    //            case 1:
+    //                coordinateSystem.set(coordinate_systems.g54.toString());
+    //                break;
+    //            case 2:
+    //                coordinateSystem.set(coordinate_systems.g55.toString());
+    //                break;
+    //            case 3:
+    //                coordinateSystem.set(coordinate_systems.g56.toString());
+    //                break;
+    //            case 4:
+    //                coordinateSystem.set(coordinate_systems.g57.toString());
+    //                break;
+    //            case 5:
+    //                coordinateSystem.set(coordinate_systems.g58.toString());
+    //                break;
+    //            case 6:
+    //                coordinateSystem.set(coordinate_systems.g59.toString());
+    //                break;
+    //            default:
+    //                coordinateSystem.set(coordinate_systems.g54.toString());
+    //                break;
+    //        }
+    //    }
+  
+
     public void setMachineState(int state) {
 
         switch (state) {
@@ -547,6 +549,8 @@ public final class Machine {
 
         setMotionMode(0);
 
+        
+
 
     }
 
@@ -636,18 +640,6 @@ public final class Machine {
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MOTION_MODE):
                 TinygDriver.getInstance().m.setMotionMode(Integer.valueOf(rc.getSettingValue()));
                 break;
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
-                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWorkPosition(Double.valueOf(rc.getSettingValue()));
-                break;
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
-                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWorkPosition(Double.valueOf(rc.getSettingValue()));
-                break;
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
-                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWorkPosition(Double.valueOf(rc.getSettingValue()));
-                break;
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
-                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setWorkPosition(Double.valueOf(rc.getSettingValue()));
-                break;
             //Machine Position Cases
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSX):
                 TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
@@ -660,6 +652,18 @@ public final class Machine {
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSA):
                 TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_WORKOFFSETX):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_WORKOFFSETY):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_WORKOFFSETZ):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_WORKOFFSETA):
+                TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
                 break;
 
             /*

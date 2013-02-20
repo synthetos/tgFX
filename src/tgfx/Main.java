@@ -62,6 +62,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
@@ -71,9 +72,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.CircleBuilder;
-import javafx.scene.shape.StrokeType;
-import javafx.scene.text.Font;
+
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.util.StringConverter;
@@ -304,9 +303,10 @@ public class Main implements Initializable, Observer {
     private void handleCancelFile(ActionEvent evt) throws Exception {
         console.appendText("[!]Canceling File Sending Task...\n");
         tg.priorityWrite(CommandManager.CMD_APPLY_RESET); //This resets TinyG
+        Thread.sleep(1000);
 
 //        setTaskActive(false);
-        
+
         tg.serialWriter.clearQueueBuffer();
         console.appendText("[!]Resetting TinyG....\n.");
         tg.serialWriter.notifyAck();
@@ -633,17 +633,20 @@ public class Main implements Initializable, Observer {
      */
     private void onConnectActions() {
         try {
+
             Draw2d.setFirstDraw(true);
+//          
+            tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);          //FIRST
+            Thread.sleep(300);
 //            tg.write(CommandManager.CMD_QUERY_SYSTEM_SERIAL_BUFFER_LENGTH);//SECOND.5 :)
-            tg.write(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //FIRST
-            Thread.sleep(100);
-//            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //SECOND - There is an issue with this.  It returns stuff like "true"
-            tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);          //THIRD
-            Thread.sleep(100);
-            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);          //FORTH
-            Thread.sleep(100);
-            tg.write(CommandManager.CMD_DEFAULT_ENABLE_JSON);           //FIFTH
-            Thread.sleep(100);
+            tg.write(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //SECOND
+            Thread.sleep(300);
+            tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //THIRD 
+            Thread.sleep(300);
+//            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);          //FORTH
+//            Thread.sleep(300);
+//            tg.write(CommandManager.CMD_DEFAULT_ENABLE_JSON);           //FIFTH
+//            Thread.sleep(300);
             tg.cmdManager.queryAllMachineSettings();                    //SIXtH
             tg.cmdManager.queryStatusReport();                          //SEVENTH - Get Positions if the board is not at zero
             tg.cmdManager.queryAllMotorSettings();                      //EIGTH
@@ -676,7 +679,7 @@ public class Main implements Initializable, Observer {
 
                 /**
                  * *****************************
-                 * OnConnect Actions Called Here ****************************
+                 * OnConnect Actions Called Here *****************************
                  */
                 onConnectActions();
             }
@@ -694,8 +697,8 @@ public class Main implements Initializable, Observer {
     public void onDisconnectActions() {
         TinygDriver.getInstance().m.setFirmwareBuild(0.0);
         TinygDriver.getInstance().m.firmwareBuild.set(0);
-        TinygDriver.getInstance().m.firmwareVersion.set("?");
-        TinygDriver.getInstance().m.m_state.set("?");
+        TinygDriver.getInstance().m.firmwareVersion.set("");
+        TinygDriver.getInstance().m.m_state.set("");
         TinygDriver.getInstance().m.setLineNumber(0);
         TinygDriver.getInstance().m.setMotionMode(0);
         Draw2d.setFirstDraw(true);
@@ -950,8 +953,14 @@ public class Main implements Initializable, Observer {
         };
     }
 
+    /**
+     *
+     * @param moveType
+     * @param vel
+     */
     public void drawLine(String moveType, double vel) {
-        Line l = new Line();
+        Line l;
+        l = new Line();
         l.setSmooth(true);
         //Code to make mm's look the same size as inches
         double scale = 1;
@@ -1156,9 +1165,10 @@ public class Main implements Initializable, Observer {
                     case ("TINYG_USER_MESSAGE"):
                         console.appendText("TinyG Board Message >> " + KEY_ARGUMENT);
 //                        Thread.sleep(1000);//we need to let the board load its configs
-
                         tg.cmdManager.queryStatusReport();
                         break;
+
+
                     default:
                         System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
 
@@ -1252,7 +1262,7 @@ public class Main implements Initializable, Observer {
                 axisAmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisAjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisAmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisAmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+                axisAmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerkMaximum()));
                 axisAradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
                 axisAsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                 axisAzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
@@ -1260,8 +1270,8 @@ public class Main implements Initializable, Observer {
 //                axisAsearchVelocity.setDisable(true);
 //                axisAlatchVelocity.setDisable(true);
 //                axisAlatchBackoff.setDisable(true);
-                axisAswitchModeMax.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
-                axisAswitchModeMin.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
+                axisAswitchModeMax.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
+                axisAswitchModeMin.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
 
                 axisAmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisAlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
@@ -1278,7 +1288,7 @@ public class Main implements Initializable, Observer {
                 axisBmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisBjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisBmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisBmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+                axisBmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerkMaximum()));
                 axisBradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
                 //Rotational Do not have these.
                 axisBsearchVelocity.setDisable(true);
@@ -1295,7 +1305,7 @@ public class Main implements Initializable, Observer {
                 axisCmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
                 axisCjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisCmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisCmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+                axisCmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerkMaximum()));
                 axisCradius.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getRadius())));
 
                 //Rotational Do not have these.
@@ -1317,9 +1327,9 @@ public class Main implements Initializable, Observer {
                 axisXjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisXsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                 axisXzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                axisXswitchModeMax.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
-                axisXswitchModeMin.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
-                axisXmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+                axisXswitchModeMax.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
+                axisXswitchModeMin.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
+                axisXmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerkMaximum()));
 
                 axisXmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisXlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
@@ -1336,10 +1346,10 @@ public class Main implements Initializable, Observer {
                 axisYjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisYsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                 axisYzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                axisYswitchModeMax.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
-                axisYswitchModeMin.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
+                axisYswitchModeMax.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
+                axisYswitchModeMin.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
                 axisYmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisYmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+                axisYmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerkMaximum()));
 //                                axisYmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 // axisYradius.setText(String.valueOf(ax.getRadius()));
                 axisYlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
@@ -1356,10 +1366,10 @@ public class Main implements Initializable, Observer {
                 axisZjunctionDeviation.setText(String.valueOf(new DecimalFormat("#.#####").format(ax.getJunction_devation())));
                 axisZsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                 axisZzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                axisZswitchModeMin.getSelectionModel().select(ax.getMaxSwitch_mode().ordinal());
-                axisZswitchModeMax.getSelectionModel().select(ax.getMinSwitch_mode().ordinal());
+                axisZswitchModeMin.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
+                axisZswitchModeMax.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
                 axisZmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisZmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerk_maximum()));
+                axisZmaxJerk.setText(new DecimalFormat("#.#####").format(ax.getJerkMaximum()));
 //                                axisZmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 //axisZradius.setText(String.valueOf(ax.getRadius()));
                 axisZlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
@@ -1462,7 +1472,7 @@ public class Main implements Initializable, Observer {
         srBuild.textProperty().bindBidirectional(tg.m.firmwareBuild, sc);
         srState.textProperty().bind(tg.m.m_state);
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
-//        srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
+        srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
 
         widthSize.textProperty().bind(cncMachine.widthProperty().asString().concat(tg.m.getGcodeUnitMode().get()));
         heightSize.textProperty().bind(cncMachine.heightProperty().asString().concat(tg.m.getGcodeUnitMode().get()));
@@ -1472,10 +1482,21 @@ public class Main implements Initializable, Observer {
 
 
 
-        xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getWorkPosition());
-        yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getWorkPosition());
-        zLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getWorkPosition());
-        aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getWorkPosition());
+
+        /*
+         * If unit=mm 
+         work_position = mpo_ - ofs_
+         If unit=in
+         work_position = (mpo_ - ofs_) / 25.4
+         A is always 
+         work_position_a = mpoa - ofsa
+         */
+
+
+        xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getMachinePositionSimple().subtract(tg.m.getAxisByName("x").getOffset()).divide(tg.m.gcodeUnitDivision));
+        yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getMachinePositionSimple().subtract(tg.m.getAxisByName("y").getOffset()).divide(tg.m.gcodeUnitDivision));
+        zLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("z").getMachinePositionSimple().subtract(tg.m.getAxisByName("z").getOffset()).divide(tg.m.gcodeUnitDivision));
+        aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getMachinePositionSimple().subtract(TinygDriver.getInstance().m.getAxisByName("a").getOffset()));
         velLcd.valueProperty().bind(TinygDriver.getInstance().m.velocity);
 
 
@@ -1485,7 +1506,8 @@ public class Main implements Initializable, Observer {
          * LOGGER CONFIG
          ######################################*/
         BasicConfigurator.configure();
-        logger.setLevel(Level.ERROR);
+//        logger.setLevel(Level.ERROR);
+        logger.setLevel(Level.INFO);
         logger.info("[+]tgFX is starting....");
 
 
@@ -1519,73 +1541,102 @@ public class Main implements Initializable, Observer {
         data.add(n);
         gcodeView.setItems(data);
 
-
+        gcodeView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent me) {
+                if (me.getButton().equals(me.getButton().PRIMARY)) {
+                    if (me.getClickCount() == 2) {
+                        GcodeLine gcl = (GcodeLine) gcodeView.getSelectionModel().getSelectedItem();
+                        if(TinygDriver.getInstance().isConnected()){
+                            logger.info("Double Clicked gcodeView " + gcl.getCodeLine());
+                            try {
+                                TinygDriver.getInstance().write(gcl.getGcodeLineJsonified());
+                                console.appendText("Sent: " + gcl.getGcodeLineJsonified());
+                            } catch (Exception ex) {
+                                java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                            }
+                        }else{
+                            logger.info("TinyG Not Connected not sending: " + gcl.getGcodeLineJsonified());
+                            console.appendText("TinyG Not Connected not sending: " + gcl.getGcodeLineJsonified());
+                        }
+                        
+                    }
+                }
+            }
+        });
 
         /*######################################
          * THREAD INITS
          ######################################*/
 
         Thread serialWriterThread = new Thread(tg.serialWriter);
-        serialWriterThread.setName("SerialWriter");
-        serialWriterThread.setDaemon(true);
-        serialWriterThread.start();
 
+        serialWriterThread.setName(
+                "SerialWriter");
+        serialWriterThread.setDaemon(
+                true);
+        serialWriterThread.start();
         Thread threadResponseParser = new Thread(tg.resParse);
-        threadResponseParser.setDaemon(true);
-        threadResponseParser.setName("ResponseParser");
+
+        threadResponseParser.setDaemon(
+                true);
+        threadResponseParser.setName(
+                "ResponseParser");
         threadResponseParser.start();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         /*#################################################################
-         * 
          * CHANGE LISTENERS
          ##################################################################*/
-
-        cncMachine.maxWidthProperty().addListener(new ChangeListener() {
+        cncMachine.maxWidthProperty()
+                .addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
                 if (gcodePane.getWidth() - tg.m.getAxisByName("x").getTravelMaxSimple().get() < gcodePane.getHeight() - tg.m.getAxisByName("y").getTravelMaxSimple().get()) {
                     //X is longer use this code
-                    scaleAmount = (gcodePane.widthProperty().get() / tg.m.getAxisByName("x").getTravelMaxSimple().get()) * .80;  //%80 of the scale
+                    if (tg.m.getGcodeUnitModeAsInt() == 0) {  //INCHES
+                        scaleAmount = ((gcodePane.heightProperty().get() / (tg.m.getAxisByName("y").getTravelMaxSimple().get() * 25.4))) * .80;  //%80 of the scale;
+                    } else { //MM
+                        scaleAmount = ((gcodePane.heightProperty().get() / tg.m.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
+                    }
                 } else {
                     //Y is longer use this code
-                    scaleAmount = ((gcodePane.heightProperty().get() / tg.m.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
+                    if (tg.m.getGcodeUnitModeAsInt() == 0) {  //INCHES
+                        scaleAmount = ((gcodePane.heightProperty().get() / (tg.m.getAxisByName("y").getTravelMaxSimple().get() * 25.4))) * .80;  //%80 of the scale;
+                    } else { //MM
+                        scaleAmount = ((gcodePane.heightProperty().get() / tg.m.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
+                    }
                 }
                 cncMachine.autoScaleWorkTravelSpace(scaleAmount);
             }
         });
 
-        cncMachine.maxHeightProperty().addListener(new ChangeListener() {
+        cncMachine.maxHeightProperty()
+                .addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
                 if (gcodePane.getWidth() - tg.m.getAxisByName("x").getTravelMaxSimple().get() < gcodePane.getHeight() - tg.m.getAxisByName("y").getTravelMaxSimple().get()) {
                     //X is longer use this code
-                    scaleAmount = (gcodePane.widthProperty().get() / tg.m.getAxisByName("x").getTravelMaxSimple().get()) * .80;  //%80 of the scale
+                    if (tg.m.getGcodeUnitModeAsInt() == 0) {  //INCHES
+                        scaleAmount = ((gcodePane.heightProperty().get() / (tg.m.getAxisByName("y").getTravelMaxSimple().get() * 25.4))) * .80;  //%80 of the scale;
+                    } else { //MM
+                        scaleAmount = ((gcodePane.heightProperty().get() / tg.m.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
+                    }
                 } else {
                     //Y is longer use this code
-                    scaleAmount = ((gcodePane.heightProperty().get() / tg.m.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
+                    if (tg.m.getGcodeUnitModeAsInt() == 0) {  //INCHES
+                        scaleAmount = ((gcodePane.heightProperty().get() / (tg.m.getAxisByName("y").getTravelMaxSimple().get() * 25.4))) * .80;  //%80 of the scale;
+                    } else { //MM
+                        scaleAmount = ((gcodePane.heightProperty().get() / tg.m.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
+                    }
+//                    scaleAmount = ((gcodePane.heightProperty().get() / tg.m.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
                 }
                 cncMachine.autoScaleWorkTravelSpace(scaleAmount);
             }
         });
 
 
-        xLcd.valueProperty().addListener(new ChangeListener() {
+        xLcd.valueProperty()
+                .addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
                 double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWorkPosition().doubleValue() + 5;
@@ -1593,14 +1644,16 @@ public class Main implements Initializable, Observer {
         });
 
 
-        yLcd.valueProperty().addListener(new ChangeListener() {
+        yLcd.valueProperty()
+                .addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
                 double tmp = TinygDriver.getInstance().m.getAxisByName("y").getWorkPosition().doubleValue() + 5;
             }
         });
 
-        tg.m.getGcodeUnitMode().addListener(new ChangeListener() {
+        tg.m.getGcodeUnitMode()
+                .addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
                 String tmp = TinygDriver.getInstance().m.getGcodeUnitMode().get();
@@ -1636,17 +1689,22 @@ public class Main implements Initializable, Observer {
         /*############################################
          * BUILD VERSIONING CODE
          ############################################*/
-        buildNumber = Integer.valueOf(getBuildInfo("BUILD"));
+        buildNumber = Integer.valueOf(getBuildInfo("BUILD").replace(",", ""));
         buildDate = getBuildInfo("DATE");
 
         //Set our build / versions in the tgFX settings tab.
         tgfxBuildDate.setText(buildDate);
-        tgfxBuildNumber.setText(getBuildInfo("BUILD"));
-        tgfxVersion.setText(".95");
 
-        tgfxBuildDate.setId("lblMachine");
-        tgfxBuildNumber.setId("lblMachine");
-        tgfxVersion.setId("lblMachine");
+        tgfxBuildNumber.setText(getBuildInfo("BUILD"));
+        tgfxVersion.setText(
+                ".95");
+
+        tgfxBuildDate.setId(
+                "lblMachine");
+        tgfxBuildNumber.setId(
+                "lblMachine");
+        tgfxVersion.setId(
+                "lblMachine");
 
 
 

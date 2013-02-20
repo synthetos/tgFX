@@ -40,6 +40,7 @@ public class MnemonicManager {
     public static final String MNEMONIC_AXIS_FEEDRATE_MAXIMUM = "fr";
     public static final String MNEMONIC_AXIS_TRAVEL_MAXIMUM = "tm";
     public static final String MNEMONIC_AXIS_JERK_MAXIMUM = "jm";
+    public static final String MNEMONIC_AXIS_JERK_HOMING = "jh";
     public static final String MNEMONIC_AXIS_JUNCTION_DEVIATION = "jd";
     public static final String MNEMONIC_AXIS_MAX_SWITCH_MODE = "sx";
     public static final String MNEMONIC_AXIS_MIN_SWITCH_MODE = "sn";
@@ -47,6 +48,8 @@ public class MnemonicManager {
     public static final String MNEMONIC_AXIS_LATCH_VELOCITY = "lv";
     public static final String MNEMONIC_AXIS_LATCH_BACKOFF = "lb";
     public static final String MNEMONIC_AXIS_ZERO_BACKOFF = "zb";
+    
+    
     public static final String MNEMONIC_AXIS_RADIUS = "ra";
     //MOTOR Mnemonics
     public static final String MNEMONIC_MOTOR_MAP_AXIS = "ma";
@@ -70,6 +73,14 @@ public class MnemonicManager {
     public static final String MNEMONIC_STATUS_REPORT_MACHINEPOSY = "mpoy"; //Machine Position
     public static final String MNEMONIC_STATUS_REPORT_MACHINEPOSZ = "mpoz"; //Machine Position
     public static final String MNEMONIC_STATUS_REPORT_MACHINEPOSA = "mpoa"; //Machine Position
+    
+    //Offsets
+    public static final String MNEMONIC_STATUS_REPORT_WORKOFFSETA = "ofsa"; 
+    public static final String MNEMONIC_STATUS_REPORT_WORKOFFSETX = "ofsx"; 
+    public static final String MNEMONIC_STATUS_REPORT_WORKOFFSETY = "ofsy"; 
+    public static final String MNEMONIC_STATUS_REPORT_WORKOFFSETZ = "ofsz"; 
+    
+    
     //
     public static final String MNEMONIC_STATUS_REPORT_LINE = "line";
     public static final String MNEMONIC_STATUS_REPORT_VELOCITY = "vel";
@@ -111,6 +122,7 @@ public class MnemonicManager {
         AXIS_MNEMONICS.add(MNEMONIC_AXIS_AXIS_MODE);
         AXIS_MNEMONICS.add(MNEMONIC_AXIS_FEEDRATE_MAXIMUM);
         AXIS_MNEMONICS.add(MNEMONIC_AXIS_JERK_MAXIMUM);
+        AXIS_MNEMONICS.add(MNEMONIC_AXIS_JERK_HOMING);
         AXIS_MNEMONICS.add(MNEMONIC_AXIS_JUNCTION_DEVIATION);
         AXIS_MNEMONICS.add(MNEMONIC_AXIS_LATCH_BACKOFF);
         AXIS_MNEMONICS.add(MNEMONIC_AXIS_LATCH_VELOCITY);
@@ -178,6 +190,12 @@ public class MnemonicManager {
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_HOMEDY);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_HOMEDZ);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_HOMEDA);
+
+        //offsets
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_WORKOFFSETX);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_WORKOFFSETY);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_WORKOFFSETZ);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_WORKOFFSETA);
 
         //Master Group
         GROUP_MNEMONICS.add(MNEMONIC_GROUP_AXIS_A);

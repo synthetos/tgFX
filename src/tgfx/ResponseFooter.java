@@ -4,9 +4,6 @@
  */
 package tgfx;
 
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ObservableIntegerValue;
-
 /**
  *
  * @author ril3y

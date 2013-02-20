@@ -185,9 +185,15 @@ public class ResponseParser extends Observable implements Runnable {
                         parseFooter(js.getJSONArray("f"));  //This is very important.  We break out our response footer.. error codes.. bytes availble in hardware buffer etc.               
                     } else {
                         responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroupMaster(key, pg);
-                        rc.setSettingValue(js.get(key).toString());
-                        parentGroup = rc.getSettingParent();
-                        _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pai
+                        if (rc == null) { //This happens when a new mnemonic has been added to the tinyG firmware but not added to tgFX's MnemonicManger
+                            //This is the error case
+                            logger.error("Mnemonic Lookup Failed in applySettingsMasterGroup. \n\tMake sure there are not new elements added to TinyG and not to the MnemonicManager Class.\n\tMNEMONIC FAILED: " + key);
+                        } else {
+                            //This is the normal case
+                            rc.setSettingValue(js.get(key).toString());
+                            parentGroup = rc.getSettingParent();
+                            _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pai
+                        }
                     }
                 }
             }
@@ -234,15 +240,15 @@ public class ResponseParser extends Observable implements Runnable {
                     String key = ii.next().toString();
                     switch (key) {
                         case "f":
-                            parseFooter(js.getJSONArray("f"));  
+                            parseFooter(js.getJSONArray("f"));
                             //This is very important.  
                             //We break out our response footer.. error codes.. bytes availble in hardware buffer etc.
                             break;
-                      
+
                         case "msg":
                             message[0] = "TINYG_USER_MESSAGE";
                             message[1] = (String) js.get(key) + "\n";
-                            logger.info("[+]TinyG Message Sent:  " + js.get(key)+"\n");
+                            logger.info("[+]TinyG Message Sent:  " + js.get(key) + "\n");
                             setChanged();
                             notifyObservers(message);
                             break;
@@ -390,7 +396,8 @@ public class ResponseParser extends Observable implements Runnable {
                 TinygDriver.getInstance().m.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
 //*
                 /**
-                 * UNCOMMENT THIS BELOW WHEN WE HAVE MACHINE SETTINGS THAT NEED TO UPDATE THE GU
+                 * UNCOMMENT THIS BELOW WHEN WE HAVE MACHINE SETTINGS THAT NEED
+                 * TO UPDATE THE GU
                  */
 //                setChanged();
                 message[0] = "MACHINE_UPDATE";
@@ -484,7 +491,7 @@ public class ResponseParser extends Observable implements Runnable {
             if (beforeBytesReturned != TinygDriver.MAX_BUFFER) {
                 TinygDriver.getInstance().serialWriter.addBytesReturnedToBuffer(responseFooter.getRxRecvd());
                 int afterBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
-                logger.info("Returned " + responseFooter.getRxRecvd() + " to buffer... Buffer was " + beforeBytesReturned + " is now " + afterBytesReturned);
+                logger.debug("Returned " + responseFooter.getRxRecvd() + " to buffer... Buffer was " + beforeBytesReturned + " is now " + afterBytesReturned);
                 TinygDriver.getInstance().serialWriter.notifyAck();  //We let our serialWriter thread know we have added some space to the buffer.
                 //Lets tell the UI the new size of the buffer
                 message[0] = "BUFFER_UPDATE";
@@ -516,10 +523,6 @@ public class ResponseParser extends Observable implements Runnable {
                             case ("sr"):
                                 applySettingStatusReport(js.getJSONObject("sr"));
                                 break;
-
-
-
-
                         }
 
                     } catch (JSONException ex) {

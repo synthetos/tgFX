@@ -31,7 +31,7 @@
       <bottom>
         <VBox alignment="CENTER" prefHeight="168.0" prefWidth="1280.0" style="-fx-background-color: GREY;" BorderPane.alignment="CENTER">
           <children>
-            <TextArea fx:id="console" editable="false" maxHeight="300.0" wrapText="true" VBox.vgrow="ALWAYS">
+            <TextArea fx:id="console" editable="false" focusTraversable="false" maxHeight="300.0" wrapText="true" VBox.vgrow="ALWAYS">
               <minHeight>
                 <Long fx:value="75" />
               </minHeight>
@@ -135,7 +135,7 @@
                   <children>
                     <VBox fx:id="gcodeProgramVbox" alignment="CENTER" blendMode="SRC_ATOP" maxWidth="300.0" minHeight="-1.0" minWidth="320.0" prefHeight="300.0" prefWidth="320.0" style="&#10;" visible="true" HBox.hgrow="NEVER">
                       <children>
-                        <TableView fx:id="gcodeView" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+                        <TableView fx:id="gcodeView" editable="true" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
                           <columns>
                             <TableColumn id="gcodeCol" maxWidth="500.0" minWidth="290.0" prefWidth="250.0" resizable="true" sortable="false" text="Gcode Program" fx:id="gcodeCol" />
                           </columns>
@@ -191,7 +191,7 @@
                             </HBox>
                           </children>
                           <effect>
-                            <DropShadow color="WHITE" height="8.85720461890811" radius="3.928586869012742" spread="0.49206349206349204" width="8.857142857142858" />
+                            <DropShadow color="WHITE" height="8.857173738025484" radius="3.9285791487920854" spread="0.49206349206349204" width="8.857142857142858" />
                           </effect>
                           <padding>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />

@@ -6,6 +6,7 @@ package tgfx.tinyg;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
@@ -31,6 +32,7 @@ public class TinygDriver extends Observable {
     public MnemonicManager mneManager = new MnemonicManager();
     public ResponseManager resManager = new ResponseManager();
     public CommandManager cmdManager = new CommandManager();
+  
 
     private class StatusCode {
 
@@ -171,7 +173,7 @@ public class TinygDriver extends Observable {
                 this.write("{\"" + _axis.getAxis_name().toLowerCase() + MnemonicManager.MNEMONIC_AXIS_TRAVEL_MAXIMUM + "\":" + tf.getText() + "}\n");
             }
         } else if (tf.getId().contains("maxJerk")) {
-            if (_axis.getJerk_maximum() != Double.valueOf(tf.getText())) {
+            if (_axis.getJerkMaximum() != Double.valueOf(tf.getText())) {
                 //We check to see if the value passed was already set in TinyG 
                 //To avoid un-needed EEPROM Writes.
                 this.write("{\"" + _axis.getAxis_name().toLowerCase() + MnemonicManager.MNEMONIC_AXIS_JERK_MAXIMUM + "\":" + tf.getText() + "}\n");
@@ -346,6 +348,7 @@ public class TinygDriver extends Observable {
 
     private TinygDriver() {
         logger.setLevel(Level.ERROR);
+//        logger.setLevel(Level.INFO);
     }
 
     private static class TinygDriverHolder {

@@ -6,10 +6,7 @@ package tgfx.render;
 
 import java.text.DecimalFormat;
 import java.util.Iterator;
-import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
@@ -28,7 +25,6 @@ import tgfx.tinyg.TinygDriver;
 public class CNCMachine extends Pane {
 
     private DecimalFormat df = new DecimalFormat("#.##");
-
     public CNCMachine() {
 
         /*####################################
@@ -44,8 +40,8 @@ public class CNCMachine extends Pane {
 
         this.setMaxSize(0, 0);  //hide this element until we connect
         //Set our machine size from tinyg travel max
-        this.maxHeightProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getTravelMaxSimple());
-        this.maxWidthProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getTravelMaxSimple());
+        this.maxHeightProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getTravelMaxSimple().multiply(TinygDriver.getInstance().m.gcodeUnitDivision));
+        this.maxWidthProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getTravelMaxSimple().multiply(TinygDriver.getInstance().m.gcodeUnitDivision));
 
         final Circle c = new Circle(2, Color.RED);
 
@@ -105,6 +101,11 @@ public class CNCMachine extends Pane {
 
     }
 
+
+  
+    
+    
+
     public void clearScreen() {
         this.getChildren().clear();
         setupLayout();  //re-draw the needed elements.
@@ -146,9 +147,6 @@ public class CNCMachine extends Pane {
          */
 
         //Get the axis with the smallest available space.  Think aspect ratio really
-
-
-
 
 
         double stroke = 2 / scaleAmount;
