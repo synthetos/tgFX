@@ -302,12 +302,13 @@ public class Main implements Initializable, Observer {
     @FXML
     private void handleCancelFile(ActionEvent evt) throws Exception {
         console.appendText("[!]Canceling File Sending Task...\n");
-        tg.priorityWrite(CommandManager.CMD_APPLY_RESET); //This resets TinyG
-        Thread.sleep(1000);
-
+        tg.serialWriter.clearQueueBuffer();
+        tg.priorityWrite(String.valueOf(0x18)); //This resets TinyG
+        Thread.sleep(500);
+        onConnectActions();
 //        setTaskActive(false);
 
-        tg.serialWriter.clearQueueBuffer();
+        
         console.appendText("[!]Resetting TinyG....\n.");
         tg.serialWriter.notifyAck();
     }
@@ -635,9 +636,12 @@ public class Main implements Initializable, Observer {
         try {
 
             Draw2d.setFirstDraw(true);
-//          
-            tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);          //FIRST
+          tg.write(CommandManager.CMD_APPLY_ENABLE_JSON_MODE);          //FIRST
             Thread.sleep(300);
+          
+            tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);          
+            Thread.sleep(300);
+            
 //            tg.write(CommandManager.CMD_QUERY_SYSTEM_SERIAL_BUFFER_LENGTH);//SECOND.5 :)
             tg.write(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //SECOND
             Thread.sleep(300);
@@ -1023,7 +1027,13 @@ public class Main implements Initializable, Observer {
         yPrevious = newY;
 
         if (l != null) {
-            cncMachine.getChildren().add(l);  //Add the line to the Pane
+            if (cncMachine.checkBoundsX(l) && cncMachine.checkBoundsY(l)) {
+                //Line is withing the travel max gcode preview box.  So we will draw it.
+                cncMachine.getChildren().add(l);  //Add the line to the Pane 
+            } else {
+                logger.info("Outside of Bounds X");
+                console.appendText("WARNING: Outside tool outsie work area. X=" + l.getEndX()+" Y=" + (cncMachine.getHeight()-l.getEndY())+" Home your machine or preform a reset.\n");
+            }
         }
     }
 
@@ -1474,13 +1484,14 @@ public class Main implements Initializable, Observer {
         srCoord.textProperty().bind(tg.m.getCoordinateSystem());
         srUnits.textProperty().bind(tg.m.getGcodeUnitMode());
 
-        widthSize.textProperty().bind(cncMachine.widthProperty().asString().concat(tg.m.getGcodeUnitMode().get()));
-        heightSize.textProperty().bind(cncMachine.heightProperty().asString().concat(tg.m.getGcodeUnitMode().get()));
+        widthSize.textProperty().bind(cncMachine.widthProperty().divide(tg.m.gcodeUnitDivision).asString().concat(tg.m.getGcodeUnitMode()));  //.asString().concat(tg.m.getGcodeUnitMode().get()));
+        heightSize.textProperty().bind(cncMachine.heightProperty().divide(tg.m.gcodeUnitDivision).asString().concat(tg.m.getGcodeUnitMode()));
 
         srCoord.textProperty().bind(TinygDriver.getInstance().m.gcm.getCurrentGcodeCoordinateSystemName());
         srGcodeLine.textProperty().bind(tg.m.getLineNumberSimple().asString());
 
-
+//        cncMachine.scaleXProperty().bind(cncMachine.widthProperty().subtract(gcodePane.widthProperty()));
+//        cncMachine.scaleYProperty().bind(gcodePane.heightProperty().subtract(cncMachine.heightProperty().multiply(.9)));
 
 
         /*
@@ -1547,7 +1558,7 @@ public class Main implements Initializable, Observer {
                 if (me.getButton().equals(me.getButton().PRIMARY)) {
                     if (me.getClickCount() == 2) {
                         GcodeLine gcl = (GcodeLine) gcodeView.getSelectionModel().getSelectedItem();
-                        if(TinygDriver.getInstance().isConnected()){
+                        if (TinygDriver.getInstance().isConnected()) {
                             logger.info("Double Clicked gcodeView " + gcl.getCodeLine());
                             try {
                                 TinygDriver.getInstance().write(gcl.getGcodeLineJsonified());
@@ -1555,11 +1566,11 @@ public class Main implements Initializable, Observer {
                             } catch (Exception ex) {
                                 java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
                             }
-                        }else{
+                        } else {
                             logger.info("TinyG Not Connected not sending: " + gcl.getGcodeLineJsonified());
                             console.appendText("TinyG Not Connected not sending: " + gcl.getGcodeLineJsonified());
                         }
-                        
+
                     }
                 }
             }

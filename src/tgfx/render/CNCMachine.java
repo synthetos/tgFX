@@ -40,6 +40,7 @@ public class CNCMachine extends Pane {
 
         this.setMaxSize(0, 0);  //hide this element until we connect
         //Set our machine size from tinyg travel max
+        
         this.maxHeightProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getTravelMaxSimple().multiply(TinygDriver.getInstance().m.gcodeUnitDivision));
         this.maxWidthProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getTravelMaxSimple().multiply(TinygDriver.getInstance().m.gcodeUnitDivision));
 
@@ -79,6 +80,8 @@ public class CNCMachine extends Pane {
 
             }
         });
+        
+        
 
 //        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
 //            @Override
@@ -100,11 +103,24 @@ public class CNCMachine extends Pane {
 
 
     }
-
+    
+public boolean checkBoundsY(Line l){
+             if((this.getHeight() - l.getEndY()) >= 0 && (this.getHeight() - l.getEndY()) <= this.getHeight()+1){
+                 return true;
+             }else{
+                 return false;
+             }
+        }
 
   
     
-    
+    public boolean checkBoundsX(Line l){
+             if(l.getEndX() >= 0 && l.getEndX() <= this.getWidth()){
+                 return true;
+             }else{
+                 return false;
+             }
+        }
 
     public void clearScreen() {
         this.getChildren().clear();
