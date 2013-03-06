@@ -71,8 +71,8 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
-//        logger.setLevel(org.apache.log4j.Level.ERROR);
-        logger.setLevel(org.apache.log4j.Level.INFO);
+        logger.setLevel(org.apache.log4j.Level.ERROR);
+//        logger.setLevel(org.apache.log4j.Level.INFO);
 
     }
 
@@ -96,9 +96,9 @@ public class ResponseParser extends Observable implements Runnable {
                         message[1] = "[+]JSON Response Detected... Leaving Text mode..  Querying System State....\n";
                         notifyObservers(message);
                         try {
-                            TinygDriver.getInstance().cmdManager.queryAllMachineSettings();
-                            TinygDriver.getInstance().cmdManager.queryAllHardwareAxisSettings();
-                            TinygDriver.getInstance().cmdManager.queryAllMotorSettings();
+//                            TinygDriver.getInstance().cmdManager.queryAllMachineSettings();
+//                            TinygDriver.getInstance().cmdManager.queryAllHardwareAxisSettings();
+//                            TinygDriver.getInstance().cmdManager.queryAllMotorSettings();
                         } catch (Exception ex) {
                             logger.error("Error leaving Text mode and querying Motor, Machine and Axis Settings.");
                         }
@@ -227,6 +227,10 @@ public class ResponseParser extends Observable implements Runnable {
             logger.error("[!] Error in applySettingStatusReport(JsonOBject js) : " + ex.getMessage());
             logger.error("[!]js.tostring " + js.toString());
         }
+    }
+    
+    public void set_Changed(){
+        this.setChanged();
     }
 
     public void applySetting(JSONObject js) {

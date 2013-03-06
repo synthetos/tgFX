@@ -63,6 +63,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
@@ -157,6 +158,10 @@ public class Main implements Initializable, Observer {
      * FXML UI Components
      */
 //    Window gcodeWindow;
+    
+    @FXML
+    private ChoiceBox machineSwitchType;
+    
     @FXML
     private Circle cursor;
     @FXML
@@ -179,7 +184,7 @@ public class Main implements Initializable, Observer {
     TextField input, listenerPort;
     @FXML
     private Label srMomo, srState, srBuild, srBuffer, srGcodeLine,
-            srVer, srUnits, srCoord, tgfxBuildNumber, tgfxBuildDate, tgfxVersion, tinygHardwareVersion, tinygIdNumber;
+            srVer, srUnits, srCoord, tgfxBuildNumber, tgfxBuildDate, tgfxVersion, hwVersion, firmwareVersion, buildNumb, hardwareId;
     @FXML
     StackPane cursorPoint;
     @FXML
@@ -187,7 +192,7 @@ public class Main implements Initializable, Observer {
     @FXML
     Label xposT, yposT;
     @FXML
-    WebView html;
+    WebView html, makerCam;
     @FXML
     Text heightSize, widthSize;
     @FXML
@@ -214,8 +219,7 @@ public class Main implements Initializable, Observer {
             motor1ConfigPowerMode, motor2ConfigPowerMode, motor3ConfigPowerMode, motor4ConfigPowerMode,
             axisAmode, axisBmode, axisCmode, axisXmode, axisYmode, axisZmode,
             axisAswitchModeMin, axisAswitchModeMax, axisBswitchModeMin, axisBswitchModeMax, axisCswitchModeMin, axisCswitchModeMax, axisXswitchModeMin, axisXswitchModeMax, axisYswitchModeMin, axisYswitchModeMax,
-            axisZswitchModeMin, axisZswitchModeMax, gcodePlane, movementMinLineSegment, movementTimeSegment, movementMinArcSegment, gcodeUnitMode, gcodeCoordSystem,
-            gcodePathControl, gcodeDistanceMode;
+            axisZswitchModeMin, axisZswitchModeMax, gcodePlane, movementMinLineSegment, movementTimeSegment, movementMinArcSegment, gcodeUnitMode, gcodeCoordSystem;
     @FXML
     Group motor1Node;
     @FXML
@@ -342,8 +346,7 @@ public class Main implements Initializable, Observer {
         if (tg.isConnected()) {
             console.appendText("[+]Enabling All Axis.... Motors Live!.\n");
             logger.info("Enabling All Axis");
-            tg.serialWriter.write(CommandManager.CMD_APPLY_ENABLE_ALL_AXIS);
-//            btnHandleInhibitAllAxis.setText("Un-Inhibit All Axis");
+            tg.cmdManager.enableAllAxis();
 
         } else {
             console.appendText("[!]TinyG is Not Connected...\n");
@@ -354,10 +357,9 @@ public class Main implements Initializable, Observer {
     @FXML
     void handleInhibitAllAxis(ActionEvent evt) throws Exception {
         if (tg.isConnected()) {
-            console.appendText("[+]Un-Inhibiting All Axis.... Motors Live!.\n");
-            logger.info("Un-Inhibiting All Axis");
-            tg.serialWriter.write(CommandManager.CMD_APPLY_INHIBIT_ALL_AXIS);
-//            btnHandleInhibitAllAxis.setText("Un-Inhibit All Axis");
+            console.appendText("[+]Inhibiting All Axis.... Motors Inhibited... However always verify!\n");
+            logger.info("Inhibiting All Axis");
+            tg.cmdManager.inhibitAllAxis();
 
         } else {
             console.appendText("[!]TinyG is Not Connected...\n");
@@ -535,6 +537,7 @@ public class Main implements Initializable, Observer {
     private void handleZeroSystem(ActionEvent evt) {
         if (tg.isConnected()) {
             try {
+                Draw2d.setFirstDraw(true); //This allows us to move our drawing to a new place without drawing a line from the old.
                 tg.write(CommandManager.CMD_APPLY_SYSTEM_ZERO_ALL_AXES);
                 //G92 does not invoke a status report... So we need to generate one to have
                 //Our GUI update the coordinates to zero
@@ -635,28 +638,36 @@ public class Main implements Initializable, Observer {
     private void onConnectActions() {
         try {
 
-            Draw2d.setFirstDraw(true);
-          tg.write(CommandManager.CMD_APPLY_ENABLE_JSON_MODE);          //FIRST
-            Thread.sleep(300);
-          
+//            Draw2d.setFirstDraw(true);
+//          tg.write(CommandManager.CMD_APPLY_ENABLE_JSON_MODE);          //FIRST
+//            Thread.sleep(300);
+//          
             tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);          
             Thread.sleep(300);
             
-//            tg.write(CommandManager.CMD_QUERY_SYSTEM_SERIAL_BUFFER_LENGTH);//SECOND.5 :)
+            //            tg.write(CommandManager.CMD_QUERY_SYSTEM_SERIAL_BUFFER_LENGTH);//SECOND.5 :)
+            
+            
             tg.write(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //SECOND
             Thread.sleep(300);
             tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //THIRD 
             Thread.sleep(300);
-//            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);          //FORTH
-//            Thread.sleep(300);
-//            tg.write(CommandManager.CMD_DEFAULT_ENABLE_JSON);           //FIFTH
-//            Thread.sleep(300);
+          
+            
+
+            
+            //            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);          //FORTH
+            //            Thread.sleep(300);
+            //            tg.write(CommandManager.CMD_DEFAULT_ENABLE_JSON);           //FIFTH
+            //            Thread.sleep(300);
+            
+            
             tg.cmdManager.queryAllMachineSettings();                    //SIXtH
             tg.cmdManager.queryStatusReport();                          //SEVENTH - Get Positions if the board is not at zero
             tg.cmdManager.queryAllMotorSettings();                      //EIGTH
             tg.cmdManager.queryAllHardwareAxisSettings();               //NINETH
             gcodePane.getChildren().add(cncMachine);
-            cncMachine.setStyle("-fx-background-color: black; -fx-border-color: red; -fx-border-style: dotted");
+            
         } catch (Exception ex) {
             console.appendText("[!]Error in onConnectActions: " + ex.getMessage());
             System.out.println(ex.getMessage());
@@ -1011,6 +1022,7 @@ public class Main implements Initializable, Observer {
             Draw2d.setFirstDraw(false);
         } else {
             l = new Line(xPrevious, yPrevious, newX, newY);
+            l.setStrokeWidth(.5);
         }
 
 
@@ -1160,9 +1172,9 @@ public class Main implements Initializable, Observer {
                     case ("NETWORK_MESSAGE"):
                         //updateExternal();
                         break;
-//                    case ("MACHINE_UPDATE"):
-//                        updateGuiMachineSettings(ROUTING_KEY);
-//                        break;
+                    case ("MACHINE_UPDATE"):
+                        updateGuiMachineSettings();
+                        break;
                     case ("TEXTMODE_REPORT"):
                         console.appendText(KEY_ARGUMENT);
                         break;
@@ -1195,7 +1207,30 @@ public class Main implements Initializable, Observer {
         //No motor was provided... Update them all.
         updateGuiMotorSettings(null);
     }
-
+    
+    
+    @FXML
+    private void handleApplyMachineSettings(){
+        try {
+            tg.cmdManager.applyMachineSwitchMode(machineSwitchType.getSelectionModel().getSelectedIndex());
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+    }
+        
+    @FXML
+    private void handleQueryMachineSettings() {
+        try {
+            tg.cmdManager.queryMachineSwitchMode();
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void updateGuiMachineSettings(){
+        
+        machineSwitchType.getSelectionModel().select(tg.m.getSwitchType());
+    }
     private void updateGuiMotorSettings(final String arg) {
         //Update the GUI for config settings
         Platform.runLater(new Runnable() {
@@ -1489,7 +1524,12 @@ public class Main implements Initializable, Observer {
 
         srCoord.textProperty().bind(TinygDriver.getInstance().m.gcm.getCurrentGcodeCoordinateSystemName());
         srGcodeLine.textProperty().bind(tg.m.getLineNumberSimple().asString());
-
+        
+        hardwareId.textProperty().bind(tg.m.hardwareId); //Bind the tinyg hardware id to the tg driver value
+        hwVersion.textProperty().bind(tg.m.hardwareVersion); //Bind the tinyg version  to the tg driver value
+        firmwareVersion.textProperty().bind(tg.m.firmwareVersion);
+        buildNumb.textProperty().bind(tg.m.firmwareBuild.asString());
+        
 //        cncMachine.scaleXProperty().bind(cncMachine.widthProperty().subtract(gcodePane.widthProperty()));
 //        cncMachine.scaleYProperty().bind(gcodePane.heightProperty().subtract(cncMachine.heightProperty().multiply(.9)));
 
@@ -1517,8 +1557,8 @@ public class Main implements Initializable, Observer {
          * LOGGER CONFIG
          ######################################*/
         BasicConfigurator.configure();
-//        logger.setLevel(Level.ERROR);
-        logger.setLevel(Level.INFO);
+        logger.setLevel(Level.ERROR);
+//        logger.setLevel(Level.INFO);
         logger.info("[+]tgFX is starting....");
 
 
@@ -1537,6 +1577,9 @@ public class Main implements Initializable, Observer {
          ######################################*/
         WebEngine webEngine = html.getEngine();
         webEngine.load("https://github.com/synthetos/TinyG/wiki");
+     
+        WebEngine webEngine2 = makerCam.getEngine();
+        webEngine2.load("http://simplegcoder.com/js_editor/");
 
 
 

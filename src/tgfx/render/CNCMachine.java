@@ -7,8 +7,13 @@ package tgfx.render;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Side;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -16,6 +21,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javax.naming.Context;
+import org.apache.log4j.Logger;
 import tgfx.tinyg.TinygDriver;
 
 /**
@@ -25,29 +32,31 @@ import tgfx.tinyg.TinygDriver;
 public class CNCMachine extends Pane {
 
     private DecimalFormat df = new DecimalFormat("#.##");
+    private  final Circle cursorPoint = new Circle(2, javafx.scene.paint.Color.RED);
+    
     public CNCMachine() {
-
+        this.setStyle("-fx-background-color: black; -fx-border-color: orange;  -fx-border-width: .5;");
+        
         /*####################################
          *Cursor Set
          #################################### */
-//        final Circle cursorPoint = new Circle(2, javafx.scene.paint.Color.RED);
-//        this.getChildren().add(cursorPoint);
-
-//        cursorPoint.translateYProperty().bind(this.heightProperty());
-//        cursorPoint.layoutXProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getMachinePositionSimple());
-//        cursorPoint.layoutYProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getMachinePositionSimple());
+       
+        //Cursor point indicator
+        cursorPoint.setRadius(1);
+        cursorPoint.translateYProperty().bind(this.heightProperty().subtract(TinygDriver.getInstance().m.getAxisByName("y").getMachinePositionSimple()));
+        cursorPoint.layoutXProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getMachinePositionSimple());
+        
 //        cncMachine.getHeight() - tg.m.getAxisByName("y").getMachinePosition().get();
-
         this.setMaxSize(0, 0);  //hide this element until we connect
         //Set our machine size from tinyg travel max
-        
+
         this.maxHeightProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getTravelMaxSimple().multiply(TinygDriver.getInstance().m.gcodeUnitDivision));
         this.maxWidthProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getTravelMaxSimple().multiply(TinygDriver.getInstance().m.gcodeUnitDivision));
 
         final Circle c = new Circle(2, Color.RED);
 
         final Text cursorText = new Text("None");
-        cursorText.setStroke(Color.YELLOW);
+//        cursorText.setStroke(Color.YELLOW);
         cursorText.setFill(Color.YELLOW);
         cursorText.setFont(Font.font("Arial", 6));
 
@@ -80,12 +89,38 @@ public class CNCMachine extends Pane {
 
             }
         });
-        
-        
 
-//        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent me) {
+
+
+        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(final MouseEvent me) {
+                //This is so we can set our machine position when a machine does not have homing switches
+                if(me.getButton().equals(me.getButton().SECONDARY)){
+                    //Right Clicked
+                    ContextMenu cm = new ContextMenu();
+                    MenuItem menuItem1 = new MenuItem("Set Machine Position");                  
+                    menuItem1.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent t) {
+                            Draw2d.setFirstDraw(true); //We do not want to draw a line from our previous position
+                            TinygDriver.getInstance().cmdManager.setMachinePosition(me.getX(), getHeight() - me.getY());
+                            
+                        }
+                    });
+                    cm.getItems().add(menuItem1);
+                    cm.show((Node)me.getSource(), me.getScreenX(), me.getScreenY());                    
+                }
+                
+//                cm.getItems().add(cmItem1);
+//pic.addEventHandler(MouseEvent.MOUSE_CLICKED,
+//    new EventHandler<MouseEvent>() {
+//        @Override public void handle(MouseEvent e) {
+//            if (e.getButton() == MouseButton.SECONDARY)  
+//                cm.show(pic, e.getScreenX(), e.getScreenY());
+//        }
+//});
+                
 //                Circle c = new Circle(2, Color.YELLOWGREEN);
 //                c.setLayoutX(me.getX());
 //                c.setLayoutY(me.getY());
@@ -97,30 +132,28 @@ public class CNCMachine extends Pane {
 //                coordsText.setY(me.getY());
 //                getChildren().add(coordsText);
 //                getChildren().add(c);
-//            }
-//        });
+            }
+        });
 
 
 
     }
-    
-public boolean checkBoundsY(Line l){
-             if((this.getHeight() - l.getEndY()) >= 0 && (this.getHeight() - l.getEndY()) <= this.getHeight()+1){
-                 return true;
-             }else{
-                 return false;
-             }
-        }
 
-  
-    
-    public boolean checkBoundsX(Line l){
-             if(l.getEndX() >= 0 && l.getEndX() <= this.getWidth()){
-                 return true;
-             }else{
-                 return false;
-             }
+    public boolean checkBoundsY(Line l) {
+        if ((this.getHeight() - l.getEndY()) >= 0 && (this.getHeight() - l.getEndY()) <= this.getHeight() + 1) {
+            return true;
+        } else {
+            return false;
         }
+    }
+
+    public boolean checkBoundsX(Line l) {
+        if (l.getEndX() >= 0 && l.getEndX() <= this.getWidth()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public void clearScreen() {
         this.getChildren().clear();
@@ -135,14 +168,14 @@ public boolean checkBoundsY(Line l){
         xText.setY(-10);
         xText.xProperty().bind(this.heightProperty().divide(2));
         xText.setRotate(0);
-        xText.setStroke(Color.YELLOW);
+//        xText.setStroke(Color.YELLOW);
         xText.setFill(Color.YELLOW);
         xText.setFont(Font.font("Arial", 10));
 
         yText.setX(-25);
         yText.yProperty().bind(this.widthProperty().divide(2));
         yText.setRotate(-90);
-        yText.setStroke(Color.YELLOW);
+//        yText.setStroke(Color.YELLOW);
         yText.setFill(Color.YELLOW);
         yText.setFont(Font.font("Arial", 10));
 
@@ -152,6 +185,7 @@ public boolean checkBoundsY(Line l){
         this.getChildren().add(yText);
 
         this.setCursor(Cursor.CROSSHAIR);
+        this.getChildren().add(cursorPoint);
     }
 
     public void autoScaleWorkTravelSpace(double scaleAmount) {

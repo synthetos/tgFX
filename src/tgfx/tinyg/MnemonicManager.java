@@ -95,12 +95,12 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL = "gpa";
     public static final String MNEMONIC_SYSTEM_DEFAULT_GCODE_DISTANCE_MODE = "gdi";
     public static final String MNEMONIC_SYSTEM_FIRMWARE_BUILD = "fb";
+    public static final String MNEMONIC_SYSTEM_SWITCH_TYPE = "st";
     public static final String MNEMONIC_SYSTEM_FIRMWARE_VERSION = "fv";
     public static final String MNEMONIC_SYSTEM_JUNCTION_ACCELERATION = "ja";
     public static final String MNEMONIC_SYSTEM_MIN_LINE_SEGMENT = "ml";
     public static final String MNEMONIC_SYSTEM_MIN_ARC_SEGMENT = "ma";
     public static final String MNEMONIC_SYSTEM_MIN_TIME_SEGMENT = "mt";
-    public static final String MNEMONIC_SYSTEM_SWITCH_TYPE = "st";
     public static final String MNEMONIC_SYSTEM_IGNORE_CR = "ic";
     public static final String MNEMONIC_SYSTEM_ENABLE_ECHO = "ee";
     public static final String MNEMONIC_SYSTEM_ENABLE_XON = "ex";

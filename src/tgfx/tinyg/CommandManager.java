@@ -20,6 +20,10 @@ public class CommandManager {
     public static final String CMD_QUERY_OK_PROMPT = "{\"gc\":\"?\"}\n";
     public static final String CMD_APPLY_STATUS_REPORT_FORMAT = "{\"sr\":{\"line\":true,\"vel\":true,\"mpox\":true,\"mpoy\":true, \"mpoz\":true,\"mpoa\":true,\"coor\":true, \"ofsa\":true,\"ofsx\":true,\"ofsy\":true,\"ofsz\":true,\"unit\":true,\"homz\":true,\"homy\":true,\"homx\":true,\"momo\":true}}\n";
     public static final String CMD_QUERY_STATUS_REPORT = "{\"sr\":\"\"}\n";
+    
+    public static final String CMD_QUERY_HARDWARE_ID = "{\"id\":null}\n";
+    public static final String CMD_QUERY_HARDWARE_VERSION = "{\"hv\":null}\n";
+    
     public static final String CMD_QUERY_AXIS_X = "{\"x\":null}\n";
     public static final String CMD_QUERY_AXIS_Y = "{\"y\":null}\n";
     public static final String CMD_QUERY_AXIS_Z = "{\"z\":null}\n";
@@ -47,6 +51,13 @@ public class CommandManager {
     public static final String CMD_APPLY_ENABLE_JSON_MODE = "{\"ej\":1}\n";
     public static final String CMD_DEFAULT_ENABLE_JSON = "{\"ej\":1}\n";
     public static final String CMD_APPLY_TEXT_VOBERSITY = "{\"tv\":0}\n"; 
+    
+    
+    public static final String CMD_QUERY_SWITCHMODE = "{\"st\":null}\n"; 
+    public static final String CMD_APPLY_SWITCHMODE_NORMALLY_OPEN = "{\"st\":0}\n"; 
+    public static final String CMD_APPLY_SWITCHMODE_NORMALLY_CLOSED = "{\"st\":1}\n"; 
+    
+    
     public static final String CMD_APPLY_PAUSE = "!\n";
     //Homeing Commandings
     public static final String CMD_APPLY_HOME_X_AXIS = "{\"gc\":\"g28.2x0\"}\n";
@@ -59,8 +70,20 @@ public class CommandManager {
     public static final String CMD_APPLY_ZERO_Z_AXIS = "{\"gc\":\"g92z0\"}\n";
     public static final String CMD_APPLY_ZERO_A_AXIS = "{\"gc\":\"g92a0\"}\n";
     
-    public static final String CMD_APPLY_INHIBIT_ALL_AXIS = "{\"xam\":2, \"yam\":2, \"zam\":2, \"aam\":2}\n";
-    public static final String CMD_APPLY_ENABLE_ALL_AXIS = "{\"xam\":1, \"yam\":1, \"zam\":1, \"aam\":1}\n";
+//    public static final String CMD_APPLY_INHIBIT_ALL_AXIS = "{\"xam\":2, \"yam\":2, \"zam\":2, \"aam\":2}\n";
+    public static final String CMD_APPLY_INHIBIT_X_AXIS = "{\"xam\":2}\n";
+    public static final String CMD_APPLY_INHIBIT_Y_AXIS = "{\"yam\":2}\n";
+    public static final String CMD_APPLY_INHIBIT_Z_AXIS = "{\"zam\":2}\n";
+    public static final String CMD_APPLY_INHIBIT_A_AXIS = "{\"aam\":2}\n";
+    
+    public static final String CMD_APPLY_ENABLE_X_AXIS = "{\"xam\":1}\n";
+    public static final String CMD_APPLY_ENABLE_Y_AXIS = "{\"yam\":1}\n";
+    public static final String CMD_APPLY_ENABLE_Z_AXIS = "{\"zam\":1}\n";
+    public static final String CMD_APPLY_ENABLE_A_AXIS = "{\"aam\":1}\n";
+   
+    
+    
+//    public static final String CMD_APPLY_ENABLE_ALL_AXIS = "{\"xam\":1, \"yam\":1, \"zam\":1, \"aam\":1}\n";
     
     
     
@@ -77,6 +100,15 @@ public class CommandManager {
 
     public CommandManager() {
         logger.setLevel(Level.ERROR);
+    }
+    
+    public void setMachinePosition(double x, double y){
+        try {
+           
+            TinygDriver.getInstance().write("{\"gc\":\"g28.3"+"X"+x+"Y"+y+"\"}\n");
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(CommandManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -103,10 +135,46 @@ public class CommandManager {
             logger.error(ex.getMessage());
         }
     }
+    
+    public void inhibitAllAxis() throws Exception{
+        TinygDriver.getInstance().write(CMD_APPLY_INHIBIT_A_AXIS);
+        Thread.sleep(300);
+        TinygDriver.getInstance().write(CMD_APPLY_INHIBIT_X_AXIS);
+        Thread.sleep(300);
+        TinygDriver.getInstance().write(CMD_APPLY_INHIBIT_Y_AXIS);
+        Thread.sleep(300);
+        TinygDriver.getInstance().write(CMD_APPLY_INHIBIT_Z_AXIS);
+        Thread.sleep(300);
+        
+    }
+    
+    public void enableAllAxis() throws Exception{
+        TinygDriver.getInstance().write(CMD_APPLY_ENABLE_A_AXIS);
+        Thread.sleep(300);
+        TinygDriver.getInstance().write(CMD_APPLY_ENABLE_X_AXIS);
+        Thread.sleep(300);
+        TinygDriver.getInstance().write(CMD_APPLY_ENABLE_Y_AXIS);
+        Thread.sleep(300);
+        TinygDriver.getInstance().write(CMD_APPLY_ENABLE_Z_AXIS);
+        Thread.sleep(300);
+        
+    }
 
     public void queryStatusReport() throws Exception {
         logger.info("[+]Querying Status Report");
         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_STATUS_REPORT);
+    }
+    
+    public void queryMachineSwitchMode() throws Exception {
+        TinygDriver.getInstance().write(CMD_QUERY_SWITCHMODE);
+    }
+    
+    public void applyMachineSwitchMode(int i) throws Exception{
+        if(i == 0){
+            TinygDriver.getInstance().write(CMD_APPLY_SWITCHMODE_NORMALLY_OPEN);
+        }else{
+            TinygDriver.getInstance().write(CMD_APPLY_SWITCHMODE_NORMALLY_CLOSED);
+        }
     }
 
     public void queryAllMachineSettings() throws Exception {
