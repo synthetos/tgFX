@@ -6,10 +6,8 @@ package tgfx.render;
 
 import java.text.DecimalFormat;
 import java.util.Iterator;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -21,8 +19,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javax.naming.Context;
-import org.apache.log4j.Logger;
 import tgfx.tinyg.TinygDriver;
 
 /**
@@ -168,14 +164,12 @@ public class CNCMachine extends Pane {
         xText.setY(-10);
         xText.xProperty().bind(this.heightProperty().divide(2));
         xText.setRotate(0);
-//        xText.setStroke(Color.YELLOW);
         xText.setFill(Color.YELLOW);
         xText.setFont(Font.font("Arial", 10));
 
         yText.setX(-25);
         yText.yProperty().bind(this.widthProperty().divide(2));
         yText.setRotate(-90);
-//        yText.setStroke(Color.YELLOW);
         yText.setFill(Color.YELLOW);
         yText.setFont(Font.font("Arial", 10));
 
