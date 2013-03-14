@@ -31,10 +31,12 @@ public class TgFX extends Application {
         
         
         Scene scene = new Scene(root);
+        
 //        scene.getStylesheets().add(this.getClass().getResource("new_main.css.css").toExternalForm());
         
         
-        
+        stage.setMinHeight(800);
+        stage.setMinWidth(1280);
         stage.setScene(scene);
         stage.show();
     }
