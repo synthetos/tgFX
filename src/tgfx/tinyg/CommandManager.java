@@ -59,6 +59,7 @@ public class CommandManager {
     
     
     public static final String CMD_APPLY_PAUSE = "!\n";
+    public static final String CMD_APPLY_QUEUE_FLUSH = "{\"qf\":0}\n";
     //Homeing Commandings
     public static final String CMD_APPLY_HOME_X_AXIS = "{\"gc\":\"g28.2x0\"}\n";
     public static final String CMD_APPLY_HOME_Y_AXIS = "{\"gc\":\"g28.2y0\"}\n";
@@ -116,6 +117,8 @@ public class CommandManager {
      * Query All Motors for their current settings
      */
     public void queryAllMotorSettings() throws Exception {
+        
+        
 
         try {
             TinygDriver.getInstance().write(CMD_QUERY_MOTOR_1_SETTINGS);

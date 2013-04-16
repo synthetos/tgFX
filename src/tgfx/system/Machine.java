@@ -34,12 +34,13 @@ public final class Machine {
     public StringProperty hardwareId = new SimpleStringProperty("na");
     public StringProperty hardwareVersion = new SimpleStringProperty("na");
     public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
-    private SimpleStringProperty gcodeUnitMode = new SimpleStringProperty("mm");
+    private StringProperty gcodeUnitMode = new SimpleStringProperty("mm");
+    
     public SimpleDoubleProperty gcodeUnitDivision = new SimpleDoubleProperty(1);
-    private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
+//    private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
     private int switchType = 0; //0=normally closed 1 = normally open
     private int status_report_interval;
-    public Gcode_unit_modes gcode_startup_units;
+//    public Gcode_unit_modes gcode_startup_units;
     public Gcode_select_plane gcode_select_plane;
     public Gcode_coord_system gcode_select_coord_system;
     public Gcode_path_control gcode_path_control;
@@ -159,7 +160,9 @@ public final class Machine {
         return hardwareId;
     }
     
-    
+//    public SimpleDoubleProperty over(){
+//        return(gcodeUnitDivision.divide(2));
+//    }
 
     public void setHardwareId(String hwIdString) {
         hardwareId.set(hwIdString);
@@ -319,17 +322,20 @@ public final class Machine {
 
     public void setGcodeUnits(int unitMode) {
         if (unitMode == 0) {
-            gcodeUnitMode.setValue(Gcode_unit_modes.inches.toString());
+            gcodeUnitMode.setValue("inches");
             gcodeUnitDivision.set(25.4);  //mm to inches conversion   
+            
+            
         } else if (unitMode == 1) {
-            gcodeUnitMode.setValue(Gcode_unit_modes.mm.toString());
-            gcodeUnitDivision.set(1);
+            gcodeUnitMode.setValue("mm");
+            gcodeUnitDivision.set(1.0);
+            
         }
 
     }
 //
 
-    public SimpleStringProperty getGcodeUnitMode() {
+    public StringProperty getGcodeUnitMode() {
         return gcodeUnitMode;
     }
 
@@ -663,12 +669,6 @@ public final class Machine {
 
     public void applyJsonStatusReport(responseCommand rc) {
 
-//        Iterator ii = js.keySet().iterator();
-//        try {
-//            while (ii.hasNext()) {
-//                String _key = ii.next().toString();
-//                String _val = js.get(_key).toString();
-//                final responseCommand rc = new responseCommand(parent, _key, _val);
 
         switch (rc.getSettingKey()) {
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):

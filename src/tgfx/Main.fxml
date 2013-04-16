@@ -25,9 +25,9 @@
 <?import jfxtras.labs.scene.control.window.*?>
 <?scenebuilder-classpath-element ../../lib/jfxtras-labs-2.2-r5-20121222.173143-8.jar?>
 
-<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
+<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
   <children>
-    <BorderPane prefHeight="-1.0" prefWidth="-1.0" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <BorderPane disable="false" prefHeight="-1.0" prefWidth="-1.0" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
         <VBox alignment="CENTER" prefHeight="168.0" prefWidth="-1.0" style="-fx-background-color: GREY;" BorderPane.alignment="CENTER">
           <children>
@@ -118,7 +118,7 @@
         </VBox>
       </bottom>
       <center>
-        <TabPane focusTraversable="false" style="">
+        <TabPane fx:id="topTabPane" disable="false" focusTraversable="false" style="">
           <prefHeight>
             <Long fx:value="-1" />
           </prefHeight>
@@ -152,12 +152,12 @@
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
                           <children>
-                            <Button fx:id="cancelBtn" focusTraversable="false" onAction="#handleCancelFile" prefWidth="131.0" style="-fx-background-color:red" text="Reset" underline="false" HBox.hgrow="NEVER">
+                            <Button id="cancelBtn" fx:id="resetBtn" contentDisplay="CENTER" focusTraversable="false" graphicTextGap="0.0" onAction="#handleReset" prefWidth="-1.0" style="-fx-background-color:red" text="Reset" textAlignment="JUSTIFY" underline="false" HBox.hgrow="NEVER">
                               <HBox.margin>
                                 <Insets fx:id="x727" />
                               </HBox.margin>
                             </Button>
-                            <Button fx:id="btnTest" focusTraversable="false" mnemonicParsing="false" onAction="#handleTestButton" text="Test" visible="false" />
+                            <Button contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#handleStop" text="Stop Job" textAlignment="CENTER" />
                           </children>
                           <padding>
                             <Insets top="10.0" />
@@ -168,7 +168,7 @@
                         <Insets bottom="15.0" left="5.0" right="5.0" />
                       </padding>
                     </VBox>
-                    <HBox id="gcodePreviewVbox" fx:id="gcodePreviewHbox" alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" visible="true" HBox.hgrow="ALWAYS">
+                    <HBox id="gcodePreviewVbox" fx:id="gcodePreviewHbox" alignment="CENTER" disable="false" prefHeight="-1.0" prefWidth="-1.0" visible="true" HBox.hgrow="ALWAYS">
                       <children>
                         <!--                           	<Window title="Gcode Preview" prefHeight="400" prefWidth="700"/> -->
                         <VBox id="previewVbox" fx:id="tester" alignment="BOTTOM_CENTER" disable="false" minHeight="-1.0" minWidth="-1.0" rotate="180.0" scaleX="1.0" scaleZ="1.0" snapToPixel="true" spacing="5.0" style="-fx-background-radius: 10;&#10;" translateZ="1.0" visible="true" HBox.hgrow="ALWAYS">
@@ -188,7 +188,7 @@
                             </HBox>
                           </children>
                           <effect>
-                            <DropShadow color="WHITE" height="8.857142857201758" radius="3.928571428586154" spread="0.49206349206349204" width="8.857142857142858" />
+                            <DropShadow color="WHITE" height="8.857142857157584" radius="3.9285714285751103" spread="0.49206349206349204" width="8.857142857142858" />
                           </effect>
                           <padding>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
@@ -1280,11 +1280,11 @@
                                             <Insets left="10.0" right="10.0" top="10.0" />
                                           </VBox.margin>
                                         </ListView>
-                                        <HBox id="hBox5" alignment="CENTER" spacing="10.0" VBox.vgrow="NEVER">
+                                        <HBox id="hBox5" alignment="CENTER" spacing="10.0" visible="true" VBox.vgrow="NEVER">
                                           <children>
                                             <Button id="button2" text="Import" />
                                             <Button id="button1" onAction="#handleImportConfig" text="Load" />
-                                            <Button id="saveConfig" mnemonicParsing="false" text="Save" />
+                                            <Button id="saveConfig" mnemonicParsing="false" onAction="#handleSaveCurrentSettings" text="Save" />
                                           </children>
                                           <padding>
                                             <Insets left="5.0" right="5.0" fx:id="x6_x01" />

@@ -1,12 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * tgFX Driver Class Copyright Synthetos.com
+ * lgpl
  */
 package tgfx.tinyg;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
@@ -21,9 +20,7 @@ import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
 
-/**
- * tgFX Driver Class Copyright Synthetos.com
- */
+
 public class TinygDriver extends Observable {
 
     static final Logger logger = Logger.getLogger(TinygDriver.class);
@@ -32,7 +29,7 @@ public class TinygDriver extends Observable {
     public MnemonicManager mneManager = new MnemonicManager();
     public ResponseManager resManager = new ResponseManager();
     public CommandManager cmdManager = new CommandManager();
-  
+    private double unitMultiplier;
 
     private class StatusCode {
 
@@ -66,6 +63,8 @@ public class TinygDriver extends Observable {
         return TinygDriverHolder.INSTANCE;
     }
 
+    
+    
    
 
     public void queryHardwareSingleAxisSettings(char c){
@@ -149,6 +148,19 @@ public class TinygDriver extends Observable {
             }
         }
     }
+    
+//     public float calculateDisplayedUnits(responseCommand rc) {
+//        //Quick helper function to return the current division rate for specific units
+//        if (this.m.getGcodeUnitModeAsInt() == 1) {
+//            unitMultiplier = 1;
+//        } else {
+//            unitMultiplier = 25.4;
+//        }
+//
+//        double _tmpVal = Double.valueOf(rc.getSettingValue()) * unitMultiplier;
+//        return((float) _tmpVal);
+//    }
+     
 
     public void applyHardwareAxisSettings(Axis _axis, TextField tf) throws Exception {
         /**
@@ -422,6 +434,7 @@ public class TinygDriver extends Observable {
     public synchronized void write(String msg) throws Exception {
         
         TinygDriver.getInstance().serialWriter.addCommandToBuffer(msg);
+        logger.info("Send to Command Buffer >> " + msg);
     }
 
     public void priorityWrite(Byte b) throws Exception {

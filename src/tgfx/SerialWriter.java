@@ -8,14 +8,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tgfx.tinyg.CommandManager;
+import tgfx.tinyg.TinygDriver;
 
 /**
  *
  * @author ril3y
  */
 public class SerialWriter implements Runnable {
-    
-    
+
     private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SerialWriter.class);
     private BlockingQueue queue;
     private boolean RUN = true;
@@ -29,29 +29,30 @@ public class SerialWriter implements Runnable {
     //   public Condition clearToSend = lock.newCondition();
     public SerialWriter(BlockingQueue q) {
         this.queue = q;
-        logger.setLevel(org.apache.log4j.Level.ERROR);
-        
+//        logger.setLevel(org.apache.log4j.Level.ERROR);
+        logger.setLevel(org.apache.log4j.Level.INFO);
+
     }
-    
-    public void resetBuffer(){
+
+    public void resetBuffer() {
         //Called onDisconnectActions
         buffer_available = BUFFER_SIZE;
     }
-    
-    public void setSerialBufferLenght(int bufflen){
+
+    public void setSerialBufferLenght(int bufflen) {
         buffer_available = bufflen;  //If the firmware build uses a different serial buffer len for whatever reason this will catch it.
     }
 
-    public void clearQueueBuffer(){
+    public void clearQueueBuffer() {
         queue.clear();
         try {
-            SerialDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESET);
+//            SerialDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESET);
             this.buffer_available = BUFFER_SIZE;
         } catch (Exception ex) {
             Logger.getLogger(SerialWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public boolean isRUN() {
         return RUN;
     }
@@ -60,18 +61,15 @@ public class SerialWriter implements Runnable {
         this.RUN = RUN;
     }
 
-
-    
     public synchronized int getBufferValue() {
         return buffer_available;
     }
 
-    public synchronized void setBuffer(int val){
+    public synchronized void setBuffer(int val) {
         buffer_available = val;
         logger.info("Got a BUFFER Response.. reset it to: " + val);
     }
-    
-    
+
     public synchronized void addBytesReturnedToBuffer(int lenBytesReturned) {
         buffer_available = (buffer_available + lenBytesReturned);
 //        logger.info("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");
@@ -82,13 +80,13 @@ public class SerialWriter implements Runnable {
     }
 
     public boolean setThrottled(boolean t) {
-        
+
         synchronized (mutex) {
             if (t == throttled) {
-                logger.info("Throttled already set");
+                logger.debug("Throttled already set");
                 return false;
             }
-            logger.info("Setting Throttled " + t);
+            logger.debug("Setting Throttled " + t);
             throttled = t;
 //            if (!throttled) {
 //                mutex.notify();
@@ -102,9 +100,20 @@ public class SerialWriter implements Runnable {
         //Will wake up the mutex that is sleeping in the write method of the serialWriter
         //(this) class.
         synchronized (mutex) {
-            logger.info("Notifying the SerialWriter we have recvd an ACK");
+            logger.debug("Notifying the SerialWriter we have recvd an ACK");
             mutex.notify();
         }
+    }
+
+    private void sendUiMessage(String str) {
+        //Used to send messages to the console on the GUI
+        String gcodeComment = "";
+        int startComment = str.indexOf("(");
+        int endComment = str.indexOf(")");
+        for (int i = startComment; i <= endComment; i++) {
+            gcodeComment += str.charAt(i);
+        }
+        Main.consoleRecvdMessage(" Gcode Comment << " + gcodeComment + "\n");
     }
 
     public void write(String str) {
@@ -113,28 +122,33 @@ public class SerialWriter implements Runnable {
                 if (str.length() > getBufferValue()) {
                     setThrottled(true);
                 } else {
-                   buffer_available = (getBufferValue() - str.length());
-                  
+                    buffer_available = (getBufferValue() - str.length());
                 }
 
                 while (throttled) {
                     if (str.length() > getBufferValue()) {
-                        logger.info("Throttling: Line Length: " + str.length() + " is smaller than buffer length: " + buffer_available);
+                        logger.debug("Throttling: Line Length: " + str.length() + " is smaller than buffer length: " + buffer_available);
                         setThrottled(true);
                     } else {
                         setThrottled(false);
                         buffer_available = (getBufferValue() - str.length());
                         break;
                     }
-                    logger.info("We are Throttled in the write method for SerialWriter");
+                    logger.debug("We are Throttled in the write method for SerialWriter");
                     //We wait here until the an ack comes in to the response parser
                     // frees up some buffer space.  Then we unlock the mutex and write the next line.
                     mutex.wait();
-                    logger.info("We are free from Throttled!");
+                    logger.debug("We are free from Throttled!");
                 }
             }
+            if (str.contains("(")) {
+                //Gcode Comment Push it back to the UI
+                sendUiMessage(str);
+
+            }
+
             ser.write(str);
-            logger.debug("Wrote Line --> " + str );
+            logger.info("Wrote Line --> " + str);
         } catch (Exception ex) {
             logger.error("Error in SerialDriver Write");
         }

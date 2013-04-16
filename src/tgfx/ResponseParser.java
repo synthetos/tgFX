@@ -71,8 +71,8 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
-        logger.setLevel(org.apache.log4j.Level.ERROR);
-//        logger.setLevel(org.apache.log4j.Level.INFO);
+//        logger.setLevel(org.apache.log4j.Level.ERROR);
+        logger.setLevel(org.apache.log4j.Level.INFO);
 
     }
 
@@ -84,7 +84,7 @@ public class ResponseParser extends Observable implements Runnable {
         while (RUN) {
             try {
                 line = (String) responseQueue.take();
-                if (line.equals("")) {  //Onreset TinyG kicks out a ""
+                if (line.equals("")) {  
                     continue;
                 }
                 if (line.startsWith("{")) {
@@ -209,7 +209,8 @@ public class ResponseParser extends Observable implements Runnable {
          */
         String parentGroup;
         try {
-            Iterator ii = js.keySet().iterator();
+            Iterator ii;
+            ii = js.keySet().iterator();
             //This is a special multi single value response object
             while (ii.hasNext()) {
                 String key = ii.next().toString();
@@ -226,6 +227,10 @@ public class ResponseParser extends Observable implements Runnable {
         } catch (Exception ex) {
             logger.error("[!] Error in applySettingStatusReport(JsonOBject js) : " + ex.getMessage());
             logger.error("[!]js.tostring " + js.toString());
+            setChanged();
+            message[0] = "STATUS_REPORT";
+            message[1] = null;
+            notifyObservers(message);
         }
     }
     

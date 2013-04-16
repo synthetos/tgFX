@@ -4,11 +4,13 @@
  */
 package tgfx.system;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.scene.control.TextField;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,13 +58,17 @@ public final class Axis {
     private double junction_devation;
     private SWITCH_MODES max_switch_mode;
     private SWITCH_MODES min_switch_mode;
+    
+    DecimalFormat decimalFormat = new DecimalFormat("#.000");
+    DecimalFormat decimalFormatjunctionDeviation = new DecimalFormat("0.000000");
+    DecimalFormat decimalFormatMaximumJerk = new DecimalFormat("################################.############################");
 //    private float homing_travel;
 //    private float homing_search_velocity;
 //    private float homing_latch_velocity;
 //    private float homing_zero_offset;
 //    private float homing_work_offset;
     private String axis_name;
-    private List<Motor> motors = new ArrayList<Motor>();
+    private List<Motor> motors = new ArrayList<>();
 
     public enum SWITCH_MODES {
 
@@ -195,13 +201,13 @@ public final class Axis {
             }
             case "jm": {
                 int val = (int) Double.parseDouble(value);
-                this.setTravel_maximum(val);
+                this.setJerkMaximum(val);
                 System.out.println("\t[+]Set Axis: " + this.getJerkMaximum() + " Jerk Max to: " + this.getJerkMaximum());
                 return;
             }
             case "jd": {
                 int val = (int) Double.parseDouble(value);
-                this.setTravel_maximum(val);
+                this.setJunctionDevation(val);
                 System.out.println("\t[+]Set Axis: " + this.getJunction_devation() + " Junction Deviation Max to: " + this.getJunction_devation());
                 return;
             }
@@ -287,11 +293,11 @@ public final class Axis {
     }
 
     public double getLatch_backoff() {
-        return latch_backoff;
+        return formatDoubleValue(latch_backoff);
     }
 
     public double getRadius() {
-        return radius;
+        return formatDoubleValue(radius);
     }
 
 //    public void setRadius(int radius) {
@@ -303,7 +309,7 @@ public final class Axis {
     }
 
     public float getLatch_velocity() {
-        return latch_velocity;
+       return formatFloatValue(latch_velocity);
     }
 
 //    public float getSeek_rate_maximum() {
@@ -314,7 +320,7 @@ public final class Axis {
 //        this.seek_rate_maximum = seek_rate_maximum;
 //    }
     public double getSearch_velocity() {
-        return searchVelocity;
+        return formatDoubleValue(searchVelocity);
     }
 
     public boolean setSearch_velocity(double search_velocity) {
@@ -328,7 +334,7 @@ public final class Axis {
     }
 
     public double getZero_backoff() {
-        return zero_backoff;
+        return formatDoubleValue(zero_backoff);
     }
 
     public boolean setZero_backoff(float zero_backoff) {
@@ -475,7 +481,8 @@ public final class Axis {
     }
 
     public double getFeed_rate_maximum() {
-        return feedRateMaximum;
+     return formatDoubleValue(feedRateMaximum);
+         
     }
 
     public boolean setFeed_rate_maximum(float feed_rate_maximum) {
@@ -492,7 +499,7 @@ public final class Axis {
     }
     
     public double getJerkMaximum() {
-        return jerkMaximum;
+        return(jerkMaximum);
     }
 
     public boolean setJerkMaximum(double jerk_maximum) {
@@ -501,7 +508,7 @@ public final class Axis {
     }
 
     public double getJunction_devation() {
-        return junction_devation;
+        return formatJuctionDeviation(junction_devation);
     }
 
     public boolean setJunctionDevation(float junction_devation) {
@@ -597,8 +604,35 @@ public final class Axis {
         return (travel_maximum);
     }
 
+    
+    
+    
+    private double formatDoubleValue(double val){
+        //Utility Method to cleanly trim doubles for display in the UI
+        return(Double.parseDouble(decimalFormat.format(val)));
+    }
+    
+    private double formatJuctionDeviation(double val){
+        //Utility Method to cleanly trim doubles for display in the UI
+        return(Double.parseDouble(decimalFormatjunctionDeviation.format(val)));
+    }
+    
+    private double formatJerkMaximum(double val){
+        //Utility Method to cleanly trim doubles for display in the UI
+        return(Double.parseDouble(decimalFormat.format(val)));
+    }
+    
+    
+    private float formatFloatValue(float val){
+        //Utility Method to cleanly trim doubles for display in the UI
+        return(Float.parseFloat(decimalFormat.format(val)));
+    }
+    
+    
+    
+    
     public double getTravel_maximum() {
-        return travel_maximum.getValue();
+        return formatDoubleValue(travel_maximum.getValue());
     }
 
     public boolean setTravel_maximum(float travel_maximum) {
@@ -612,7 +646,7 @@ public final class Axis {
     }
 
     public double getVelocityMaximum() {
-        return velocityMaximum;
+        return formatDoubleValue(velocityMaximum);
     }
 
     public boolean setVelocityMaximum(double velocity_maximum) {
@@ -657,8 +691,13 @@ public final class Axis {
         }
 
     }
+    
+    
+     
 
     private void _applyJsonSystemSetting(responseCommand rc) {
+        
+        
         switch (rc.getSettingKey()) {
             case (MnemonicManager.MNEMONIC_AXIS_AXIS_MODE):
                 TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setAxis_mode(Double.valueOf(rc.getSettingValue()).intValue());
