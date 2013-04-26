@@ -7,8 +7,6 @@ package tgfx;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import tgfx.tinyg.CommandManager;
-import tgfx.tinyg.TinygDriver;
 
 /**
  *
@@ -29,14 +27,15 @@ public class SerialWriter implements Runnable {
     //   public Condition clearToSend = lock.newCondition();
     public SerialWriter(BlockingQueue q) {
         this.queue = q;
-//        logger.setLevel(org.apache.log4j.Level.ERROR);
-        logger.setLevel(org.apache.log4j.Level.INFO);
+        logger.setLevel(org.apache.log4j.Level.ERROR);
+//        logger.setLevel(org.apache.log4j.Level.INFO);
 
     }
 
     public void resetBuffer() {
         //Called onDisconnectActions
         buffer_available = BUFFER_SIZE;
+        notifyAck();  
     }
 
     public void setSerialBufferLenght(int bufflen) {
@@ -88,9 +87,6 @@ public class SerialWriter implements Runnable {
             }
             logger.debug("Setting Throttled " + t);
             throttled = t;
-//            if (!throttled) {
-//                mutex.notify();
-//            }
         }
         return true;
     }
@@ -144,7 +140,6 @@ public class SerialWriter implements Runnable {
             if (str.contains("(")) {
                 //Gcode Comment Push it back to the UI
                 sendUiMessage(str);
-
             }
 
             ser.write(str);

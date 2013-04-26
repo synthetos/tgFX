@@ -359,7 +359,8 @@ public class TinygDriver extends Observable {
     }
 
     private TinygDriver() {
-        logger.setLevel(Level.ERROR);
+//        logger.setLevel(Level.ERROR);
+        logger.setLevel(Level.DEBUG);
 //        logger.setLevel(Level.INFO);
     }
 

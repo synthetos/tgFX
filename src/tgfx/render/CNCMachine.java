@@ -40,7 +40,7 @@ public class CNCMachine extends Pane {
 
     public CNCMachine() {
         this.setStyle("-fx-background-color: black; -fx-border-color: orange;  -fx-border-width: .5;");
-
+        
         /*####################################
          *Cursor Set
          #################################### */

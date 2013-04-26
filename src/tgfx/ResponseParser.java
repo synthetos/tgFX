@@ -71,8 +71,8 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
-//        logger.setLevel(org.apache.log4j.Level.ERROR);
-        logger.setLevel(org.apache.log4j.Level.INFO);
+        logger.setLevel(org.apache.log4j.Level.ERROR);
+//        logger.setLevel(org.apache.log4j.Level.INFO);
 
     }
 
@@ -86,7 +86,7 @@ public class ResponseParser extends Observable implements Runnable {
                 line = (String) responseQueue.take();
                 if (line.equals("")) {  
                     continue;
-                }
+                } 
                 if (line.startsWith("{")) {
                     if (isTEXT_MODE()) {
                         setTEXT_MODE(false);

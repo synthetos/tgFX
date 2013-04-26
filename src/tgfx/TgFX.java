@@ -26,12 +26,13 @@ public class TgFX extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
-        
+        FXMLLoader fxmlLoader = new FXMLLoader();
+
+//        FooController fooController = (FooController) fxmlLoader.getController();
+        TgFX TgFXController = (TgFX) fxmlLoader.getController();
         
         Scene scene = new Scene(root);
-        
-//        scene.getStylesheets().add(this.getClass().getResource("new_main.css.css").toExternalForm());
-        
+                
         
         stage.setMinHeight(800);
         stage.setMinWidth(1280);

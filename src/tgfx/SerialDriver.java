@@ -160,8 +160,8 @@ public class SerialDriver implements SerialPortEventListener {
             // set port parameters
             serialPort.setSerialPortParams(DATA_RATE,
                     SerialPort.DATABITS_8,
-                    SerialPort.STOPBITS_1,
-                    SerialPort.PARITY_NONE);
+                    SerialPort.STOPBITS_1, 
+                   SerialPort.PARITY_NONE);
 
             // open the streams
             input = serialPort.getInputStream();

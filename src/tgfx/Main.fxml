@@ -176,10 +176,10 @@
                             <StackPane id="topPreviewPane" fx:id="gcodePane" minHeight="400.0" minWidth="400.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: black" VBox.vgrow="ALWAYS" />
                             <HBox fx:id="gcodeWindowButtonBar" alignment="CENTER_RIGHT" maxHeight="45.0" minHeight="45.0" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" style="&#10;" VBox.vgrow="NEVER">
                               <children>
-                                <Label fx:id="heightLabel" text="Height" textFill="WHITE" />
-                                <Text fx:id="heightSize" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
-                                <Label text="Width" textFill="WHITE" />
-                                <Text fx:id="widthSize" fill="WHITE" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="0" />
+                                <Label fx:id="heightLabel" text="Height" textFill="WHITE" visible="false" />
+                                <Text fx:id="heightSize" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="0" visible="false" />
+                                <Label text="Width" textFill="WHITE" visible="false" />
+                                <Text fx:id="widthSize" fill="WHITE" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="0" visible="false" />
                                 <Button fx:id="btnClearScreen" focusTraversable="false" onAction="#handleClearScreen" text="Clear Screen" />
                               </children>
                               <padding>
@@ -188,7 +188,7 @@
                             </HBox>
                           </children>
                           <effect>
-                            <DropShadow color="WHITE" height="8.857142857157584" radius="3.9285714285751103" spread="0.49206349206349204" width="8.857142857142858" />
+                            <DropShadow color="WHITE" height="8.85714285715022" radius="3.928571428573269" spread="0.49206349206349204" width="8.857142857142858" />
                           </effect>
                           <padding>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />

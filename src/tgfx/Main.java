@@ -56,19 +56,11 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.MissingResourceException;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.StringBinding;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.SetChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
@@ -312,10 +304,10 @@ public class Main implements Initializable, Observer {
             public void run() {
 
                 try {
-
-                    console.appendText("[!]Canceling File Sending Task...\n");
                     tg.serialWriter.clearQueueBuffer();
-                    tg.priorityWrite(String.valueOf(0x18)); //This resets TinyG
+                    console.appendText("[!]Canceling File Sending Task...\n");
+
+                    
 
                     //We disable everything while waiting for theboard to reset
                     topAnchorPane.setDisable(true);
@@ -345,21 +337,23 @@ public class Main implements Initializable, Observer {
 
                     Main.logger.info("[!]Stopping Job Clearing Serial Queue...\n");
                     tg.priorityWrite(CommandManager.CMD_APPLY_PAUSE);
-                    Thread.sleep(40);
+                    Thread.sleep(240);
                     tg.serialWriter.clearQueueBuffer();
                     Thread.sleep(40);
                     tg.priorityWrite(CommandManager.CMD_APPLY_QUEUE_FLUSH);
                     Thread.sleep(40);
-                    tg.priorityWrite(CommandManager.CMD_APPLY_RESUME);
-                    tg.write(CommandManager.CMD_APPLY_RESUME);
-//                      tg.priorityWrite(CommandManager.CMD_APPLY_RESUME);
+                    
+//                    tg.priorityWrite(CommandManager.CMD_APPLY_RESUME);
+//                    tg.write(CommandManager.CMD_APPLY_RESUME);
+//                  
+//                    tg.priorityWrite(CommandManager.CMD_APPLY_RESUME);
 //                    tg.serialWriter.clearQueueBuffer();
 //                    tg.priorityWrite(CommandManager.CMD_APPLY_QUEUE_FLUSH);
 //                    tg.priorityWrite(CommandManager.CMD_APPLY_RESUME);
 //                    console.appendText("[!]Stopping Job Clearing Serial Queue...\n");
-//                    tg.serialWriter.setThrottled(false);
+                    tg.serialWriter.setThrottled(false);
 //                    Thread.sleep(30);
-//                    tg.serialWriter.notifyAck();
+                    tg.serialWriter.notifyAck();
 //                    Thread.sleep(30);
 
                 } catch (Exception ex) {
@@ -627,6 +621,8 @@ public class Main implements Initializable, Observer {
     }
 
     public static void consoleAppendMessage(String msg) {
+        
+        //Todo: Add a way to filter messages based off of a gui setting.
         console.appendText(msg);
     }
 
@@ -708,11 +704,11 @@ public class Main implements Initializable, Observer {
                         tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //THIRD 
                         Thread.sleep(600); //Setting the status report takes some time!  Just leave this alone.  This is a hardware limit..
                         //writing to the eeprom (so many values) is troublesome :)  Like geese.. (this one is for alden)
-                        
+
                         tg.cmdManager.queryAllMachineSettings();                    //SIXtH
-                        
-                        
-                        
+
+
+
                         tg.cmdManager.queryStatusReport();                          //SEVENTH - Get Positions if the board is not at zero
                         tg.cmdManager.queryAllMotorSettings();                      //EIGTH
                         tg.cmdManager.queryAllHardwareAxisSettings();               //NINETH
@@ -755,7 +751,12 @@ public class Main implements Initializable, Observer {
             String serialPortSelected = serialPorts.getSelectionModel().getSelectedItem().toString();
 
             System.out.println("[+]Connecting...");
-            tg.initialize(serialPortSelected, 115200);
+            
+            if(!tg.initialize(serialPortSelected, 115200)){  //This will be true if we connected when we tried to!
+                //Our connect attempt failed. 
+                consoleAppendMessage("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.\n");
+            }
+            
             if (tg.isConnected()) {
 
                 console.appendText("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
@@ -1501,7 +1502,7 @@ public class Main implements Initializable, Observer {
         cncMachine.autoScaleWorkTravelSpace(scaleAmount);
         //        widthSize.textProperty().bind( Bindings.format("%s",  cncMachine.widthProperty().divide(tg.m.gcodeUnitDivision).asString().concat(tg.m.getGcodeUnitMode())    ));  //.asString().concat(tg.m.getGcodeUnitMode().get()));
 
-        heightSize.setText(decimalFormat.format(tg.m.getAxisByName("y").getTravel_maximum()) + " " + tg.m.getGcodeUnitMode().getValue());
+//        heightSize.setText(decimalFormat.format(tg.m.getAxisByName("y").getTravel_maximum()) + " " + tg.m.getGcodeUnitMode().getValue());
 
 
     }
@@ -1524,7 +1525,7 @@ public class Main implements Initializable, Observer {
             }
         }
         cncMachine.autoScaleWorkTravelSpace(scaleAmount);
-        widthSize.setText(decimalFormat.format(tg.m.getAxisByName("x").getTravel_maximum()) + " " + tg.m.getGcodeUnitMode().getValue());
+//        widthSize.setText(decimalFormat.format(tg.m.getAxisByName("x").getTravel_maximum()) + " " + tg.m.getGcodeUnitMode().getValue());
 
     }
 
@@ -1542,14 +1543,6 @@ public class Main implements Initializable, Observer {
 
 
 
-        cncMachine.heightProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue o, Object oldVal,
-                    Object newVal) {
-                System.out.println("cncHeightChanged: " + cncMachine.getHeight());
-//                System.out.println(cncHeightString 
-            }
-        });
 
         /*#######################################################
          * BINDINGS
@@ -1712,6 +1705,16 @@ public class Main implements Initializable, Observer {
          * CHANGE LISTENERS
          ##################################################################*/
 
+
+        
+        cncMachine.heightProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue o, Object oldVal,
+                    Object newVal) {
+                System.out.println("cncHeightChanged: " + cncMachine.getHeight());
+//                System.out.println(cncHeightString 
+            }
+        });
 
 
 
