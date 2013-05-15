@@ -1,6 +1,5 @@
 /**
- * tgFX Driver Class Copyright Synthetos.com
- * lgpl
+ * tgFX Driver Class Copyright Synthetos.com lgpl
  */
 package tgfx.tinyg;
 
@@ -20,7 +19,6 @@ import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
 
-
 public class TinygDriver extends Observable {
 
     static final Logger logger = Logger.getLogger(TinygDriver.class);
@@ -29,18 +27,10 @@ public class TinygDriver extends Observable {
     public MnemonicManager mneManager = new MnemonicManager();
     public ResponseManager resManager = new ResponseManager();
     public CommandManager cmdManager = new CommandManager();
-    private double unitMultiplier;
-
-    private class StatusCode {
-
-        int codeNumber;
-        String codeName;
-        String codeMessage;
-
-        private String getStatusCodeMessage() {
-            return (codeMessage);
-        }
-    }
+    
+    
+    
+    
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
@@ -63,20 +53,16 @@ public class TinygDriver extends Observable {
         return TinygDriverHolder.INSTANCE;
     }
 
-    
-    
-   
-
-    public void queryHardwareSingleAxisSettings(char c){
+    public void queryHardwareSingleAxisSettings(char c) {
         //Our queryHardwareSingleAxisSetting function for chars
         queryHardwareSingleAxisSettings(String.valueOf(c));
     }
-    
+
     public void queryHardwareSingleAxisSettings(String _axis) {
         try {
             switch (_axis.toLowerCase()) {
                 case "x":
-                    ser.write(CommandManager.CMD_QUERY_AXIS_X);
+                    serialWriter.write(CommandManager.CMD_QUERY_AXIS_X);
                     break;
                 case "y":
                     ser.write(CommandManager.CMD_QUERY_AXIS_Y);
@@ -148,19 +134,6 @@ public class TinygDriver extends Observable {
             }
         }
     }
-    
-//     public float calculateDisplayedUnits(responseCommand rc) {
-//        //Quick helper function to return the current division rate for specific units
-//        if (this.m.getGcodeUnitModeAsInt() == 1) {
-//            unitMultiplier = 1;
-//        } else {
-//            unitMultiplier = 25.4;
-//        }
-//
-//        double _tmpVal = Double.valueOf(rc.getSettingValue()) * unitMultiplier;
-//        return((float) _tmpVal);
-//    }
-     
 
     public void applyHardwareAxisSettings(Axis _axis, TextField tf) throws Exception {
         /**
@@ -249,6 +222,61 @@ public class TinygDriver extends Observable {
             }
         } catch (Exception ex) {
             TinygDriver.logger.error(ex.getMessage());
+        }
+    }
+
+    public void applyResponseCommand(responseCommand rc) {
+        char _ax;
+        switch (rc.getSettingKey()) {
+
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
+                TinygDriver.getInstance().m.setLineNumber(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_MOTION_MODE):
+                TinygDriver.logger.info("[DID NOT APPLY NEED TO CODE THIS IN:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                TinygDriver.getInstance().m.setMotionMode(Integer.valueOf(rc.getSettingValue()));
+                break;
+
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
+                _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+
+                break;
+
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
+                _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
+                _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
+                _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
+                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
+                //TinygDriver.getInstance()(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
+                TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
+
+            default:
+                logger.error("[ERROR] in ApplyResponseCommand:  Command Was:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                break;
         }
     }
 
@@ -417,7 +445,7 @@ public class TinygDriver extends Observable {
     }
 
     public boolean initialize(String portName, int dataRate) {
-        return(this.ser.initialize(portName, dataRate));
+        return (this.ser.initialize(portName, dataRate));
     }
 
     public void disconnect() {
@@ -433,7 +461,7 @@ public class TinygDriver extends Observable {
      * SerialDriver write methods from here.
      */
     public synchronized void write(String msg) throws Exception {
-        
+
         TinygDriver.getInstance().serialWriter.addCommandToBuffer(msg);
         logger.info("Send to Command Buffer >> " + msg);
     }
@@ -450,6 +478,10 @@ public class TinygDriver extends Observable {
     }
 
     /**
+     *
+     *
+     *
+     *
      * Utility Methods
      *
      * @return
@@ -468,60 +500,5 @@ public class TinygDriver extends Observable {
 
     public List<Axis> getInternalAllAxis() {
         return (Machine.getInstance().getAllAxis());
-    }
-
-    public void applyResponseCommand(responseCommand rc) {
-        char _ax;
-        switch (rc.getSettingKey()) {
-
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
-                TinygDriver.getInstance().m.setLineNumber(Integer.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                break;
-
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_MOTION_MODE):
-                TinygDriver.logger.info("[DID NOT APPLY NEED TO CODE THIS IN:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-//                TinygDriver.getInstance().m.setMotionMode(Integer.valueOf(rc.getSettingValue()));
-                break;
-
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
-                _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-
-                break;
-
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
-                _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                break;
-
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
-                _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                break;
-
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
-                _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                break;
-
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
-                //TinygDriver.getInstance()(Float.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                break;
-
-            case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
-                TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                break;
-
-            default:
-                logger.error("[ERROR] in ApplyResponseCommand:  Command Was:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                break;
-        }
     }
 }

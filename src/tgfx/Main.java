@@ -6,9 +6,6 @@
  */
 package tgfx;
 
-import com.adamtaft.eb.EventBusService;
-import com.google.common.eventbus.EventBus;
-import com.zipwhip.framework.pubsub.Broker;
 import tgfx.tinyg.TinygDriver;
 import java.io.File;
 import java.net.URL;
@@ -64,24 +61,19 @@ import tgfx.gcode.GcodeHistory;
 import tgfx.system.StatusCode;
 import tgfx.tinyg.CommandManager;
 
-import com.zipwhip.framework.pubsub.Callback;
-import com.zipwhip.framework.pubsub.EventData;
-import com.zipwhip.framework.pubsub.MemoryBroker;
-import java.io.IOException;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
+
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import tgfx.ui.MachineSettingsController;
+import tgfx.ui.TinyGConfigController;
 
-public class Main extends Stage implements Initializable, Observer, Callback {
+public class Main extends Stage implements Initializable, Observer {
 
-    public EventSystem eventSystem = EventSystem.getInstance();
     static final Logger logger = Logger.getLogger(Main.class);
     private TinygDriver tg = TinygDriver.getInstance();
     private String PROMPT = "tinyg>";
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
     final static ResourceBundle rb = ResourceBundle.getBundle("version");   //Used to track build date and build number
-    DecimalFormat decimalFormat = new DecimalFormat("#0.000");
+    
     /*
      * LCD DRO PROFILE CREATION
      */
@@ -105,11 +97,13 @@ public class Main extends Stage implements Initializable, Observer, Callback {
     TextField input, listenerPort;
     @FXML
     private Label srMomo, srState, srBuild, srBuffer, srGcodeLine, xposT, yposT,
-            srVer, srUnits, srCoord, tgfxBuildNumber, tgfxBuildDate, tgfxVersion, hwVersion, firmwareVersion, buildNumb, hardwareId;
+            srVer, srUnits, srCoord, tgfxBuildNumber, tgfxBuildDate, tgfxVersion;
     @FXML
     StackPane cursorPoint;
     @FXML
     TextArea gcodesList;
+    @FXML
+    private static TextArea console;
     @FXML
     WebView html, makerCam;
     @FXML
@@ -117,28 +111,8 @@ public class Main extends Stage implements Initializable, Observer, Callback {
     @FXML
     ChoiceBox serialPorts;
     //##########Config FXML##############//
-    @FXML
-    TextField motor1ConfigTravelPerRev, motor2ConfigTravelPerRev, motor3ConfigTravelPerRev, motor4ConfigTravelPerRev,
-            motor1ConfigStepAngle, motor2ConfigStepAngle, motor3ConfigStepAngle, motor4ConfigStepAngle,
-            axisAmaxFeedRate, axisBmaxFeedRate, axisCmaxFeedRate, axisXmaxFeedRate, axisYmaxFeedRate, axisZmaxFeedRate,
-            axisAmaxTravel, axisBmaxTravel, axisCmaxTravel, axisXmaxTravel, axisYmaxTravel, axisZmaxTravel,
-            axisAjunctionDeviation, axisBjunctionDeviation, axisCjunctionDeviation, axisXjunctionDeviation, axisYjunctionDeviation, axisZjunctionDeviation,
-            axisAsearchVelocity, axisBsearchVelocity, axisCsearchVelocity,
-            axisXsearchVelocity, axisYsearchVelocity, axisZsearchVelocity,
-            axisAzeroBackoff, axisBzeroBackoff, axisCzeroBackoff, axisXzeroBackoff, axisYzeroBackoff, axisZzeroBackoff,
-            axisAmaxVelocity, axisBmaxVelocity, axisCmaxVelocity, axisXmaxVelocity, axisYmaxVelocity, axisZmaxVelocity,
-            axisAmaxJerk, axisBmaxJerk, axisCmaxJerk, axisXmaxJerk, axisYmaxJerk, axisZmaxJerk,
-            axisAradius, axisBradius, axisCradius, axisXradius, axisYradius, axisZradius,
-            axisAlatchVelocity, axisBlatchVelocity, axisClatchVelocity, axisXlatchVelocity, axisYlatchVelocity, axisZlatchVelocity, externalConnections,
-            materialThickness, gcodeLoaded, axisXlatchBackoff, axisYlatchBackoff, axisZlatchBackoff, axisAlatchBackoff, axisBlatchBackoff, axisClatchBackoff, MachineStatusInterval;
-    @FXML
-    ChoiceBox motor1ConfigMapAxis, motor2ConfigMapAxis, motor3ConfigMapAxis, motor4ConfigMapAxis,
-            motor1ConfigMicroSteps, motor2ConfigMicroSteps, motor3ConfigMicroSteps, motor4ConfigMicroSteps,
-            motor1ConfigPolarity, motor2ConfigPolarity, motor3ConfigPolarity, motor4ConfigPolarity,
-            motor1ConfigPowerMode, motor2ConfigPowerMode, motor3ConfigPowerMode, motor4ConfigPowerMode,
-            axisAmode, axisBmode, axisCmode, axisXmode, axisYmode, axisZmode,
-            axisAswitchModeMin, axisAswitchModeMax, axisBswitchModeMin, axisBswitchModeMax, axisCswitchModeMin, axisCswitchModeMax, axisXswitchModeMin, axisXswitchModeMax, axisYswitchModeMin, axisYswitchModeMax,
-            axisZswitchModeMin, axisZswitchModeMax, gcodePlane, movementMinLineSegment, movementTimeSegment, movementMinArcSegment, gcodeUnitMode, gcodeCoordSystem;
+    
+    
     @FXML
     Group motor1Node;
     @FXML
@@ -149,33 +123,15 @@ public class Main extends Stage implements Initializable, Observer, Callback {
     VBox topvbox, positionsVbox, tester;
     @FXML
     ContextMenu xAxisContextMenu;
-    public MemoryBroker broker = new MemoryBroker();
 
-    /**
-     * Drawing Code Vars
-     *
-     */
     public void testMessage(String message) {
         System.out.println("Message Hit");
 
     }
 
-    public Main() {
-        
-        
-        broker.subscribe("/test/main", new Callback() {
-            @Override
-            public void notify(String uri, EventData eventData) throws Exception {
-                testMessage(eventData.toString());
-            }
-        });
-    }
-
-    @Override
-    public void notify(String uri, EventData eventData) throws Exception {
-        System.out.println("THE URI IS: " + uri);
-    }
-
+  public Main(){
+      
+  }
     @FXML
     private void handleTogglePreview(ActionEvent event) {
 //        if (settingDrawBtn.getText().equals("ON")) {
@@ -190,14 +146,14 @@ public class Main extends Stage implements Initializable, Observer, Callback {
     @FXML
     void handleRemoteListener(ActionEvent evt) {
 //        if (tg.isConnected()) {
-//             tgfx.ui.GcodeTabController.postMessage("[+]Remote Monitor Listening for Connections....");
+//            tgfx.Main.postConsoleMessage("[+]Remote Monitor Listening for Connections....");
 //            Task SocketListner = this.initRemoteServer(listenerPort.getText());
 //
 //            new Thread(SocketListner).start();
 //            btnRemoteListener.setDisable(true);
 //        } else {
 //            System.out.println("[!] Must be connected to TinyG First.");
-//             tgfx.ui.GcodeTabController.postMessage("[!] Must be connected to TinyG First.");
+//            tgfx.Main.postConsoleMessage("[!] Must be connected to TinyG First.");
 //        }
     }
 
@@ -206,13 +162,13 @@ public class Main extends Stage implements Initializable, Observer, Callback {
 //        if (evt.getDeltaX() == 0 && evt.getDeltaY() == 40) {
         //Mouse Wheel Up
 //        Draw2d.setMagnification(true);
-//         tgfx.ui.GcodeTabController.postMessage("[+]Zooming in " + String.valueOf(Draw2d.getMagnification()) + "\n");
+//        tgfx.Main.postConsoleMessage("[+]Zooming in " + String.valueOf(Draw2d.getMagnification()) + "\n");
 //
 //
 ////        } else if (evt.getDeltaX() == 0 && evt.getDeltaY() == -40) {
 ////            //Mouse Wheel Down
 ////            Draw2d.setMagnification(false);
-////             tgfx.ui.GcodeTabController.postMessage("[+]Zooming out " + String.valueOf(Draw2d.getMagnification()) + "\n");
+////            tgfx.Main.postConsoleMessage("[+]Zooming out " + String.valueOf(Draw2d.getMagnification()) + "\n");
 ////        }
 //
 //
@@ -243,22 +199,8 @@ public class Main extends Stage implements Initializable, Observer, Callback {
 //            Line nd = (Line) n;
 //            nd.setStrokeWidth(Draw2d.getStrokeWeight());
 //        }
-////         tgfx.ui.GcodeTabController.postMessage("[+]2d Preview Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
+////        tgfx.Main.postConsoleMessage("[+]2d Preview Stroke Width: " + String.valueOf(Draw2d.getStrokeWeight()) + "\n");
 //    }
-    public static void consoleRecvdMessage(String msg) {
-        tgfx.ui.GcodeTabController.postMessage("Recvd << " + msg);
-    }
-
-    public static void consoleSentMessage(String msg) {
-        tgfx.ui.GcodeTabController.postMessage("Sent>> " + msg);
-    }
-
-    public static void consoleAppendMessage(String msg) {
-
-        //Todo: Add a way to filter messages based off of a gui setting.
-        tgfx.ui.GcodeTabController.postMessage(msg);
-    }
-
     @FXML
     private void FXreScanSerial(ActionEvent event) {
         this.reScanSerial();
@@ -326,7 +268,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
 
 
         } catch (Exception ex) {
-            tgfx.ui.GcodeTabController.postMessage("[!]Error in onConnectActions: " + ex.getMessage());
+            postConsoleMessage("[!]Error in onConnectActions: " + ex.getMessage());
             System.out.println(ex.getMessage());
         }
     }
@@ -336,7 +278,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
         //Get a list of serial ports on the system.
 
         if (serialPorts.getSelectionModel().getSelectedItem() == (null)) {
-            tgfx.ui.GcodeTabController.postMessage("[+]Error Connecting to Serial Port please select a valid port.\n");
+            postConsoleMessage("[+]Error Connecting to Serial Port please select a valid port.\n");
             return;
         }
         if (Connect.getText().equals("Connect") && serialPorts.getSelectionModel().getSelectedItem() != (null)) {
@@ -346,14 +288,14 @@ public class Main extends Stage implements Initializable, Observer, Callback {
 
             if (!tg.initialize(serialPortSelected, 115200)) {  //This will be true if we connected when we tried to!
                 //Our connect attempt failed. 
-                EventBusService.publish("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.\n");
+                postConsoleMessage("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.\n");
 //                consoleAppendMessage("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.\n");
             }
 
             if (tg.isConnected()) {
-                
-                broker.publish("/test/main", "[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
-//                tgfx.ui.GcodeTabController.postMessage("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
+
+                postConsoleMessage("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
+//               tgfx.Main.postConsoleMessage("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
                 Connect.setText("Disconnect");
 
                 /**
@@ -365,7 +307,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
         } else {
             tg.disconnect();
             if (!tg.isConnected()) {
-                tgfx.ui.GcodeTabController.postMessage("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
+                postConsoleMessage("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
                 Connect.setText("Connect");
                 onDisconnectActions();
             }
@@ -400,6 +342,17 @@ public class Main extends Stage implements Initializable, Observer, Callback {
     private void handleKeyInput(final InputEvent event) {
     }
 
+    public static void postConsoleMessage(String message) {
+        //This allows us to send input to the console text area on the Gcode Tab.
+        final String m = message;
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                console.appendText(m + "\n");
+            }
+        });
+    }
+
 //    @FXML
 //    private void gcodeProgramClicks(MouseEvent me) {
 //        TextField tField = (TextField) gcodesList.getSelectionModel().getSelectedItem();
@@ -414,7 +367,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
 //
 //            //if (lbl.getParent().getStyleClass().contains("breakpoint")) {
 ////                lbl.getParent().getStyleClass().remove("breakpoint");
-////                 tgfx.ui.GcodeTabController.postMessage("BREAKPOINT REMOVED: " + lbl.getText() + "\n");
+////                tgfx.Main.postConsoleMessage("BREAKPOINT REMOVED: " + lbl.getText() + "\n");
 ////                System.out.println("BREAKPOINT REMOVED");
 ////            } else {
 ////
@@ -422,36 +375,23 @@ public class Main extends Stage implements Initializable, Observer, Callback {
 ////                lbl.getStyleClass().removeAll(null);
 ////                lbl.getParent().getStyleClass().add("breakpoint");
 ////                System.out.println("BREAKPOINT SET");
-////                 tgfx.ui.GcodeTabController.postMessage("BREAKPOINT SET: " + lbl.getText() + "\n");
+////                tgfx.Main.postConsoleMessage("BREAKPOINT SET: " + lbl.getText() + "\n");
 ////            };
 //        }
 //    }
-    @FXML
-    private void handleSaveCurrentSettings(ActionEvent event) throws Exception {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                FileChooser fc = new FileChooser();
-                fc.setInitialDirectory(new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator")));
-                fc.setTitle("Save Current TinyG Configuration");
-                File f = fc.showSaveDialog(null);
-                if (f.canWrite()) {
-                }
-            }
-        });
-    }
+    
 
     @FXML
     private void handleGuiRefresh() throws Exception {
         //Refreshed all gui settings from TinyG Responses.
         if (tg.isConnected()) {
 
-            tgfx.ui.GcodeTabController.postMessage("[+]System GUI Refresh Requested....");
+            postConsoleMessage("[+]System GUI Refresh Requested....");
             tg.cmdManager.queryAllHardwareAxisSettings();
             tg.cmdManager.queryAllMachineSettings();
             tg.cmdManager.queryAllMotorSettings();
         } else {
-            tgfx.ui.GcodeTabController.postMessage("[!]TinyG Not Connected.. Ignoring System GUI Refresh Request....");
+            postConsoleMessage("[!]TinyG Not Connected.. Ignoring System GUI Refresh Request....");
         }
     }
 
@@ -464,7 +404,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
             logger.info("Entered Command: " + command);
             if (!tg.isConnected()) {
                 logger.error("TinyG is not connected....\n");
-                tgfx.ui.GcodeTabController.postMessage("[!]TinyG is not connected....\n");
+                postConsoleMessage("[!]TinyG is not connected....\n");
                 input.setPromptText(PROMPT);
                 return;
             }
@@ -474,7 +414,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
                 tg.write(CommandManager.CMD_QUERY_OK_PROMPT);
             }
             tg.write(command);
-            consoleSentMessage(command);
+            postConsoleMessage(command);
             gcodeCommandHistory.addCommandToHistory(command);  //Add this command to the history
             input.clear();
             input.setPromptText(PROMPT);
@@ -483,7 +423,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
         } else if (keyEvent.getCode().equals(KeyCode.DOWN)) {
             input.setText(gcodeCommandHistory.getPreviousHistoryCommand());
         } else if (keyEvent.getCode().equals(KeyCode.F5)) {
-            tgfx.ui.GcodeTabController.postMessage("[+]System GUI State Requested....");
+            postConsoleMessage("[+]System GUI State Requested....");
             tg.cmdManager.queryAllHardwareAxisSettings();
             tg.cmdManager.queryAllMachineSettings();
             tg.cmdManager.queryAllMotorSettings();
@@ -503,59 +443,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
         };
     }
 
-    private void updateGUIConfigState() {
-        //Update the GUI for config settings
-        Platform.runLater(new Runnable() {
-            float vel;
-
-            @Override
-            public void run() {
-                //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
-                //Right now this is how I am doing this.  However I think there can be a more optimized way
-                //Perhaps by passing a routing message as to which motor was updated then not all have to be updated
-                //every time one is.
-
-                try {
-                    for (Motor m : tg.m.getMotors()) {
-                        if (m.getId_number() == 1) {
-
-                            motor1ConfigMapAxis.getSelectionModel().select((tg.m.getMotorByNumber(1).getMapToAxis()));
-                            motor1ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(1).getMicrosteps());
-                            motor1ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(1).isPolarityInt());
-                            motor1ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(1).isPower_managementInt());
-                            motor1ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(1).getStep_angle()));
-                            motor1ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(1).getTravel_per_revolution()));
-                        } else if (m.getId_number() == 2) {
-                            motor2ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(2).getMapToAxis());
-                            motor2ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(2).getMicrosteps());
-                            motor2ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(2).isPolarityInt());
-                            motor2ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(2).isPower_managementInt());
-                            motor2ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(2).getStep_angle()));
-                            motor2ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(2).getTravel_per_revolution()));
-                        } else if (m.getId_number() == 3) {
-                            motor3ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(3).getMapToAxis());
-                            motor3ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(3).getMicrosteps());
-                            motor3ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(3).isPolarityInt());
-                            motor3ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(3).isPower_managementInt());
-                            motor3ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(3).getStep_angle()));
-                            motor3ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(3).getTravel_per_revolution()));
-                        } else if (m.getId_number() == 4) {
-                            motor4ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(4).getMapToAxis());
-                            motor4ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(4).getMicrosteps());
-                            motor4ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(4).isPolarityInt());
-                            motor4ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(4).isPower_managementInt());
-                            motor4ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(4).getStep_angle()));
-                            motor4ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(4).getTravel_per_revolution()));
-                        }
-                    }
-                } catch (Exception ex) {
-                    logger.error("Exception in updateGUIConfigState");
-                    logger.error(ex.getMessage());
-                }
-
-            }
-        });
-    }
+    
 
 //    private void updateGuiMachineSettings(String line) {
 //        final String l = line;
@@ -591,7 +479,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
         if (arg.getClass().getCanonicalName().equals("tgfx.system.StatusCode")) {
             //We got an error condition.. lets route it to where it goes!
             StatusCode statuscode = (StatusCode) arg;
-            tgfx.ui.GcodeTabController.postMessage("[->] TinyG Response: " + statuscode.getStatusType() + ":" + statuscode.getMessage() + "\n");
+            postConsoleMessage("[->] TinyG Response: " + statuscode.getStatusType() + ":" + statuscode.getMessage() + "\n");
         } else {
             try {
                 final String[] UPDATE_MESSAGE = (String[]) arg;
@@ -608,24 +496,23 @@ public class Main extends Stage implements Initializable, Observer, Callback {
                         //TODO we need to push this into a message as well.
                         break;
                     case ("CMD_GET_AXIS_SETTINGS"):
-                        updateGuiAxisSettings(KEY_ARGUMENT);
+                        TinyGConfigController.updateGuiAxisSettings(KEY_ARGUMENT);
                         break;
                     case ("CMD_GET_MACHINE_SETTINGS"):
                         //updateGuiMachineSettings(ROUTING_KEY);
                         break;
                     case ("CMD_GET_MOTOR_SETTINGS"):
-                        updateGuiMotorSettings(KEY_ARGUMENT);
+                         TinyGConfigController.updateGuiMotorSettings(KEY_ARGUMENT);
                         break;
                     case ("NETWORK_MESSAGE"):
                         //updateExternal();
                         break;
                     case ("MACHINE_UPDATE"):
-//                        updateGuiMachineSettings(); 
-                        //TODO:  Put a pubsub message to update gui machine settings
+                        MachineSettingsController.updateGuiMachineSettings(); 
 
                         break;
                     case ("TEXTMODE_REPORT"):
-                        tgfx.ui.GcodeTabController.postMessage(KEY_ARGUMENT);
+                        postConsoleMessage(KEY_ARGUMENT);
                         break;
                     case ("BUFFER_UPDATE"):
                         srBuffer.setText(KEY_ARGUMENT);
@@ -636,7 +523,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
                     case ("TINYG_USER_MESSAGE"):
 
                         //TODO: create a pubsub message for this as well.
-//                         tgfx.ui.GcodeTabController.postMessage("TinyG Board Message >> " + KEY_ARGUMENT);
+//                        tgfx.Main.postConsoleMessage("TinyG Board Message >> " + KEY_ARGUMENT);
 ////                        Thread.sleep(1000);//we need to let the board load its configs
 //                        tg.cmdManager.queryStatusReport();
 //                        if (KEY_ARGUMENT.trim().equals("SYSTEM READY")) {
@@ -650,7 +537,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
 //                                topTabPane.setDisable(false);
 //                                topAnchorPane.setDisable(false);
 //                                logger.info("Re-Enabling the UI");
-//                                 tgfx.ui.GcodeTabController.postMessage("TinyG Re-Connected.. Enabling UI\n");
+//                                tgfx.Main.postConsoleMessage("TinyG Re-Connected.. Enabling UI\n");
 //                            }
 //                        }
                         break;
@@ -670,234 +557,7 @@ public class Main extends Stage implements Initializable, Observer, Callback {
         }
     }
 
-    private void updateGuiMotorSettings() {
-        //No motor was provided... Update them all.
-        updateGuiMotorSettings(null);
-    }
-
-    private void updateGuiMotorSettings(final String arg) {
-        //Update the GUI for config settings
-        Platform.runLater(new Runnable() {
-            String MOTOR_ARGUMENT = arg;
-
-            @Override
-            public void run() {
-                try {
-                    if (MOTOR_ARGUMENT == null) {
-                        //Update ALL motor's gui settings
-                        for (Motor m : tg.m.getMotors()) {
-                            _updateGuiMotorSettings(String.valueOf(m.getId_number()));
-                        }
-                    } else {
-                        //Update only ONE motor's gui settings
-                        _updateGuiMotorSettings(MOTOR_ARGUMENT);
-                    }
-                } catch (Exception ex) {
-                    System.out.println("[!]Exception in updateGuiMotorSettings...");
-                    System.out.println(ex.getMessage());
-                }
-            }
-        });
-    }
-
-    private void _updateGuiMotorSettings(String motor) {
-
-        switch (TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(motor)).getId_number()) {
-            case 1:
-                motor1ConfigMapAxis.getSelectionModel().select((tg.m.getMotorByNumber(1).getMapToAxis()));
-                motor1ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(1).getMicrosteps());
-                motor1ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(1).isPolarityInt());
-                motor1ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(1).isPower_managementInt());
-                motor1ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(1).getStep_angle()));
-                motor1ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(1).getTravel_per_revolution()));
-                break;
-            case 2:
-                motor2ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(2).getMapToAxis());
-                motor2ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(2).getMicrosteps());
-                motor2ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(2).isPolarityInt());
-                motor2ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(2).isPower_managementInt());
-                motor2ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(2).getStep_angle()));
-                motor2ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(2).getTravel_per_revolution()));
-                break;
-            case 3:
-                motor3ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(3).getMapToAxis());
-                motor3ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(3).getMicrosteps());
-                motor3ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(3).isPolarityInt());
-                motor3ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(3).isPower_managementInt());
-                motor3ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(3).getStep_angle()));
-                motor3ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(3).getTravel_per_revolution()));
-                break;
-            case 4:
-                motor4ConfigMapAxis.getSelectionModel().select(tg.m.getMotorByNumber(4).getMapToAxis());
-                motor4ConfigMicroSteps.getSelectionModel().select(tg.m.getMotorByNumber(4).getMicrosteps());
-                motor4ConfigPolarity.getSelectionModel().select(tg.m.getMotorByNumber(4).isPolarityInt());
-                motor4ConfigPowerMode.getSelectionModel().select(tg.m.getMotorByNumber(4).isPower_managementInt());
-                motor4ConfigStepAngle.setText(String.valueOf(tg.m.getMotorByNumber(4).getStep_angle()));
-                motor4ConfigTravelPerRev.setText(String.valueOf(tg.m.getMotorByNumber(4).getTravel_per_revolution()));
-                break;
-        }
-    }
-
-    private void _updateGuiAxisSettings(String axname) {
-        Axis ax = TinygDriver.getInstance().m.getAxisByName(axname);
-        _updateGuiAxisSettings(ax);
-    }
-
-    private void _updateGuiAxisSettings(Axis ax) {
-        switch (ax.getAxis_name().toLowerCase()) {
-            case "a":
-                axisAmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
-                axisAmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
-                axisAmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
-                axisAjunctionDeviation.setText(String.valueOf(ax.getJunction_devation()));
-                axisAmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisAmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
-                axisAradius.setText(String.valueOf(ax.getRadius()));
-                axisAsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
-                axisAzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                //Rotational Do not have these.
-//                axisAsearchVelocity.setDisable(true);
-//                axisAlatchVelocity.setDisable(true);
-//                axisAlatchBackoff.setDisable(true);
-                axisAswitchModeMax.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
-                axisAswitchModeMin.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
-                axisAlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
-                axisAlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
-
-//                axisAswitchModeMax.setDisable(true);
-//                axisAswitchModeMin.setDisable(true);
-//                axisAzeroBackoff.setDisable(true);
-
-                break;
-            case "b":
-                axisBmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
-                axisBmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
-                axisBmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
-                axisBjunctionDeviation.setText(String.valueOf(ax.getJunction_devation()));
-                axisBmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisBmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
-                axisBradius.setText(String.valueOf(ax.getRadius()));
-                //Rotational Do not have these.
-                axisBsearchVelocity.setDisable(true);
-                axisBlatchVelocity.setDisable(true);
-                axisBlatchBackoff.setDisable(true);
-                axisBswitchModeMax.setDisable(true);
-                axisBswitchModeMin.setDisable(true);
-                axisBzeroBackoff.setDisable(true);
-
-                break;
-            case "c":
-                axisCmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
-                axisCmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
-                axisCmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
-                axisCjunctionDeviation.setText(String.valueOf(ax.getJunction_devation()));
-                axisCmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisCmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
-                axisCradius.setText(String.valueOf(ax.getRadius()));
-
-                //Rotational Do not have these.
-                axisCsearchVelocity.setDisable(true);
-                axisClatchVelocity.setDisable(true);
-                axisClatchBackoff.setDisable(true);
-                axisCswitchModeMax.setDisable(true);
-                axisCswitchModeMin.setDisable(true);
-                axisCzeroBackoff.setDisable(true);
-                break;
-            case "x":
-//                axisXradius.setText("NA");
-//                axisXradius.setStyle("-fx-text-fill: red");
-//                axisXradius.setDisable(true);
-//                axisXradius.setEditable(false);
-                axisXmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
-                axisXmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
-                axisXmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
-                axisXjunctionDeviation.setText(String.valueOf(ax.getJunction_devation()));
-                axisXsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
-                axisXzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                axisXswitchModeMax.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
-                axisXswitchModeMin.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
-                axisXmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
-
-                axisXmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisXlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
-                axisXlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
-                break;
-            case "y":
-//                axisYradius.setText("NA");
-//                axisYradius.setStyle("-fx-text-fill: red");
-//                axisYradius.setDisable(true);
-//                axisYradius.setEditable(false);
-                axisYmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
-                axisYmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
-                axisYmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
-                axisYjunctionDeviation.setText(String.valueOf(ax.getJunction_devation()));
-                axisYsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
-                axisYzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                axisYswitchModeMax.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
-                axisYswitchModeMin.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
-                axisYmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisYmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
-//                                axisYmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
-                // axisYradius.setText(String.valueOf(ax.getRadius()));
-                axisYlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
-                axisYlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
-                break;
-            case "z":
-//                axisZradius.setText("NA");
-//                axisZradius.setStyle("-fx-text-fill: red");
-//                axisZradius.setDisable(true);
-//                axisZradius.setEditable(false);
-                axisZmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
-                axisZmaxFeedRate.setText(String.valueOf(ax.getFeed_rate_maximum()));
-                axisZmaxTravel.setText(String.valueOf(ax.getTravel_maximum()));
-                axisZjunctionDeviation.setText(String.valueOf(ax.getJunction_devation()));
-                axisZsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
-                axisZzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                axisZswitchModeMin.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
-                axisZswitchModeMax.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
-                axisZmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisZmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
-//                                axisZmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
-                //axisZradius.setText(String.valueOf(ax.getRadius()));
-                axisZlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
-                axisZlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
-                break;
-        }
-    }
-
-    private void updateGuiAxisSettings(Axis ax) {
-        updateGuiAxisSettings(ax);
-    }
-
-    private void updateGuiAxisSettings(String axname) {
-        //Update the GUI for Axis Config Settings
-        final String AXIS_NAME = axname;
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                //We are now back in the EventThread and can update the GUI for the CMD SETTINGS
-                //Right now this is how I am doing this.  However I think there can be a more optimized way
-                //Perhaps by passing a routing message as to which motor was updated then not all have to be updated
-                //every time one is.
-                try {
-                    if (AXIS_NAME == null) {
-                        //Axis was not provied as a sting argument.. so we update all of them
-                        for (Axis ax : tg.m.getAllAxis()) {
-                            _updateGuiAxisSettings(ax);
-                        }
-                    } else {
-                        //We were provided with a specific axis to update.  Update it.
-                        _updateGuiAxisSettings(AXIS_NAME);
-                    }
-                } catch (Exception ex) {
-                    System.out.println("[!]EXCEPTION in updateGuiAxisSettings");
-                    System.out.println("LINE: ");
-                    System.out.println(ex.getMessage());
-                }
-
-            }
-        });
-    }
+   
 
     private Lcd buildSingleDRO(Lcd tmpLcd, StyleModel sm, String title, String units) {
         tmpLcd = LcdBuilder.create()
@@ -950,36 +610,33 @@ public class Main extends Stage implements Initializable, Observer, Callback {
         };
 
         srMomo.textProperty()
-                .bind(tg.m.getMotionMode());
+                .bind(TinygDriver.getInstance().m.getMotionMode());
         srVer.textProperty()
-                .bind(tg.m.firmwareVersion);
+                .bind(TinygDriver.getInstance().m.firmwareVersion);
 
         srBuild.textProperty()
-                .bindBidirectional(tg.m.firmwareBuild, sc);
+                .bindBidirectional(TinygDriver.getInstance().m.firmwareBuild, sc);
         srState.textProperty()
-                .bind(tg.m.m_state);
+                .bind(TinygDriver.getInstance().m.m_state);
         srCoord.textProperty()
-                .bind(tg.m.getCoordinateSystem());
+                .bind(TinygDriver.getInstance().m.getCoordinateSystem());
         srUnits.textProperty()
-                .bind(tg.m.getGcodeUnitMode());
+                .bind(TinygDriver.getInstance().m.getGcodeUnitMode());
 
 
 
-//        widthSize.textProperty().bind( Bindings.format("%s",  cncMachine.widthProperty().divide(tg.m.gcodeUnitDivision).asString().concat(tg.m.getGcodeUnitMode())    ));  //.asString().concat(tg.m.getGcodeUnitMode().get()));
-//        widthSize.textProperty().bind(cncWidthString);  //.asString().concat(tg.m.getGcodeUnitMode().get()));
-//        heightSize.textProperty().bind(cncMachine.heightProperty().divide(tg.m.gcodeUnitDivision).asString().concat(tg.m.getGcodeUnitMode()));
+//        widthSize.textProperty().bind( Bindings.format("%s",  cncMachine.widthProperty().divide(TinygDriver.getInstance().m.gcodeUnitDivision).asString().concat(TinygDriver.getInstance().m.getGcodeUnitMode())    ));  //.asString().concat(TinygDriver.getInstance().m.getGcodeUnitMode().get()));
+//        widthSize.textProperty().bind(cncWidthString);  //.asString().concat(TinygDriver.getInstance().m.getGcodeUnitMode().get()));
+//        heightSize.textProperty().bind(cncMachine.heightProperty().divide(TinygDriver.getInstance().m.gcodeUnitDivision).asString().concat(TinygDriver.getInstance().m.getGcodeUnitMode()));
 
 
 
         srCoord.textProperty()
                 .bind(TinygDriver.getInstance().m.gcm.getCurrentGcodeCoordinateSystemName());
         srGcodeLine.textProperty()
-                .bind(tg.m.getLineNumberSimple().asString());
+                .bind(TinygDriver.getInstance().m.getLineNumberSimple().asString());
 //TODO: FIX THIS
-//        hardwareId.textProperty().bind(tg.m.hardwareId); //Bind the tinyg hardware id to the tg driver value
-//        hwVersion.textProperty().bind(tg.m.hardwareVersion); //Bind the tinyg version  to the tg driver value
-//        firmwareVersion.textProperty().bind(tg.m.firmwareVersion);
-//        buildNumb.textProperty().bind(tg.m.firmwareBuild.asString());
+
 
 //        cncMachine.scaleXProperty().bind(cncMachine.widthProperty().subtract(gcodePane.widthProperty()));
 //        cncMachine.scaleYProperty().bind(gcodePane.heightProperty().subtract(cncMachine.heightProperty().multiply(.9)));
@@ -1037,14 +694,6 @@ public class Main extends Stage implements Initializable, Observer, Callback {
                 webEngine2.load("http://simplegcoder.com/js_editor/");
             }
         });
-
-
-
-
-
-
-
-
 
 
         /*######################################

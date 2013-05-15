@@ -4,7 +4,6 @@
  */
 package tgfx;
 
-import com.zipwhip.framework.pubsub.Broker;
 import org.apache.log4j.PropertyConfigurator;
 
 import javafx.application.Application;
@@ -13,7 +12,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
-import org.springframework.context.support.AbstractApplicationContext;
 
 /**
  *
@@ -21,11 +19,9 @@ import org.springframework.context.support.AbstractApplicationContext;
  */
 public class TgFX extends Application {
 
-    public static AbstractApplicationContext context;
     public static String[] arguments;
 
     private Stage mainStage;
-    private Broker broker;
     private static final Logger logger = Logger.getLogger(TgFX.class);
     
 //    public TgFX(Broker broker){

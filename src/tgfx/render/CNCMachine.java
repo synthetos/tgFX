@@ -50,7 +50,7 @@ public class CNCMachine extends Pane {
         cursorPoint.translateYProperty().bind(this.heightProperty().subtract(TinygDriver.getInstance().m.getAxisByName("y").getMachinePositionSimple()));
         cursorPoint.layoutXProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getMachinePositionSimple());
 
-//        cncMachine.getHeight() - tg.m.getAxisByName("y").getMachinePosition().get();
+//        cncMachine.getHeight() - TinygDriver.getInstance().m.getAxisByName("y").getMachinePosition().get();
         this.setMaxSize(0, 0);  //hide this element until we connect
         //Set our machine size from tinyg travel max
 
@@ -208,13 +208,13 @@ public class CNCMachine extends Pane {
         double scale = 1;
         double unitMagnication = 1;
 
-//        if (tg.m.getGcodeUnitMode().get().equals(Gcode_unit_modes.inches.toString())) {
+//        if (TinygDriver.getInstance().m.getGcodeUnitMode().get().equals(Gcode_unit_modes.inches.toString())) {
 //            unitMagnication = 5;  //INCHES
 //        } else {
 //            unitMagnication = 2; //MM
 //        }
-//        double newX = unitMagnication * (Double.valueOf(tg.m.getAxisByName("X").getWork_position().get()) + 80);// + magnification;
-//        double newY = unitMagnication * (Double.valueOf(tg.m.getAxisByName("Y").getWork_position().get()) + 80);// + magnification;
+//        double newX = unitMagnication * (Double.valueOf(TinygDriver.getInstance().m.getAxisByName("X").getWork_position().get()) + 80);// + magnification;
+//        double newY = unitMagnication * (Double.valueOf(TinygDriver.getInstance().m.getAxisByName("Y").getWork_position().get()) + 80);// + magnification;
 
 
 //        if (newX > gcodePane.getWidth() || newX > gcodePane.getWidth()) {
@@ -239,9 +239,9 @@ public class CNCMachine extends Pane {
 //            gcodeWindow.setScaleX(scale);
 //            gcodeWindow.setScaleY(scale);
 //        }
-//        System.out.println(gcodePane.getHeight() - tg.m.getAxisByName("y").getWork_position().get());
+//        System.out.println(gcodePane.getHeight() - TinygDriver.getInstance().m.getAxisByName("y").getWork_position().get());
         double newX = TinygDriver.getInstance().m.getAxisByName("x").getMachinePositionSimple().get();// + magnification;
-        double newY = this.getHeight() - TinygDriver.getInstance().m.getAxisByName("y").getMachinePositionSimple().get();//(gcodePane.getHeight() - (Double.valueOf(tg.m.getAxisByName("y").getWork_position().get())));// + magnification;
+        double newY = this.getHeight() - TinygDriver.getInstance().m.getAxisByName("y").getMachinePositionSimple().get();//(gcodePane.getHeight() - (Double.valueOf(TinygDriver.getInstance().m.getAxisByName("y").getWork_position().get())));// + magnification;
 
         if (Draw2d.isFirstDraw()) {
             //This is to not have us draw a line on the first connect.
@@ -271,7 +271,7 @@ public class CNCMachine extends Pane {
                 this.getChildren().add(l);  //Add the line to the Pane 
             } else {
                 Logger.getLogger("Main").info("Outside of Bounds X");
-                Main.consoleAppendMessage("WARNING: Outside tool outsie work area. X=" + l.getEndX() + " Y=" + (this.getHeight() - l.getEndY()) + " Home your machine or preform a reset.\n");
+                Main.postConsoleMessage("WARNING: Outside tool outsie work area. X=" + l.getEndX() + " Y=" + (this.getHeight() - l.getEndY()) + " Home your machine or preform a reset.\n");
             }
         }
     }

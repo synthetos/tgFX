@@ -109,7 +109,7 @@ public class SerialWriter implements Runnable {
         for (int i = startComment; i <= endComment; i++) {
             gcodeComment += str.charAt(i);
         }
-        Main.consoleRecvdMessage(" Gcode Comment << " + gcodeComment + "\n");
+        Main.postConsoleMessage(" Gcode Comment << " + gcodeComment + "\n");
     }
 
     public void write(String str) {
