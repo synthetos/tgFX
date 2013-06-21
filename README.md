@@ -25,4 +25,4 @@ https://www.dropbox.com/sh/huiupgemipv8f4q/X2l_1EH-gx
 If you find bugs please open an issue here:
 https://github.com/synthetos/tgFX/issues?direction=desc&sort=created&state=open
 
-== Thanks and remember that tgFX is still in beta. Try running a job with the motors inhibited before attempting to cut.
+== Thanks and remember that tgFX is still in beta. Try running a job with the motors inhibited before attempting to cut. ==
