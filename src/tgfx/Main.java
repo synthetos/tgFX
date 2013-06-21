@@ -13,7 +13,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,7 +32,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 
 
-import tgfx.external.SocketMonitor;
 import tgfx.render.Draw2d;
 import org.apache.log4j.Logger;
 
@@ -214,6 +212,11 @@ public class Main extends Stage implements Initializable, Observer {
                 public void run() {
 
                     try {
+                        //At first lets make sure everything is cleared and ready to talk
+                        TinygDriver.getInstance().serialWriter.resetBuffer();
+                        TinygDriver.getInstance().serialWriter.clearQueueBuffer();
+                        TinygDriver.getInstance().serialWriter.notifyAck();
+                        
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
 
@@ -349,8 +352,9 @@ public class Main extends Stage implements Initializable, Observer {
         TinygDriver.getInstance().m.setLineNumber(0);
         TinygDriver.getInstance().m.setMotionMode(0);
         Draw2d.setFirstDraw(true);
-        TinygDriver.getInstance().serialWriter.resetBuffer();
         tgfx.ui.gcode.GcodeTabController.setCNCMachineVisible(false);  //Once we disconnect we hide our gcode preview.
+        
+        TinygDriver.getInstance().serialWriter.resetBuffer();
         TinygDriver.getInstance().serialWriter.clearQueueBuffer();
         TinygDriver.getInstance().serialWriter.notifyAck();
         buildChecked = false;

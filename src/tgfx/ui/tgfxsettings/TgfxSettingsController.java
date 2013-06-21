@@ -4,28 +4,15 @@
  */
 package tgfx.ui.tgfxsettings;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ResourceBundle;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.stage.FileChooser;
 import org.apache.log4j.Logger;
-import tgfx.Main;
 import static tgfx.Main.getBuildInfo;
-import tgfx.tinyg.CommandManager;
-import tgfx.tinyg.TinygDriver;
 
 /**
  * FXML Controller class
@@ -44,7 +31,7 @@ public class TgfxSettingsController implements Initializable {
 
     public static void updateTgfxSettings() {
     }
-    private static boolean drawPreview;
+    private static boolean drawPreview = true;
     
      @FXML
     private void handleTogglePreview(ActionEvent event) {
