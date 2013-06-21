@@ -12,9 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
-import java.io.IOException;
-import com.install4j.api.launcher.ApplicationLauncher;
-import com.install4j.api.update.UpdateScheduleRegistry;
+
 
 /**
  *
@@ -62,23 +60,6 @@ public class TgFX extends Application {
     public void start(Stage stage) throws Exception {
 
 //        context = new ClassPathXmlApplicationContext("beans.xml");
-
-        try {
-            if (UpdateScheduleRegistry.checkAndReset()) {
-                ApplicationLauncher.launchApplication("118", null, true, new ApplicationLauncher.Callback() {
-                    public void exited(int exitValue) {
-                        //TODO add your code here (not invoked on event dispatch thread)
-                    }
-
-                    public void prepareShutdown() {
-                        //TODO add your code here (not invoked on event dispatch thread)
-                    }
-                });
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            //TODO handle invocation failure
-        }
 
 
 
