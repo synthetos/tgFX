@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -17,12 +18,14 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import tgfx.Main;
+import tgfx.SerialWriter;
 import tgfx.tinyg.CommandManager;
 import tgfx.tinyg.TinygDriver;
 
@@ -31,16 +34,24 @@ import tgfx.tinyg.TinygDriver;
  * @author rileyporter
  */
 public class CNCMachine extends Pane {
-
+    public static  StackPane gcodePane = new StackPane(); //Holds CNCMachine
     private DecimalFormat df = new DecimalFormat("#.##");
     private final Circle cursorPoint = new Circle(2, javafx.scene.paint.Color.RED);
-    private double xPrevious;
-    private double yPrevious;
+    private static double xPrevious;
+    private static double yPrevious;
     private double magnification = 1;
-
+    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(CNCMachine.class);      
+    
     public CNCMachine() {
+        this.setVisible(false);
+        this.setPadding(new Insets(10));
+
+
+        /*####################################
+         *CSS
+         #################################### */
         this.setStyle("-fx-background-color: black; -fx-border-color: orange;  -fx-border-width: .5;");
-        
+
         /*####################################
          *Cursor Set
          #################################### */
@@ -64,7 +75,18 @@ public class CNCMachine extends Pane {
         cursorText.setFill(Color.YELLOW);
         cursorText.setFont(Font.font("Arial", 6));
 
+        
+        
         setupLayout(); //initial layout setup in constructor
+        
+        
+        /*####################################
+         *Bindings
+         *#################################### */
+//
+//        this.scaleXProperty().bind(this.widthProperty().subtract(tgfx.ui.GcodeTabController.gcodePane.widthProperty()));
+//        this.scaleYProperty().bind(tgfx.ui.GcodeTabController.gcodePane.heightProperty().subtract(this.heightProperty().multiply(.9)));
+
 
         this.setOnMouseExited(new EventHandler<MouseEvent>() {
             @Override
@@ -74,6 +96,12 @@ public class CNCMachine extends Pane {
 
             }
         });
+
+
+
+
+
+
 
         this.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
@@ -271,7 +299,7 @@ public class CNCMachine extends Pane {
                 this.getChildren().add(l);  //Add the line to the Pane 
             } else {
                 Logger.getLogger("Main").info("Outside of Bounds X");
-                Main.postConsoleMessage("WARNING: Outside tool outsie work area. X=" + l.getEndX() + " Y=" + (this.getHeight() - l.getEndY()) + " Home your machine or preform a reset.\n");
+//                Main.postConsoleMessage("WARNING: Outside tool outside work area. X=" + l.getEndX() + " Y=" + (this.getHeight() - l.getEndY()) + " Home your machine or preform a reset.\n");
             }
         }
     }
@@ -290,8 +318,8 @@ public class CNCMachine extends Pane {
             }
         }
     }
-    
-    public void resetDrawingCoords(){
+
+    public static void resetDrawingCoords() {
         //After a reset has occured we call this ot reset the previous coords.
         xPrevious = 0;
         yPrevious = 0;
@@ -314,8 +342,6 @@ public class CNCMachine extends Pane {
         yText.setFill(Color.YELLOW);
         yText.setFont(Font.font("Arial", 10));
 
-
-
         this.getChildren().add(xText);
         this.getChildren().add(yText);
 
@@ -324,12 +350,6 @@ public class CNCMachine extends Pane {
     }
 
     public void autoScaleWorkTravelSpace(double scaleAmount) {
-        /*
-         * TODO:
-         * Fix it so that if your table is larger than the "pixels" in the size of the gcodePreview box, then the scaling does down to a decimal or negative number.
-         * 
-         * 
-         */
 
         //Get the axis with the smallest available space.  Think aspect ratio really
 

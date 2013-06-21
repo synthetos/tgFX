@@ -12,6 +12,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
+import java.io.IOException;
+import com.install4j.api.launcher.ApplicationLauncher;
+import com.install4j.api.update.UpdateScheduleRegistry;
 
 /**
  *
@@ -20,10 +23,9 @@ import org.apache.log4j.Logger;
 public class TgFX extends Application {
 
     public static String[] arguments;
-
     private Stage mainStage;
     private static final Logger logger = Logger.getLogger(TgFX.class);
-    
+
 //    public TgFX(Broker broker){
 //        this.broker = broker;
 //        Application.launch(TgFX.class);
@@ -41,7 +43,6 @@ public class TgFX extends Application {
 //        logger.debug("Just registered launch/application from TgFX thread.");
 //        
 //    }
-    
 //    @Override
 //    public void start(Stage stage) throws Exception {
 //       this.setMainStage(stage);
@@ -62,14 +63,36 @@ public class TgFX extends Application {
 
 //        context = new ClassPathXmlApplicationContext("beans.xml");
 
+        try {
+            if (UpdateScheduleRegistry.checkAndReset()) {
+                ApplicationLauncher.launchApplication("118", null, true, new ApplicationLauncher.Callback() {
+                    public void exited(int exitValue) {
+                        //TODO add your code here (not invoked on event dispatch thread)
+                    }
 
-        Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
+                    public void prepareShutdown() {
+                        //TODO add your code here (not invoked on event dispatch thread)
+                    }
+                });
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            //TODO handle invocation failure
+        }
+
+
+
+        Parent root;
+        root = (Parent) FXMLLoader.load(getClass().getResource("Main.fxml"));
+        Scene scene = new Scene(root);
+
+        scene.setRoot(root);
+
         FXMLLoader fxmlLoader = new FXMLLoader();
 
 //        FooController fooController = (FooController) fxmlLoader.getController();
         TgFX TgFXController = (TgFX) fxmlLoader.getController();
 
-        Scene scene = new Scene(root);
 
 
         stage.setMinHeight(800);
@@ -78,10 +101,8 @@ public class TgFX extends Application {
         stage.show();
     }
 
-        public static void main(String[] args) {
-            PropertyConfigurator.configure("log4j.properties");
-            Application.launch(TgFX.class, args);
-        }
-    
-    
+    public static void main(String[] args) {
+        PropertyConfigurator.configure("log4j.properties");
+        Application.launch(TgFX.class, args);
+    }
 }

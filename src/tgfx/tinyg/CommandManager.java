@@ -6,6 +6,7 @@ package tgfx.tinyg;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import tgfx.Main;
 
 /**
  *
@@ -46,7 +47,7 @@ public class CommandManager {
     public static final String CMD_QUERY_SYSTEM_GCODE_PLANE = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE + "\":null}\n";
     public static final String CMD_APPLY_DISABLE_HASHCODE = "{\"eh\":0\"}\n";
     public static final String CMD_APPLY_DEFAULT_SETTINGS = "{\"defaults\":1}\n";
-    public static final String CMD_APPLY_STATUS_UPDATE_INTERVAL = "{\"si\":200}\n";
+    public static final String CMD_APPLY_STATUS_UPDATE_INTERVAL = "{\"si\":100}\n";
     public static final String CMD_APPLY_JSON_VOBERSITY = "{\"jv\":3}\n";
     public static final String CMD_APPLY_ENABLE_JSON_MODE = "{\"ej\":1}\n";
     public static final String CMD_DEFAULT_ENABLE_JSON = "{\"ej\":1}\n";
@@ -56,10 +57,16 @@ public class CommandManager {
     public static final String CMD_QUERY_SWITCHMODE = "{\"st\":null}\n"; 
     public static final String CMD_APPLY_SWITCHMODE_NORMALLY_OPEN = "{\"st\":0}\n"; 
     public static final String CMD_APPLY_SWITCHMODE_NORMALLY_CLOSED = "{\"st\":1}\n"; 
+    public static final String CMD_APPLY_UNITMODE_INCHES = "{\"gc\":\"g20\"}\n"; 
+    public static final String CMD_APPLY_UNITMODE_MM = "{\"gc\":\"g21\"}\n"; 
+    
+    
+    
     
     
     public static final String CMD_APPLY_PAUSE = "!\n";
-    public static final String CMD_APPLY_QUEUE_FLUSH = "{\"qf\":0}\n";
+    public static final String CMD_APPLY_RESUME = "~\n";
+    public static final String CMD_APPLY_QUEUE_FLUSH = "%\n";
     //Homeing Commandings
     public static final String CMD_APPLY_HOME_X_AXIS = "{\"gc\":\"g28.2x0\"}\n";
     public static final String CMD_APPLY_HOME_Y_AXIS = "{\"gc\":\"g28.2y0\"}\n";
@@ -93,7 +100,7 @@ public class CommandManager {
     
     
     
-    public static final String CMD_APPLY_RESUME = "~\n";
+   
     public static final Byte CMD_APPLY_RESET = 0x18;
 //    public static final String CMD_APPLY_RESET = "\x18\n";
     public static final String CMD_APPLY_DISABLE_XON_XOFF = "{\"ex\":0}\n";
@@ -123,16 +130,20 @@ public class CommandManager {
         try {
             TinygDriver.getInstance().write(CMD_QUERY_MOTOR_1_SETTINGS);
             logger.info("[+]Getting Motor 1 Settings");
+            Main.postConsoleMessage("Getting TinyG Motor 1 Settings...");
 
             TinygDriver.getInstance().write(CMD_QUERY_MOTOR_2_SETTINGS);
             logger.info("[+]Getting Motor 2 Settings");
-
+            Main.postConsoleMessage("Getting TinyG Motor 2 Settings...");
+            
             TinygDriver.getInstance().write(CMD_QUERY_MOTOR_3_SETTINGS);
             logger.info("[+]Getting Motor 3 Settings");
-
+            Main.postConsoleMessage("Getting TinyG Motor 3 Settings...");
+            
             TinygDriver.getInstance().write(CMD_QUERY_MOTOR_4_SETTINGS);
             logger.info("[+]Getting Motor 4 Settings");
-
+            Main.postConsoleMessage("Getting TinyG Motor 4 Settings...");
+            
         } catch (Exception ex) {
             logger.error("[!]Exception in queryAllMotorSettings()...");
             logger.error(ex.getMessage());
@@ -166,6 +177,7 @@ public class CommandManager {
     public void queryStatusReport() throws Exception {
         logger.info("[+]Querying Status Report");
         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_STATUS_REPORT);
+        Main.postConsoleMessage("Getting TinyG Status Report...");
     }
     
     public void queryMachineSwitchMode() throws Exception {
@@ -179,10 +191,21 @@ public class CommandManager {
             TinygDriver.getInstance().write(CMD_APPLY_SWITCHMODE_NORMALLY_CLOSED);
         }
     }
+    
+    public void applyMachineUnitMode(int i) throws Exception{
+        if(i == 0){
+            TinygDriver.getInstance().write(CMD_APPLY_UNITMODE_INCHES);
+        }else{
+            TinygDriver.getInstance().write(CMD_APPLY_UNITMODE_MM);
+        }
+    }
+    
+    
 
     public void queryAllMachineSettings() throws Exception {
         logger.info("[+]Getting All Machine Settings");
         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
+        Main.postConsoleMessage("Getting TinyG System Settings...");
     }
 
     /**
@@ -195,22 +218,29 @@ public class CommandManager {
 
             logger.info("[+]Getting A AXIS Settings");
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_A);
+            Main.postConsoleMessage("Getting TinyG Axis A Settings...");
 
             logger.info("[+]Getting B AXIS Settings");
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_B);
-
+            Main.postConsoleMessage("Getting TinyG Axis B Settings...");
+            
             logger.info("[+]Getting C AXIS Settings");
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_C);
-
+            Main.postConsoleMessage("Getting TinyG Axis C Settings...");
+            
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_X);
             logger.info("[+]Getting X AXIS Settings");
-
+            Main.postConsoleMessage("Getting TinyG Axis X Settings...");
+            
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_Y);
             logger.info("[+]Getting Y AXIS Settings");
-
+            Main.postConsoleMessage("Getting TinyG Axis Y Settings...");
+            
+            
             TinygDriver.getInstance().write(CommandManager.CMD_QUERY_AXIS_Z);
             logger.info("[+]Getting Z AXIS Settings");
-
+            Main.postConsoleMessage("Getting TinyG Axis Z Settings...");
+            
         } catch (Exception ex) {
             logger.error("[!]Error in queryAllHardwareAxisSettings()");
         }

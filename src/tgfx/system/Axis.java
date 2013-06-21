@@ -56,8 +56,8 @@ public final class Axis {
     private double jerkMaximum;
     private double jerkHomingMaximum;
     private double junction_devation;
-    private SWITCH_MODES max_switch_mode;
-    private SWITCH_MODES min_switch_mode;
+    private SWITCH_MODES max_switch_mode = SWITCH_MODES.DISABLED;
+    private SWITCH_MODES min_switch_mode= SWITCH_MODES.DISABLED;
     
     DecimalFormat decimalFormat = new DecimalFormat("#.000");
     DecimalFormat decimalFormatjunctionDeviation = new DecimalFormat("0.000000");

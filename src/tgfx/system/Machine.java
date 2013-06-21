@@ -35,7 +35,6 @@ public final class Machine {
     public StringProperty hardwareVersion = new SimpleStringProperty("na");
     public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
     private StringProperty gcodeUnitMode = new SimpleStringProperty("mm");
-    
     public SimpleDoubleProperty gcodeUnitDivision = new SimpleDoubleProperty(1);
 //    private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
     private int switchType = 0; //0=normally closed 1 = normally open
@@ -56,7 +55,6 @@ public final class Machine {
     private boolean enable_echo;
     private boolean enable_xon_xoff;
     private boolean enable_hashcode;
-
     //Misc
     public SimpleIntegerProperty lineNumber = new SimpleIntegerProperty(0);
     private String last_message = new String("");
@@ -88,22 +86,22 @@ public final class Machine {
         g54, g55, g56, g57, g58, g59
     }
 
-    public void setSwitchType(int swType){
+    public void setSwitchType(int swType) {
         this.switchType = swType;
     }
-    
-    public int getSwitchType(){
-        return(switchType);
+
+    public int getSwitchType() {
+        return (switchType);
     }
-    
-    public String getSwitchTypeAsString(){
-        if(switchType == 0){
-            return("Normally Open");
-        }else{
-            return("Normally Closed");
+
+    public String getSwitchTypeAsString() {
+        if (switchType == 0) {
+            return ("Normally Open");
+        } else {
+            return ("Normally Closed");
         }
     }
-    
+
     public Gcode_select_plane getGcode_select_plane() {
         return gcode_select_plane;
     }
@@ -159,11 +157,10 @@ public final class Machine {
     public StringProperty getHardwareId() {
         return hardwareId;
     }
-    
+
 //    public SimpleDoubleProperty over(){
 //        return(gcodeUnitDivision.divide(2));
 //    }
-
     public void setHardwareId(String hwIdString) {
         hardwareId.set(hwIdString);
     }
@@ -175,8 +172,7 @@ public final class Machine {
     public void setHardwareVersion(String hardwareVersion) {
         this.hardwareVersion.set(hardwareVersion);
     }
-    
-    
+
 //    public static enum motion_modes {
 ////        [momo] motion_mode        - 0=traverse, 1=straight feed, 2=cw arc, 3=ccw arc
 //
@@ -324,12 +320,12 @@ public final class Machine {
         if (unitMode == 0) {
             gcodeUnitMode.setValue("inches");
             gcodeUnitDivision.set(25.4);  //mm to inches conversion   
-            
-            
+
+
         } else if (unitMode == 1) {
             gcodeUnitMode.setValue("mm");
             gcodeUnitDivision.set(1.0);
-            
+
         }
 
     }
@@ -425,8 +421,9 @@ public final class Machine {
     }
 
     public void setFirmwareBuild(double firmware_build) {
-        this.firmwareBuild.set(firmware_build);
-
+        
+         this.firmwareBuild.set(firmware_build);
+         TinygDriver.getInstance().notifyBuildChanged();
     }
 
     public StringProperty getFirmwareVersion() {
@@ -495,8 +492,6 @@ public final class Machine {
     //                break;
     //        }
     //    }
-  
-
     public void setMachineState(int state) {
 
         switch (state) {
@@ -593,7 +588,7 @@ public final class Machine {
 
         setMotionMode(0);
 
-        
+
 
 
     }
@@ -820,25 +815,25 @@ public final class Machine {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_SWITCH_TYPE):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                       TinygDriver.getInstance().m.setSwitchType(Integer.valueOf(rc.getSettingValue()));
-                       String[] message = new String[2];
-                       message[0] = "MACHINE_UPDATE";
-                       message[1] = null;
-                       TinygDriver.getInstance().resParse.set_Changed();
-                       TinygDriver.getInstance().resParse.notifyObservers(message);
-                       
-                       
+                        TinygDriver.getInstance().m.setSwitchType(Integer.valueOf(rc.getSettingValue()));
+                        String[] message = new String[2];
+                        message[0] = "MACHINE_UPDATE";
+                        message[1] = null;
+                        TinygDriver.getInstance().resParse.set_Changed();
+                        TinygDriver.getInstance().resParse.notifyObservers(message);
+
+
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_TEXT_VOBERSITY):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
-                    
+
                     case (MnemonicManager.MNEMONIC_SYSTEM_TINYG_ID_VERSION):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         this.setHardwareId(rc.getSettingValue());
                         break;
-                    
+
                     case (MnemonicManager.MNEMONIC_SYSTEM_HARDWARE_VERSION):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         this.setHardwareVersion(rc.getSettingValue());

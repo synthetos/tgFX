@@ -96,9 +96,9 @@ public class ResponseParser extends Observable implements Runnable {
                         message[1] = "[+]JSON Response Detected... Leaving Text mode..  Querying System State....\n";
                         notifyObservers(message);
                         try {
-//                            TinygDriver.getInstance().cmdManager.queryAllMachineSettings();
-//                            TinygDriver.getInstance().cmdManager.queryAllHardwareAxisSettings();
-//                            TinygDriver.getInstance().cmdManager.queryAllMotorSettings();
+                            TinygDriver.getInstance().cmdManager.queryAllMachineSettings();
+                            TinygDriver.getInstance().cmdManager.queryAllHardwareAxisSettings();
+                            TinygDriver.getInstance().cmdManager.queryAllMotorSettings();
                         } catch (Exception ex) {
                             logger.error("Error leaving Text mode and querying Motor, Machine and Axis Settings.");
                         }
@@ -192,7 +192,7 @@ public class ResponseParser extends Observable implements Runnable {
                             //This is the normal case
                             rc.setSettingValue(js.get(key).toString());
                             parentGroup = rc.getSettingParent();
-                            _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pai
+                             _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pai
                         }
                     }
                 }
@@ -255,6 +255,7 @@ public class ResponseParser extends Observable implements Runnable {
                             break;
 
                         case "msg":
+                            
                             message[0] = "TINYG_USER_MESSAGE";
                             message[1] = (String) js.get(key) + "\n";
                             logger.info("[+]TinyG Message Sent:  " + js.get(key) + "\n");
@@ -410,8 +411,9 @@ public class ResponseParser extends Observable implements Runnable {
                  */
 //                setChanged();
                 message[0] = "MACHINE_UPDATE";
-                message[1] = null;
-//                notifyObservers(message);
+                 message[1] = null;
+                 setChanged();
+                notifyObservers(message);
                 break;
 //            case (MNEMONIC_GROUP_STATUS_REPORT):
 //                logger.info("Status Report");

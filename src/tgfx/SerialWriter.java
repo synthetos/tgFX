@@ -7,6 +7,7 @@ package tgfx;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tgfx.tinyg.TinygDriver;
 
 /**
  *
@@ -44,9 +45,15 @@ public class SerialWriter implements Runnable {
 
     public void clearQueueBuffer() {
         queue.clear();
+        
         try {
 //            SerialDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESET);
             this.buffer_available = BUFFER_SIZE;
+            this.setThrottled(false);
+            this.notifyAck();
+            
+            
+          
         } catch (Exception ex) {
             Logger.getLogger(SerialWriter.class.getName()).log(Level.SEVERE, null, ex);
         }

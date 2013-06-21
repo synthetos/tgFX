@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.Group ?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.web.*?>
+
+<Tab closable="false" disable="false" text="tgFX Settings" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.ui.tgfxsettings.TgfxSettingsController">
+    <content>
+        <AnchorPane id="settingsContent" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
+            <children>
+                <HBox blendMode="SRC_ATOP" layoutY="0.0" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" style="&#10;" AnchorPane.leftAnchor="0.0">
+                    <children>
+                        <VBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="200.0" style="-fx-background-color:black&#10;">
+                                    <children>
+                                        <Label text="Render" textFill="WHITE" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="15.0">
+                                    <children>
+                                        <Label id="lblMachine" text="Draw Preview" />
+                                        <Button fx:id="settingDrawBtn" mnemonicParsing="false" onAction="#handleTogglePreview" text="OFF" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        <VBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" HBox.hgrow="ALWAYS" HBox.margin="$x5">
+                            <children>
+                                <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="200.0" style="-fx-background-color:black">
+                                    <children>
+                                        <Label text="Build Info" textFill="WHITE" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="TOP_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                                    <children>
+                                        <Label id="lblVersion" fx:id="tgfxVersion" text="">
+                                            <graphic>
+                                                <Label id="lblMachine" text="Version:" />
+                                            </graphic>
+                                        </Label>
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets top="5.0" fx:id="x5" />
+                                    </VBox.margin>
+                                </HBox>
+                                <HBox alignment="TOP_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                                    <children>
+                                        <Label id="lblBuildNumber" fx:id="tgfxBuildNumber" text="">
+                                            <graphic>
+                                                <Label id="lblMachine" text="Build Number:" />
+                                            </graphic>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="TOP_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                                    <children>
+                                        <Label id="lblBuildNumber" fx:id="tgfxBuildDate" text="">
+                                            <graphic>
+                                                <Label id="lblMachine" text="Build Date:" />
+                                            </graphic>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </AnchorPane>
+    </content>
+</Tab>

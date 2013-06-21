@@ -14,19 +14,20 @@ import org.apache.log4j.Logger;
 import tgfx.ResponseParser;
 import tgfx.SerialDriver;
 import tgfx.SerialWriter;
-import tgfx.gcode.GcodeLine;
+import tgfx.ui.gcode.GcodeLine;
 import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
 
 public class TinygDriver extends Observable {
-
+    private double MINIMAL_BUILD_VERSION = 377.08;
     static final Logger logger = Logger.getLogger(TinygDriver.class);
     public Machine m = Machine.getInstance();
     public QueueReport qr = QueueReport.getInstance();
     public MnemonicManager mneManager = new MnemonicManager();
     public ResponseManager resManager = new ResponseManager();
     public CommandManager cmdManager = new CommandManager();
+    private String[] message = new String[2];
     
     
     
@@ -49,6 +50,36 @@ public class TinygDriver extends Observable {
      *
      * @return
      */
+    public double getMINIMAL_BUILD_VERSION() {
+        return MINIMAL_BUILD_VERSION;
+    }
+
+    public void setMINIMAL_BUILD_VERSION(double MINIMAL_BUILD_VERSION) {
+        this.MINIMAL_BUILD_VERSION = MINIMAL_BUILD_VERSION;
+    }
+
+    
+    
+    
+    public void notifyBuildChanged(){
+       
+        if (this.m.getFirmwareBuild() < MINIMAL_BUILD_VERSION && this.m.getFirmwareBuild() != 0.0) {
+            //too old of a build  we need to tell the GUI about this... This is where PUB/SUB will fix this 
+            //bad way of alerting the gui about model changes.
+            message[0]  = "BUILD_ERROR";
+            message[1] = Double.toString(TinygDriver.getInstance().m.getFirmwareBuild());
+            setChanged();
+            notifyObservers(message);
+             logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is NOT OK");
+        } else{
+            logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is OK");
+            message[0]  = "BUILD_OK";
+            message[1] = null;
+            setChanged();
+            notifyObservers(message);
+        }
+    }
+    
     public static TinygDriver getInstance() {
         return TinygDriverHolder.INSTANCE;
     }
@@ -387,8 +418,8 @@ public class TinygDriver extends Observable {
     }
 
     private TinygDriver() {
-//        logger.setLevel(Level.ERROR);
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.ERROR);
+//        logger.setLevel(Level.DEBUG);
 //        logger.setLevel(Level.INFO);
     }
 
@@ -402,10 +433,7 @@ public class TinygDriver extends Observable {
         super.addObserver(obsrvr);
     }
 
-    @Override
-    public void notifyObservers() {
-        super.notifyObservers();
-    }
+
 
     public void appendJsonQueue(String line) {
         // This adds full normalized json objects to our jsonQueue.

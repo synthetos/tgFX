@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.Group ?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.web.*?>
+<?import jfxtras.labs.scene.control.gauge.*?>
+<?import jfxtras.labs.scene.control.gauge.Gauge?>
+<?import jfxtras.labs.scene.control.gauge.GaugeBuilder.GaugeType ?>
+<?import jfxtras.labs.scene.control.gauge.Lcd?>
+<?import jfxtras.labs.scene.control.gauge.Marker?>
+<?import jfxtras.labs.scene.control.gauge.Section?>
+<?import jfxtras.labs.scene.control.window.*?>
+<?scenebuilder-classpath-element ../../../lib/jfxtras-labs-2.2-r5-20121222.173143-8.jar?>
+<!--<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.tgfx.Main.">
+    <stylesheets>
+        <URL value="@gcodetab.css"/>
+    </stylesheets>
+</AnchorPane>-->
+
+<Tab fx:id="gcode_tab" closable="false" text="Gcode" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.ui.gcode.GcodeTabController">
+  <content>
+    <HBox id="gcodeTabHbox" alignment="TOP_CENTER" fillHeight="true" minHeight="450.0" prefHeight="-1.0" prefWidth="-1.0" style="" visible="true">
+      <children>
+        <VBox fx:id="gcodeProgramVbox" alignment="TOP_CENTER" blendMode="SRC_ATOP" maxWidth="300.0" minHeight="-Infinity" minWidth="320.0" prefHeight="300.0" prefWidth="320.0" style="&#10;" visible="true" HBox.hgrow="NEVER">
+          <children>
+            <TableView fx:id="gcodeView" editable="true" focusTraversable="false" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+              <columns>
+                <TableColumn id="gcodeCol" maxWidth="500.0" minWidth="290.0" prefWidth="250.0" resizable="true" sortable="false" text="Gcode Program" fx:id="gcodeCol" />
+              </columns>
+              <VBox.margin>
+                <Insets bottom="15.0" left="5.0" right="5.0" top="15.0" />
+              </VBox.margin>
+            </TableView>
+            <HBox id="gcodeFile" fx:id="command_bar" alignment="TOP_CENTER" spacing="10.0">
+              <children>
+                <Button focusTraversable="false" onAction="#handleOpenFile" text="Load" />
+                <Button fx:id="runBtn" focusTraversable="false" onAction="#handleRunFile" text="Run" />
+                <Button fx:id="pauseResume" focusTraversable="false" onAction="#handlePauseResumeAct" text="Pause" />
+              </children>
+              <padding>
+                <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
+              </padding>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+              <children>
+                <Button id="cancelBtn" fx:id="resetBtn" contentDisplay="CENTER" focusTraversable="false" graphicTextGap="0.0" onAction="#handleReset" prefWidth="-1.0" style="-fx-background-color:red" text="Reset" textAlignment="JUSTIFY" underline="false" HBox.hgrow="NEVER">
+                  <HBox.margin>
+                    <Insets fx:id="x727" />
+                  </HBox.margin>
+                </Button>
+                <Button contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#handleStop" text="Stop Job" textAlignment="CENTER" />
+              </children>
+              <padding>
+                <Insets top="10.0" />
+              </padding>
+            </HBox>
+          </children>
+          <padding>
+            <Insets bottom="15.0" left="5.0" right="5.0" />
+          </padding>
+        </VBox>
+        <HBox id="gcodePreviewVbox" fx:id="gcodePreviewHbox" alignment="CENTER" disable="false" prefHeight="-1.0" prefWidth="-1.0" visible="true" HBox.hgrow="ALWAYS">
+          <children>
+            <!--<Window title="Gcode Preview" prefHeight="400" prefWidth="700"/>-->
+            <VBox id="previewVbox" fx:id="tester" alignment="BOTTOM_CENTER" disable="false" minHeight="-1.0" minWidth="-1.0" rotate="180.0" scaleX="1.0" scaleZ="1.0" snapToPixel="true" spacing="5.0" style="-fx-background-radius: 10;&#10;" translateZ="1.0" visible="true" HBox.hgrow="ALWAYS">
+              <children>
+                <StackPane id="topPreviewPane" fx:id="gcodePane" minHeight="400.0" minWidth="400.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: black" VBox.vgrow="ALWAYS" />
+                <HBox fx:id="gcodeWindowButtonBar" alignment="CENTER_RIGHT" maxHeight="45.0" minHeight="45.0" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" style="&#10;" VBox.vgrow="NEVER">
+                  <children>
+                    <Label fx:id="heightLabel" text="Height" textFill="WHITE" visible="false" />
+                    <Text fx:id="heightSize" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="0" visible="false" />
+                    <Label text="Width" textFill="WHITE" visible="false" />
+                    <Text fx:id="widthSize" fill="WHITE" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="0" visible="false" />
+                    <Button fx:id="btnClearScreen" focusTraversable="false" onAction="#handleClearScreen" text="Clear Screen" />
+                  </children>
+                  <padding>
+                    <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                  </padding>
+                </HBox>
+              </children>
+              <effect>
+                <DropShadow color="WHITE" height="8.857142857144698" radius="3.928571428571889" spread="0.49206349206349204" width="8.857142857142858" />
+              </effect>
+              <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
+              </padding>
+              <rotationAxis>
+                <Point3D />
+              </rotationAxis>
+              <HBox.margin>
+                <Insets left="15.0" right="15.0" />
+              </HBox.margin>
+            </VBox>
+          </children>
+          <padding>
+            <Insets bottom="10.0" top="10.0" />
+          </padding>
+        </HBox>
+        <VBox fx:id="positionsVbox" alignment="CENTER" fillWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" style="" HBox.hgrow="NEVER">
+          <children>
+            <Lcd fx:id="xLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" ledVisible="true" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="X Axis Position" unit="mm">
+              <contextMenu>
+                <ContextMenu fx:id="xAxisContextMenu">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#handleZeroAxisClick" text="Zero X Axis" fx:id="xZeroAxis" />
+                    <MenuItem mnemonicParsing="false" onAction="#handleHomeAxisClick" text="Home X Axis" fx:id="xHomeAxis" />
+                  </items>
+                </ContextMenu>
+              </contextMenu>
+            </Lcd>
+            <Lcd fx:id="yLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="Y Axis Position" unit="mm">
+              <contextMenu>
+                <ContextMenu fx:id="yAxisContextMenu">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#handleZeroAxisClick" text="Zero Y Axis" fx:id="yZeroAxis" />
+                    <MenuItem mnemonicParsing="false" onAction="#handleHomeAxisClick" text="Home Y Axis" fx:id="yHomeAxis" />
+                  </items>
+                </ContextMenu>
+              </contextMenu>
+            </Lcd>
+            <Lcd fx:id="zLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="Z Axis Position" unit="mm">
+              <contextMenu>
+                <ContextMenu fx:id="zAxisContextMenu">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#handleZeroAxisClick" text="Zero Z Axis" fx:id="zZeroAxis" />
+                    <MenuItem mnemonicParsing="false" onAction="#handleHomeAxisClick" text="Home Z Axis" fx:id="zHomeAxis" />
+                  </items>
+                </ContextMenu>
+              </contextMenu>
+            </Lcd>
+            <Lcd fx:id="aLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="A Axis Position" unit="mm">
+              <contextMenu>
+                <ContextMenu fx:id="aAxisContextMenu">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#handleZeroAxisClick" text="Zero A Axis" fx:id="aZeroAxis" />
+                  </items>
+                </ContextMenu>
+              </contextMenu>
+            </Lcd>
+            <Lcd fx:id="velLcd" focusTraversable="false" lcdDecimals="0" lcdDesign="RED_DARKRED" lcdUnitVisible="true" lcdValueFont="LCD" prefHeight="70.0" prefWidth="200.0" title="Velocity" unit="mm/min" />
+            <Button fx:id="gcodeZero" focusTraversable="false" maxWidth="133.0" minWidth="133.0" onAction="#handleZeroSystem" text="Zero All Axes" VBox.vgrow="NEVER" />
+            <Button focusTraversable="false" mnemonicParsing="false" onAction="#handleHomeXYZ" text="Home XYZ Axes" />
+          </children>
+          <padding>
+            <Insets right="15.0" top="15.0" />
+          </padding>
+        </VBox>
+      </children>
+      <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
+      </padding>
+      <spacing>
+        <Long fx:value="0" />
+      </spacing>
+    </HBox>
+  </content>
+</Tab>
