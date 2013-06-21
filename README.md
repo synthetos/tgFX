@@ -6,7 +6,8 @@ tgFX
 
 A JavaFX 2 based GUI controller for the TinyG motion controller.
 
-This code is under heavy development.  We should be approaching a new release soon.  However, please note that tgFX is NOT backwards compatible with firmware versions 367.03 and lower.
+This code is under heavy development.  We should be approaching a new release soon.  
+However, please note that tgFX is NOT backwards compatible with firmware versions 377.08 and lower.
 
 To run tgFX you will need to update your TinyG's firware to 377.08.
 
