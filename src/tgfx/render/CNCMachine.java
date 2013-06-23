@@ -158,26 +158,6 @@ public class CNCMachine extends Pane {
                     cm.show((Node) me.getSource(), me.getScreenX(), me.getScreenY());
                 }
 
-//                cm.getItems().add(cmItem1);
-//pic.addEventHandler(MouseEvent.MOUSE_CLICKED,
-//    new EventHandler<MouseEvent>() {
-//        @Override public void handle(MouseEvent e) {
-//            if (e.getButton() == MouseButton.SECONDARY)  
-//                cm.show(pic, e.getScreenX(), e.getScreenY());
-//        }
-//});
-
-//                Circle c = new Circle(2, Color.YELLOWGREEN);
-//                c.setLayoutX(me.getX());
-//                c.setLayoutY(me.getY());
-//                Text coordsText = new Text("(" + me.getX() + "," + me.getY() + ")");
-//                coordsText.setStroke(Color.YELLOW);
-//                coordsText.setFill(Color.YELLOW);
-//                coordsText.setFont(Font.font("Arial", 10));
-//                coordsText.setX(me.getX() + 10);
-//                coordsText.setY(me.getY());
-//                getChildren().add(coordsText);
-//                getChildren().add(c);
             }
         });
 

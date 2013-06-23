@@ -277,8 +277,8 @@ public class TinyGConfigController implements Initializable {
                 axisZjunctionDeviation.setText(String.valueOf(ax.getJunction_devation()));
                 axisZsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                 axisZzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
-                axisZswitchModeMin.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
-                axisZswitchModeMax.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
+                axisZswitchModeMin.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
+                axisZswitchModeMax.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
                 axisZmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisZmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
 //                                axisZmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
