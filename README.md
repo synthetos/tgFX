@@ -1,5 +1,7 @@
 tgFX - A TinyG GUI
 ====
+DEV BRANCH ALL BETS OFF
+
 A JavaFX 2 based GUI controller for the TinyG motion controller.
 
 This code is under heavy development.
