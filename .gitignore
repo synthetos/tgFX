@@ -20,3 +20,6 @@ nbproject/UPDATED.TXT
 nbproject/jfx-impl.xml
 
 *.bak
+/nbproject/jfx-impl_backup_1.xml
+/nbproject/jfx-impl_backup_2.xml
+/nbproject/jfx-impl_backup_3.xml
