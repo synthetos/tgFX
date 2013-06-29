@@ -383,7 +383,7 @@ public class GcodeTabController implements Initializable {
                     TinygDriver.getInstance().serialWriter.notifyAck();
                     TinygDriver.getInstance().serialWriter.clearQueueBuffer();
                     cncMachine.clearScreen();
-                    
+
                 } catch (Exception ex) {
                     logger.error("handleReset " + ex.getMessage());
                 }
@@ -401,13 +401,13 @@ public class GcodeTabController implements Initializable {
 
                     logger.info("[!]Stopping Job Clearing Serial Queue...\n");
                     TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_PAUSE);
-                    
+
                     TinygDriver.getInstance().serialWriter.clearQueueBuffer();
                     TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_QUEUE_FLUSH);
 //                    TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESUME);
                     tgfx.Main.postConsoleMessage("[!]Stopping Job Clearing Serial Queue...\n");
-                    
-                   
+
+
 
                 } catch (Exception ex) {
                     logger.error("handleStop " + ex.getMessage());
@@ -437,19 +437,26 @@ public class GcodeTabController implements Initializable {
                 String tmp;
                 for (int i = 0; i < gcodeCharLength; i++) {
                     GcodeLine _gcl = (GcodeLine) data.get(i);
+                    
+                    
+                    
+                    
+                    
                     if (isTaskActive() == false) {
                         //Cancel Button was pushed
                         tgfx.Main.postConsoleMessage("[!]File Sending Task Killed....\n");
                         break;
                     } else {
-                        if (_gcl.getCodeLine().contains("(")) {
-
-                            tgfx.Main.postConsoleMessage("GCODE COMMENT:" + _gcl.getCodeLine() + "\n");
-                            continue;
-                        } else if (_gcl.getCodeLine().equals("")) {
+                        if (_gcl.getCodeLine().equals("")) {
                             //Blank Line.. Passing.. 
                             continue;
                         }
+
+                        if (_gcl.getCodeLine().toLowerCase().contains("(")) {
+                            tgfx.Main.postConsoleMessage("GCODE COMMENT:" + _gcl.getCodeLine());
+
+                        }
+
                         line.setLength(0);
                         line.append("{\"gc\":\"").append(_gcl.getCodeLine()).append("\"}\n");
                         TinygDriver.getInstance().write(line.toString());
@@ -459,6 +466,8 @@ public class GcodeTabController implements Initializable {
             }
         };
     }
+    
+    
 
     @FXML
     private void handleRunFile(ActionEvent evt) {

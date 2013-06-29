@@ -61,8 +61,10 @@ import tgfx.render.CNCMachine;
 import tgfx.ui.machinesettings.MachineSettingsController;
 import tgfx.ui.tinygconfig.TinyGConfigController;
 
+
 public class Main extends Stage implements Initializable, Observer {
 
+    private int delayValue = 150; //Time between config set'ers.
     private boolean buildChecked = false;  //this is checked apon initial connect.  Once this is set to true
     //if a buildVersion changed message comes in it will not refire onConnect2() again and again
     static final Logger logger = Logger.getLogger(Main.class);
@@ -217,7 +219,10 @@ public class Main extends Stage implements Initializable, Observer {
                         TinygDriver.getInstance().serialWriter.clearQueueBuffer();
                         TinygDriver.getInstance().serialWriter.notifyAck();
                         
+//                        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
+//                        Thread.sleep(delayValue);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
+                        Thread.sleep(delayValue);
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
 
 
@@ -249,7 +254,7 @@ public class Main extends Stage implements Initializable, Observer {
 //              
 
 
-                    int delayValue = 150;
+                    
                     try {
                         
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_JSON_VOBERSITY);

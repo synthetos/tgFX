@@ -79,6 +79,7 @@ public class ResponseParser extends Observable implements Runnable {
     @Override
     public void run() {
         logger.info("Response Parser Running");
+        System.out.println("[+]Response Parser Thread Running...");
 
 
         while (RUN) {
