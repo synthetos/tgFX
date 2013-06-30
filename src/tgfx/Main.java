@@ -31,7 +31,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 
-
+import jfxtras.labs.dialogs.MonologFXButton;
 import tgfx.render.Draw2d;
 import org.apache.log4j.Logger;
 
@@ -56,11 +56,13 @@ import tgfx.tinyg.CommandManager;
 
 
 import javafx.stage.Stage;
-import jfxtras.labs.dialogs.DialogFX;
+import jfxtras.labs.dialogs.MonologFX;
+import jfxtras.labs.dialogs.MonologFXBuilder;
+import jfxtras.labs.dialogs.MonologFXButtonBuilder;
+
 import tgfx.render.CNCMachine;
 import tgfx.ui.machinesettings.MachineSettingsController;
 import tgfx.ui.tinygconfig.TinyGConfigController;
-
 
 public class Main extends Stage implements Initializable, Observer {
 
@@ -90,7 +92,7 @@ public class Main extends Stage implements Initializable, Observer {
     @FXML
     private Circle cursor;
     @FXML
-    private Button  Connect;
+    private Button Connect;
     @FXML
     TextField input, listenerPort;
     @FXML
@@ -127,8 +129,6 @@ public class Main extends Stage implements Initializable, Observer {
 
     public Main() {
     }
-
-    
 
     @FXML
     void handleRemoteListener(ActionEvent evt) {
@@ -218,7 +218,7 @@ public class Main extends Stage implements Initializable, Observer {
                         TinygDriver.getInstance().serialWriter.resetBuffer();
                         TinygDriver.getInstance().serialWriter.clearQueueBuffer();
                         TinygDriver.getInstance().serialWriter.notifyAck();
-                        
+
 //                        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
 //                        Thread.sleep(delayValue);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
@@ -254,12 +254,12 @@ public class Main extends Stage implements Initializable, Observer {
 //              
 
 
-                    
+
                     try {
-                        
+
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
                         Thread.sleep(delayValue);
-                        
+
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_STATUS_UPDATE_INTERVAL);
                         Thread.sleep(delayValue);
                         tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);
@@ -358,7 +358,7 @@ public class Main extends Stage implements Initializable, Observer {
         TinygDriver.getInstance().m.setMotionMode(0);
         Draw2d.setFirstDraw(true);
         tgfx.ui.gcode.GcodeTabController.setCNCMachineVisible(false);  //Once we disconnect we hide our gcode preview.
-        
+
         TinygDriver.getInstance().serialWriter.resetBuffer();
         TinygDriver.getInstance().serialWriter.clearQueueBuffer();
         TinygDriver.getInstance().serialWriter.notifyAck();
@@ -461,7 +461,7 @@ public class Main extends Stage implements Initializable, Observer {
             input.setText(gcodeCommandHistory.getNextHistoryCommand());
         } else if (keyEvent.getCode().equals(KeyCode.DOWN)) {
             input.setText(gcodeCommandHistory.getPreviousHistoryCommand());
-        } 
+        }
     }
 
 //    private Task initRemoteServer(String port) {
@@ -476,7 +476,6 @@ public class Main extends Stage implements Initializable, Observer {
 //            }
 //        };
 //    }
-
 //    private void updateGuiMachineSettings(String line) {
 //        final String l = line;
 //        Platform.runLater(new Runnable() {
@@ -556,18 +555,18 @@ public class Main extends Stage implements Initializable, Observer {
                         //TinyG's build version is up to date to run tgfx.
                         if (!buildChecked) {
                             //we do this once on connect, disconnect will reset this flag
-                            onConnectActionsTwo();                  
+                            onConnectActionsTwo();
                         }
-                         break;
+                        break;
 
                     case ("TINYG_USER_MESSAGE"):
 
-                        if ( KEY_ARGUMENT.trim().equals("SYSTEM READY")) {
+                        if (KEY_ARGUMENT.trim().equals("SYSTEM READY")) {
                             //The board has been reset and is ready to re-init our internal tgFX models
                             onDisconnectActions();
                             CNCMachine.resetDrawingCoords();
-                            onConnectActions();      
-                            
+                            onConnectActions();
+
                         }
                         //TODO: create a pubsub message for this as well.
 //                        tgfx.Main.postConsoleMessage("TinyG Board Message >> " + KEY_ARGUMENT);
@@ -597,48 +596,67 @@ public class Main extends Stage implements Initializable, Observer {
                             @Override
                             public void run() {
 
-                                DialogFX dialog = new DialogFX(DialogFX.Type.ERROR);
-                                dialog.setTitleText("Error Occured");
-                                dialog.setMessage("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.m.getFirmwareBuild() + "\n"
+                                MonologFXButton btnYes = MonologFXButtonBuilder.create()
+                                        .defaultButton(true)
+                                        .icon("/testmonologfx/dialog_apply.png")
+                                        .type(MonologFXButton.Type.YES)
+                                        .build();
+
+                                MonologFXButton btnNo = MonologFXButtonBuilder.create()
+                                        .cancelButton(true)
+                                        .icon("/testmonologfx/dialog_cancel.png")
+                                        .type(MonologFXButton.Type.NO)
+                                        .build();
+
+                                MonologFX mono = MonologFXBuilder.create()
+                                        .titleText("TinyG Firware Build Outdated...")
+                                        .message("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.m.getFirmwareBuild() + "\n"
                                         + "Minmal Needed Version: " + tg.getMINIMAL_BUILD_VERSION() + "\n\n"
-                                        + "Click ok to display firmware updating instructions. \nA Internet Connection is Required.");
-                                int choice = dialog.showDialog();
-                                if (choice == 0) {
-                                    logger.info("Clicked Yes");
+                                        + "Click ok to display firmware updating instructions. \nA Internet Connection is Required."
+                                        + "\nClicking No will exit tgFX.")
+                                        .button(btnYes)
+                                        .button(btnNo)
+                                        .type(MonologFX.Type.ERROR)
+                                        .build();
 
-                                    WebView firwareUpdate = new WebView();
-                                    final WebEngine webEngFirmware = firwareUpdate.getEngine();
-                                    Stage stage = new Stage();
-                                    stage.setTitle("TinyG Firmware Update Guide");
-                                    Scene s = new Scene(firwareUpdate, 1280, 800);
-
-                                    stage.setScene(s);
-                                    stage.show();
+                                MonologFXButton.Type retval = mono.showDialog();
 
 
 
-                                    Platform.runLater(
-                                            new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            webEngFirmware.load("https://github.com/synthetos/TinyG/wiki/TinyG-Boot-Loader#wiki-updating");
-                                            tg.disconnect();
-                                            Connect.setText("Connect");
-                                        }
-                                    });
+                                switch (retval) {
+                                    case YES:
+                                        logger.info("Clicked Yes");
+
+                                        WebView firwareUpdate = new WebView();
+                                        final WebEngine webEngFirmware = firwareUpdate.getEngine();
+                                        Stage stage = new Stage();
+                                        stage.setTitle("TinyG Firmware Update Guide");
+                                        Scene s = new Scene(firwareUpdate, 1280, 800);
+
+                                        stage.setScene(s);
+                                        stage.show();
 
 
 
-                                } else if (choice == 1) {
-                                    logger.info("Clicked No");
+                                        Platform.runLater(
+                                                new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                webEngFirmware.load("https://github.com/synthetos/TinyG/wiki/TinyG-Boot-Loader#wiki-updating");
+                                                tg.disconnect();
+                                                Connect.setText("Connect");
+                                            }
+                                        });
+                                        break;
+                                    case NO:
+                                        logger.info("Clicked No");
+                                        tg.disconnect();
+                                        System.exit(0);
+                                       break;
                                 }
                             }
                         });
                         break;
-
-                    //Exit the program
-                    //System.exit(0);
-
 
                     default:
                         System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
@@ -829,7 +847,7 @@ public class Main extends Stage implements Initializable, Observer {
 //
 //        //Set our build / versions in the tgFX settings tab.
 //        tgfxBuildDate.setText(buildDate);
-       
+
 
 
     }

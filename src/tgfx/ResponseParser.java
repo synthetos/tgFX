@@ -10,9 +10,15 @@ import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import javafx.application.Platform;
-import jfxtras.labs.dialogs.DialogFX;
+import jfxtras.labs.dialogs.MonologFX;
+import jfxtras.labs.dialogs.MonologFXBuilder;
+import jfxtras.labs.dialogs.MonologFXButton;
+import static jfxtras.labs.dialogs.MonologFXButton.Type.YES;
+import jfxtras.labs.dialogs.MonologFXButtonBuilder;
+
 
 import org.apache.log4j.Logger;
+import static tgfx.Main.logger;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_A;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_B;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_C;
@@ -85,9 +91,9 @@ public class ResponseParser extends Observable implements Runnable {
         while (RUN) {
             try {
                 line = (String) responseQueue.take();
-                if (line.equals("")) {  
+                if (line.equals("")) {
                     continue;
-                } 
+                }
                 if (line.startsWith("{")) {
                     if (isTEXT_MODE()) {
                         setTEXT_MODE(false);
@@ -193,7 +199,7 @@ public class ResponseParser extends Observable implements Runnable {
                             //This is the normal case
                             rc.setSettingValue(js.get(key).toString());
                             parentGroup = rc.getSettingParent();
-                             _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pai
+                            _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pai
                         }
                     }
                 }
@@ -234,8 +240,8 @@ public class ResponseParser extends Observable implements Runnable {
             notifyObservers(message);
         }
     }
-    
-    public void set_Changed(){
+
+    public void set_Changed() {
         this.setChanged();
     }
 
@@ -256,7 +262,7 @@ public class ResponseParser extends Observable implements Runnable {
                             break;
 
                         case "msg":
-                            
+
                             message[0] = "TINYG_USER_MESSAGE";
                             message[1] = (String) js.get(key) + "\n";
                             logger.info("[+]TinyG Message Sent:  " + js.get(key) + "\n");
@@ -412,8 +418,8 @@ public class ResponseParser extends Observable implements Runnable {
                  */
 //                setChanged();
                 message[0] = "MACHINE_UPDATE";
-                 message[1] = null;
-                 setChanged();
+                message[1] = null;
+                setChanged();
                 notifyObservers(message);
                 break;
 //            case (MNEMONIC_GROUP_STATUS_REPORT):
@@ -430,32 +436,49 @@ public class ResponseParser extends Observable implements Runnable {
                     @Override
                     public void run() {
 
-                        DialogFX dialog = new DialogFX(DialogFX.Type.ERROR);
-                        dialog.setTitleText("Error Occured");
-                        dialog.setMessage("You have triggered a limit switch.  TinyG is now in DISABLED mode. \n"
-                                + "Manually back your machine off of its limit switches.\n  Once done, if you would like to re-enable TinyG click yes.");
-                        int choice = dialog.showDialog();
-                        if (choice == 0) {
-                            logger.info("Clicked Yes");
-                            try {
-                                TinygDriver.getInstance().priorityWrite((byte) 0x18);
+                        MonologFXButton btnYes = MonologFXButtonBuilder.create()
+                                .defaultButton(true)
+                                .icon("/testmonologfx/dialog_apply.png")
+                                .type(MonologFXButton.Type.YES)
+                                .build();
 
+                        MonologFXButton btnNo = MonologFXButtonBuilder.create()
+                                .cancelButton(true)
+                                .icon("/testmonologfx/dialog_cancel.png")
+                                .type(MonologFXButton.Type.CANCEL)
+                                .build();
 
+                        MonologFX mono = MonologFXBuilder.create()
+                                .titleText("Error Occured")
+                                .message("You have triggered a limit switch.  TinyG is now in DISABLED mode. \n"
+                                + "Manually back your machine off of its limit switches.\n  Once done, if you would like to re-enable TinyG click yes.")
+                                .button(btnYes)
+                                .button(btnNo)
+                                .type(MonologFX.Type.ERROR)
+                                .build();
 
+                        MonologFXButton.Type retval = mono.showDialog();
 
+                        switch (retval) {
+                            case YES:
+                                logger.info("Clicked Yes");
 
+                                try {
+                                    TinygDriver.getInstance().priorityWrite((byte) 0x18);
 
-                            } catch (Exception ex) {
-                                java.util.logging.Logger.getLogger(ResponseParser.class
-                                        .getName()).log(Level.SEVERE, null, ex);
-                            }
-                        } else if (choice == 1) {
-                            logger.info("Clicked No");
+                                } catch (Exception ex) {
+                                    java.util.logging.Logger.getLogger(ResponseParser.class
+                                            .getName()).log(Level.SEVERE, null, ex);
+                                }
+                                break;
+                            case CANCEL:
+                                logger.info("Clicked No");
+                                Main.postConsoleMessage("TinyG will remain in diabled mode until you power cycle or click the reset button.");
+                                break;
                         }
-
-
                     }
                 });
+
 
             default:
 
@@ -535,6 +558,10 @@ public class ResponseParser extends Observable implements Runnable {
                             case ("sr"):
                                 applySettingStatusReport(js.getJSONObject("sr"));
                                 break;
+
+
+
+
                         }
 
                     } catch (JSONException ex) {

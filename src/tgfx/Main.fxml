@@ -16,6 +16,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.web.*?>
+
 <?import jfxtras.labs.scene.control.gauge.*?>
 <?import jfxtras.labs.scene.control.gauge.Gauge?>
 <?import jfxtras.labs.scene.control.gauge.GaugeBuilder.GaugeType ?>
@@ -23,7 +24,6 @@
 <?import jfxtras.labs.scene.control.gauge.Marker?>
 <?import jfxtras.labs.scene.control.gauge.Section?>
 <?import jfxtras.labs.scene.control.window.*?>
-<?scenebuilder-classpath-element ../../lib/jfxtras-labs-2.2-r5-20121222.173143-8.jar?>
 
 <fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
     <children>
