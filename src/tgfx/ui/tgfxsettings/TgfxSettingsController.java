@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import org.apache.log4j.Logger;
 import static tgfx.Main.getBuildInfo;
 
@@ -27,7 +28,9 @@ public class TgfxSettingsController implements Initializable {
     private Label tgfxBuildNumber, tgfxBuildDate, tgfxVersion;
     
     @FXML
-    private Button settingDrawBtn;
+    private ToggleButton settingDrawBtn;
+
+    
 
     public static void updateTgfxSettings() {
     }
@@ -35,12 +38,20 @@ public class TgfxSettingsController implements Initializable {
     
      @FXML
     private void handleTogglePreview(ActionEvent event) {
-        if (settingDrawBtn.getText().equals("ON")) {
-            settingDrawBtn.setText("OFF");
+        if(settingDrawBtn.isSelected()){
+            settingDrawBtn.setText("Enabled");
             setDrawPreview(true);
-        } else {
-            settingDrawBtn.setText("ON");
+            
+        }else{
             setDrawPreview(false);
+            settingDrawBtn.setText("Disabled");
+//        }
+//        if (settingDrawBtn.getText().equals("ON")) {
+//            settingDrawBtn.setText("OFF");
+//            setDrawPreview(true);
+//        } else {
+//            settingDrawBtn.setText("ON");
+//            setDrawPreview(false);
         }
     }
 
@@ -59,7 +70,10 @@ public class TgfxSettingsController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        
+        settingDrawBtn.setSelected(true);  //We set drawing preview to default
+        settingDrawBtn.setText("Enabled");
+        
         tgfxBuildNumber.setText(getBuildInfo("BUILD"));
         tgfxVersion.setText(".95");
 
