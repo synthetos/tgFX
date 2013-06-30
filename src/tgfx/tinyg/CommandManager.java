@@ -19,7 +19,7 @@ public class CommandManager {
     public static final String CMD_QUERY_HARDWARE_BUILD_NUMBER = "{\"fb\":\"\"}\n";
     public static final String CMD_QUERY_HARDWARE_FIRMWARE_NUMBER = "{\"fv\":\"\"}\n";
     public static final String CMD_QUERY_OK_PROMPT = "{\"gc\":\"?\"}\n";
-    public static final String CMD_APPLY_STATUS_REPORT_FORMAT = "{\"sr\":{\"line\":true,\"vel\":true,\"mpox\":true,\"mpoy\":true, \"mpoz\":true,\"mpoa\":true,\"coor\":true, \"ofsa\":true,\"ofsx\":true,\"ofsy\":true,\"ofsz\":true,\"unit\":true,\"homz\":true,\"homy\":true,\"homx\":true,\"momo\":true}}\n";
+    public static final String CMD_APPLY_STATUS_REPORT_FORMAT = "{\"sr\":{\"line\":t,\"vel\":t,\"mpox\":t,\"mpoy\":t, \"mpoz\":t,\"mpoa\":t,\"coor\":t, \"ofsa\":t,\"ofsx\":t,\"ofsy\":t,\"ofsz\":t,\"unit\":t,\"stat\":t,\"homz\":t,\"homy\":t,\"homx\":t,\"momo\":t}}\n";
     public static final String CMD_QUERY_STATUS_REPORT = "{\"sr\":\"\"}\n";
     
     public static final String CMD_QUERY_HARDWARE_ID = "{\"id\":null}\n";

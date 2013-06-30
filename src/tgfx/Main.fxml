@@ -77,7 +77,7 @@
                                     </FlowPane.margin>
                                 </Label>
                                 <Separator id="separatorVertical1" orientation="VERTICAL" />
-                                <Label id="srText" text="State" textFill="WHITE">
+                                <Label id="srText" fx:id="srState" text="State" textFill="WHITE">
                                     <FlowPane.margin>
                                         <Insets left="5.0" fx:id="x3" />
                                     </FlowPane.margin>
