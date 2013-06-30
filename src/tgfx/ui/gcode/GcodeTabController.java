@@ -22,6 +22,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
@@ -48,6 +49,7 @@ import tgfx.ui.tgfxsettings.TgfxSettingsController;
  */
 public class GcodeTabController implements Initializable {
 
+    private byte[] BAD_BYTES = {(byte) 0x21, (byte) 0x18, (byte) 0x7e, (byte) 0x25};
     private double scaleAmount;
     private int buildNumber;
     private String buildDate;
@@ -437,11 +439,11 @@ public class GcodeTabController implements Initializable {
                 String tmp;
                 for (int i = 0; i < gcodeCharLength; i++) {
                     GcodeLine _gcl = (GcodeLine) data.get(i);
-                    
-                    
-                    
-                    
-                    
+
+
+
+
+
                     if (isTaskActive() == false) {
                         //Cancel Button was pushed
                         tgfx.Main.postConsoleMessage("[!]File Sending Task Killed....\n");
@@ -466,8 +468,6 @@ public class GcodeTabController implements Initializable {
             }
         };
     }
-    
-    
 
     @FXML
     private void handleRunFile(ActionEvent evt) {
@@ -524,18 +524,48 @@ public class GcodeTabController implements Initializable {
                             if (!strLine.toUpperCase().startsWith("N")) {
                                 strLine = "N" + String.valueOf(_linenumber) + " " + strLine;
                             }
-                            data.add(new GcodeLine(strLine, _linenumber));
-                            _linenumber++;
+                            if (normalizeGcodeLine(strLine)) {
+                                data.add(new GcodeLine(strLine, _linenumber));
+                                _linenumber++;
+                            }else{
+                                Main.postConsoleMessage("ERROR: Your gcode file contains an invalid character.. Either !,% or ~. Remove this character and try again.");                            
+                                data.clear(); //Remove all other previous entered lines
+                                break;
+                            }
+
                         }
                     }
-                    System.out.println("[*]File Loading Complete");
+                    logger.info("File Loading Complete");
                 } catch (FileNotFoundException ex) {
-                    System.out.println("File Not Found.");
+                    logger.error("File Not Found.");
                 } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
+                    logger.error(ex.getMessage());
                 }
             }
         });
+    }
+
+    private boolean normalizeGcodeLine(String gcl) {
+        byte[] tmpLine = gcl.getBytes();
+        //0x21 = !
+        //0x18 = Ctrl-X
+        //0x7e = ~
+        //0x25 = %
+        //These are considered bad bytes in gcode files.  These will trigger tinyg to throw interrupts
+
+        for (int i = 0; i < tmpLine.length; i++) {
+        }
+
+        for (int i = 0; i < BAD_BYTES.length; i++) {
+            for (int j = 0; j < gcl.length(); j++) {
+                if (gcl.charAt(j) == BAD_BYTES[i]) {
+                    //Bad Byte Found
+                    logger.error("Bad Byte Char Detected: " + BAD_BYTES[i]);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /*######################################
