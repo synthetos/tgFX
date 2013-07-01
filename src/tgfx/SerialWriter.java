@@ -18,6 +18,7 @@ public class SerialWriter implements Runnable {
     private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SerialWriter.class);
     private BlockingQueue queue;
     private boolean RUN = true;
+    private boolean cleared  = false;
     private String tmpCmd;
     private int BUFFER_SIZE = 254;
     public int buffer_available = BUFFER_SIZE;
@@ -45,7 +46,7 @@ public class SerialWriter implements Runnable {
 
     public void clearQueueBuffer() {
         queue.clear();
-        
+        this.cleared = true; // We set this to tell teh mutex with waiting for an ack to send a line that it should not send a line.. we were asked to be cleared.
         try {
 //            SerialDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESET);
             this.buffer_available = BUFFER_SIZE;
@@ -141,6 +142,12 @@ public class SerialWriter implements Runnable {
                     //We wait here until the an ack comes in to the response parser
                     // frees up some buffer space.  Then we unlock the mutex and write the next line.
                     mutex.wait();
+                    if(cleared){
+                       //clear out the line we were waiting to send.. we were asked to clear our buffer
+                        //includeing this line that is waiting to be sent.
+                        cleared = false;  //Reset this flag now...
+                        return;
+                    }
                     logger.debug("We are free from Throttled!");
                 }
             }

@@ -401,10 +401,14 @@ public class GcodeTabController implements Initializable {
                 try {
 
                     logger.info("[!]Stopping Job Clearing Serial Queue...\n");
-                    TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_PAUSE);
-
                     TinygDriver.getInstance().serialWriter.clearQueueBuffer();
+                    TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_PAUSE);
+                    Thread.sleep(200); 
                     TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_QUEUE_FLUSH);
+//                    TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_PAUSE);
+//                    Thread.sleep(20);
+                   
+                    
 //                    TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESUME);
                     tgfx.Main.postConsoleMessage("[!]Stopping Job Clearing Serial Queue...\n");
 

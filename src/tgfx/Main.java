@@ -787,8 +787,8 @@ public class Main extends Stage implements Initializable, Observer {
          ######################################*/
         BasicConfigurator.configure();
 
-        logger.setLevel(Level.ERROR);
-//        logger.setLevel(Level.INFO);
+//        logger.setLevel(Level.ERROR);
+        logger.setLevel(Level.INFO);
 
         logger.info(
                 "[+]tgFX is starting....");
