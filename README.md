@@ -8,10 +8,17 @@ Please note that tgFX is NOT backwards compatible with firmware older tinyg firm
 
 
 Getting Started
-===
+==
 Current binary builds for Windows and OSX (linux has not be fully tested) are avilable here:
 https://www.dropbox.com/sh/huiupgemipv8f4q/X2l_1EH-gx
 
+Binary Downloads
+==
+For those that want to test out tgFX on their TinyG the latest binaries will be located here :
+
+
+If you find bugs please open an issue here:
+https://github.com/synthetos/tgFX/issues?direction=desc&sort=created&state=open
 
 Installing
 ===
@@ -31,13 +38,7 @@ https://github.com/synthetos/tgFX/wiki/Developer-Notes
 
 
 
-Binary Downloads
-===
-For those that want to test out tgFX on their TinyG the latest binaries will be located here :
 
-
-If you find bugs please open an issue here:
-https://github.com/synthetos/tgFX/issues?direction=desc&sort=created&state=open
 
 Thanks and remember that tgFX is still in beta. Try running a job with the motors inhibited before attempting to cut.
 ==
