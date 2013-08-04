@@ -5,7 +5,6 @@ A JavaFX 2 based GUI controller for the TinyG motion controller.
 This code is under heavy development.
 '''Use this code at your own RISK!'''
 Please note that tgFX is NOT backwards compatible with firmware older tinyg firmware versions.  tgFX will notify you if your TinyG firmware is too old.
-![TinyG v6 Board](http://farm9.staticflickr.com/8247/8454110427_b09b5a622b_c.jpg)
 
 
 Getting Started
