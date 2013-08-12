@@ -44,7 +44,7 @@ public class TinygDriver extends Observable {
     public ResponseParser resParse = new ResponseParser(jsonQueue); // Our
     public SerialWriter serialWriter = new SerialWriter(writerQueue);
     private boolean PAUSED = false;
-    public final static int MAX_BUFFER = 254;
+    public final static int MAX_BUFFER = 240;
 
     /**
      * Singleton Code for the Serial Port Object
