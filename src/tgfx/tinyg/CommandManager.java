@@ -104,7 +104,7 @@ public class CommandManager {
    
     public static final Byte CMD_APPLY_RESET = 0x18;
 //    public static final String CMD_APPLY_RESET = "\x18\n";
-    public static final String CMD_APPLY_DISABLE_XON_XOFF = "{\"ex\":0}\n";
+    public static final String CMD_APPLY_DISABLE_XON_XOFF = "{\"ex\":1}\n";
     public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":G920g0x0y0z0}\n";
 
     public CommandManager() {

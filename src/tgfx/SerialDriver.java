@@ -167,6 +167,9 @@ public class SerialDriver implements SerialPortEventListener {
             input = serialPort.getInputStream();
             output = serialPort.getOutputStream();
 
+            serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN | SerialPort.FLOWCONTROL_XONXOFF_OUT);
+            serialPort.setRTS(true);
+            
             // add event listeners
             serialPort.addEventListener(this);
             serialPort.notifyOnDataAvailable(true);
