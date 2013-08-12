@@ -5,6 +5,7 @@
 package tgfx;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tgfx.tinyg.TinygDriver;
@@ -21,7 +22,7 @@ public class SerialWriter implements Runnable {
     private boolean cleared  = false;
     private String tmpCmd;
     private int BUFFER_SIZE = 254;
-    public int buffer_available = BUFFER_SIZE;
+    public AtomicInteger buffer_available = new AtomicInteger(BUFFER_SIZE);
     private SerialDriver ser = SerialDriver.getInstance();
     private static final Object mutex = new Object();
     private static boolean throttled = false;
@@ -36,20 +37,17 @@ public class SerialWriter implements Runnable {
 
     public void resetBuffer() {
         //Called onDisconnectActions
-        buffer_available = BUFFER_SIZE;
+        buffer_available.set(BUFFER_SIZE);
         notifyAck();  
     }
 
-    public void setSerialBufferLenght(int bufflen) {
-        buffer_available = bufflen;  //If the firmware build uses a different serial buffer len for whatever reason this will catch it.
-    }
 
     public void clearQueueBuffer() {
         queue.clear();
         this.cleared = true; // We set this to tell teh mutex with waiting for an ack to send a line that it should not send a line.. we were asked to be cleared.
         try {
-//            SerialDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESET);
-            this.buffer_available = BUFFER_SIZE;
+            //This is done in resetBuffer is this needed?
+            buffer_available.set(BUFFER_SIZE);
             this.setThrottled(false);
             this.notifyAck();
             
@@ -69,17 +67,17 @@ public class SerialWriter implements Runnable {
     }
 
     public synchronized int getBufferValue() {
-        return buffer_available;
+        return buffer_available.get();
     }
 
     public synchronized void setBuffer(int val) {
-        buffer_available = val;
+        buffer_available.set(val);
         logger.info("Got a BUFFER Response.. reset it to: " + val);
     }
 
     public synchronized void addBytesReturnedToBuffer(int lenBytesReturned) {
-        buffer_available = (buffer_available + lenBytesReturned);
-//        logger.info("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");
+        buffer_available.set(getBufferValue() + lenBytesReturned);
+        logger.info("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");
     }
 
     public void addCommandToBuffer(String cmd) {
@@ -126,7 +124,7 @@ public class SerialWriter implements Runnable {
                 if (str.length() > getBufferValue()) {
                     setThrottled(true);
                 } else {
-                    buffer_available = (getBufferValue() - str.length());
+                    this.setBuffer(getBufferValue() - str.length());
                 }
 
                 while (throttled) {
@@ -135,7 +133,7 @@ public class SerialWriter implements Runnable {
                         setThrottled(true);
                     } else {
                         setThrottled(false);
-                        buffer_available = (getBufferValue() - str.length());
+                        buffer_available.set(getBufferValue() - str.length());
                         break;
                     }
                     logger.debug("We are Throttled in the write method for SerialWriter");

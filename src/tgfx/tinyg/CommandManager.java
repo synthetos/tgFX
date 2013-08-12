@@ -52,6 +52,7 @@ public class CommandManager {
     public static final String CMD_APPLY_ENABLE_JSON_MODE = "{\"ej\":1}\n";
     public static final String CMD_DEFAULT_ENABLE_JSON = "{\"ej\":1}\n";
     public static final String CMD_APPLY_TEXT_VOBERSITY = "{\"tv\":0}\n"; 
+    public static final String CMD_APPLY_NOOP = "{\n"; 
     
     
     public static final String CMD_QUERY_SWITCHMODE = "{\"st\":null}\n"; 

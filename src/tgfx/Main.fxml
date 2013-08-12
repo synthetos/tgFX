@@ -132,7 +132,7 @@
                         <fx:include source="ui/machinesettings/MachineSettings.fxml" />
                         <fx:include source="ui/tgfxsettings/TgfxSettings.fxml"></fx:include>
                         
-                        <Tab fx:id="documentation_tab" closable="false" disable="false" text="Simple Gcoder">
+<!--                        <Tab fx:id="documentation_tab" closable="false" disable="false" text="Simple Gcoder">
                             <content>
                                 <AnchorPane id="docs" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
                                     <children>
@@ -140,8 +140,8 @@
                                     </children>
                                 </AnchorPane>
                             </content>
-                        </Tab>
-                        <Tab closable="false" disable="false" text="Documentation">
+                        </Tab>-->
+<!--                        <Tab closable="false" disable="false" text="Documentation">
                             <content>
                                 <AnchorPane id="docs" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
                                     <children>
@@ -149,7 +149,7 @@
                                     </children>
                                 </AnchorPane>
                             </content>
-                        </Tab>
+                        </Tab>-->
                     </tabs>
                 </TabPane>
             </center>

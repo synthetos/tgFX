@@ -18,7 +18,6 @@ import jfxtras.labs.dialogs.MonologFXButtonBuilder;
 
 
 import org.apache.log4j.Logger;
-import static tgfx.Main.logger;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_A;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_B;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_C;
@@ -77,8 +76,8 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
-        logger.setLevel(org.apache.log4j.Level.ERROR);
-//        logger.setLevel(org.apache.log4j.Level.INFO);
+//        logger.setLevel(org.apache.log4j.Level.ERROR);
+        logger.setLevel(org.apache.log4j.Level.INFO);
 
     }
 
@@ -306,16 +305,11 @@ public class ResponseParser extends Observable implements Runnable {
         } catch (Exception ex) {
             logger.error("[!] Error in applySetting(JsonOBject js) : " + ex.getMessage());
             logger.error("[!]JSON String Was: " + js.toString());
-//            logger.error("Got Line: " + js);
+            logger.error("Error in Line: " + js);
 
 
         }
     }
-
-//    private void _applySettings(JSONObject js, String pg) throws Exception {
-//        String parentGroup = pg;
-//        _applySettings(js, parentGroup);
-//    }
     private void _applySettings(JSONObject js, String pg) throws Exception {
 
         switch (pg) {

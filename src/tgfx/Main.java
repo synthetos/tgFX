@@ -37,6 +37,8 @@ import org.apache.log4j.Logger;
 
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.layout.AnchorPane;
@@ -215,12 +217,12 @@ public class Main extends Stage implements Initializable, Observer {
 
                     try {
                         //At first lets make sure everything is cleared and ready to talk
-                        TinygDriver.getInstance().serialWriter.resetBuffer();
-                        TinygDriver.getInstance().serialWriter.clearQueueBuffer();
-                        TinygDriver.getInstance().serialWriter.notifyAck();
-
-//                        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
-//                        Thread.sleep(delayValue);
+//                        TinygDriver.getInstance().serialWriter.resetBuffer();
+//                        TinygDriver.getInstance().serialWriter.clearQueueBuffer();
+                        TinygDriver.getInstance().serialWriter.notifyAck(); //If the serialWriter is in a wait state.. wake it up
+                        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP); //Just waking things up.
+                        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
+                        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
                         Thread.sleep(delayValue);
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
@@ -248,13 +250,7 @@ public class Main extends Stage implements Initializable, Observer {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    //            Draw2d.setFirstDraw(true);
-//          tg.write(CommandManager.CMD_APPLY_ENABLE_JSON_MODE);          //FIRST
-//            Thread.sleep(300);
-//              
-
-
-
+                   
                     try {
 
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
@@ -449,9 +445,11 @@ public class Main extends Stage implements Initializable, Observer {
             }
             //TinyG is connected... Proceed with processing command.
             //This will send the command to get a OK prompt if the buffer is empty.
+            //"{\""+ command.split("=")[0].replace("$", "") + "\":" + command.split("=")[1].trim() + "}\n"
             if ("".equals(command)) {
                 tg.write(CommandManager.CMD_QUERY_OK_PROMPT);
             }
+            
             tg.write(command);
             postConsoleMessage(command.replace("\n", ""));
             gcodeCommandHistory.addCommandToHistory(command);  //Add this command to the history
@@ -459,8 +457,10 @@ public class Main extends Stage implements Initializable, Observer {
             input.setPromptText(PROMPT);
         } else if (keyEvent.getCode().equals(KeyCode.UP)) {
             input.setText(gcodeCommandHistory.getNextHistoryCommand());
+//            input.positionCaret(input.lengthProperty().get());
         } else if (keyEvent.getCode().equals(KeyCode.DOWN)) {
             input.setText(gcodeCommandHistory.getPreviousHistoryCommand());
+//            input.positionCaret(input.lengthProperty().get());
         }
     }
 
@@ -553,7 +553,7 @@ public class Main extends Stage implements Initializable, Observer {
                         break;
                     case ("BUILD_OK"):
                         //TinyG's build version is up to date to run tgfx.
-                        if (!buildChecked) {
+                        if (!buildChecked && tg.isConnected()) {
                             //we do this once on connect, disconnect will reset this flag
                             onConnectActionsTwo();
                         }
@@ -568,24 +568,7 @@ public class Main extends Stage implements Initializable, Observer {
                             onConnectActions();
 
                         }
-                        //TODO: create a pubsub message for this as well.
-//                        tgfx.Main.postConsoleMessage("TinyG Board Message >> " + KEY_ARGUMENT);
-////                        Thread.sleep(1000);//we need to let the board load its configs
-//                        tg.cmdManager.queryStatusReport();
-//                        if (KEY_ARGUMENT.trim().equals("SYSTEM READY")) {
-//                            cncMachine.resetDrawingCoords();  //So we do not draw a line from the previous coordinate.
-//                            onConnectActions(); //rerun this as we were reset.
-//                            //TODO make it so we can un-set a flag here when the board has been fully reset
-//                            //perhaps we hide a gui object
-//
-//                            //Re-Enable the gui
-//                            if (topTabPane.isDisable() || topAnchorPane.isDisable()) {
-//                                topTabPane.setDisable(false);
-//                                topAnchorPane.setDisable(false);
-//                                logger.info("Re-Enabling the UI");
-//                                tgfx.Main.postConsoleMessage("TinyG Re-Connected.. Enabling UI\n");
-//                            }
-//                        }
+                        
                         break;
 
                     case ("BUILD_ERROR"):
@@ -808,17 +791,17 @@ public class Main extends Stage implements Initializable, Observer {
          * WEB PAGE SUPPORT
          ######################################*/
 
-        final WebEngine webEngine = html.getEngine();
-        final WebEngine webEngine2 = makerCam.getEngine();
-
-        Platform.runLater(
-                new Runnable() {
-            @Override
-            public void run() {
-                webEngine.load("https://github.com/synthetos/TinyG/wiki");
-                webEngine2.load("http://simplegcoder.com/js_editor/");
-            }
-        });
+//        final WebEngine webEngine = html.getEngine();
+//        final WebEngine webEngine2 = makerCam.getEngine();
+//
+//        Platform.runLater(
+//                new Runnable() {
+//            @Override
+//            public void run() {
+//                webEngine.load("https://github.com/synthetos/TinyG/wiki");
+//                webEngine2.load("http://simplegcoder.com/js_editor/");
+//            }
+//        });
 
 
         /*######################################
@@ -847,6 +830,24 @@ public class Main extends Stage implements Initializable, Observer {
 //
 //        //Set our build / versions in the tgFX settings tab.
 //        tgfxBuildDate.setText(buildDate);
+        
+        
+        
+        //This is the input text box change listener.
+        //Made the blinky line at the end of the box so you can edit the value quickly
+//        input.textProperty().addListener(new ChangeListener<String>() {
+//               @Override
+//               public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
+//                    System.out.println(input.getCaretPosition());
+//                    Platform.runLater(new Runnable() {
+//                         @Override
+//                         public void run() {
+//                              
+//                         }
+//                    });
+//
+//               }
+//          });
 
 
 
