@@ -30,9 +30,15 @@ public class SerialWriter implements Runnable {
     //   public Condition clearToSend = lock.newCondition();
     public SerialWriter(BlockingQueue q) {
         this.queue = q;
-        logger.setLevel(org.apache.log4j.Level.ERROR);
-//        logger.setLevel(org.apache.log4j.Level.INFO);
-
+        
+        //Setup Logging for SerialWriter
+        if(Main.LOGLEVEL.equals("INFO")){
+            logger.setLevel(org.apache.log4j.Level.INFO);
+        }else if( Main.LOGLEVEL.equals("ERROR")){
+            logger.setLevel(org.apache.log4j.Level.ERROR);
+        }else{
+            logger.setLevel(org.apache.log4j.Level.OFF);
+        }
     }
 
     public void resetBuffer() {
@@ -41,8 +47,8 @@ public class SerialWriter implements Runnable {
         notifyAck();  
     }
 
-
-    public void clearQueueBuffer() {
+ 
+   public void clearQueueBuffer() {
         queue.clear();
         this.cleared = true; // We set this to tell teh mutex with waiting for an ack to send a line that it should not send a line.. we were asked to be cleared.
         try {

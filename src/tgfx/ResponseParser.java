@@ -76,8 +76,15 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
-//        logger.setLevel(org.apache.log4j.Level.ERROR);
-        logger.setLevel(org.apache.log4j.Level.INFO);
+        
+        //Setup Logging for ResponseParser
+        if(Main.LOGLEVEL.equals("INFO")){
+            logger.setLevel(org.apache.log4j.Level.INFO);
+        }else if( Main.LOGLEVEL.equals("ERROR")){
+            logger.setLevel(org.apache.log4j.Level.ERROR);
+        }else{
+            logger.setLevel(org.apache.log4j.Level.OFF);
+        }
 
     }
 
@@ -93,7 +100,7 @@ public class ResponseParser extends Observable implements Runnable {
                 if (line.equals("")) {
                     continue;
                 }
-                if (line.startsWith("{")) {
+                if (line.startsWith("{") ) {
                     if (isTEXT_MODE()) {
                         setTEXT_MODE(false);
                         //This checks to see if we WERE in textmode.  If we were we notify the user that we are not longer and update the system state.

@@ -5,12 +5,13 @@ package tgfx.tinyg;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import tgfx.Main;
 import tgfx.ResponseParser;
 import tgfx.SerialDriver;
 import tgfx.SerialWriter;
@@ -418,9 +419,15 @@ public class TinygDriver extends Observable {
     }
 
     private TinygDriver() {
-        logger.setLevel(Level.ERROR);
-//        logger.setLevel(Level.DEBUG);
-//        logger.setLevel(Level.INFO);
+        
+       //Setup Logging for TinyG Driver
+        if(Main.LOGLEVEL.equals("INFO")){
+//            logger.setLevel(org.apache.log4j.Level.INFO);
+        }else if( Main.LOGLEVEL.equals("ERROR")){
+            logger.setLevel(org.apache.log4j.Level.ERROR);
+        }else{
+            logger.setLevel(org.apache.log4j.Level.OFF);
+        }
     }
 
     private static class TinygDriverHolder {

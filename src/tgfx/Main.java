@@ -20,7 +20,6 @@ import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.InputEvent;
@@ -37,11 +36,9 @@ import org.apache.log4j.Logger;
 
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 
@@ -76,6 +73,8 @@ public class Main extends Stage implements Initializable, Observer {
     private String PROMPT = "tinyg>";
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
     final static ResourceBundle rb = ResourceBundle.getBundle("version");   //Used to track build date and build number
+    
+    public final static String LOGLEVEL = "OFF";
     /*
      * LCD DRO PROFILE CREATION
      */
@@ -87,10 +86,7 @@ public class Main extends Stage implements Initializable, Observer {
      * FXML UI Components
      */
 //    Window gcodeWindow;
-    @FXML
-    private TabPane topTabPane;
-    @FXML
-    private AnchorPane topAnchorPane;
+   
     @FXML
     private Circle cursor;
     @FXML
@@ -98,7 +94,7 @@ public class Main extends Stage implements Initializable, Observer {
     @FXML
     TextField input, listenerPort;
     @FXML
-    private Label srMomo, srState, srBuild, srBuffer, srGcodeLine, xposT, yposT,
+    private Label srMomo, srState, srBuild, srBuffer, srGcodeLine,
             srVer, srUnits, srCoord;
     @FXML
     StackPane cursorPoint;
@@ -121,9 +117,7 @@ public class Main extends Stage implements Initializable, Observer {
     HBox canvasHolder;
     @FXML
     VBox topvbox, positionsVbox, tester;
-    @FXML
-    ContextMenu xAxisContextMenu;
-
+    
     public void testMessage(String message) {
         System.out.println("Message Hit");
 
@@ -330,7 +324,8 @@ public class Main extends Stage implements Initializable, Observer {
 
                 /**
                  * *****************************
-                 * OnConnect Actions Called Here *****************************
+                 * OnConnect Actions Called Here 
+                 * *****************************
                  */
                 onConnectActions();
             }
@@ -365,16 +360,6 @@ public class Main extends Stage implements Initializable, Observer {
         //gcodePane.getChildren().remove(cncMachine);
     }
 
-//    private void handleTilda() {
-//        //                ==============HIDE CONSOLE CODE==============
-//        System.out.println("TILDA");
-//        if (topvbox.getChildren().contains(bottom)) {
-//            topvbox.getChildren().remove(bottom);
-//
-//        } else {
-//            topvbox.getChildren().add(topvbox.getChildren().size() - 1, bottom);
-//        }
-//    }
     @FXML
     private void handleKeyInput(final InputEvent event) {
     }
@@ -429,6 +414,12 @@ public class Main extends Stage implements Initializable, Observer {
             postConsoleMessage("[!]TinyG Not Connected.. Ignoring System GUI Refresh Request....");
         }
     }
+    
+   
+     
+     
+     
+     
 
     @FXML
     private void handleKeyPress(final InputEvent event) throws Exception {
@@ -688,7 +679,9 @@ public class Main extends Stage implements Initializable, Observer {
         tg.addObserver(this);
         this.reScanSerial();            //Populate our serial ports
         final Logger logger = Logger.getLogger(Main.class);
-
+        final Logger resParserLogger = Logger.getLogger(ResponseParser.class);
+        final Logger serialDriverLogger = Logger.getLogger(SerialDriver.class);
+        
 
         /*#######################################################
          * BINDINGS
@@ -772,9 +765,9 @@ public class Main extends Stage implements Initializable, Observer {
 
 //        logger.setLevel(Level.ERROR);
         logger.setLevel(Level.INFO);
-
-        logger.info(
-                "[+]tgFX is starting....");
+        
+        logger.info("[+]tgFX is starting....");
+        
 
 
 

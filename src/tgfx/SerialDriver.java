@@ -16,7 +16,7 @@ import java.util.Enumeration;
  * @author ril3y
  */
 public class SerialDriver implements SerialPortEventListener {
-
+    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SerialWriter.class);
     private final boolean DEBUG = true;
 //    private final boolean DEBUG = false;
     private boolean connectionState = false;
@@ -44,12 +44,12 @@ public class SerialDriver implements SerialPortEventListener {
     public void write(String str) {
         try {
             this.output.write(str.getBytes());
-            Main.logger.info("Wrote Line: " + str);
+            logger.info("Wrote Line: " + str);
 
 
         } catch (Exception ex) {
-            Main.logger.error("Error in SerialDriver Write");
-            Main.logger.error("\t" + ex.getMessage());
+            logger.error("Error in SerialDriver Write");
+            logger.error("\t" + ex.getMessage());
         }
 
 
@@ -60,11 +60,13 @@ public class SerialDriver implements SerialPortEventListener {
     }
 
     public void priorityWrite(Byte b) throws Exception {
-        Main.logger.debug("[*] Priority Write Sent\n");
+        logger.debug("[*] Priority Write Sent\n");
         this.output.write(b);
     }
 
     private SerialDriver() {
+        
+        
     }
 
     public static SerialDriver getInstance() {
@@ -113,6 +115,9 @@ public class SerialDriver implements SerialPortEventListener {
             try {
                 int cnt = input.read(inbuffer, 0, inbuffer.length);
                 for (int i = 0; i < cnt; i++) {
+                    if(inbuffer[i] == 0x11 || inbuffer[i] == 0x13){  //We have to filter our XON or XOFF charaters from JSON
+                        continue;
+                    }
                     if ( inbuffer[i] == 0xA) { // inbuffer[i] is a \n
                         String f = new String(lineBuffer, 0, lineIdx);
                         if(!f.equals("")){ //Do not add "" to the jsonQueue..
@@ -174,18 +179,18 @@ public class SerialDriver implements SerialPortEventListener {
             serialPort.addEventListener(this);
             serialPort.notifyOnDataAvailable(true);
 
-            Main.logger.debug("[+]Opened " + port + " successfully.");
+            logger.debug("[+]Opened " + port + " successfully.");
             setConnected(true); //Register that this is connectionState.
             return true;
 
         } catch (PortInUseException ex) {
-            Main.logger.error("[*] Port In Use Error: " + ex.getMessage());
+            logger.error("[*] Port In Use Error: " + ex.getMessage());
             return false;
         } catch (NoSuchPortException ex) {
-            Main.logger.error("[*] No Such Port Error: " + ex.getMessage());
+            logger.error("[*] No Such Port Error: " + ex.getMessage());
             return false;
         } catch (Exception ex) {
-            Main.logger.error("[*] " + ex.getMessage());
+            logger.error("[*] " + ex.getMessage());
             return false;
         }
 
