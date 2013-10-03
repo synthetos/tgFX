@@ -37,8 +37,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
 import javafx.scene.Scene;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 
@@ -60,6 +58,7 @@ import jfxtras.labs.dialogs.MonologFXBuilder;
 import jfxtras.labs.dialogs.MonologFXButtonBuilder;
 
 import tgfx.render.CNCMachine;
+import tgfx.ui.gcode.GcodeTabController;
 import tgfx.ui.machinesettings.MachineSettingsController;
 import tgfx.ui.tinygconfig.TinyGConfigController;
 
@@ -124,6 +123,14 @@ public class Main extends Stage implements Initializable, Observer {
     }
 
     public Main() {
+        //Setup Logging for TinyG Driver
+        if(LOGLEVEL.equals("INFO")){
+//            logger.setLevel(org.apache.log4j.Level.INFO);
+        }else if( LOGLEVEL.equals("ERROR")){
+            logger.setLevel(org.apache.log4j.Level.ERROR);
+        }else{
+            logger.setLevel(org.apache.log4j.Level.OFF);
+        }
     }
 
     @FXML
@@ -210,6 +217,7 @@ public class Main extends Stage implements Initializable, Observer {
                 public void run() {
 
                     try {
+                        GcodeTabController.setGcodeTextTemp("Connecting...");
                         //At first lets make sure everything is cleared and ready to talk
 //                        TinygDriver.getInstance().serialWriter.resetBuffer();
 //                        TinygDriver.getInstance().serialWriter.clearQueueBuffer();
@@ -274,6 +282,7 @@ public class Main extends Stage implements Initializable, Observer {
 
                         tgfx.ui.gcode.GcodeTabController.setCNCMachineVisible(true); //Once we connected we should show the drawing enevlope. 
                         Main.postConsoleMessage("Showing CNC Machine Preview...");
+                        GcodeTabController.setGcodeTextTemp("TinyG Connected.");
 
                         //            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);          //FORTH
                         //            Thread.sleep(300);
@@ -354,6 +363,7 @@ public class Main extends Stage implements Initializable, Observer {
         TinygDriver.getInstance().serialWriter.clearQueueBuffer();
         TinygDriver.getInstance().serialWriter.notifyAck();
         buildChecked = false;
+        GcodeTabController.setGcodeTextTemp("TinyG Disconnected.");
 
 
         //TODO Need to have a way to pull this out of the gcodePane via a message
@@ -681,7 +691,7 @@ public class Main extends Stage implements Initializable, Observer {
         final Logger logger = Logger.getLogger(Main.class);
         final Logger resParserLogger = Logger.getLogger(ResponseParser.class);
         final Logger serialDriverLogger = Logger.getLogger(SerialDriver.class);
-        
+        GcodeTabController.setGcodeText("TinyG Disconnected.");
 
         /*#######################################################
          * BINDINGS
@@ -764,7 +774,7 @@ public class Main extends Stage implements Initializable, Observer {
         BasicConfigurator.configure();
 
 //        logger.setLevel(Level.ERROR);
-        logger.setLevel(Level.INFO);
+//        logger.setLevel(Level.INFO);
         
         logger.info("[+]tgFX is starting....");
         

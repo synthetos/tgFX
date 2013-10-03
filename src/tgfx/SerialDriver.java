@@ -17,36 +17,25 @@ import java.util.Enumeration;
  */
 public class SerialDriver implements SerialPortEventListener {
     private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SerialWriter.class);
-    private final boolean DEBUG = true;
-//    private final boolean DEBUG = false;
     private boolean connectionState = false;
-    public String portArray[] = null; //Holder 
+    public String portArray[] = null; 
     public SerialPort serialPort;
     private String port;
-    private String buf = "";
-    private String flow = new String();
-    private static final Object mutex = new Object();
     public InputStream input;
     public OutputStream output;
-    private static boolean throttled = false;
-    private boolean PAUSED = false;
     private boolean CANCELLED = false;
-    //DEBUG
-//    public ByteArrayOutputStream bof = new ByteArrayOutputStream();
     private static byte[] lineBuffer = new byte[1024];
     private static int lineIdx = 0;
     public String debugFileBuffer = "";
     public byte[] debugBuffer = new byte[1024];
     public ArrayList<String> lastRes = new ArrayList();
     public double offsetPointer = 0;
-    //DEBUG
+  
 
     public void write(String str) {
         try {
             this.output.write(str.getBytes());
             logger.info("Wrote Line: " + str);
-
-
         } catch (Exception ex) {
             logger.error("Error in SerialDriver Write");
             logger.error("\t" + ex.getMessage());
@@ -65,8 +54,6 @@ public class SerialDriver implements SerialPortEventListener {
     }
 
     private SerialDriver() {
-        
-        
     }
 
     public static SerialDriver getInstance() {
@@ -74,14 +61,12 @@ public class SerialDriver implements SerialPortEventListener {
     }
 
     private static class SerialDriverHolder {
-
         private static final SerialDriver INSTANCE = new SerialDriver();
     }
 
     public synchronized void disconnect() {
 
         if (serialPort != null) {
-            //serialPort.removeEventListener();
             serialPort.close();
             setConnected(false); //Set our disconnected state
         }

@@ -27,6 +27,9 @@ public final class Machine {
     //TG Specific
     //Machine EEPROM Values
     //binding
+    public SimpleIntegerProperty joggingIncrement = new SimpleIntegerProperty(100);
+//    public SimpleIntegerProperty joggingTargetFeedrate = new SimpleIntegerProperty(10);
+    
     public SimpleStringProperty m_state = new SimpleStringProperty();
     public SimpleStringProperty m_mode = new SimpleStringProperty();
     public SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();

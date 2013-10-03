@@ -15,6 +15,8 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -25,31 +27,53 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import tgfx.Main;
-import tgfx.SerialWriter;
 import tgfx.tinyg.CommandManager;
 import tgfx.tinyg.TinygDriver;
+import tgfx.ui.gcode.GcodeTabController;
 
 /**
  *
  * @author rileyporter
  */
 public class CNCMachine extends Pane {
-    public static  StackPane gcodePane = new StackPane(); //Holds CNCMachine
+
+    public static StackPane gcodePane = new StackPane(); //Holds CNCMachine
     private DecimalFormat df = new DecimalFormat("#.##");
     private final Circle cursorPoint = new Circle(2, javafx.scene.paint.Color.RED);
     private static double xPrevious;
     private static double yPrevious;
     private double magnification = 1;
-    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(CNCMachine.class);      
+
     
+        private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(CNCMachine.class);
+
+
     public CNCMachine() {
         this.setVisible(false);
         this.setPadding(new Insets(10));
+        this.setFocusTraversable(true);
+        this.setFocused(true);
+
 
 
         /*####################################
          *CSS
          #################################### */
+
+
+
+
+
+//           
+//
+//        // Define an event handler
+//EventHandler handler = new EventHandler(<InputEvent>() {
+//    public void handle(InputEvent event) {
+//        System.out.println("Handling event " + event.getEventType()); 
+//        event.consume();
+//    }
+//    
+
         this.setStyle("-fx-background-color: black; -fx-border-color: orange;  -fx-border-width: .5;");
 
         /*####################################
@@ -75,11 +99,11 @@ public class CNCMachine extends Pane {
         cursorText.setFill(Color.YELLOW);
         cursorText.setFont(Font.font("Arial", 6));
 
-        
-        
+
+
         setupLayout(); //initial layout setup in constructor
-        
-        
+
+
         /*####################################
          *Bindings
          *#################################### */
@@ -93,36 +117,26 @@ public class CNCMachine extends Pane {
             public void handle(MouseEvent me) {
 //                gcodePane.getChildren().remove(c);
                 getChildren().remove(cursorText);
-
+                unFocusForJogging();
             }
         });
 
 
 
-
-
+        
 
 
         this.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent me) {
-//                gcodePane.getChildren().remove(c);
-                getChildren().add(cursorText);
-
+                setFocusForJogging();
+                requestFocus();
+                
             }
         });
 
-        this.setOnMouseMoved(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent me) {
-                cursorText.setText("(X: " + getNormalizedXasString(me.getX()) + ")\n(Y: " + getNormalizedYasString(me.getY()) + ")");
-//                 cursorText.setText("(X: " + df.format(me.getX() / TinygDriver.getInstance().m.gcodeUnitDivision.get())
-//                        + ")\n(Y: " + df.format((getHeight() - me.getY()) / TinygDriver.getInstance().m.gcodeUnitDivision.get()) + ")");
-                cursorText.setX(me.getX() + 10);
-                cursorText.setY(me.getY());
+        
 
-            }
-        });
 
 
 
@@ -160,9 +174,18 @@ public class CNCMachine extends Pane {
 
             }
         });
+    }
 
+    private void unFocusForJogging() {
+        this.setFocused(true);
+//        Main.postConsoleMessage("UnFocused");
+        GcodeTabController.hideGcodeText();
+    }
 
-
+    private void setFocusForJogging() {
+        this.setFocused(true);
+//        Main.postConsoleMessage("Focused");
+        GcodeTabController.setGcodeText("Jogging Enabled");
     }
 
     public double getNormalizedX(double x) {

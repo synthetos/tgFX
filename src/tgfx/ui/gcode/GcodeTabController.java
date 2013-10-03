@@ -12,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -23,15 +25,20 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 import jfxtras.labs.scene.control.gauge.Lcd;
 import org.apache.log4j.Logger;
 import tgfx.Main;
@@ -57,6 +64,12 @@ public class GcodeTabController implements Initializable {
     public ObservableList data; //List to store the gcode file
     public static StackPane gcodePane = new StackPane(); //Holds CNCMachine  This needs to be before CNCMachine()
     private static CNCMachine cncMachine = new CNCMachine();
+    private final EventHandler keyPress;
+    private final EventHandler keyRelease;
+    private String _axis = new String();
+    private double _nudge = 1;
+    private boolean isKeyPressed = false;
+    private int jogDial = 0;
     /*  ######################## FXML ELEMENTS ############################*/
     @FXML
     private Lcd xLcd, yLcd, zLcd, aLcd, velLcd; //DRO Lcds
@@ -69,16 +82,145 @@ public class GcodeTabController implements Initializable {
     @FXML
     private TableView gcodeView;
     @FXML
+    private Text xAxisLocation, yAxisLocation;
+    @FXML
+    private static Text gcodeStatusMessage;  //Cursor location on the cncMachine Canvas
+    @FXML
     private static TextArea console;
     @FXML
     private Button Run, Connect, gcodeZero, btnClearScreen, pauseResume, btnTest, btnHandleInhibitAllAxis;
+    /* Add Z-Axis Control
+     * 
+     */
+    private float zScale = 0.1f;
+    String cmd;
+    @FXML // ResourceBundle that was given to the FXMLLoader
+    private ResourceBundle resources;
+    @FXML // URL location of the FXML file that was given to the FXMLLoader
+    private URL location;
+    @FXML // fx:id="zMoveScale"
+    private ChoiceBox<?> zMoveScale; // Value injected by FXMLLoader
 
     /**
      * Initializes the controller class.
      */
     public GcodeTabController() {
         logger.info("Gcode Controller Loaded");
+        cncMachine.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent me) {
+                yAxisLocation.setText(cncMachine.getNormalizedYasString(me.getY()));
+                xAxisLocation.setText(cncMachine.getNormalizedYasString(me.getX()));
 
+            }
+        });
+
+
+
+        keyPress = new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+//                Main.postConsoleMessage("KEY PRESSED: " + keyEvent.getCode().toString());
+                try {
+                    CommandManager.setIncrementalMovementMode();
+                } catch (Exception ex) {
+                    java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                if (!isKeyPressed) { //If this event has already sent a jog in need to pass this over.
+                    KeyCode _kc = keyEvent.getCode();
+
+                    if (_kc.equals(KeyCode.UP) || _kc.equals(KeyCode.DOWN)) {
+                        //This is and Y Axis Jog action
+                        _axis = "Y"; //Set the axis for this jog movment
+                        if (keyEvent.getCode().equals(KeyCode.UP)) {
+                            jogDial = TinygDriver.getInstance().m.joggingIncrement.get();
+                            _nudge = _nudge * -1;
+                        } else if (keyEvent.getCode().equals(KeyCode.DOWN)) {
+                            jogDial = (-1 * TinygDriver.getInstance().m.joggingIncrement.get()); //Invert this value by multiplying by -1
+                            _nudge = _nudge * -1;
+                        }
+
+                    } else if (_kc.equals(KeyCode.RIGHT) || _kc.equals(KeyCode.LEFT)) {
+                        //This is a X Axis Jog Action
+                        _axis = "X"; //Set the axis for this jog movment
+                        if (keyEvent.getCode().equals(KeyCode.LEFT)) {
+                            jogDial = (-1 * TinygDriver.getInstance().m.joggingIncrement.get()); //Invert this value by multiplying by -1
+                            _nudge = _nudge * -1;
+                        } else if (keyEvent.getCode().equals(KeyCode.RIGHT)) {
+                            jogDial = TinygDriver.getInstance().m.joggingIncrement.get();
+                            _nudge = _nudge * -1;
+                        }
+                    }
+
+
+
+
+                    try {
+//                        TinygDriver.getInstance().write("{\"GC\":\"G0" + _axis + _nudge + "\"}\n");
+
+                        TinygDriver.getInstance().write("{\"GC\":\"G0" + _axis + jogDial + "\"}\n");
+//                        Main.postConsoleMessage("JOGGING: {\"GC\":\"G0" + _axis + jogDial + "\"}\n");
+                        isKeyPressed = true;
+                    } catch (Exception ex) {
+                        java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+
+                }
+
+            }
+        };
+
+        keyRelease = new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+//                Main.postConsoleMessage("Stopping Jog Action: " + keyEvent.getCode().toString());
+                try {
+                    setGcodeText("");
+                    CommandManager.stopJogMovement();
+                    CommandManager.setAbsoluteMovementMode(); //re-enable absolute mode
+                    isKeyPressed = false; //reset the press flag
+//                    jogDial = TinygDriver.getInstance().m.getAxisByName("Y").getMachinePositionSimple().getValue().intValue();
+
+                } catch (Exception ex) {
+                    java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        };
+
+
+        cncMachine.setOnKeyPressed(keyPress);
+        cncMachine.setOnKeyReleased(keyRelease);
+
+    }
+
+    public static void setGcodeTextTemp(String _text) {
+        gcodeStatusMessage.setText(_text);
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(3000), gcodeStatusMessage);
+        fadeTransition.setFromValue(1.0);
+        fadeTransition.setToValue(0.0);
+        fadeTransition.play();
+//        gcodeStatusMessage.setText(""); //clear it out
+        
+    }
+
+    public static void setGcodeText(String _text) {
+        gcodeStatusMessage.setText(_text);
+        gcodeStatusMessage.setVisible(true);
+//        FadeTransition fadeTransition  = new FadeTransition(Duration.millis(1000), gcodeStatusMessage);
+//                fadeTransition.setFromValue(0.0);
+//                fadeTransition.setToValue(1.0);
+//                fadeTransition.play();
+    }
+
+    public static void hideGcodeText() {
+//        gcodeStatusMessage.setVisible(false);
+//        FadeTransition fadeTransition  = new FadeTransition(Duration.millis(500), gcodeStatusMessage);
+//                fadeTransition.setFromValue(1.0);
+//                fadeTransition.setToValue(0.0);
+//                fadeTransition.play();
     }
 
     public static void drawCanvasUpdate() {
@@ -174,11 +316,33 @@ public class GcodeTabController implements Initializable {
 
     public static void setCNCMachineVisible(boolean t) {
         cncMachine.setVisible(t);
+
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        /* add support for zmove
+         * 
+         */
+//        assert zMoveScale != null : "fx:id=\"zMoveScale\" was not injected: check your FXML file 'Position.fxml'.";
+//
+//        // Set up ChoiceBox selection handler
+//        zMoveScale.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+//            @Override
+//            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number result) {
+//                switch ((int) result) {
+//                    case 0:
+//                        zScale = 10.0f;
+//                        break;
+//                    case 1:
+//                        zScale = 1.0f;
+//                        break;
+//                    case 2:
+//                        zScale = 0.1f;
+//                        break;
+//                }
+//            }
+//        });
 
         setCNCMachineVisible(false);  //We default to NOT display the CNC machine pane.  Once the serial port is connected we will show this.
         //This adds our CNC Machine (2d preview) to our display window
@@ -397,19 +561,9 @@ public class GcodeTabController implements Initializable {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-
                 try {
-
                     logger.info("[!]Stopping Job Clearing Serial Queue...\n");
-
-                    
-                    //Do not mess with this order.
-                    TinygDriver.getInstance().serialWriter.clearQueueBuffer();
-                    TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_PAUSE);
-                    Thread.sleep(40);
-                    TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_QUEUE_FLUSH);
-                    tgfx.Main.postConsoleMessage("[!]Stopping Job Clearing Serial Queue...\n");
-
+                    CommandManager.stopTinyGMovement();
                 } catch (Exception ex) {
                     logger.error("handleStop " + ex.getMessage());
                 }
@@ -526,8 +680,8 @@ public class GcodeTabController implements Initializable {
                             if (normalizeGcodeLine(strLine)) {
                                 data.add(new GcodeLine(strLine, _linenumber));
                                 _linenumber++;
-                            }else{
-                                Main.postConsoleMessage("ERROR: Your gcode file contains an invalid character.. Either !,% or ~. Remove this character and try again.");                            
+                            } else {
+                                Main.postConsoleMessage("ERROR: Your gcode file contains an invalid character.. Either !,% or ~. Remove this character and try again.");
                                 data.clear(); //Remove all other previous entered lines
                                 break;
                             }
