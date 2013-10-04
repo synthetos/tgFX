@@ -6,6 +6,8 @@ package tgfx.tinyg;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
+import javafx.beans.binding.NumberBinding;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
@@ -29,6 +31,7 @@ public class TinygDriver extends Observable {
     public ResponseManager resManager = new ResponseManager();
     public CommandManager cmdManager = new CommandManager();
     private String[] message = new String[2];
+    public SimpleBooleanProperty connectionStatus = new SimpleBooleanProperty(false);
     
     
     
@@ -487,9 +490,12 @@ public class TinygDriver extends Observable {
         this.ser.disconnect();
     }
 
-    public boolean isConnected() {
-        return this.ser.isConnected();
-    }
+    public SimpleBooleanProperty isConnected() {
+        //Our binding to keep tabs in the us of if we are connected to TinyG or not.
+        //This is mostly used to disable the UI if we are not connected.
+         connectionStatus.set(this.ser.isConnected());
+         return(connectionStatus);
+        }
 
     /**
      * All Methods involving writing to TinyG.. This messages will call the

@@ -57,8 +57,8 @@ public final class Axis {
     private double jerkHomingMaximum;
     private double junction_devation;
     private SWITCH_MODES max_switch_mode = SWITCH_MODES.DISABLED;
-    private SWITCH_MODES min_switch_mode= SWITCH_MODES.DISABLED;
-    
+    private SWITCH_MODES min_switch_mode = SWITCH_MODES.DISABLED;
+    private List allAxis = new ArrayList();
     DecimalFormat decimalFormat = new DecimalFormat("#.000");
     DecimalFormat decimalFormatjunctionDeviation = new DecimalFormat("0.000000");
     DecimalFormat decimalFormatMaximumJerk = new DecimalFormat("################################.############################");
@@ -309,7 +309,7 @@ public final class Axis {
     }
 
     public float getLatch_velocity() {
-       return formatFloatValue(latch_velocity);
+        return formatFloatValue(latch_velocity);
     }
 
 //    public float getSeek_rate_maximum() {
@@ -425,7 +425,6 @@ public final class Axis {
 //                return false;
 //        }
 //    }
-
     public boolean setAxis_mode(int axMode) {
 
         switch (axMode) {
@@ -481,8 +480,8 @@ public final class Axis {
     }
 
     public double getFeed_rate_maximum() {
-     return formatDoubleValue(feedRateMaximum);
-         
+        return formatDoubleValue(feedRateMaximum);
+
     }
 
     public boolean setFeed_rate_maximum(float feed_rate_maximum) {
@@ -497,9 +496,9 @@ public final class Axis {
     public void setJerkHomingMaximum(double jerkHomingMaximum) {
         this.jerkHomingMaximum = jerkHomingMaximum;
     }
-    
+
     public double getJerkMaximum() {
-        return(jerkMaximum);
+        return (jerkMaximum);
     }
 
     public boolean setJerkMaximum(double jerk_maximum) {
@@ -532,9 +531,6 @@ public final class Axis {
     public void setOffset(double offset) {
         this.offset.set(offset);
     }
-    
-    
-    
 
     public List<Motor> getMotors() {
         return motors;
@@ -604,43 +600,52 @@ public final class Axis {
         return (travel_maximum);
     }
 
-    
-    
-    
-    private double formatDoubleValue(double val){
+    private double formatDoubleValue(double val) {
         //Utility Method to cleanly trim doubles for display in the UI
-        return(Double.parseDouble(decimalFormat.format(val)));
+        return (Double.parseDouble(decimalFormat.format(val)));
     }
-    
-    private double formatJuctionDeviation(double val){
+
+    private double formatJuctionDeviation(double val) {
         //Utility Method to cleanly trim doubles for display in the UI
-        return(Double.parseDouble(decimalFormatjunctionDeviation.format(val)));
+        return (Double.parseDouble(decimalFormatjunctionDeviation.format(val)));
     }
-    
-    private double formatJerkMaximum(double val){
+
+    private double formatJerkMaximum(double val) {
         //Utility Method to cleanly trim doubles for display in the UI
-        return(Double.parseDouble(decimalFormat.format(val)));
+        return (Double.parseDouble(decimalFormat.format(val)));
     }
-    
-    
-    private float formatFloatValue(float val){
+
+    private float formatFloatValue(float val) {
         //Utility Method to cleanly trim doubles for display in the UI
-        return(Float.parseFloat(decimalFormat.format(val)));
+        return (Float.parseFloat(decimalFormat.format(val)));
     }
-    
-    
-    
-    
+
     public double getTravel_maximum() {
         return formatDoubleValue(travel_maximum.getValue());
     }
 
     public boolean setTravel_maximum(float travel_maximum) {
         try {
+            //Stub to always track the largest travel axis
+            allAxis = TinygDriver.getInstance().m.getAllLinearAxis();
+            Iterator<Axis> iterator = allAxis.iterator(); 
+            double _maxTravel =0;
+            Axis _ax;
+            
+            while (iterator.hasNext()) {
+                _ax = (Axis) iterator.next();
+                if(_ax.getTravel_maximum() > _maxTravel){
+                    //This is the largest travel max so far.. lets set it.
+                    _maxTravel = _ax.getTravel_maximum();
+                }
+                TinygDriver.getInstance().m.longestTravelAxisValue.set(_maxTravel); //We set this binding now to the largest value
+            }
+            
+            
             this.travel_maximum.set(travel_maximum);
             return true;
         } catch (Exception ex) {
-           //supress this error
+            //supress this error
             return false;
         }
     }
@@ -661,7 +666,7 @@ public final class Axis {
     public void setWorkPosition(double workpos) {
         this.workPosition.set(workpos);
     }
-    
+
     public void setMachinePosition(double workpos) {
         this.machinePosition.set(workpos);
     }
@@ -669,7 +674,7 @@ public final class Axis {
     public SimpleDoubleProperty getMachinePositionSimple() {
         return machinePosition;
     }
-    
+
     public void applyJsonSystemSetting(responseCommand rc) {
         _applyJsonSystemSetting(rc);
     }
@@ -691,13 +696,10 @@ public final class Axis {
         }
 
     }
-    
-    
-     
 
     private void _applyJsonSystemSetting(responseCommand rc) {
-        
-        
+
+
         switch (rc.getSettingKey()) {
             case (MnemonicManager.MNEMONIC_AXIS_AXIS_MODE):
                 TinygDriver.getInstance().m.getAxisByName(rc.getSettingParent()).setAxis_mode(Double.valueOf(rc.getSettingValue()).intValue());

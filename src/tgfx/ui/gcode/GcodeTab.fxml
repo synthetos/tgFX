@@ -32,7 +32,7 @@
 
 <Tab fx:id="gcode_tab" closable="false" text="Gcode" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.ui.gcode.GcodeTabController">
   <content>
-    <HBox id="gcodeTabHbox" alignment="TOP_CENTER" fillHeight="true" minHeight="450.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: rgba(0,0,0,0.08), linear-gradient(#9a9a9a, #909090), linear-gradient(white 0%, #f3f3f3 50%, #ececec 51%, #f2f2f2 100%);&#10;-fx-background-insets: 0 0 -1 0,0,1;&#10;-fx-background-radius: 5,5,4;&#10;-fx-padding: 3 30 3 30;&#10;-fx-text-fill: #242d35;&#10;-fx-font-size: 14px;" visible="true">
+    <HBox id="gcodeTabHbox" fx:id="gcodeTabControllerHBox" alignment="TOP_CENTER" fillHeight="true" minHeight="450.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: rgba(0,0,0,0.08), linear-gradient(#9a9a9a, #909090), linear-gradient(white 0%, #f3f3f3 50%, #ececec 51%, #f2f2f2 100%);&#10;-fx-background-insets: 0 0 -1 0,0,1;&#10;-fx-background-radius: 5,5,4;&#10;-fx-padding: 3 30 3 30;&#10;-fx-text-fill: #242d35;&#10;-fx-font-size: 14px;" visible="true">
       <children>
         <VBox fx:id="gcodeProgramVbox" alignment="TOP_CENTER" blendMode="SRC_ATOP" maxWidth="300.0" minHeight="-Infinity" minWidth="320.0" prefHeight="300.0" prefWidth="320.0" style="&#10;" visible="true" HBox.hgrow="NEVER">
           <children>
@@ -79,6 +79,18 @@
               <children>
                 <HBox alignment="CENTER_RIGHT" prefHeight="-1.0" prefWidth="-1.0" style="">
                   <children>
+                    <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+                      <children>
+                        <Text fx:id="gcodeStatusMessage" smooth="true" strokeMiterLimit="10.0" strokeType="OUTSIDE" strokeWidth="0.0" style="" text="JOGGING ENABLED" underline="false" visible="true">
+                          <font>
+                            <Font name="Arial Black" size="16.0" />
+                          </font>
+                          <HBox.margin>
+                            <Insets fx:id="x727" />
+                          </HBox.margin>
+                        </Text>
+                      </children>
+                    </HBox>
                     <Button fx:id="btnClearScreen" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" onAction="#handleClearScreen" text="Clear Screen">
                       <HBox.margin>
                         <Insets bottom="5.0" right="5.0" top="5.0" />
@@ -90,11 +102,16 @@
                   </VBox.margin>
                 </HBox>
                 <StackPane id="topPreviewPane" fx:id="gcodePane" minHeight="400.0" minWidth="400.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: black" VBox.vgrow="ALWAYS" />
-                <HBox fx:id="gcodeWindowButtonBar" alignment="CENTER_LEFT" maxHeight="45.0" minHeight="55.0" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" style="" VBox.vgrow="NEVER">
+                <HBox fx:id="gcodeWindowButtonBar" alignment="CENTER_RIGHT" maxHeight="45.0" minHeight="55.0" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" style="" VBox.vgrow="NEVER">
                   <children>
-                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0" style="" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" style="" HBox.hgrow="ALWAYS">
                       <children>
-                        <GridPane prefHeight="49.0" prefWidth="63.0" style="">
+                        <HBox alignment="CENTER" fillHeight="true" prefHeight="-1.0" prefWidth="-1.0" style="" visible="true" HBox.hgrow="ALWAYS">
+                          <padding>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
+                          </padding>
+                        </HBox>
+                        <GridPane fx:id="coordLocationGridPane" alignment="CENTER_RIGHT" prefHeight="49.0" prefWidth="34.0" style="">
                           <children>
                             <Label fx:id="heightLabel" text="Y:" textFill="BLACK" visible="true" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                             <Text fx:id="yAxisLocation" fill="BLACK" strokeType="OUTSIDE" strokeWidth="0.0" text="0" visible="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
@@ -106,29 +123,20 @@
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                           </columnConstraints>
                           <padding>
-                            <Insets left="10.0" />
+                            <Insets left="10.0" right="10.0" />
                           </padding>
                           <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                         </GridPane>
-                        <HBox alignment="CENTER" fillHeight="true" prefHeight="-1.0" prefWidth="-1.0" style="" visible="true" HBox.hgrow="ALWAYS">
-                          <children>
-                            <Text fx:id="gcodeStatusMessage" smooth="true" strokeMiterLimit="10.0" strokeType="OUTSIDE" strokeWidth="0.0" style="" text="JOGGING ENABLED" underline="false" visible="false">
-                              <font>
-                                <Font name="Arial Black" size="16.0" />
-                              </font>
-                            </Text>
-                          </children>
-                          <padding>
-                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
-                          </padding>
-                        </HBox>
                       </children>
                       <padding>
                         <Insets fx:id="x727" />
                       </padding>
+                      <HBox.margin>
+                        <Insets right="25.0" />
+                      </HBox.margin>
                     </HBox>
                   </children>
                   <padding>
@@ -137,7 +145,7 @@
                 </HBox>
               </children>
               <effect>
-                <DropShadow color="WHITE" height="8.857142857143089" radius="3.9285714285714866" spread="0.49206349206349204" width="8.857142857142858" />
+                <DropShadow color="WHITE" height="8.857142857142973" radius="3.9285714285714572" spread="0.49206349206349204" width="8.857142857142858" />
               </effect>
               <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />

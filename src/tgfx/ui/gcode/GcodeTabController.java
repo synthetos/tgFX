@@ -34,6 +34,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
@@ -67,9 +69,9 @@ public class GcodeTabController implements Initializable {
     private final EventHandler keyPress;
     private final EventHandler keyRelease;
     private String _axis = new String();
-    private double _nudge = 1;
+    
     private boolean isKeyPressed = false;
-    private int jogDial = 0;
+    private double jogDial = 0;
     /*  ######################## FXML ELEMENTS ############################*/
     @FXML
     private Lcd xLcd, yLcd, zLcd, aLcd, velLcd; //DRO Lcds
@@ -89,9 +91,10 @@ public class GcodeTabController implements Initializable {
     private static TextArea console;
     @FXML
     private Button Run, Connect, gcodeZero, btnClearScreen, pauseResume, btnTest, btnHandleInhibitAllAxis;
-    /* Add Z-Axis Control
-     * 
-     */
+    
+    @FXML
+    private GridPane coordLocationGridPane;
+    
     private float zScale = 0.1f;
     String cmd;
     @FXML // ResourceBundle that was given to the FXMLLoader
@@ -101,6 +104,9 @@ public class GcodeTabController implements Initializable {
     @FXML // fx:id="zMoveScale"
     private ChoiceBox<?> zMoveScale; // Value injected by FXMLLoader
 
+    @FXML
+    private HBox gcodeTabControllerHBox;
+    
     /**
      * Initializes the controller class.
      */
@@ -110,12 +116,22 @@ public class GcodeTabController implements Initializable {
             @Override
             public void handle(MouseEvent me) {
                 yAxisLocation.setText(cncMachine.getNormalizedYasString(me.getY()));
-                xAxisLocation.setText(cncMachine.getNormalizedYasString(me.getX()));
+                xAxisLocation.setText(cncMachine.getNormalizedXasString(me.getX()));
 
+                
+                
+                
             }
         });
-
-
+        
+        
+            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
 
         keyPress = new EventHandler<KeyEvent>() {
             @Override
@@ -134,22 +150,23 @@ public class GcodeTabController implements Initializable {
                         //This is and Y Axis Jog action
                         _axis = "Y"; //Set the axis for this jog movment
                         if (keyEvent.getCode().equals(KeyCode.UP)) {
-                            jogDial = TinygDriver.getInstance().m.joggingIncrement.get();
-                            _nudge = _nudge * -1;
+                            jogDial = TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis);
+                            
                         } else if (keyEvent.getCode().equals(KeyCode.DOWN)) {
-                            jogDial = (-1 * TinygDriver.getInstance().m.joggingIncrement.get()); //Invert this value by multiplying by -1
-                            _nudge = _nudge * -1;
+                            jogDial = (-1 * TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis)); //Invert this value by multiplying by -1
+                            
                         }
 
                     } else if (_kc.equals(KeyCode.RIGHT) || _kc.equals(KeyCode.LEFT)) {
                         //This is a X Axis Jog Action
                         _axis = "X"; //Set the axis for this jog movment
                         if (keyEvent.getCode().equals(KeyCode.LEFT)) {
-                            jogDial = (-1 * TinygDriver.getInstance().m.joggingIncrement.get()); //Invert this value by multiplying by -1
-                            _nudge = _nudge * -1;
+                            jogDial = (-1 * TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis));
+                            
+                            
                         } else if (keyEvent.getCode().equals(KeyCode.RIGHT)) {
-                            jogDial = TinygDriver.getInstance().m.joggingIncrement.get();
-                            _nudge = _nudge * -1;
+                            jogDial = TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis); //Invert this value by multiplying by -1
+
                         }
                     }
 
@@ -157,11 +174,10 @@ public class GcodeTabController implements Initializable {
 
 
                     try {
-//                        TinygDriver.getInstance().write("{\"GC\":\"G0" + _axis + _nudge + "\"}\n");
-
+                        
                         TinygDriver.getInstance().write("{\"GC\":\"G0" + _axis + jogDial + "\"}\n");
-//                        Main.postConsoleMessage("JOGGING: {\"GC\":\"G0" + _axis + jogDial + "\"}\n");
                         isKeyPressed = true;
+                        
                     } catch (Exception ex) {
                         java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -238,7 +254,7 @@ public class GcodeTabController implements Initializable {
 
     @FXML
     private void handleHomeXYZ(ActionEvent evt) {
-        if (TinygDriver.getInstance().isConnected()) {
+        if (TinygDriver.getInstance().isConnected().get()) {
             try {
                 TinygDriver.getInstance().write(CommandManager.CMD_APPLY_SYSTEM_HOME_XYZ_AXES);
             } catch (Exception ex) {
@@ -251,7 +267,7 @@ public class GcodeTabController implements Initializable {
     private void handleHomeAxisClick(ActionEvent evt) {
         MenuItem m = (MenuItem) evt.getSource();
         String _axis = String.valueOf(m.getId().charAt(0));
-        if (TinygDriver.getInstance().isConnected()) {
+        if (TinygDriver.getInstance().isConnected().get()) {
             try {
                 switch (_axis) {
                     case "x":
@@ -278,7 +294,7 @@ public class GcodeTabController implements Initializable {
     private void handleZeroAxisClick(ActionEvent evt) {
         MenuItem m = (MenuItem) evt.getSource();
         String _axis = String.valueOf(m.getId().charAt(0));
-        if (TinygDriver.getInstance().isConnected()) {
+        if (TinygDriver.getInstance().isConnected().get()) {
             Draw2d.setFirstDraw(true);  //We set this so we do not draw lines for the previous position to the new zero.
             try {
                 switch (_axis) {
@@ -349,6 +365,8 @@ public class GcodeTabController implements Initializable {
         if (!gcodePane.getChildren().contains(cncMachine)) {
             gcodePane.getChildren().add(cncMachine); // Add the cnc machine to the gcode pane
         }
+        
+        coordLocationGridPane.visibleProperty().bind(cncMachine.visibleProperty());  //This shows the coords when the cncMachine is visible.
 
         xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getMachinePositionSimple().subtract(TinygDriver.getInstance().m.getAxisByName("x").getOffset()).divide(TinygDriver.getInstance().m.gcodeUnitDivision));
         yLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("y").getMachinePositionSimple().subtract(TinygDriver.getInstance().m.getAxisByName("y").getOffset()).divide(TinygDriver.getInstance().m.gcodeUnitDivision));
@@ -356,6 +374,14 @@ public class GcodeTabController implements Initializable {
         aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getMachinePositionSimple().subtract(TinygDriver.getInstance().m.getAxisByName("a").getOffset()));
         velLcd.valueProperty().bind(TinygDriver.getInstance().m.velocity);
 
+        
+        /*######################################
+        * BINDINGS CODE
+        ######################################*/
+        gcodeTabControllerHBox.disableProperty().bind(TinygDriver.getInstance().connectionStatus.not());
+        
+     
+     
 
         /*######################################
          * CHANGE LISTENERS
@@ -468,7 +494,7 @@ public class GcodeTabController implements Initializable {
                 if (me.getButton().equals(me.getButton().PRIMARY)) {
                     if (me.getClickCount() == 2) {
                         GcodeLine gcl = (GcodeLine) gcodeView.getSelectionModel().getSelectedItem();
-                        if (TinygDriver.getInstance().isConnected()) {
+                        if (TinygDriver.getInstance().isConnected().get()) {
                             logger.info("Double Clicked gcodeView " + gcl.getCodeLine());
                             try {
                                 TinygDriver.getInstance().write(gcl.getGcodeLineJsonified());
@@ -720,6 +746,10 @@ public class GcodeTabController implements Initializable {
         }
         return true;
     }
+    
+    
+     
+     
 
     /*######################################
      * EVENT LISTENERS CODE

@@ -7,6 +7,7 @@ package tgfx.system;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -27,8 +28,13 @@ public final class Machine {
     //TG Specific
     //Machine EEPROM Values
     //binding
-    public SimpleIntegerProperty joggingIncrement = new SimpleIntegerProperty(100);
-//    public SimpleIntegerProperty joggingTargetFeedrate = new SimpleIntegerProperty(10);
+    public SimpleDoubleProperty longestTravelAxisValue = new SimpleDoubleProperty();
+    
+    public SimpleIntegerProperty xjoggingIncrement = new SimpleIntegerProperty();
+    public SimpleIntegerProperty yjoggingIncrement = new SimpleIntegerProperty();
+    public SimpleIntegerProperty zjoggingIncrement = new SimpleIntegerProperty();
+    public SimpleIntegerProperty ajoggingIncrement = new SimpleIntegerProperty();
+
     
     public SimpleStringProperty m_state = new SimpleStringProperty();
     public SimpleStringProperty m_mode = new SimpleStringProperty();
@@ -424,9 +430,9 @@ public final class Machine {
     }
 
     public void setFirmwareBuild(double firmware_build) {
-        
-         this.firmwareBuild.set(firmware_build);
-         TinygDriver.getInstance().notifyBuildChanged();
+
+        this.firmwareBuild.set(firmware_build);
+        TinygDriver.getInstance().notifyBuildChanged();
     }
 
     public StringProperty getFirmwareVersion() {
@@ -590,12 +596,17 @@ public final class Machine {
 
 
         setMotionMode(0);
-
-
-
+        xjoggingIncrement.bind(getAxisByName("X").getTravelMaxSimple());
+        yjoggingIncrement.bind(getAxisByName("Y").getTravelMaxSimple());
+        zjoggingIncrement.bind(getAxisByName("Z").getTravelMaxSimple());
 
     }
 
+    public double getJoggingIncrementByAxis(String _axisName){
+        return getAxisByName(_axisName).getTravelMaxSimple().get();
+    }
+    
+    
     public GcodeCoordinateSystem getCoordinateSystemByName(String name) {
         for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
             if (_tmpGCS.getCoordinate().equals(name)) {
@@ -627,6 +638,25 @@ public final class Machine {
 
     public List<Axis> getAllAxis() {
         return axis;
+    }
+
+    public List getAllLinearAxis() {
+
+        List _allAxis = getAllAxis();
+        List _retAxisList = new ArrayList();
+        
+        
+        Axis _ax;
+        
+        for (int i = 0; i < _allAxis.size(); i++) {
+            Axis a =  (Axis) _allAxis.get(i);
+            if(a.getAxisType().equals(Axis.AXIS_TYPE.LINEAR)){
+                _retAxisList.add(a);
+            }
+            
+        }
+        return _retAxisList;
+
     }
 
     public Axis getAxisByName(char c) {

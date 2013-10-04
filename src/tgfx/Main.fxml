@@ -29,7 +29,7 @@
   <children>
     <BorderPane disable="false" prefHeight="-1.0" prefWidth="-1.0" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
-        <VBox alignment="CENTER" prefHeight="168.0" prefWidth="-1.0" style="-fx-background-color: GREY;" BorderPane.alignment="CENTER">
+        <VBox id="consoleHBox" fx:id="consoleVBox" alignment="CENTER" prefHeight="168.0" prefWidth="-1.0" style="-fx-background-color: GREY;" BorderPane.alignment="CENTER">
           <children>
             <TextArea fx:id="console" editable="false" focusTraversable="false" maxHeight="300.0" minHeight="50.0" wrapText="true" VBox.vgrow="ALWAYS">
               <prefHeight>

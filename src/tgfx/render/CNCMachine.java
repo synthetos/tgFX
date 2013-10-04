@@ -15,8 +15,6 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -26,7 +24,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import tgfx.Main;
 import tgfx.tinyg.CommandManager;
 import tgfx.tinyg.TinygDriver;
 import tgfx.ui.gcode.GcodeTabController;
@@ -38,6 +35,8 @@ import tgfx.ui.gcode.GcodeTabController;
 public class CNCMachine extends Pane {
 
     public static StackPane gcodePane = new StackPane(); //Holds CNCMachine
+    
+    
     private DecimalFormat df = new DecimalFormat("#.##");
     private final Circle cursorPoint = new Circle(2, javafx.scene.paint.Color.RED);
     private static double xPrevious;
@@ -204,6 +203,12 @@ public class CNCMachine extends Pane {
         return (df.format(getNormalizedX(x)));
     }
 
+  
+    
+    
+    
+    
+    
     public boolean checkBoundsY(Line l) {
         if ((this.getHeight() - l.getEndY()) >= 0 && (this.getHeight() - l.getEndY()) <= this.getHeight() + 1) {
             return true;
@@ -308,7 +313,7 @@ public class CNCMachine extends Pane {
     }
 
     public void zeroSystem() {
-        if (TinygDriver.getInstance().isConnected()) {
+        if (TinygDriver.getInstance().isConnected().get()) {
             try {
                 Draw2d.setFirstDraw(true); //This allows us to move our drawing to a new place without drawing a line from the old.
                 TinygDriver.getInstance().write(CommandManager.CMD_APPLY_SYSTEM_ZERO_ALL_AXES);

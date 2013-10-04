@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
 import javafx.scene.Scene;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 
@@ -115,7 +116,9 @@ public class Main extends Stage implements Initializable, Observer {
     @FXML
     HBox canvasHolder;
     @FXML
-    VBox topvbox, positionsVbox, tester;
+    VBox topvbox, positionsVbox, tester,consoleVBox;
+    @FXML
+    private TabPane topTabPane;
     
     public void testMessage(String message) {
         System.out.println("Message Hit");
@@ -325,7 +328,7 @@ public class Main extends Stage implements Initializable, Observer {
 //                consoleAppendMessage("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.\n");
             }
 
-            if (tg.isConnected()) {
+            if (tg.isConnected().get()) {
 
                 postConsoleMessage("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
 //               tgfx.Main.postConsoleMessage("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
@@ -340,7 +343,7 @@ public class Main extends Stage implements Initializable, Observer {
             }
         } else {
             tg.disconnect();
-            if (!tg.isConnected()) {
+            if (!tg.isConnected().get()) {
                 postConsoleMessage("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
                 Connect.setText("Connect");
                 onDisconnectActions();
@@ -364,6 +367,7 @@ public class Main extends Stage implements Initializable, Observer {
         TinygDriver.getInstance().serialWriter.notifyAck();
         buildChecked = false;
         GcodeTabController.setGcodeTextTemp("TinyG Disconnected.");
+        
 
 
         //TODO Need to have a way to pull this out of the gcodePane via a message
@@ -414,7 +418,7 @@ public class Main extends Stage implements Initializable, Observer {
     @FXML
     private void handleGuiRefresh() throws Exception {
         //Refreshed all gui settings from TinyG Responses.
-        if (tg.isConnected()) {
+        if (tg.isConnected().get()) {
 
             postConsoleMessage("[+]System GUI Refresh Requested....");
             tg.cmdManager.queryAllHardwareAxisSettings();
@@ -438,7 +442,7 @@ public class Main extends Stage implements Initializable, Observer {
         if (keyEvent.getCode().equals(KeyCode.ENTER)) {
             String command = (input.getText() + "\n");
             logger.info("Entered Command: " + command);
-            if (!tg.isConnected()) {
+            if (!tg.isConnected().get()) {
                 logger.error("TinyG is not connected....\n");
                 postConsoleMessage("[!]TinyG is not connected....\n");
                 input.setPromptText(PROMPT);
@@ -554,7 +558,7 @@ public class Main extends Stage implements Initializable, Observer {
                         break;
                     case ("BUILD_OK"):
                         //TinyG's build version is up to date to run tgfx.
-                        if (!buildChecked && tg.isConnected()) {
+                        if (!buildChecked && tg.isConnected().get()) {
                             //we do this once on connect, disconnect will reset this flag
                             onConnectActionsTwo();
                         }
@@ -700,7 +704,12 @@ public class Main extends Stage implements Initializable, Observer {
 
 
 //       srBuffer.textProperty().bind(TinygDriver.getInstance().serialWriter.buffer_available.asString());
-
+        
+        //This disables the UI if we are not connected.
+        consoleVBox.disableProperty().bind(TinygDriver.getInstance().connectionStatus.not());
+        topTabPane.disableProperty().bind(TinygDriver.getInstance().connectionStatus.not());
+        
+        
         StringConverter sc = new StringConverter<Number>() {
             @Override
             public String toString(Number n) {

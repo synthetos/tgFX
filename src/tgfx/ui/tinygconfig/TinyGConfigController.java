@@ -70,7 +70,7 @@ public class TinyGConfigController implements Initializable {
 
     @FXML
     void handleEnableAllAxis(ActionEvent evt) throws Exception {
-        if (TinygDriver.getInstance().isConnected()) {
+        if (TinygDriver.getInstance().isConnected().get()) {
             tgfx.Main.postConsoleMessage("[+]Enabling All Axis.... Motors Live!.\n");
             logger.info("Enabling All Axis");
             TinygDriver.getInstance().cmdManager.enableAllAxis();
@@ -83,7 +83,7 @@ public class TinyGConfigController implements Initializable {
 
     @FXML
     void handleInhibitAllAxis(ActionEvent evt) throws Exception {
-        if (TinygDriver.getInstance().isConnected()) {
+        if (TinygDriver.getInstance().isConnected().get()) {
             tgfx.Main.postConsoleMessage("[+]Inhibiting All Axis.... Motors Inhibited... However always verify!\n");
             logger.info("Inhibiting All Axis");
             TinygDriver.getInstance().cmdManager.inhibitAllAxis();

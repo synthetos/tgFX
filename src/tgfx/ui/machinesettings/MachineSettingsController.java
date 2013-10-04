@@ -102,7 +102,7 @@ public class MachineSettingsController implements Initializable {
         br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 
         while ((line = br.readLine()) != null) {
-            if (TinygDriver.getInstance().isConnected()) {
+            if (TinygDriver.getInstance().isConnected().get()) {
                 if (line.startsWith("NAME:")) {
                     //This is the name of the CONFIG lets not write this to TinyG 
                     tgfx.Main.postConsoleMessage("[+]Loading " + line.split(":")[1] + " config into TinyG... Please Wait...");
@@ -150,7 +150,7 @@ public class MachineSettingsController implements Initializable {
     }
 
     private String checkConectedMessage() {
-        if (TinygDriver.getInstance().isConnected()) {
+        if (TinygDriver.getInstance().isConnected().get()) {
             return ("true");
         } else {
             return ("[!]TinyG is Not Connected");
