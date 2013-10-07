@@ -115,6 +115,7 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_HARDWARE_VERSION = "hv";
     public static final String MNEMONIC_SYSTEM_CHORDAL_TOLERANCE = "ct";
     public static final String MNEMONIC_SYSTEM_TINYG_ID_VERSION = "id";
+    public static final String MNEMONIC_STATUS_REPORT_TINYG_DISTANCE_MODE = "dist";
 
     public MnemonicManager() {
         //When new settings are added we need to add them to the this class.
@@ -185,6 +186,7 @@ public class MnemonicManager {
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_MACHINEPOSX);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_MACHINEPOSY);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_MACHINEPOSZ);
+        STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_TINYG_DISTANCE_MODE);
         //Homed Group
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_HOMEDX);
         STATUS_MNEMONICS.add(MNEMONIC_STATUS_REPORT_HOMEDY);

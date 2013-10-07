@@ -111,7 +111,7 @@
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
                           </padding>
                         </HBox>
-                        <GridPane fx:id="coordLocationGridPane" alignment="CENTER_RIGHT" prefHeight="49.0" prefWidth="34.0" style="">
+                        <GridPane fx:id="coordLocationGridPane" alignment="CENTER_RIGHT" prefHeight="49.0" prefWidth="53.0" style="">
                           <children>
                             <Label fx:id="heightLabel" text="Y:" textFill="BLACK" visible="true" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                             <Text fx:id="yAxisLocation" fill="BLACK" strokeType="OUTSIDE" strokeWidth="0.0" text="0" visible="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
@@ -145,7 +145,7 @@
                 </HBox>
               </children>
               <effect>
-                <DropShadow color="WHITE" height="8.857142857142973" radius="3.9285714285714572" spread="0.49206349206349204" width="8.857142857142858" />
+                <DropShadow color="WHITE" height="8.857142857142914" radius="3.928571428571443" spread="0.49206349206349204" width="8.857142857142858" />
               </effect>
               <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />

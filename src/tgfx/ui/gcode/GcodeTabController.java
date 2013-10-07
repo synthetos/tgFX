@@ -15,6 +15,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -32,7 +33,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.Mnemonic;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -69,7 +73,7 @@ public class GcodeTabController implements Initializable {
     private final EventHandler keyPress;
     private final EventHandler keyRelease;
     private String _axis = new String();
-    
+    public static SimpleBooleanProperty isSendingFile = new SimpleBooleanProperty(false);  //This tracks to see if we are sending a file to tinyg.  This allows us to NOT try to jog while sending files
     private boolean isKeyPressed = false;
     private double jogDial = 0;
     /*  ######################## FXML ELEMENTS ############################*/
@@ -91,10 +95,8 @@ public class GcodeTabController implements Initializable {
     private static TextArea console;
     @FXML
     private Button Run, Connect, gcodeZero, btnClearScreen, pauseResume, btnTest, btnHandleInhibitAllAxis;
-    
     @FXML
     private GridPane coordLocationGridPane;
-    
     private float zScale = 0.1f;
     String cmd;
     @FXML // ResourceBundle that was given to the FXMLLoader
@@ -103,10 +105,9 @@ public class GcodeTabController implements Initializable {
     private URL location;
     @FXML // fx:id="zMoveScale"
     private ChoiceBox<?> zMoveScale; // Value injected by FXMLLoader
-
     @FXML
     private HBox gcodeTabControllerHBox;
-    
+
     /**
      * Initializes the controller class.
      */
@@ -118,71 +119,86 @@ public class GcodeTabController implements Initializable {
                 yAxisLocation.setText(cncMachine.getNormalizedYasString(me.getY()));
                 xAxisLocation.setText(cncMachine.getNormalizedXasString(me.getX()));
 
-                
-                
-                
+
+
+
             }
         });
-        
-        
-            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
-            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
-            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
-            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
-            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
-            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
-            //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+
+
+        //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+        //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+        //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+        //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+        //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+        //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
+        //JOGGING NEEDS TO BE BROKEN INTO A NEW CLASS
 
         keyPress = new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
+                if (isSendingFile.get() == false) {  //If we are sending a file.. Do NOT jog right now
 //                Main.postConsoleMessage("KEY PRESSED: " + keyEvent.getCode().toString());
-                try {
-                    CommandManager.setIncrementalMovementMode();
-                } catch (Exception ex) {
-                    java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
-                }
 
-                if (!isKeyPressed) { //If this event has already sent a jog in need to pass this over.
-                    KeyCode _kc = keyEvent.getCode();
+                    //Do the jogging.
+                    _axis = " "; // Initialize to no valid axis set
 
-                    if (_kc.equals(KeyCode.UP) || _kc.equals(KeyCode.DOWN)) {
-                        //This is and Y Axis Jog action
-                        _axis = "Y"; //Set the axis for this jog movment
-                        if (keyEvent.getCode().equals(KeyCode.UP)) {
-                            jogDial = TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis);
-                            
-                        } else if (keyEvent.getCode().equals(KeyCode.DOWN)) {
-                            jogDial = (-1 * TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis)); //Invert this value by multiplying by -1
-                            
+                    if (!isKeyPressed) { //If this event has already sent a jog in need to pass this over.
+                        KeyCode _kc = keyEvent.getCode();
+                        if (_kc.equals(KeyCode.SHIFT)) {
+                            return;   //This is going to toss out our initial SHIFT press for the z axis key combination.
                         }
 
-                    } else if (_kc.equals(KeyCode.RIGHT) || _kc.equals(KeyCode.LEFT)) {
-                        //This is a X Axis Jog Action
-                        _axis = "X"; //Set the axis for this jog movment
-                        if (keyEvent.getCode().equals(KeyCode.LEFT)) {
-                            jogDial = (-1 * TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis));
-                            
-                            
-                        } else if (keyEvent.getCode().equals(KeyCode.RIGHT)) {
-                            jogDial = TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis); //Invert this value by multiplying by -1
+                        if (_kc.equals(KeyCode.UP) || _kc.equals(KeyCode.DOWN)) {
+                            if (keyEvent.isShiftDown()) {
+                                //Alt is down so we make this into a Z movement
+                                _axis = "Z";
+                            } else {
+                                //This is and Y Axis Jog action
+                                _axis = "Y"; //Set the axis for this jog movment
+                            }
+                            if (keyEvent.getCode().equals(KeyCode.UP)) {
+                                jogDial = TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis);
+                            } else if (keyEvent.getCode().equals(KeyCode.DOWN)) {
+                                jogDial = (-1 * TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis)); //Invert this value by multiplying by -1
 
+                            }
+
+                        } else if (_kc.equals(KeyCode.RIGHT) || _kc.equals(KeyCode.LEFT)) {
+                            //This is a X Axis Jog Action
+                            _axis = "X"; //Set the axis for this jog movment
+                            if (keyEvent.getCode().equals(KeyCode.LEFT)) {
+                                jogDial = (-1 * TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis));
+
+
+                            } else if (keyEvent.getCode().equals(KeyCode.RIGHT)) {
+                                jogDial = TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis); //Invert this value by multiplying by -1
+
+                            }
                         }
+
+
+
+
+                        try {
+                            if (_axis.equals("X") || _axis.equals("Y") || _axis.equals("Z")) {
+                                // valid key pressed
+                                CommandManager.setIncrementalMovementMode();
+                                TinygDriver.getInstance().write("{\"GC\":\"G0" + _axis + jogDial + "\"}\n");
+                                isKeyPressed = true;
+                            }
+
+                        } catch (Exception ex) {
+                            java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+
                     }
 
-
-
-
-                    try {
-                        
-                        TinygDriver.getInstance().write("{\"GC\":\"G0" + _axis + jogDial + "\"}\n");
-                        isKeyPressed = true;
-                        
-                    } catch (Exception ex) {
-                        java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-
+                } //end if isSendingFile
+                else {
+                    //We are sending a file... We need to post a messages
+                    setGcodeTextTemp("Jogging Disabled... Sending File.");
                 }
 
             }
@@ -192,19 +208,29 @@ public class GcodeTabController implements Initializable {
             @Override
             public void handle(KeyEvent keyEvent) {
 //                Main.postConsoleMessage("Stopping Jog Action: " + keyEvent.getCode().toString());
-                try {
-                    setGcodeText("");
-                    CommandManager.stopJogMovement();
-                    CommandManager.setAbsoluteMovementMode(); //re-enable absolute mode
-                    isKeyPressed = false; //reset the press flag
-//                    jogDial = TinygDriver.getInstance().m.getAxisByName("Y").getMachinePositionSimple().getValue().intValue();
+                if (isSendingFile.get() == false) {
 
-                } catch (Exception ex) {
-                    java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+
+                    try {
+                        setGcodeText("");
+                        if (isKeyPressed) {  //We should find out of TinyG's distance mode is set to G90 before just firing this off.
+
+                            CommandManager.stopJogMovement();
+                            if (TinygDriver.getInstance().m.getGcode_distance_mode().equals(TinygDriver.getInstance().m.gcode_distance_mode.INCREMENTAL)) {
+                                //We are in incremental mode we now will enter ABSOLUTE mode
+                                CommandManager.setAbsoluteMovementMode();
+                            } //re-enable absolute mode
+                            isKeyPressed = false; //reset the press flag
+                        }
+                    } catch (Exception ex) {
+                        java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
                 }
 
             }
         };
+
 
 
         cncMachine.setOnKeyPressed(keyPress);
@@ -219,7 +245,7 @@ public class GcodeTabController implements Initializable {
         fadeTransition.setToValue(0.0);
         fadeTransition.play();
 //        gcodeStatusMessage.setText(""); //clear it out
-        
+
     }
 
     public static void setGcodeText(String _text) {
@@ -365,7 +391,7 @@ public class GcodeTabController implements Initializable {
         if (!gcodePane.getChildren().contains(cncMachine)) {
             gcodePane.getChildren().add(cncMachine); // Add the cnc machine to the gcode pane
         }
-        
+
         coordLocationGridPane.visibleProperty().bind(cncMachine.visibleProperty());  //This shows the coords when the cncMachine is visible.
 
         xLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("x").getMachinePositionSimple().subtract(TinygDriver.getInstance().m.getAxisByName("x").getOffset()).divide(TinygDriver.getInstance().m.gcodeUnitDivision));
@@ -374,14 +400,14 @@ public class GcodeTabController implements Initializable {
         aLcd.valueProperty().bind(TinygDriver.getInstance().m.getAxisByName("a").getMachinePositionSimple().subtract(TinygDriver.getInstance().m.getAxisByName("a").getOffset()));
         velLcd.valueProperty().bind(TinygDriver.getInstance().m.velocity);
 
-        
+
         /*######################################
-        * BINDINGS CODE
-        ######################################*/
+         * BINDINGS CODE
+         ######################################*/
         gcodeTabControllerHBox.disableProperty().bind(TinygDriver.getInstance().connectionStatus.not());
-        
-     
-     
+
+
+
 
         /*######################################
          * CHANGE LISTENERS
@@ -574,6 +600,7 @@ public class GcodeTabController implements Initializable {
                     TinygDriver.getInstance().serialWriter.notifyAck();
                     TinygDriver.getInstance().serialWriter.clearQueueBuffer();
                     cncMachine.clearScreen();
+                    isSendingFile.set(false); //We set this to false to allow us to jog again
 
                 } catch (Exception ex) {
                     logger.error("handleReset " + ex.getMessage());
@@ -590,6 +617,7 @@ public class GcodeTabController implements Initializable {
                 try {
                     logger.info("[!]Stopping Job Clearing Serial Queue...\n");
                     CommandManager.stopTinyGMovement();
+                    isSendingFile.set(false); //We set this to false to allow us to jog again
                 } catch (Exception ex) {
                     logger.error("handleStop " + ex.getMessage());
                 }
@@ -619,10 +647,6 @@ public class GcodeTabController implements Initializable {
                 for (int i = 0; i < gcodeCharLength; i++) {
                     GcodeLine _gcl = (GcodeLine) data.get(i);
 
-
-
-
-
                     if (isTaskActive() == false) {
                         //Cancel Button was pushed
                         tgfx.Main.postConsoleMessage("[!]File Sending Task Killed....\n");
@@ -643,18 +667,25 @@ public class GcodeTabController implements Initializable {
                         TinygDriver.getInstance().write(line.toString());
                     }
                 }
+                TinygDriver.getInstance().write("**FILEDONE**");
                 return true;
             }
         };
     }
 
+    public static void setIsFileSending(boolean flag) {
+        isSendingFile.set(flag);
+    }
+
     @FXML
     private void handleRunFile(ActionEvent evt) {
+        isSendingFile.set(true); //disables jogging while file is running
         taskActive = true; //Set the thread condition to start
         Task fileSend = fileSenderTask();
         Thread fsThread = new Thread(fileSend);
         fsThread.setName("FileSender");
         fsThread.start();
+
 
     }
 
@@ -746,10 +777,6 @@ public class GcodeTabController implements Initializable {
         }
         return true;
     }
-    
-    
-     
-     
 
     /*######################################
      * EVENT LISTENERS CODE

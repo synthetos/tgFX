@@ -36,6 +36,7 @@ public class TinygDriver extends Observable {
     
     
     
+    
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */

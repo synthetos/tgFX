@@ -52,7 +52,7 @@ public final class Machine {
     public Gcode_select_plane gcode_select_plane;
     public Gcode_coord_system gcode_select_coord_system;
     public Gcode_path_control gcode_path_control;
-    public Gcode_distance_mode gcode_distance_mode;
+    public Gcode_distance_mode gcode_distance_mode  = Gcode_distance_mode.ABSOLUTE;
     private boolean enable_acceleration;
     private float junction_acceleration;
     private float min_line_segment;
@@ -730,6 +730,9 @@ public final class Machine {
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_WORKOFFSETA):
                 TinygDriver.getInstance().m.getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
+                break;
+            case (MnemonicManager.MNEMONIC_STATUS_REPORT_TINYG_DISTANCE_MODE):
+                TinygDriver.getInstance().m.setGcodeDistanceMode(rc.getSettingValue());
                 break;
 
             /*
