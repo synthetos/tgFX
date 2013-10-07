@@ -74,7 +74,8 @@ public class Main extends Stage implements Initializable, Observer {
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
     final static ResourceBundle rb = ResourceBundle.getBundle("version");   //Used to track build date and build number
     
-    public final static String LOGLEVEL = "OFF";
+//    public final static String LOGLEVEL = "OFF";
+    public final static String LOGLEVEL = "INFO";
     /*
      * LCD DRO PROFILE CREATION
      */

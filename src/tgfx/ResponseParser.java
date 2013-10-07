@@ -76,13 +76,13 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser(BlockingQueue bq) {
         //Default constructor
         responseQueue = bq;
-        
+
         //Setup Logging for ResponseParser
-        if(Main.LOGLEVEL.equals("INFO")){
+        if (Main.LOGLEVEL.equals("INFO")) {
             logger.setLevel(org.apache.log4j.Level.INFO);
-        }else if( Main.LOGLEVEL.equals("ERROR")){
+        } else if (Main.LOGLEVEL.equals("ERROR")) {
             logger.setLevel(org.apache.log4j.Level.ERROR);
-        }else{
+        } else {
             logger.setLevel(org.apache.log4j.Level.OFF);
         }
 
@@ -100,7 +100,7 @@ public class ResponseParser extends Observable implements Runnable {
                 if (line.equals("")) {
                     continue;
                 }
-                if (line.startsWith("{") ) {
+                if (line.startsWith("{")) {
                     if (isTEXT_MODE()) {
                         setTEXT_MODE(false);
                         //This checks to see if we WERE in textmode.  If we were we notify the user that we are not longer and update the system state.
@@ -189,7 +189,7 @@ public class ResponseParser extends Observable implements Runnable {
             //so we can now just pass it to the applySettingStatusReport method.
             applySettingStatusReport(js);
         } else {
-            if (js.keySet().size() > 1) {
+             if (js.keySet().size() > 1) {
                 Iterator ii = js.keySet().iterator();
                 //This is a special multi single value response object
                 while (ii.hasNext()) {
@@ -255,7 +255,9 @@ public class ResponseParser extends Observable implements Runnable {
         String parentGroup;
         try {
 
-            if (js.keySet().size() > 1) { //If there are more than one object in the json response
+            if (js.length() == 0) {
+                //This is a blank object we just return and move on
+            } else if (js.keySet().size() > 1) { //If there are more than one object in the json response
                 Iterator ii = js.keySet().iterator();
                 //This is a special multi single value response object
                 while (ii.hasNext()) {
@@ -317,6 +319,7 @@ public class ResponseParser extends Observable implements Runnable {
 
         }
     }
+
     private void _applySettings(JSONObject js, String pg) throws Exception {
 
         switch (pg) {
@@ -423,20 +426,18 @@ public class ResponseParser extends Observable implements Runnable {
                 setChanged();
                 notifyObservers(message);
                 break;
-//            case (MNEMONIC_GROUP_STATUS_REPORT):
-//                logger.info("Status Report");
-//                TinygDriver.getInstance().m.applyJsonStatusReport(js.getJSONObject(MNEMONIC_GROUP_STATUS_REPORT), MNEMONIC_GROUP_STATUS_REPORT); //Send in the jsobject 
-//                setChanged();
-//                message[0] = "STATUS_REPORT";
-//                message[1] = null;
-//                notifyObservers(message);
-//
-//                break;
+            case (MNEMONIC_GROUP_STATUS_REPORT):
+                logger.info("Status Report");
+                applySettingMasterGroup(js, MNEMONIC_GROUP_STATUS_REPORT);
+                setChanged();
+                message[0] = "STATUS_REPORT";
+                message[1] = null;
+                notifyObservers(message);
+                break;
             case (MNEMONIC_GROUP_EMERGENCY_SHUTDOWN):
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-
                         MonologFXButton btnYes = MonologFXButtonBuilder.create()
                                 .defaultButton(true)
                                 .icon("/testmonologfx/dialog_apply.png")
@@ -543,7 +544,6 @@ public class ResponseParser extends Observable implements Runnable {
     public synchronized void parseJSON(String line) throws JSONException {
 
         logger.info("Got Line: " + line + " from TinyG.");
-
         final JSONObject js = new JSONObject(line);
 
         if (js.has("r") || (js.has("sr"))) {
@@ -551,18 +551,27 @@ public class ResponseParser extends Observable implements Runnable {
                 @Override
                 public void run() {
                     try {
-                        //These are the 2 types of responses we will get back.
-                        switch (js.keys().next().toString()) {
-                            case ("r"):
+                        //The new version of TinyG's footer has a footer element in each response.
+                        //We parse it here 
+                        if (js.has("f")) {
+                            parseFooter(js.getJSONArray("f"));
+                            if (js.has("r")) {
                                 applySetting(js.getJSONObject("r"));
-                                break;
-                            case ("sr"):
+                            } else if (js.has("sr")) {
                                 applySettingStatusReport(js.getJSONObject("sr"));
-                                break;
+                            }
 
+                        } else {  //This is where the old footer style is dealt with
 
-
-
+                            //These are the 2 types of responses we will get back.
+                            switch (js.keys().next().toString()) {
+                                case ("r"):
+                                    applySetting(js.getJSONObject("r"));
+                                    break;
+                                case ("sr"):
+                                    applySettingStatusReport(js.getJSONObject("sr"));
+                                    break;
+                            }
                         }
 
                     } catch (JSONException ex) {

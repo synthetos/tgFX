@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tgfx.tinyg.TinygDriver;
+import tgfx.ui.gcode.GcodeTabController;
 
 /**
  *
@@ -173,6 +174,11 @@ public class SerialWriter implements Runnable {
         while (RUN) {
             try {
                 tmpCmd = (String) queue.take();  //Grab the line
+                if(tmpCmd.equals("**FILEDONE**")){
+                    //Our end of file sending token has been detected.
+                    //We will not enable jogging by setting isSendingFile to false
+                    GcodeTabController.setIsFileSending(false);
+                }
                 this.write(tmpCmd);
             } catch (Exception ex) {
                 System.out.println("[!]Exception in SerialWriter Thread");
