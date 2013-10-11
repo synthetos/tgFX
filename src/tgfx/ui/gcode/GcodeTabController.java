@@ -33,10 +33,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.Mnemonic;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -76,6 +73,10 @@ public class GcodeTabController implements Initializable {
     public static SimpleBooleanProperty isSendingFile = new SimpleBooleanProperty(false);  //This tracks to see if we are sending a file to tinyg.  This allows us to NOT try to jog while sending files
     private boolean isKeyPressed = false;
     private double jogDial = 0;
+    private double FEED_RATE_PERCENTAGE = .05;  //%5
+    private double TRAVERSE_FEED_RATE = 1;  //%100
+    private double NUDGE_FEED_RATE = .05;  //%5
+    
     /*  ######################## FXML ELEMENTS ############################*/
     @FXML
     private Lcd xLcd, yLcd, zLcd, aLcd, velLcd; //DRO Lcds
@@ -149,21 +150,24 @@ public class GcodeTabController implements Initializable {
                             return;   //This is going to toss out our initial SHIFT press for the z axis key combination.
                         }
 
+                        if (keyEvent.isShiftDown()) {
+                            //Alt is down so we make this into a Z movement
+                            FEED_RATE_PERCENTAGE = TRAVERSE_FEED_RATE;
+                        }else{
+                            FEED_RATE_PERCENTAGE = NUDGE_FEED_RATE;
+                        }
+
+                        //Y Axis Jogging Movement
                         if (_kc.equals(KeyCode.UP) || _kc.equals(KeyCode.DOWN)) {
-                            if (keyEvent.isShiftDown()) {
-                                //Alt is down so we make this into a Z movement
-                                _axis = "Z";
-                            } else {
-                                //This is and Y Axis Jog action
-                                _axis = "Y"; //Set the axis for this jog movment
-                            }
+                            //This is and Y Axis Jog action
+                            _axis = "Y"; //Set the axis for this jog movment
                             if (keyEvent.getCode().equals(KeyCode.UP)) {
                                 jogDial = TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis);
                             } else if (keyEvent.getCode().equals(KeyCode.DOWN)) {
                                 jogDial = (-1 * TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis)); //Invert this value by multiplying by -1
-
                             }
 
+                            //X Axis Jogging Movement
                         } else if (_kc.equals(KeyCode.RIGHT) || _kc.equals(KeyCode.LEFT)) {
                             //This is a X Axis Jog Action
                             _axis = "X"; //Set the axis for this jog movment
@@ -173,18 +177,25 @@ public class GcodeTabController implements Initializable {
 
                             } else if (keyEvent.getCode().equals(KeyCode.RIGHT)) {
                                 jogDial = TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis); //Invert this value by multiplying by -1
+                            }
 
+                            //Z Axis Jogging Movement
+                        } else if (_kc.equals(KeyCode.MINUS) || (_kc.equals(KeyCode.EQUALS))) {
+                            _axis = "Z";
+                            if (keyEvent.getCode().equals(KeyCode.MINUS)) {
+                                jogDial = (-1 * TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis));
+                            } else if (keyEvent.getCode().equals(KeyCode.EQUALS)) {
+                                jogDial = TinygDriver.getInstance().m.getJoggingIncrementByAxis(_axis); //Invert this value by multiplying by -1
                             }
                         }
-
-
 
 
                         try {
                             if (_axis.equals("X") || _axis.equals("Y") || _axis.equals("Z")) {
                                 // valid key pressed
                                 CommandManager.setIncrementalMovementMode();
-                                TinygDriver.getInstance().write("{\"GC\":\"G0" + _axis + jogDial + "\"}\n");
+                                TinygDriver.getInstance().write("{\"GC\":\"G1F" + (TinygDriver.getInstance().m.getAxisByName(_axis).getFeed_rate_maximum() * FEED_RATE_PERCENTAGE) + _axis + jogDial + "\"}\n");
+//                                TinygDriver.getInstance().write("{\"GC\":\"G0" + _axis + jogDial + "\"}\n");
                                 isKeyPressed = true;
                             }
 
@@ -200,7 +211,6 @@ public class GcodeTabController implements Initializable {
                     //We are sending a file... We need to post a messages
                     setGcodeTextTemp("Jogging Disabled... Sending File.");
                 }
-
             }
         };
 
