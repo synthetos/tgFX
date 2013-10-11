@@ -21,7 +21,7 @@ public class SerialWriter implements Runnable {
     private boolean RUN = true;
     private boolean cleared  = false;
     private String tmpCmd;
-    private int BUFFER_SIZE = 240;
+    private int BUFFER_SIZE = 180;
     public AtomicInteger buffer_available = new AtomicInteger(BUFFER_SIZE);
     private SerialDriver ser = SerialDriver.getInstance();
     private static final Object mutex = new Object();
