@@ -510,6 +510,7 @@ public class TinygDriver extends Observable {
 
     public void priorityWrite(Byte b) throws Exception {
         this.ser.priorityWrite(b);
+        System.out.println("+" + String.valueOf(b));
     }
 
     public void priorityWrite(String msg) throws Exception {
@@ -517,6 +518,7 @@ public class TinygDriver extends Observable {
             msg = msg + "\n";
         }
         ser.write(msg);
+        System.out.println("+" + msg);
     }
 
     /**

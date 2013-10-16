@@ -113,6 +113,7 @@ public class GcodeTabController implements Initializable {
      * Initializes the controller class.
      */
     public GcodeTabController() {
+        logger.setLevel(org.apache.log4j.Level.ERROR);
         logger.info("Gcode Controller Loaded");
         cncMachine.setOnMouseMoved(new EventHandler<MouseEvent>() {
             @Override
@@ -486,7 +487,7 @@ public class GcodeTabController implements Initializable {
             @Override
             public void changed(ObservableValue o, Object oldVal,
                     Object newVal) {
-                System.out.println("cncHeightChanged: " + cncMachine.getHeight());
+                logger.info("cncHeightChanged: " + cncMachine.getHeight());
 //                System.out.println(cncHeightString 
             }
         });
@@ -668,7 +669,9 @@ public class GcodeTabController implements Initializable {
                         }
 
                         if (_gcl.getCodeLine().toLowerCase().contains("(")) {
-                            tgfx.Main.postConsoleMessage("GCODE COMMENT:" + _gcl.getCodeLine());
+                            TinygDriver.getInstance().write("Comment:"+ _gcl.getCodeLine());
+//                            tgfx.Main.postConsoleMessage("GCODE COMMENT:" + _gcl.getCodeLine());
+                            continue;
 
                         }
 
@@ -713,7 +716,7 @@ public class GcodeTabController implements Initializable {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                logger.debug("handleOpenFile");
+//                logger.debug("handleOpenFile");
 
                 try {
                     tgfx.Main.postConsoleMessage("[+]Loading a gcode file.....\n");
@@ -755,7 +758,7 @@ public class GcodeTabController implements Initializable {
 
                         }
                     }
-                    logger.info("File Loading Complete");
+//                    logger.info("File Loading Complete");
                 } catch (FileNotFoundException ex) {
                     logger.error("File Not Found.");
                 } catch (Exception ex) {

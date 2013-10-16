@@ -73,7 +73,6 @@ public class Main extends Stage implements Initializable, Observer {
     private String PROMPT = "tinyg>";
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
     final static ResourceBundle rb = ResourceBundle.getBundle("version");   //Used to track build date and build number
-    
     public final static String LOGLEVEL = "OFF";
 //    public final static String LOGLEVEL = "INFO";
     /*
@@ -87,7 +86,6 @@ public class Main extends Stage implements Initializable, Observer {
      * FXML UI Components
      */
 //    Window gcodeWindow;
-   
     @FXML
     private Circle cursor;
     @FXML
@@ -117,10 +115,10 @@ public class Main extends Stage implements Initializable, Observer {
     @FXML
     HBox canvasHolder;
     @FXML
-    VBox topvbox, positionsVbox, tester,consoleVBox;
+    VBox topvbox, positionsVbox, tester, consoleVBox;
     @FXML
     private TabPane topTabPane;
-    
+
     public void testMessage(String message) {
         System.out.println("Message Hit");
 
@@ -128,11 +126,11 @@ public class Main extends Stage implements Initializable, Observer {
 
     public Main() {
         //Setup Logging for TinyG Driver
-        if(LOGLEVEL.equals("INFO")){
+        if (LOGLEVEL.equals("INFO")) {
 //            logger.setLevel(org.apache.log4j.Level.INFO);
-        }else if( LOGLEVEL.equals("ERROR")){
+        } else if (LOGLEVEL.equals("ERROR")) {
             logger.setLevel(org.apache.log4j.Level.ERROR);
-        }else{
+        } else {
             logger.setLevel(org.apache.log4j.Level.OFF);
         }
     }
@@ -221,23 +219,17 @@ public class Main extends Stage implements Initializable, Observer {
                 public void run() {
 
                     try {
-                        GcodeTabController.setGcodeTextTemp("Connecting...");
-                        //At first lets make sure everything is cleared and ready to talk
-//                        TinygDriver.getInstance().serialWriter.resetBuffer();
-//                        TinygDriver.getInstance().serialWriter.clearQueueBuffer();
+                        GcodeTabController.setGcodeTextTemp("Attempting to Connect to TinyG.");
                         TinygDriver.getInstance().serialWriter.notifyAck(); //If the serialWriter is in a wait state.. wake it up
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP); //Just waking things up.
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
-                        Thread.sleep(delayValue);
+                        //Thread.sleep(delayValue);  //Should not need this for query operations
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
-
-
                     } catch (Exception ex) {
                         logger.error("Error in OnConnectActions() " + ex.getMessage());
                     }
-
                 }
             });
 
@@ -256,26 +248,30 @@ public class Main extends Stage implements Initializable, Observer {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                   
+
                     try {
 
-                        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
+                        /*####################################
+                         *Priority Write's Must Observe the delays or you will smash TinyG as it goes into a "disable interrupt mode" to write values to EEPROM 
+                         #################################### */
+                        tg.priorityWrite(CommandManager.CMD_APPLY_JSON_VOBERSITY);
                         Thread.sleep(delayValue);
-
-                        TinygDriver.getInstance().write(CommandManager.CMD_APPLY_STATUS_UPDATE_INTERVAL);
+                        tg.priorityWrite(CommandManager.CMD_APPLY_STATUS_UPDATE_INTERVAL);
                         Thread.sleep(delayValue);
-                        tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);
+                        tg.priorityWrite(CommandManager.CMD_APPLY_TEXT_VOBERSITY);
                         Thread.sleep(delayValue);
-                        tg.write(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //SECOND
+                        tg.priorityWrite(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //SECOND
                         Thread.sleep(delayValue);
-                        tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //THIRD 
+                        tg.priorityWrite(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //THIRD 
                         Thread.sleep(600); //Setting the status report takes some time!  Just leave this alone.  This is a hardware limit..
                         //writing to the eeprom (so many values) is troublesome :)  Like geese.. (this one is for alden)
 
+
+                        /*####################################
+                         *Query Code gets the regular write method
+                         #################################### */
                         tg.cmdManager.queryAllMachineSettings();                    //SIXtH
                         Thread.sleep(delayValue);
-
-
                         tg.cmdManager.queryStatusReport();
                         Thread.sleep(delayValue);
                         tg.cmdManager.queryAllMotorSettings();
@@ -288,13 +284,6 @@ public class Main extends Stage implements Initializable, Observer {
                         Main.postConsoleMessage("Showing CNC Machine Preview...");
                         GcodeTabController.setGcodeTextTemp("TinyG Connected.");
 
-                        //            tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);          //FORTH
-                        //            Thread.sleep(300);
-                        //            tg.write(CommandManager.CMD_DEFAULT_ENABLE_JSON);           //FIFTH
-                        //            Thread.sleep(300);
-
-
-                        //            tg.write(CommandManager.CMD_QUERY_SYSTEM_SERIAL_BUFFER_LENGTH);//SECOND.5 :)
                     } catch (Exception ex) {
                         logger.error("Error in OnConnectActions() " + ex.getMessage());
                     }
@@ -315,30 +304,31 @@ public class Main extends Stage implements Initializable, Observer {
         //Get a list of serial ports on the system.
 
         if (serialPorts.getSelectionModel().getSelectedItem() == (null)) {
-            postConsoleMessage("[+]Error Connecting to Serial Port please select a valid port.\n");
+            postConsoleMessage("[!]Error Connecting to Serial Port please select a valid port.\n");
             return;
         }
         if (Connect.getText().equals("Connect") && serialPorts.getSelectionModel().getSelectedItem() != (null)) {
             String serialPortSelected = serialPorts.getSelectionModel().getSelectedItem().toString();
 
-            System.out.println("[+]Connecting...");
+            System.out.println("[*]Attempting to Connect to TinyG.");
 
             if (!tg.initialize(serialPortSelected, 115200)) {  //This will be true if we connected when we tried to!
                 //Our connect attempt failed. 
-                postConsoleMessage("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.\n");
-//                consoleAppendMessage("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.\n");
+                postConsoleMessage("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.");
+                postConsoleMessage("If you are OSX you need to make sure you have /var/lock created. Open a console (terminal) and type in these 2 commands.\n"
+                        + " sudo mkdir /var/lock\n "
+                        + "sudo chmod a+rw /var/lock\n "
+                        + "If that does not work make sure your port is not open with another application and restart tgFX.");
             }
 
             if (tg.isConnected().get()) {
 
-                postConsoleMessage("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
-//               tgfx.Main.postConsoleMessage("[+]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
+                postConsoleMessage("[*]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
                 Connect.setText("Disconnect");
 
                 /**
                  * *****************************
-                 * OnConnect Actions Called Here 
-                 * *****************************
+                 * OnConnect Actions Called Here *****************************
                  */
                 onConnectActions();
             }
@@ -366,9 +356,9 @@ public class Main extends Stage implements Initializable, Observer {
         TinygDriver.getInstance().serialWriter.resetBuffer();
         TinygDriver.getInstance().serialWriter.clearQueueBuffer();
         TinygDriver.getInstance().serialWriter.notifyAck();
-        buildChecked = false;
+        buildChecked = false; //Reset this so we can enable checking the build again on disconnect
         GcodeTabController.setGcodeTextTemp("TinyG Disconnected.");
-        
+
 
 
         //TODO Need to have a way to pull this out of the gcodePane via a message
@@ -429,12 +419,6 @@ public class Main extends Stage implements Initializable, Observer {
             postConsoleMessage("[!]TinyG Not Connected.. Ignoring System GUI Refresh Request....");
         }
     }
-    
-   
-     
-     
-     
-     
 
     @FXML
     private void handleKeyPress(final InputEvent event) throws Exception {
@@ -455,7 +439,7 @@ public class Main extends Stage implements Initializable, Observer {
             if ("".equals(command)) {
                 tg.write(CommandManager.CMD_QUERY_OK_PROMPT);
             }
-            
+
             tg.write(command);
             postConsoleMessage(command.replace("\n", ""));
             gcodeCommandHistory.addCommandToHistory(command);  //Add this command to the history
@@ -562,6 +546,7 @@ public class Main extends Stage implements Initializable, Observer {
                         if (!buildChecked && tg.isConnected().get()) {
                             //we do this once on connect, disconnect will reset this flag
                             onConnectActionsTwo();
+
                         }
                         break;
 
@@ -574,7 +559,7 @@ public class Main extends Stage implements Initializable, Observer {
                             onConnectActions();
 
                         }
-                        
+
                         break;
 
                     case ("BUILD_ERROR"):
@@ -641,7 +626,7 @@ public class Main extends Stage implements Initializable, Observer {
                                         logger.info("Clicked No");
                                         tg.disconnect();
                                         System.exit(0);
-                                       break;
+                                        break;
                                 }
                             }
                         });
@@ -685,7 +670,8 @@ public class Main extends Stage implements Initializable, Observer {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        logger.info("[+]tgFX is starting....");
+        
         /*####################################
          *MISC INIT CODE 
          #################################### */
@@ -698,125 +684,10 @@ public class Main extends Stage implements Initializable, Observer {
         final Logger serialDriverLogger = Logger.getLogger(SerialDriver.class);
         GcodeTabController.setGcodeText("TinyG Disconnected.");
 
-        /*#######################################################
-         * BINDINGS
-         * #####################################################*/
-
-
-
-//       srBuffer.textProperty().bind(TinygDriver.getInstance().serialWriter.buffer_available.asString());
-        
         //This disables the UI if we are not connected.
         consoleVBox.disableProperty().bind(TinygDriver.getInstance().connectionStatus.not());
         topTabPane.disableProperty().bind(TinygDriver.getInstance().connectionStatus.not());
         
-        
-        StringConverter sc = new StringConverter<Number>() {
-            @Override
-            public String toString(Number n) {
-                return String.valueOf(n.floatValue());
-            }
-
-            @Override
-            public Number fromString(String s) {
-
-
-                return Integer.valueOf(s);
-            }
-        };
-
-        srMomo.textProperty()
-                .bind(TinygDriver.getInstance().m.getMotionMode());
-        srVer.textProperty()
-                .bind(TinygDriver.getInstance().m.firmwareVersion);
-
-        srBuild.textProperty()
-                .bindBidirectional(TinygDriver.getInstance().m.firmwareBuild, sc);
-
-
-
-
-
-
-
-
-
-
-        srState.textProperty()
-                .bind(TinygDriver.getInstance().m.m_state);
-        srCoord.textProperty()
-                .bind(TinygDriver.getInstance().m.getCoordinateSystem());
-        srUnits.textProperty()
-                .bind(TinygDriver.getInstance().m.getGcodeUnitMode());
-
-
-
-//        widthSize.textProperty().bind( Bindings.format("%s",  cncMachine.widthProperty().divide(TinygDriver.getInstance().m.gcodeUnitDivision).asString().concat(TinygDriver.getInstance().m.getGcodeUnitMode())    ));  //.asString().concat(TinygDriver.getInstance().m.getGcodeUnitMode().get()));
-//        widthSize.textProperty().bind(cncWidthString);  //.asString().concat(TinygDriver.getInstance().m.getGcodeUnitMode().get()));
-//        heightSize.textProperty().bind(cncMachine.heightProperty().divide(TinygDriver.getInstance().m.gcodeUnitDivision).asString().concat(TinygDriver.getInstance().m.getGcodeUnitMode()));
-
-
-
-        srCoord.textProperty()
-                .bind(TinygDriver.getInstance().m.gcm.getCurrentGcodeCoordinateSystemName());
-        srGcodeLine.textProperty()
-                .bind(TinygDriver.getInstance().m.getLineNumberSimple().asString());
-
-
-        /*
-         * If unit=mm 
-         work_position = mpo_ - ofs_
-         If unit=in
-         work_position = (mpo_ - ofs_) / 25.4
-         A is always 
-         work_position_a = mpoa - ofsa
-         */
-
-
-
-
-
-
-
-        /*######################################
-         * LOGGER CONFIG
-         ######################################*/
-        BasicConfigurator.configure();
-
-//        logger.setLevel(Level.ERROR);
-//        logger.setLevel(Level.INFO);
-        
-        logger.info("[+]tgFX is starting....");
-        
-
-
-
-        /*##########################
-         * SOCKET NETWORK INIT CODE
-         ##########################/*
-         //SocketMonitor sm;
-         //Thread remoteListener = new Thread(initRemoteServer("8888"));
-         //remoteListener.setName("Remote Listener Thread");
-         //remoteListener.start();
-
-        
-         /*######################################
-         * WEB PAGE SUPPORT
-         ######################################*/
-
-//        final WebEngine webEngine = html.getEngine();
-//        final WebEngine webEngine2 = makerCam.getEngine();
-//
-//        Platform.runLater(
-//                new Runnable() {
-//            @Override
-//            public void run() {
-//                webEngine.load("https://github.com/synthetos/TinyG/wiki");
-//                webEngine2.load("http://simplegcoder.com/js_editor/");
-//            }
-//        });
-
-
         /*######################################
          * THREAD INITS
          ######################################*/
@@ -831,10 +702,69 @@ public class Main extends Stage implements Initializable, Observer {
         threadResponseParser.setDaemon(true);
         threadResponseParser.setName("ResponseParser");
         threadResponseParser.start();
+        
+        
+        /*######################################
+         * LOGGER CONFIG
+         ######################################*/
+        BasicConfigurator.configure();
+        //        logger.setLevel(Level.ERROR);
+        //        logger.setLevel(Level.INFO);
 
-        /*#################################################################
-         * CHANGE LISTENERS
-         ##################################################################*/
+
+        /*#######################################################
+         * String Converters
+         * #####################################################*/
+        StringConverter sc = new StringConverter<Number>() {
+            @Override
+            public String toString(Number n) {
+                return String.valueOf(n.floatValue());
+            }
+
+            @Override
+            public Number fromString(String s) {
+                return Integer.valueOf(s);
+            }
+        };
+
+        /*#######################################################
+         * BINDINGS
+         * #####################################################*/
+        srMomo.textProperty().bind(TinygDriver.getInstance().m.getMotionMode());
+        srVer.textProperty().bind(TinygDriver.getInstance().m.firmwareVersion);
+        srBuild.textProperty().bindBidirectional(TinygDriver.getInstance().m.firmwareBuild, sc);
+        srState.textProperty().bind(TinygDriver.getInstance().m.m_state);
+        srCoord.textProperty().bind(TinygDriver.getInstance().m.getCoordinateSystem());
+        srUnits.textProperty().bind(TinygDriver.getInstance().m.getGcodeUnitMode());
+        srCoord.textProperty().bind(TinygDriver.getInstance().m.gcm.getCurrentGcodeCoordinateSystemName());
+        srGcodeLine.textProperty().bind(TinygDriver.getInstance().m.getLineNumberSimple().asString());
+
+
+        /*##########################
+         * SOCKET NETWORK INIT CODE
+         ##########################/*
+         //SocketMonitor sm;
+         //Thread remoteListener = new Thread(initRemoteServer("8888"));
+         //remoteListener.setName("Remote Listener Thread");
+         //remoteListener.start();
+
+        
+         /*######################################
+         * WEB PAGE SUPPORT
+         ######################################*/
+//        final WebEngine webEngine = html.getEngine();
+//        final WebEngine webEngine2 = makerCam.getEngine();
+//
+//        Platform.runLater(
+//                new Runnable() {
+//            @Override
+//            public void run() {
+//                webEngine.load("https://github.com/synthetos/TinyG/wiki");
+//                webEngine2.load("http://simplegcoder.com/js_editor/");
+//            }
+//        });
+
+
         /*############################################
          * BUILD VERSIONING CODE
          ############################################*/
@@ -843,9 +773,7 @@ public class Main extends Stage implements Initializable, Observer {
 //
 //        //Set our build / versions in the tgFX settings tab.
 //        tgfxBuildDate.setText(buildDate);
-        
-        
-        
+
         //This is the input text box change listener.
         //Made the blinky line at the end of the box so you can edit the value quickly
 //        input.textProperty().addListener(new ChangeListener<String>() {
@@ -861,10 +789,5 @@ public class Main extends Stage implements Initializable, Observer {
 //
 //               }
 //          });
-
-
-
     }
 }
-
-//  

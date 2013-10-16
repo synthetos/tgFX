@@ -544,6 +544,7 @@ public class ResponseParser extends Observable implements Runnable {
     public synchronized void parseJSON(String line) throws JSONException {
 
         logger.info("Got Line: " + line + " from TinyG.");
+        System.out.println("-" + line);
         final JSONObject js = new JSONObject(line);
 
         if (js.has("r") || (js.has("sr"))) {

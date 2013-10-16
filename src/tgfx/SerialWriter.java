@@ -22,7 +22,7 @@ public class SerialWriter implements Runnable {
     private boolean RUN = true;
     private boolean cleared  = false;
     private String tmpCmd;
-    private int BUFFER_SIZE = 240;
+    private int BUFFER_SIZE = 180;
     public AtomicInteger buffer_available = new AtomicInteger(BUFFER_SIZE);
     private SerialDriver ser = SerialDriver.getInstance();
     private static final Object mutex = new Object();
@@ -162,6 +162,7 @@ public class SerialWriter implements Runnable {
             }
 
             ser.write(str);
+            System.out.println("+" + str);
             logger.info("Wrote Line --> " + str);
         } catch (Exception ex) {
             logger.error("Error in SerialDriver Write");
@@ -178,6 +179,10 @@ public class SerialWriter implements Runnable {
                     //Our end of file sending token has been detected.
                     //We will not enable jogging by setting isSendingFile to false
                     GcodeTabController.setIsFileSending(false);
+                }else if(tmpCmd.startsWith("Comment:")){
+                    //Display current gcode comment
+                    GcodeTabController.setGcodeTextTemp("Comment: " + tmpCmd);
+                    continue;
                 }
                 this.write(tmpCmd);
             } catch (Exception ex) {

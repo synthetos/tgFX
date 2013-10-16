@@ -25,7 +25,7 @@
 <?import jfxtras.labs.scene.control.window.*?>
 <?scenebuilder-classpath-element ../../lib/jfxtras-labs-2.2-r6-20130520.173858-1.jar?>
 
-<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
+<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.Main">
   <children>
     <BorderPane disable="false" prefHeight="-1.0" prefWidth="-1.0" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
@@ -154,7 +154,7 @@
       <top>
         <HBox fx:id="topMainTitle" alignment="BOTTOM_CENTER" maxHeight="105.0" minHeight="80.0" opacity="1.0" prefHeight="80.0" rotate="0.0" style="" visible="true">
           <children>
-            <AnchorPane id="topMainTitle" depthTest="INHERIT" minHeight="90.0" minWidth="-Infinity" prefHeight="90.0" rotate="0.0" style="" HBox.hgrow="ALWAYS">
+            <AnchorPane id="topMainTitle" depthTest="INHERIT" minHeight="70.0" minWidth="-Infinity" prefHeight="70.0" rotate="0.0" style="" HBox.hgrow="ALWAYS">
               <children>
                 <StackPane layoutX="0.0" prefHeight="39.0" rotate="0.0" style="" AnchorPane.topAnchor="7.0">
                   <children>
