@@ -4,26 +4,24 @@
  */
 package tgfx.updater.firmware;
 
-import java.net.URL;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.ResourceBundle;
-import javafx.application.Platform;
-import javafx.fxml.Initializable;
-import tgfx.Main;
-import tgfx.tinyg.*;
-import gnu.io.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import tgfx.Main;
+import tgfx.tinyg.*;
 
 /**
  * FXML Controller class
@@ -59,6 +57,8 @@ public class FirmwareUpdaterController implements Initializable {
                 }
 
                 System.out.println("Trying to enter bootloader mode");
+                Main.postConsoleMessage("Entering Bootloader mode.  tgFX will be un-responsive for then next 30 seconds.\n"
+                        + "Your TinyG will start blinking rapidly while being programmed");
                 enterBootloaderMode();
 
 
@@ -68,6 +68,7 @@ public class FirmwareUpdaterController implements Initializable {
                     url = new URL(tinygHexFileUrl);
                     URLConnection urlConnection = url.openConnection();
                     System.out.println("Opened Connection to Github");
+                    Main.postConsoleMessage("Downloading tinyg.hex file from github.com");
                     InputStream input;
                     input = urlConnection.getInputStream();
 
@@ -80,6 +81,7 @@ public class FirmwareUpdaterController implements Initializable {
                             }
                         }
                         output.close();
+                        Main.postConsoleMessage("Finished Downloading tinyg.hex");
                         System.out.println("Finished Downloading tinyg.hex");
                     }
                 } catch (MalformedURLException ex) {
@@ -93,16 +95,16 @@ public class FirmwareUpdaterController implements Initializable {
                 try {
                     Process process = rt.exec(avrdudePath + " -p x192a3 -C " + avrconfigPath + " -c avr109 -b 115200 -P " + TinygDriver.getInstance().getPortName() + " -U flash:w:tinyg.hex");
                     InputStream is = process.getInputStream();
-
+                    Main.postConsoleMessage("Attempting to update TinyG's firmware.");
                     process.waitFor();
 
                 } catch (IOException ex) {
                     Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                // /avrdude -p x192a3 -C ../etc/avrdude.conf -c avr109 -b 115200 -P /dev/cu.usbserial-AE01DVZI -U flash:w:
+                }                
                 System.out.println("Updating TinyG Now... Please Wait");
+                
             }
         });
     }
