@@ -17,7 +17,9 @@
 <?import javafx.scene.text.*?>
 <?import javafx.scene.web.*?>
 
-<Tab closable="false" disable="false" text="Machine Settings" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.ui.machinesettings.MachineSettingsController">
+<?import tgfx.updater.firmware.*?>
+
+<Tab closable="false" disable="false" text="Machine Settings" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.ui.machinesettings.MachineSettingsController">
   <content>
     <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0">
       <children>
@@ -27,7 +29,7 @@
               <children>
                 <VBox id="machineSettingsVbox" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
                   <children>
-                    <HBox prefHeight="-1.0" prefWidth="-1.0" style="" visible="true" VBox.vgrow="ALWAYS">
+                    <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" style="" visible="true" VBox.vgrow="ALWAYS">
                       <children>
                         <VBox id="VBox" alignment="TOP_CENTER" blendMode="SRC_OVER" spacing="5.0" style="&#10;" HBox.hgrow="NEVER">
                           <children>
@@ -138,7 +140,25 @@
                             </HBox>
                           </children>
                         </VBox>
-                        <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS" />
+                        
+                        <fx:include source="../../updater/firmware/firmwareUpdater.fxml" />
+<!--                        <VBox fx:id="firmwareUpdateVbox" alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                          <children>
+                            <HBox alignment="TOP_CENTER" minWidth="-1.0" prefWidth="-1.0" style="-fx-background-color: black;" VBox.vgrow="NEVER">
+                              <children>
+                                <Label  alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Firmware Update" />
+                              </children>
+                              <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="z6" />
+                              </padding>
+                              <VBox.margin>
+                                <Insets fx:id="x82" />
+                              </VBox.margin>
+                            </HBox>
+                          </children>
+                        </VBox>
+                        -->
+                        
                         <VBox id="vBox2" alignment="TOP_RIGHT" disable="true" fillWidth="true" maxWidth="-1.0" minWidth="250.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10; " visible="true" HBox.hgrow="NEVER">
                           <children>
                             <HBox id="hBox4" alignment="TOP_CENTER" style="-fx-background-color: black;" VBox.vgrow="NEVER">

@@ -65,6 +65,7 @@ import tgfx.ui.tinygconfig.TinyGConfigController;
 
 public class Main extends Stage implements Initializable, Observer {
 
+    public static String OS = System.getProperty("os.name").toLowerCase();
     private int delayValue = 150; //Time between config set'ers.
     private boolean buildChecked = false;  //this is checked apon initial connect.  Once this is set to true
     //if a buildVersion changed message comes in it will not refire onConnect2() again and again
@@ -118,6 +119,30 @@ public class Main extends Stage implements Initializable, Observer {
     VBox topvbox, positionsVbox, tester, consoleVBox;
     @FXML
     private TabPane topTabPane;
+
+    public static String getOperatingSystem() {
+        if (isWindows()) {
+            return ("win");
+        } else if (isMac()) {
+            return ("mac");
+        } else if (isUnix()) {
+            return ("unix");
+        } else {
+            return ("win");
+        }
+    }
+
+    private static boolean isWindows() {
+        return (OS.indexOf("win") >= 0);
+    }
+
+    private static boolean isMac() {
+        return (OS.indexOf("mac") >= 0);
+    }
+
+    private static boolean isUnix() {
+        return (OS.indexOf("nux") >= 0);
+    }
 
     public void testMessage(String message) {
         System.out.println("Message Hit");
@@ -671,7 +696,7 @@ public class Main extends Stage implements Initializable, Observer {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         logger.info("[+]tgFX is starting....");
-        
+
         /*####################################
          *MISC INIT CODE 
          #################################### */
@@ -687,7 +712,7 @@ public class Main extends Stage implements Initializable, Observer {
         //This disables the UI if we are not connected.
         consoleVBox.disableProperty().bind(TinygDriver.getInstance().connectionStatus.not());
         topTabPane.disableProperty().bind(TinygDriver.getInstance().connectionStatus.not());
-        
+
         /*######################################
          * THREAD INITS
          ######################################*/
@@ -702,8 +727,8 @@ public class Main extends Stage implements Initializable, Observer {
         threadResponseParser.setDaemon(true);
         threadResponseParser.setName("ResponseParser");
         threadResponseParser.start();
-        
-        
+
+
         /*######################################
          * LOGGER CONFIG
          ######################################*/

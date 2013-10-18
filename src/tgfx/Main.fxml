@@ -152,11 +152,11 @@
         </TabPane>
       </center>
       <top>
-        <HBox fx:id="topMainTitle" alignment="BOTTOM_CENTER" maxHeight="105.0" minHeight="80.0" opacity="1.0" prefHeight="80.0" rotate="0.0" style="" visible="true">
+        <HBox fx:id="topMainTitle" alignment="CENTER" maxHeight="105.0" minHeight="80.0" opacity="1.0" prefHeight="80.0" rotate="0.0" style="" visible="true">
           <children>
-            <AnchorPane id="topMainTitle" depthTest="INHERIT" minHeight="70.0" minWidth="-Infinity" prefHeight="70.0" rotate="0.0" style="" HBox.hgrow="ALWAYS">
+            <AnchorPane id="topMainTitle" depthTest="INHERIT" maxHeight="-Infinity" minHeight="-1.0" minWidth="-Infinity" opacity="1.0" prefHeight="-1.0" prefWidth="-1.0" rotate="0.0" style="" HBox.hgrow="ALWAYS">
               <children>
-                <StackPane layoutX="0.0" prefHeight="39.0" rotate="0.0" style="" AnchorPane.topAnchor="7.0">
+                <StackPane layoutX="0.0" prefHeight="-1.0" rotate="0.0" style="">
                   <children>
                     <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" StackPane.alignment="TOP_CENTER">
                       <children>
@@ -189,7 +189,7 @@
                     <Long fx:value="-1" />
                   </prefWidth>
                 </StackPane>
-                <HBox alignment="CENTER" prefHeight="105.0" AnchorPane.rightAnchor="20.0">
+                <HBox alignment="CENTER" layoutY="20.0" prefHeight="-1.0" AnchorPane.rightAnchor="0.0">
                   <children>
                     <Label fx:id="serialTitle" alignment="CENTER" prefHeight="27.0" prefWidth="131.0" text="Serial Ports: " />
                     <ChoiceBox fx:id="serialPorts" focusTraversable="false" minHeight="21.0" minWidth="120.0" HBox.hgrow="ALWAYS" />
@@ -204,9 +204,9 @@
                   </spacing>
                 </HBox>
               </children>
-              <prefWidth>
-                <Long fx:value="-1" />
-              </prefWidth>
+              <padding>
+                <Insets right="15.0" />
+              </padding>
             </AnchorPane>
           </children>
           <prefWidth>
