@@ -60,6 +60,7 @@ import jfxtras.labs.dialogs.MonologFXButtonBuilder;
 
 import tgfx.render.CNCMachine;
 import tgfx.ui.gcode.GcodeTabController;
+import static tgfx.ui.gcode.GcodeTabController.isSendingFile;
 import tgfx.ui.machinesettings.MachineSettingsController;
 import tgfx.ui.tinygconfig.TinyGConfigController;
 
@@ -518,6 +519,9 @@ public class Main extends Stage implements Initializable, Observer {
 //        });
 //
 //    }
+    
+    private int oldRspLine=0;
+    
     @Override
     public synchronized void update(Observable o, Object arg) {
 //
@@ -539,6 +543,19 @@ public class Main extends Stage implements Initializable, Observer {
                 switch (ROUTING_KEY) {
                     case ("STATUS_REPORT"):
                         tgfx.ui.gcode.GcodeTabController.drawCanvasUpdate();
+                        int rspLine = TinygDriver.getInstance().m.getLineNumber();
+
+                        // Scroll Gcode view to stay in synch with TinyG acks during file send
+                        if (rspLine != oldRspLine && GcodeTabController.isSendingFile.get() ) {
+                            GcodeTabController.scrollView(rspLine);
+                            // Check for gaps in TinyG acks - Note comments are not acked
+                            if (rspLine != oldRspLine + 1) {
+                                int gap = oldRspLine + 1;
+                                if (gap != 1)
+                                    postConsoleMessage("NO RESPONSE FOR N" + gap  );
+                            }
+                            oldRspLine = rspLine;
+                        }
                     //TODO we need to push this into a message as well.
 //                        break;
                     case ("CMD_GET_AXIS_SETTINGS"):

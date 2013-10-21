@@ -87,7 +87,7 @@ public class GcodeTabController implements Initializable {
     @FXML
     private TableColumn<GcodeLine, String> gcodeCol;
     @FXML
-    private TableView gcodeView;
+    private static TableView gcodeView;
     @FXML
     private Text xAxisLocation, yAxisLocation;
     @FXML
@@ -678,6 +678,7 @@ public class GcodeTabController implements Initializable {
                         line.setLength(0);
                         line.append("{\"gc\":\"").append(_gcl.getCodeLine()).append("\"}\n");
                         TinygDriver.getInstance().write(line.toString());
+                         Thread.sleep(300);
                     }
                 }
                 TinygDriver.getInstance().write("**FILEDONE**");
@@ -839,5 +840,11 @@ public class GcodeTabController implements Initializable {
         cncMachine.autoScaleWorkTravelSpace(scaleAmount);
 //        widthSize.setText(decimalFormat.format(TinygDriver.getInstance().m.getAxisByName("x").getTravel_maximum()) + " " + TinygDriver.getInstance().m.getGcodeUnitMode().getValue());
 
+    }
+    
+    // Scroll Gcode table view to specified line
+        public static void scrollView(int lineNum)  {
+        if (isSendingFile.get() )
+             gcodeView.scrollTo(lineNum);
     }
 }
