@@ -7,18 +7,38 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import tgfx.updater.firmware.*?>
 
 <AnchorPane prefHeight="-1.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.updater.firmware.FirmwareUpdaterController">
   <children>
-    <VBox id="firmwareUpdateVbox" alignment="TOP_CENTER" prefHeight="51.0" prefWidth="153.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <VBox id="firmwareUpdateVbox" alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="300.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
         <HBox id="none" alignment="CENTER" minWidth="-1.0" prefWidth="-1.0" style="-fx-background-color: black;" VBox.vgrow="NEVER">
           <children>
             <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Firmware Update" />
           </children>
         </HBox>
-        <Button mnemonicParsing="false" onAction="#handleUpdateFirmware" text="Update Firmware" />
+        <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+          <children>
+            <HBox prefHeight="-1.0" prefWidth="-1.0">
+              <children>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Current Firmware Version is:" />
+                <Label fx:id="currentFirmwareVersionLabel" text="" />
+              </children>
+            </HBox>
+            <HBox prefHeight="-1.0" prefWidth="-1.0">
+              <children>
+                <Button id="checkFirmwareUpdate" mnemonicParsing="false" onAction="#checkFirmwareUpdate" text="Check For Updates" />
+              </children>
+            </HBox>
+            <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+              <children>
+                <Button mnemonicParsing="false" onAction="#handleUpdateFirmware" text="Update Firmware" />
+              </children>
+            </HBox>
+          </children>
+        </VBox>
       </children>
       <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" />

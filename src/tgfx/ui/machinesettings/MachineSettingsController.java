@@ -34,18 +34,26 @@ public class MachineSettingsController implements Initializable {
 
     private static final Logger logger = Logger.getLogger(MachineSettingsController.class);
     @FXML
-    private Label hwVersion, firmwareVersion, buildNumb, hardwareId;
+    private static Label firmwareVersion;
+    @FXML
+    private Label hwVersion, buildNumb, hardwareId;
     @FXML
     private ListView configsListView;
     @FXML
     private static ChoiceBox machineSwitchType, machineUnitMode;
    
 
+    public static double getCurrentBuildNumber(){
+        return(Double.valueOf(firmwareVersion.getText()));
+    }
+    
     public static void updateGuiMachineSettings() {
         machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcodeUnitModeAsInt());
         machineSwitchType.getSelectionModel().select(TinygDriver.getInstance().m.getSwitchType());
     }
 
+    
+    
     /**
      * Initializes the controller class.
      */

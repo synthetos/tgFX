@@ -32,8 +32,11 @@
                 </HBox>
                 <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="200.0" spacing="15.0">
                   <children>
-                    <Label id="lblMachine" text="Draw Preview" />
-                    <ToggleButton fx:id="settingDrawBtn" maxWidth="77.0" minWidth="77.0" mnemonicParsing="false" onAction="#handleTogglePreview" prefWidth="77.0" text="Enabled" HBox.hgrow="NEVER" />
+                    <Label id="lblMachine" text="Draw Preview">
+                      <graphic>
+                        <ToggleButton fx:id="settingDrawBtn" maxWidth="77.0" minWidth="77.0" mnemonicParsing="false" onAction="#handleTogglePreview" prefWidth="77.0" text="Enabled" />
+                      </graphic>
+                    </Label>
                   </children>
                 </HBox>
               </children>
@@ -74,6 +77,31 @@
                       </graphic>
                     </Label>
                   </children>
+                </HBox>
+              </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" HBox.hgrow="ALWAYS" HBox.margin="$x5">
+              <children>
+                <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="200.0" style="-fx-background-color:black">
+                  <children>
+                    <Label text="Debug" textFill="WHITE" />
+                  </children>
+                </HBox>
+                <HBox alignment="TOP_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0">
+                  <children>
+                    <Label id="lblVersion" text="">
+                      <graphic>
+                        <Label id="lblMachine" text="Debug Mode">
+                          <graphic>
+                            <ToggleButton id="settingDrawBtn" maxWidth="77.0" minWidth="77.0" mnemonicParsing="false" onAction="#handleTogglePreview" prefWidth="77.0" text="Enabled" />
+                          </graphic>
+                        </Label>
+                      </graphic>
+                    </Label>
+                  </children>
+                  <VBox.margin>
+                    <Insets top="5.0" fx:id="x5" />
+                  </VBox.margin>
                 </HBox>
               </children>
             </VBox>

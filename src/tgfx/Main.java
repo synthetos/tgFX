@@ -610,7 +610,7 @@ public class Main extends Stage implements Initializable, Observer {
                                 MonologFX mono = MonologFXBuilder.create()
                                         .titleText("TinyG Firware Build Outdated...")
                                         .message("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.m.getFirmwareBuild() + "\n"
-                                        + "Minmal Needed Version: " + tg.getMINIMAL_BUILD_VERSION() + "\n\n"
+                                        + "Minmal Needed Version: " + tg.getMINIMAL_BUILD_VERSIONS() + "\n\n"
                                         + "Click ok to display firmware updating instructions. \nA Internet Connection is Required."
                                         + "\nClicking No will exit tgFX.")
                                         .button(btnYes)

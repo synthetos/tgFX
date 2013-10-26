@@ -17,11 +17,17 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.NumberExpression;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import tgfx.Main;
 import tgfx.tinyg.*;
+import tgfx.ui.machinesettings.MachineSettingsController;
 
 /**
  * FXML Controller class
@@ -30,10 +36,19 @@ import tgfx.tinyg.*;
  */
 public class FirmwareUpdaterController implements Initializable {
 
+    @FXML
+    private Label currentFirmwareVersionLabel;
+    
+    @FXML 
+    private Button handleUpdateFirmware;
+    
+    private SimpleDoubleProperty _currentVersionString = new SimpleDoubleProperty();
     private String tinygHexFileUrl = "https://raw.github.com/synthetos/TinyG/master/firmware/tinyg/default/tinyg.hex";
     private String avrdudePath = new String();
     private String avrconfigPath = new String();
     static HashMap<String, String> platformSetup = new HashMap<>();
+    private String currentFirmwareFile = "https://raw.github.com/synthetos/TinyG/master/version.current";
+    
 
     /**
      * Initializes the controller class.
@@ -45,7 +60,6 @@ public class FirmwareUpdaterController implements Initializable {
             @Override
             public void run() {
 
-//                avrconfigPath = "../tools" + File.separator + "config" + File.separator + "avrdude.conf";
                 File avc = new File("tools" + File.separator + "config" + File.separator + "avrdude.conf");
                 avrconfigPath = avc.getAbsolutePath().toString();
                 if (Main.getOperatingSystem().equals("mac")) {
@@ -102,16 +116,80 @@ public class FirmwareUpdaterController implements Initializable {
                     Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
-                }                
+                }
                 System.out.println("Updating TinyG Now... Please Wait");
-                
+
             }
         });
     }
 
+    @FXML
+    private void checkFirmwareUpdate(ActionEvent event) {
+        System.out.println("Checking current Firmware Version");
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL(currentFirmwareFile);
+                    URLConnection urlConnection = url.openConnection();
+
+                    //                    
+                    //                Main.postConsoleMessage("Downloading tinyg.hex file from github.com");
+                    InputStream input;
+                    input = urlConnection.getInputStream();
+                    byte[] buffer = new byte[4096];
+                    System.out.println("Checking end");
+                    input.read(buffer);
+                    String _currentVersionString = new String(buffer);
+                    Double currentVal;
+                    if(TinygDriver.getInstance().m.getFirmwareBuild() < Double.valueOf(_currentVersionString)){
+                        
+                    }
+                    
+//                    currentVal.valueOf(avrdudePath)
+//                    
+//                    
+//                    
+//                    FirmwareVersionLabel.setText(_currentVersionString);
+//                    if(currentFirmwareVersionLabel.getAlignment())
+
+                    
+
+
+
+
+
+                    //                    try (OutputStream output = new FileOutputStream(new File("tinyg.hex"))) {
+                    //                        byte[] buffer = new byte[4096];
+                    //                        int n = -1;
+                    //                        while ((n = input.read(buffer)) != -1) {
+                    //                            if (n > 0) {
+                    //                                output.write(buffer, 0, n);
+                    //                            }
+                    //                        }
+                    //                        output.close();
+                    //                        Main.postConsoleMessage("Finished Downloading tinyg.hex");
+                    //                
+                    //
+                } catch (MalformedURLException ex) {
+                    Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+
+            }
+        });
+
+    }
+
+    //https://github.com/synthetos/TinyG/blob/master/readme.md
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        NumberExpression ne = new SimpleDoubleProperty(_currentVersionString.doubleValue()).subtract(TinygDriver.getInstance().m.getFirmwareBuild());
+        
+//        BooleanExpression be = new SimpleDoubleProperty(TinygDriver.getInstance().m.getFirmwareVersion());
+//        _currentVersionString.TinygDriver.getInstance().m.firmwareBuild);
     }
 
     protected void enterBootloaderMode() {

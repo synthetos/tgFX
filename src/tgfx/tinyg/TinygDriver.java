@@ -23,7 +23,9 @@ import tgfx.system.Machine;
 import tgfx.system.Motor;
 
 public class TinygDriver extends Observable {
-    private double MINIMAL_BUILD_VERSION = 377.08;
+
+    
+    private double MINIMAL_BUILD_VERSIONS[] = {377.08, 13.01};
     static final Logger logger = Logger.getLogger(TinygDriver.class);
     public Machine m = Machine.getInstance();
     public QueueReport qr = QueueReport.getInstance();
@@ -32,10 +34,7 @@ public class TinygDriver extends Observable {
     public CommandManager cmdManager = new CommandManager();
     private String[] message = new String[2];
     public SimpleBooleanProperty connectionStatus = new SimpleBooleanProperty(false);
-    
-    
-    
-    
+    private String platformHardwareName = "";
     
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
@@ -55,35 +54,57 @@ public class TinygDriver extends Observable {
      *
      * @return
      */
-    public double getMINIMAL_BUILD_VERSION() {
-        return MINIMAL_BUILD_VERSION;
+    public double[] getMINIMAL_BUILD_VERSIONS() {
+        return MINIMAL_BUILD_VERSIONS;
     }
 
-    public void setMINIMAL_BUILD_VERSION(double MINIMAL_BUILD_VERSION) {
-        this.MINIMAL_BUILD_VERSION = MINIMAL_BUILD_VERSION;
-    }
+//    public voic addMin
+//    
+//    public void setMINIMAL_BUILD_VERSION(double MINIMAL_BUILD_VERSION) {
+//        this.MINIMAL_BUILD_VERSION = MINIMAL_BUILD_VERSION;
+//    }
+    public void notifyBuildChanged() {
 
-    
-    
-    
-    public void notifyBuildChanged(){
-       
-        if (this.m.getFirmwareBuild() < MINIMAL_BUILD_VERSION && this.m.getFirmwareBuild() != 0.0) {
-            //too old of a build  we need to tell the GUI about this... This is where PUB/SUB will fix this 
-            //bad way of alerting the gui about model changes.
-            message[0]  = "BUILD_ERROR";
-            message[1] = Double.toString(TinygDriver.getInstance().m.getFirmwareBuild());
-            setChanged();
-            notifyObservers(message);
-             logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is NOT OK");
-        } else{
-            logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is OK");
-            message[0]  = "BUILD_OK";
-            message[1] = null;
-            setChanged();
-            notifyObservers(message);
+        int _size = this.getMINIMAL_BUILD_VERSIONS().length;
+        double _versions[] = this.getMINIMAL_BUILD_VERSIONS();
+
+        if(this.m.getFirmwareVersion().toString().startsWith("13")){
+                setPlatformHardwareName("Arduino Due");
+            }
+        
+
+        for (int i = 0; i <= _size; i++) {
+            //Loop to get our minimal versions.  
+            //We have more than one since the Due port does versioning different.
+            
+            
+            if (this.m.getFirmwareBuild() <= _versions[i] && this.m.getFirmwareBuild() != 21.01 && this.m.getFirmwareBuild() != 0.0) {
+                //too old of a build  we need to tell the GUI about this... This is where PUB/SUB will fix this 
+                //bad way of alerting the gui about model changes.
+                message[0] = "BUILD_ERROR";
+                message[1] = Double.toString(TinygDriver.getInstance().m.getFirmwareBuild());
+                setChanged();
+                notifyObservers(message);
+                logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is NOT OK");
+            } else {
+                logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is OK");
+                message[0] = "BUILD_OK";
+                message[1] = null;
+                setChanged();
+                notifyObservers(message);
+            }
         }
     }
+
+    public String getPlatformHardwareName() {
+        return platformHardwareName;
+    }
+
+    public void setPlatformHardwareName(String platformHardwareName) {
+        this.platformHardwareName = platformHardwareName;
+    }
+
+    
     
     public static TinygDriver getInstance() {
         return TinygDriverHolder.INSTANCE;
@@ -423,13 +444,13 @@ public class TinygDriver extends Observable {
     }
 
     private TinygDriver() {
-        
-       //Setup Logging for TinyG Driver
-        if(Main.LOGLEVEL.equals("INFO")){
+
+        //Setup Logging for TinyG Driver
+        if (Main.LOGLEVEL.equals("INFO")) {
 //            logger.setLevel(org.apache.log4j.Level.INFO);
-        }else if( Main.LOGLEVEL.equals("ERROR")){
+        } else if (Main.LOGLEVEL.equals("ERROR")) {
             logger.setLevel(org.apache.log4j.Level.ERROR);
-        }else{
+        } else {
             logger.setLevel(org.apache.log4j.Level.OFF);
         }
     }
@@ -443,8 +464,6 @@ public class TinygDriver extends Observable {
     public synchronized void addObserver(Observer obsrvr) {
         super.addObserver(obsrvr);
     }
-
-
 
     public void appendJsonQueue(String line) {
         // This adds full normalized json objects to our jsonQueue.
@@ -494,9 +513,9 @@ public class TinygDriver extends Observable {
     public SimpleBooleanProperty isConnected() {
         //Our binding to keep tabs in the us of if we are connected to TinyG or not.
         //This is mostly used to disable the UI if we are not connected.
-         connectionStatus.set(this.ser.isConnected());
-         return(connectionStatus);
-        }
+        connectionStatus.set(this.ser.isConnected());
+        return (connectionStatus);
+    }
 
     /**
      * All Methods involving writing to TinyG.. This messages will call the

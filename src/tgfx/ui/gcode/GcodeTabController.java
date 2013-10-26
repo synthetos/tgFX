@@ -752,6 +752,7 @@ public class GcodeTabController implements Initializable {
                                 _linenumber++;
                             } else {
                                 Main.postConsoleMessage("ERROR: Your gcode file contains an invalid character.. Either !,% or ~. Remove this character and try again.");
+                                
                                 data.clear(); //Remove all other previous entered lines
                                 break;
                             }

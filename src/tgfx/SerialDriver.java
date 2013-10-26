@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
+
 /**
  *
  * @author ril3y
@@ -30,6 +31,8 @@ public class SerialDriver implements SerialPortEventListener {
     public byte[] debugBuffer = new byte[1024];
     public ArrayList<String> lastRes = new ArrayList();
     public double offsetPointer = 0;
+ 
+    
   
 
     public void write(String str) {
