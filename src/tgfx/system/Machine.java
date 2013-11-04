@@ -4,6 +4,7 @@
  */
 package tgfx.system;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -429,7 +430,7 @@ public final class Machine {
         return firmwareBuild.getValue();
     }
 
-    public void setFirmwareBuild(double firmware_build) {
+    public void setFirmwareBuild(double firmware_build) throws IOException, JSONException {
 
         this.firmwareBuild.set(firmware_build);
         TinygDriver.getInstance().notifyBuildChanged();
@@ -755,7 +756,7 @@ public final class Machine {
     }
 
 //This is the main method to parser a JSON sys object
-    public void applyJsonSystemSetting(JSONObject js, String parent) {
+    public void applyJsonSystemSetting(JSONObject js, String parent) throws IOException {
         logger.info("Applying JSON Object to System Group");
         Iterator ii = js.keySet().iterator();
         try {

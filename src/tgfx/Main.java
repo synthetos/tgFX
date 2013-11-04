@@ -6,6 +6,7 @@
  */
 package tgfx;
 
+import java.io.IOException;
 import tgfx.tinyg.TinygDriver;
 import java.net.URL;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ import org.apache.log4j.Logger;
 
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
+import java.util.Timer;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
@@ -47,7 +49,6 @@ import javafx.util.StringConverter;
 import jfxtras.labs.scene.control.gauge.Lcd;
 import jfxtras.labs.scene.control.gauge.LcdBuilder;
 import jfxtras.labs.scene.control.gauge.StyleModel;
-import org.apache.log4j.Level;
 import tgfx.ui.gcode.GcodeHistory;
 import tgfx.system.StatusCode;
 import tgfx.tinyg.CommandManager;
@@ -57,6 +58,7 @@ import javafx.stage.Stage;
 import jfxtras.labs.dialogs.MonologFX;
 import jfxtras.labs.dialogs.MonologFXBuilder;
 import jfxtras.labs.dialogs.MonologFXButtonBuilder;
+import org.json.JSONException;
 
 import tgfx.render.CNCMachine;
 import tgfx.ui.gcode.GcodeTabController;
@@ -76,17 +78,6 @@ public class Main extends Stage implements Initializable, Observer {
     final static ResourceBundle rb = ResourceBundle.getBundle("version");   //Used to track build date and build number
     public final static String LOGLEVEL = "OFF";
 //    public final static String LOGLEVEL = "INFO";
-    /*
-     * LCD DRO PROFILE CREATION
-     */
-//    private Pane cncMachine = new Pane();
-    /**
-     * JFXtras stuff
-     */
-    /**
-     * FXML UI Components
-     */
-//    Window gcodeWindow;
     @FXML
     private Circle cursor;
     @FXML
@@ -127,9 +118,15 @@ public class Main extends Stage implements Initializable, Observer {
             return ("mac");
         } else if (isUnix()) {
             return ("unix");
+        } else if (isLinux()) {
+            return ("linux");  //not tested yet 380.08
         } else {
             return ("win");
         }
+    }
+
+    private static boolean isLinux() {
+        return (OS.indexOf("lin") >= 0);
     }
 
     private static boolean isWindows() {
@@ -244,6 +241,8 @@ public class Main extends Stage implements Initializable, Observer {
                 public void run() {
 
                     try {
+                        Timer timer = new Timer("connectTimout");
+                        
                         GcodeTabController.setGcodeTextTemp("Attempting to Connect to TinyG.");
                         TinygDriver.getInstance().serialWriter.notifyAck(); //If the serialWriter is in a wait state.. wake it up
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP); //Just waking things up.
@@ -285,9 +284,9 @@ public class Main extends Stage implements Initializable, Observer {
                         Thread.sleep(delayValue);
                         tg.priorityWrite(CommandManager.CMD_APPLY_TEXT_VOBERSITY);
                         Thread.sleep(delayValue);
-                        tg.priorityWrite(CommandManager.CMD_APPLY_DISABLE_XON_XOFF);        //SECOND
+                        tg.priorityWrite(CommandManager.CMD_APPLY_FLOWCONTROL);
                         Thread.sleep(delayValue);
-                        tg.priorityWrite(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);    //THIRD 
+                        tg.priorityWrite(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);
                         Thread.sleep(600); //Setting the status report takes some time!  Just leave this alone.  This is a hardware limit..
                         //writing to the eeprom (so many values) is troublesome :)  Like geese.. (this one is for alden)
 
@@ -368,7 +367,7 @@ public class Main extends Stage implements Initializable, Observer {
         }
     }
 
-    public void onDisconnectActions() {
+    public void onDisconnectActions() throws IOException, JSONException {
         TinygDriver.getInstance().m.setFirmwareBuild(0.0);
         TinygDriver.getInstance().m.firmwareBuild.set(0);
         TinygDriver.getInstance().m.firmwareVersion.set("");

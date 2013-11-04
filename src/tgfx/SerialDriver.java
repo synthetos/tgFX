@@ -129,8 +129,16 @@ public class SerialDriver implements SerialPortEventListener {
         String portArray[] = null;
         while (ports.hasMoreElements()) {
             CommPortIdentifier port = (CommPortIdentifier) ports.nextElement();
-            if (port.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-                portList.add(port.getName());
+            
+            if (port.getPortType() == CommPortIdentifier.PORT_SERIAL && !port.getName().contains("Bluetooth")) {  //remove default bluetooth ports
+                
+                if(Main.getOperatingSystem().equals("mac")){
+                    if(port.getName().contains("tty")){
+                        continue; //We want to remove the the duplicate tty's and just provide the "cu" ports in the drop down.
+                    }
+                }
+                
+                portList.add(port.getName());  //Go ahead and add the ports that made it though the logic above
             }
         }
         portArray = (String[]) portList.toArray(new String[0]);
@@ -138,6 +146,7 @@ public class SerialDriver implements SerialPortEventListener {
     }
 
     public boolean initialize(String port, int DATA_RATE) {
+        
         int TIME_OUT = 2000;
         this.port = port;
 
@@ -169,6 +178,9 @@ public class SerialDriver implements SerialPortEventListener {
 
             logger.debug("[+]Opened " + port + " successfully.");
             setConnected(true); //Register that this is connectionState.
+            
+            
+            
             return true;
 
         } catch (PortInUseException ex) {

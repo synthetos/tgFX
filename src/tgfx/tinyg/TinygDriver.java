@@ -3,16 +3,16 @@
  */
 package tgfx.tinyg;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.logging.Level;
-import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import tgfx.Main;
 import tgfx.ResponseParser;
 import tgfx.SerialDriver;
@@ -21,10 +21,10 @@ import tgfx.ui.gcode.GcodeLine;
 import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
+import tgfx.hardwarePlatforms.HardwarePlatform;
 
 public class TinygDriver extends Observable {
 
-    
     private double MINIMAL_BUILD_VERSIONS[] = {377.08, 13.01};
     static final Logger logger = Logger.getLogger(TinygDriver.class);
     public Machine m = Machine.getInstance();
@@ -34,8 +34,8 @@ public class TinygDriver extends Observable {
     public CommandManager cmdManager = new CommandManager();
     private String[] message = new String[2];
     public SimpleBooleanProperty connectionStatus = new SimpleBooleanProperty(false);
-    private String platformHardwareName = "";
-    
+//    private String platformHardwareName = "";
+    public HardwarePlatform hardwarePlatform;
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
@@ -63,49 +63,50 @@ public class TinygDriver extends Observable {
 //    public void setMINIMAL_BUILD_VERSION(double MINIMAL_BUILD_VERSION) {
 //        this.MINIMAL_BUILD_VERSION = MINIMAL_BUILD_VERSION;
 //    }
-    public void notifyBuildChanged() {
+    public void notifyBuildChanged() throws IOException, JSONException {
 
         int _size = this.getMINIMAL_BUILD_VERSIONS().length;
         double _versions[] = this.getMINIMAL_BUILD_VERSIONS();
 
-        if(this.m.getFirmwareVersion().toString().startsWith("13")){
-                setPlatformHardwareName("Arduino Due");
-            }
+
+        if (TinygDriver.getInstance().m.getFirmwareBuild() < 200 && TinygDriver.getInstance().m.getFirmwareBuild() > 0.0) {
+            //This is a bit of a hack at the moment.  If currently the Due port is no where near 200
+            //so this works.  However eventually?  This will break.
+            HardwarePlatform.getInstance().getPlatformByName("ArduinoDue");
+        }else{
+            HardwarePlatform.getInstance().getPlatformByName("TinyG");
+        }
+
+
         
 
-        for (int i = 0; i <= _size; i++) {
-            //Loop to get our minimal versions.  
-            //We have more than one since the Due port does versioning different.
+        if (this.m.getFirmwareBuild() < TinygDriver.getInstance().hardwarePlatform.getMinimalBuildVersion() && 
+                this.m.getFirmwareBuild() != 0.0) {
             
-            
-            if (this.m.getFirmwareBuild() <= _versions[i] && this.m.getFirmwareBuild() != 21.01 && this.m.getFirmwareBuild() != 0.0) {
-                //too old of a build  we need to tell the GUI about this... This is where PUB/SUB will fix this 
-                //bad way of alerting the gui about model changes.
-                message[0] = "BUILD_ERROR";
-                message[1] = Double.toString(TinygDriver.getInstance().m.getFirmwareBuild());
-                setChanged();
-                notifyObservers(message);
-                logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is NOT OK");
-            } else {
-                logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is OK");
-                message[0] = "BUILD_OK";
-                message[1] = null;
-                setChanged();
-                notifyObservers(message);
-            }
+            //too old of a build  we need to tell the GUI about this... This is where PUB/SUB will fix this 
+            //bad way of alerting the gui about model changes.
+            message[0] = "BUILD_ERROR";
+            message[1] = Double.toString(TinygDriver.getInstance().m.getFirmwareBuild());
+            setChanged();
+            notifyObservers(message);
+            logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is NOT OK");
+        } else {
+            logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is OK");
+            message[0] = "BUILD_OK";
+            message[1] = null;
+            setChanged();
+            notifyObservers(message);
         }
+
     }
 
-    public String getPlatformHardwareName() {
-        return platformHardwareName;
-    }
-
-    public void setPlatformHardwareName(String platformHardwareName) {
-        this.platformHardwareName = platformHardwareName;
-    }
-
-    
-    
+//    public String getPlatformHardwareName() {
+//        return platformHardwareName;
+//    }
+//
+//    public void setPlatformHardwareName(String platformHardwareName) {
+//        this.platformHardwareName = platformHardwareName;
+//    }
     public static TinygDriver getInstance() {
         return TinygDriverHolder.INSTANCE;
     }

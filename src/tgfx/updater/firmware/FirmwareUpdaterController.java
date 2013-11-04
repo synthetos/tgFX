@@ -17,7 +17,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.NumberExpression;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
@@ -27,7 +26,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import tgfx.Main;
 import tgfx.tinyg.*;
-import tgfx.ui.machinesettings.MachineSettingsController;
 
 /**
  * FXML Controller class
@@ -43,11 +41,15 @@ public class FirmwareUpdaterController implements Initializable {
     private Button handleUpdateFirmware;
     
     private SimpleDoubleProperty _currentVersionString = new SimpleDoubleProperty();
-    private String tinygHexFileUrl = "https://raw.github.com/synthetos/TinyG/master/firmware/tinyg/default/tinyg.hex";
+
+//    private String tinygHexFileUrl = TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl();
+
+    //    private String tinygHexFileUrl = "https://raw.github.com/synthetos/TinyG/master/firmware/tinyg/default/tinyg.hex";
     private String avrdudePath = new String();
     private String avrconfigPath = new String();
     static HashMap<String, String> platformSetup = new HashMap<>();
-    private String currentFirmwareFile = "https://raw.github.com/synthetos/TinyG/master/version.current";
+//    private String currentFirmwareFile = "https://raw.github.com/synthetos/TinyG/master/version.current";
+//    private String currentFirmwareFile = TinygDriver.getInstance().hardwarePlatform.getLatestVersionUrl();
     
 
     /**
@@ -79,7 +81,7 @@ public class FirmwareUpdaterController implements Initializable {
                 //Download TinyG.hex
                 URL url;
                 try {
-                    url = new URL(tinygHexFileUrl);
+                    url = new URL(TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl());
                     URLConnection urlConnection = url.openConnection();
                     System.out.println("Opened Connection to Github");
                     Main.postConsoleMessage("Downloading tinyg.hex file from github.com");
@@ -112,9 +114,7 @@ public class FirmwareUpdaterController implements Initializable {
                     Main.postConsoleMessage("Attempting to update TinyG's firmware.");
                     process.waitFor();
 
-                } catch (IOException ex) {
-                    Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
+                } catch (        IOException | InterruptedException ex) {
                     Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 System.out.println("Updating TinyG Now... Please Wait");
@@ -130,7 +130,7 @@ public class FirmwareUpdaterController implements Initializable {
             @Override
             public void run() {
                 try {
-                    URL url = new URL(currentFirmwareFile);
+                    URL url = new URL(TinygDriver.getInstance().hardwarePlatform.getLatestVersionUrl());
                     URLConnection urlConnection = url.openConnection();
 
                     //                    
