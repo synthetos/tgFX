@@ -107,6 +107,27 @@
                     <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" style="" HBox.hgrow="ALWAYS">
                       <children>
                         <HBox alignment="CENTER" fillHeight="true" prefHeight="-1.0" prefWidth="-1.0" style="" visible="true" HBox.hgrow="ALWAYS">
+                          <children>
+                            <GridPane>
+                              <children>
+                                <Label text="Elapsed" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <Label text="Left" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <Text fx:id="timeElapsedTxt" strokeType="OUTSIDE" strokeWidth="0.0" text="00:00" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Text fx:id="timeLeftTxt" strokeType="OUTSIDE" strokeWidth="0.0" text="00:00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              </children>
+                              <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              </columnConstraints>
+                              <rowConstraints>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              </rowConstraints>
+                              <HBox.margin>
+                                <Insets left="5.0" right="5.0" />
+                              </HBox.margin>
+                            </GridPane>
+                          </children>
                           <padding>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
                           </padding>
@@ -145,7 +166,7 @@
                 </HBox>
               </children>
               <effect>
-                <DropShadow color="WHITE" height="8.857142857142914" radius="3.928571428571443" spread="0.49206349206349204" width="8.857142857142858" />
+                <DropShadow color="WHITE" height="8.857142857142886" radius="3.928571428571436" spread="0.49206349206349204" width="8.857142857142858" />
               </effect>
               <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />

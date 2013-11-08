@@ -547,7 +547,7 @@ public class Main extends Stage implements Initializable, Observer {
 
                         // Scroll Gcode view to stay in synch with TinyG acks during file send
                         if (rspLine != oldRspLine && GcodeTabController.isSendingFile.get() ) {
-                            GcodeTabController.scrollView(rspLine);
+                            GcodeTabController.updateProgress(rspLine);
                             // Check for gaps in TinyG acks - Note comments are not acked
                             if (rspLine != oldRspLine + 1) {
                                 int gap = oldRspLine + 1;

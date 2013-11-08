@@ -438,6 +438,8 @@ public class ResponseParser extends Observable implements Runnable {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
+                        Main.postConsoleMessage("TinyG Alarm " + line);
+                        
                         MonologFXButton btnYes = MonologFXButtonBuilder.create()
                                 .defaultButton(true)
                                 .icon("/testmonologfx/dialog_apply.png")
