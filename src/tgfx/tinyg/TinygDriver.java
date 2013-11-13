@@ -65,6 +65,10 @@ public class TinygDriver extends Observable {
 //    public void setMINIMAL_BUILD_VERSION(double MINIMAL_BUILD_VERSION) {
 //        this.MINIMAL_BUILD_VERSION = MINIMAL_BUILD_VERSION;
 //    }
+    
+    
+    
+    
     public void notifyBuildChanged() throws IOException, JSONException {
 
 //        int _size = this.getMINIMAL_BUILD_VERSIONS().length;
@@ -78,8 +82,12 @@ public class TinygDriver extends Observable {
 //        }else{
 //            HardwarePlatform.getInstance().getPlatformByName("TinyG");
 //        }
-
-
+        if(this.hardwarePlatform.getMinimalBuildVersion() < this.m.getFirmwareBuild()){
+            //This checks to see if the current build version on TinyG is greater than what tgFX's hardware profile needs.
+        
+        }
+        
+       
         
 
         if (this.m.getFirmwareBuild() < TinygDriver.getInstance().hardwarePlatform.getMinimalBuildVersion() && 

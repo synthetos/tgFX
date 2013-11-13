@@ -81,9 +81,9 @@ public class GcodeTabController implements Initializable {
     private static Date timeStartDt;
     /*  ######################## FXML ELEMENTS ############################*/
     @FXML
-    private static Text timeElapsedTxt; 
+    private static Text timeElapsedTxt;
     @FXML
-    private static Text timeLeftTxt; 
+    private static Text timeLeftTxt;
     @FXML
     private Lcd xLcd, yLcd, zLcd, aLcd, velLcd; //DRO Lcds
     @FXML
@@ -160,7 +160,7 @@ public class GcodeTabController implements Initializable {
                         if (keyEvent.isShiftDown()) {
                             //Alt is down so we make this into a Z movement
                             FEED_RATE_PERCENTAGE = TRAVERSE_FEED_RATE;
-                        }else{
+                        } else {
                             FEED_RATE_PERCENTAGE = NUDGE_FEED_RATE;
                         }
 
@@ -634,13 +634,12 @@ public class GcodeTabController implements Initializable {
             @Override
             public void run() {
                 try {
-                    
-                    TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_PLATFORM);
-//                    logger.info("[!]Stopping Job Clearing Serial Queue...\n");
-//                    CommandManager.stopTinyGMovement();
-//                    isSendingFile.set(false); //We set this to false to allow us to jog again
-                    
-                    
+
+                    logger.info("[!]Stopping Job Clearing Serial Queue...\n");
+                    CommandManager.stopTinyGMovement();
+                    isSendingFile.set(false); //We set this to false to allow us to jog again
+
+
                 } catch (Exception ex) {
                     logger.error("handleStop " + ex.getMessage());
                 }
@@ -652,7 +651,7 @@ public class GcodeTabController implements Initializable {
     @FXML
     static void handleTestButton(ActionEvent evt) throws Exception {
         //logger.info("Test Button....");
-        
+
         updateProgress(test);
         test += 5;
 
@@ -689,7 +688,7 @@ public class GcodeTabController implements Initializable {
                         }
 
                         if (_gcl.getCodeLine().toLowerCase().contains("(")) {
-                            TinygDriver.getInstance().write("Comment:"+ _gcl.getCodeLine());
+                            TinygDriver.getInstance().write("Comment:" + _gcl.getCodeLine());
 //                            tgfx.Main.postConsoleMessage("GCODE COMMENT:" + _gcl.getCodeLine());
                             continue;
 
@@ -877,9 +876,9 @@ public class GcodeTabController implements Initializable {
             long elapsed = (currentTimeDt.getTime() - timeStartDt.getTime());
             float rate = elapsed / lineNum;
             long remain = (long) ((totalGcodeLines - lineNum) * rate);  // remaining lines * secs per line
-            
-            timeElapsedTxt.setText( String.format("%02d:%02d", elapsed/60000, (elapsed/1000) % 60) ) ;
-            timeLeftTxt.setText(String.format("%02d:%02d", remain/60000, (remain/1000) % 60) ) ;
+
+            timeElapsedTxt.setText(String.format("%02d:%02d", elapsed / 60000, (elapsed / 1000) % 60));
+            timeLeftTxt.setText(String.format("%02d:%02d", remain / 60000, (remain / 1000) % 60));
         }
     }
 }

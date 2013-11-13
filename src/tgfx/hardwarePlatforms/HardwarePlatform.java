@@ -4,17 +4,8 @@
  */
 package tgfx.hardwarePlatforms;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-import tgfx.tinyg.TinygDriver;
 
 /**
  *
@@ -33,6 +24,17 @@ public class HardwarePlatform {
     private String latestVersionUrl;
     private String manufacturer;
     private String firmwareUrl;
+    private int hardwarePlatformVersion;
+    
+    public int getPlatformHardwareVersion(){
+        return this.hardwarePlatformVersion;
+    }
+
+    public void setHardwarePlatformVersion(int hardwarePlatformVersion) {
+        this.hardwarePlatformVersion = hardwarePlatformVersion;
+    }
+    
+    
 
     public String getPlatformName() {
         return platformName;

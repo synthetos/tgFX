@@ -178,7 +178,9 @@ public final class Machine {
     }
 
     public void setHardwareVersion(String hardwareVersion) {
-        this.hardwareVersion.set(hardwareVersion);
+        int h = Integer.valueOf(hardwareVersion);
+//        this.hardwareVersion.set(hardwareVersion);
+        TinygDriver.getInstance().hardwarePlatformManager.setHardwarePlatformByVersionNumber(h);
     }
 
 //    public static enum motion_modes {
@@ -769,6 +771,12 @@ public final class Machine {
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_HARDWARD_PLATFORM):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        TinygDriver.getInstance().hardwarePlatform.setHardwarePlatformVersion(Integer.valueOf(rc.getSettingValue()));
+                        break;
+
+                    case (MnemonicManager.MNEMONIC_SYSTEM_HARDWARE_VERSION):
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        TinygDriver.getInstance().hardwarePlatformManager.setHardwarePlatformByVersionNumber(Integer.valueOf(rc.getSettingValue()));
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO):
@@ -871,10 +879,7 @@ public final class Machine {
                         this.setHardwareId(rc.getSettingValue());
                         break;
 
-                    case (MnemonicManager.MNEMONIC_SYSTEM_HARDWARE_VERSION):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        this.setHardwareVersion(rc.getSettingValue());
-                        break;
+
 
 //                    case (MnemonicManager.MNEMONIC_SYSTEM_LAST_MESSAGE):
 //                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());

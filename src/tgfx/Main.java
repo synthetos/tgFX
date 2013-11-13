@@ -10,7 +10,6 @@ import java.io.IOException;
 import tgfx.tinyg.TinygDriver;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
@@ -66,7 +65,6 @@ import org.json.JSONException;
 
 import tgfx.render.CNCMachine;
 import tgfx.ui.gcode.GcodeTabController;
-import static tgfx.ui.gcode.GcodeTabController.isSendingFile;
 import tgfx.ui.machinesettings.MachineSettingsController;
 import tgfx.ui.tinygconfig.TinyGConfigController;
 
@@ -246,7 +244,7 @@ public class Main extends Stage implements Initializable, Observer {
                 public void run() {
 
                     try {
-                        Timer timer = new Timer("connectTimout");
+//                        Timer timer = new Timer("connectTimout");
 
                         GcodeTabController.setGcodeTextTemp("Attempting to Connect to TinyG.");
                         TinygDriver.getInstance().serialWriter.notifyAck(); //If the serialWriter is in a wait state.. wake it up
@@ -255,6 +253,7 @@ public class Main extends Stage implements Initializable, Observer {
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
                         
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_PLATFORM);
+                        TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_VERSION);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
                         //Thread.sleep(delayValue);  //Should not need this for query operations
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
@@ -556,8 +555,8 @@ public class Main extends Stage implements Initializable, Observer {
                             // Check for gaps in TinyG acks - Note comments are not acked
                             if (rspLine != oldRspLine + 1) {
                                 int gap = oldRspLine + 1;
-                                if (gap != 1)
-                                    postConsoleMessage("NO RESPONSE FOR N" + gap  );
+//                                if (gap != 1)
+//                                    postConsoleMessage("NO RESPONSE FOR N" + gap  );  //mikeh says not to put this in... so we won't.
                             }
                             oldRspLine = rspLine;
                         }
