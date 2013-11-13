@@ -97,6 +97,7 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_FIRMWARE_BUILD = "fb";
     public static final String MNEMONIC_SYSTEM_SWITCH_TYPE = "st";
     public static final String MNEMONIC_SYSTEM_FIRMWARE_VERSION = "fv";
+    public static final String MNEMONIC_SYSTEM_HARDWARD_PLATFORM = "hp";
     public static final String MNEMONIC_SYSTEM_JUNCTION_ACCELERATION = "ja";
     public static final String MNEMONIC_SYSTEM_MIN_LINE_SEGMENT = "ml";
     public static final String MNEMONIC_SYSTEM_MIN_ARC_SEGMENT = "ma";
@@ -154,6 +155,7 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_XON);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_FIRMWARE_BUILD);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_FIRMWARE_VERSION);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_HARDWARD_PLATFORM);
 //        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_UNIT_MODE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_IGNORE_CR);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_JSON_VOBERSITY);

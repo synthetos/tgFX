@@ -10,6 +10,7 @@ import java.io.IOException;
 import tgfx.tinyg.TinygDriver;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
@@ -31,6 +32,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 
+
 import jfxtras.labs.dialogs.MonologFXButton;
 import tgfx.render.Draw2d;
 import org.apache.log4j.Logger;
@@ -38,6 +40,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
 import java.util.Timer;
+import java.util.logging.Level;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
@@ -55,6 +58,7 @@ import tgfx.tinyg.CommandManager;
 
 
 import javafx.stage.Stage;
+
 import jfxtras.labs.dialogs.MonologFX;
 import jfxtras.labs.dialogs.MonologFXBuilder;
 import jfxtras.labs.dialogs.MonologFXButtonBuilder;
@@ -242,12 +246,14 @@ public class Main extends Stage implements Initializable, Observer {
 
                     try {
                         Timer timer = new Timer("connectTimout");
-                        
+
                         GcodeTabController.setGcodeTextTemp("Attempting to Connect to TinyG.");
                         TinygDriver.getInstance().serialWriter.notifyAck(); //If the serialWriter is in a wait state.. wake it up
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP); //Just waking things up.
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
+                        
+                        TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_PLATFORM);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
                         //Thread.sleep(delayValue);  //Should not need this for query operations
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
@@ -517,6 +523,7 @@ public class Main extends Stage implements Initializable, Observer {
 //        });
 //
 //    }
+    
     @Override
     public synchronized void update(Observable o, Object arg) {
 //
@@ -581,7 +588,6 @@ public class Main extends Stage implements Initializable, Observer {
                             onDisconnectActions();
                             CNCMachine.resetDrawingCoords();
                             onConnectActions();
-
                         }
 
                         break;
@@ -609,8 +615,8 @@ public class Main extends Stage implements Initializable, Observer {
                                 MonologFX mono = MonologFXBuilder.create()
                                         .titleText("TinyG Firware Build Outdated...")
                                         .message("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.m.getFirmwareBuild() + "\n"
-                                        + "Minmal Needed Version: " + tg.getMINIMAL_BUILD_VERSIONS() + "\n\n"
-                                        + "Click ok to display firmware updating instructions. \nA Internet Connection is Required."
+                                        + "Minmal Needed Version: " + tg.hardwarePlatform.getMinimalBuildVersion().toString() + "\n\n"
+                                        + "Click ok to attempt to auto upgrade your TinyG. \nA Internet Connection is Required."
                                         + "\nClicking No will exit tgFX.")
                                         .button(btnYes)
                                         .button(btnNo)
@@ -618,6 +624,7 @@ public class Main extends Stage implements Initializable, Observer {
                                         .build();
 
                                 MonologFXButton.Type retval = mono.showDialog();
+
 
 
 
@@ -633,8 +640,6 @@ public class Main extends Stage implements Initializable, Observer {
 
                                         stage.setScene(s);
                                         stage.show();
-
-
 
                                         Platform.runLater(
                                                 new Runnable() {
@@ -658,10 +663,6 @@ public class Main extends Stage implements Initializable, Observer {
 
                     default:
                         System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
-
-
-
-
                 }
             } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(Main.class

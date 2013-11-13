@@ -626,9 +626,13 @@ public class GcodeTabController implements Initializable {
             @Override
             public void run() {
                 try {
-                    logger.info("[!]Stopping Job Clearing Serial Queue...\n");
-                    CommandManager.stopTinyGMovement();
-                    isSendingFile.set(false); //We set this to false to allow us to jog again
+                    
+                    TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_PLATFORM);
+//                    logger.info("[!]Stopping Job Clearing Serial Queue...\n");
+//                    CommandManager.stopTinyGMovement();
+//                    isSendingFile.set(false); //We set this to false to allow us to jog again
+                    
+                    
                 } catch (Exception ex) {
                     logger.error("handleStop " + ex.getMessage());
                 }

@@ -6,7 +6,6 @@ package tgfx.hardwarePlatforms;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import tgfx.tinyg.TinygDriver;
 
 /**
@@ -22,6 +22,12 @@ import tgfx.tinyg.TinygDriver;
  */
 public class HardwarePlatform {
 
+    
+    private ArrayList<HardwarePlatform> availablePlatforms = new ArrayList<>();
+    
+ 
+    
+    
     private String platformName;
     private Double minimalBuildVersion;
     private String latestVersionUrl;
@@ -68,7 +74,7 @@ public class HardwarePlatform {
         this.minimalBuildVersion = minimalBuildVersion;
     }
 
-    private HardwarePlatform() {
+    public HardwarePlatform() {
     }
 
     public static HardwarePlatform getInstance() {
@@ -82,35 +88,6 @@ public class HardwarePlatform {
 
     public void applyPlatformConfig(File f) {
     }
-
-    public boolean getPlatformByName(String platformName) throws IOException {
-        String filename;
-        File file;
-        File folder = new File("hardwarePlatforms");
-        File[] listOfFiles = folder.listFiles();
-        
-
-
-
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-                file = listOfFiles[i].getAbsoluteFile();
-                if (file.getName().endsWith(".json")) {
-
-                    try {
-                        Gson gson = new Gson();
-                        BufferedReader br = new BufferedReader(new FileReader(file));
-                        TinygDriver.getInstance().hardwarePlatform = gson.fromJson(br, HardwarePlatform.class);
-                        if(TinygDriver.getInstance().hardwarePlatform.getPlatformName().equals(platformName)){
-                            return true;
-                        }
-
-                    } catch (FileNotFoundException | JsonSyntaxException | JsonIOException ex) {
-                        System.out.println(ex.getMessage());
-                    }
-                }
-            }
-        }
-        return false;
-    }
+    
+  
 }

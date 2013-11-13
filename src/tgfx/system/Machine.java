@@ -30,17 +30,15 @@ public final class Machine {
     //Machine EEPROM Values
     //binding
     public SimpleDoubleProperty longestTravelAxisValue = new SimpleDoubleProperty();
-    
     public SimpleIntegerProperty xjoggingIncrement = new SimpleIntegerProperty();
     public SimpleIntegerProperty yjoggingIncrement = new SimpleIntegerProperty();
     public SimpleIntegerProperty zjoggingIncrement = new SimpleIntegerProperty();
     public SimpleIntegerProperty ajoggingIncrement = new SimpleIntegerProperty();
-
-    
     public SimpleStringProperty m_state = new SimpleStringProperty();
     public SimpleStringProperty m_mode = new SimpleStringProperty();
     public SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();
     public StringProperty firmwareVersion = new SimpleStringProperty();
+    public SimpleDoubleProperty hardwarePlatform = new SimpleDoubleProperty(0);
     public StringProperty hardwareId = new SimpleStringProperty("na");
     public StringProperty hardwareVersion = new SimpleStringProperty("na");
     public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
@@ -53,7 +51,7 @@ public final class Machine {
     public Gcode_select_plane gcode_select_plane;
     public Gcode_coord_system gcode_select_coord_system;
     public Gcode_path_control gcode_path_control;
-    public Gcode_distance_mode gcode_distance_mode  = Gcode_distance_mode.ABSOLUTE;
+    public Gcode_distance_mode gcode_distance_mode = Gcode_distance_mode.ABSOLUTE;
     private boolean enable_acceleration;
     private float junction_acceleration;
     private float min_line_segment;
@@ -603,11 +601,10 @@ public final class Machine {
 
     }
 
-    public double getJoggingIncrementByAxis(String _axisName){
+    public double getJoggingIncrementByAxis(String _axisName) {
         return getAxisByName(_axisName).getTravelMaxSimple().get();
     }
-    
-    
+
     public GcodeCoordinateSystem getCoordinateSystemByName(String name) {
         for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
             if (_tmpGCS.getCoordinate().equals(name)) {
@@ -645,16 +642,16 @@ public final class Machine {
 
         List _allAxis = getAllAxis();
         List _retAxisList = new ArrayList();
-        
-        
+
+
         Axis _ax;
-        
+
         for (int i = 0; i < _allAxis.size(); i++) {
-            Axis a =  (Axis) _allAxis.get(i);
-            if(a.getAxisType().equals(Axis.AXIS_TYPE.LINEAR)){
+            Axis a = (Axis) _allAxis.get(i);
+            if (a.getAxisType().equals(Axis.AXIS_TYPE.LINEAR)) {
                 _retAxisList.add(a);
             }
-            
+
         }
         return _retAxisList;
 
@@ -766,8 +763,11 @@ public final class Machine {
                 final responseCommand rc = new responseCommand(parent, _key, _val);
 
                 switch (_key) {
+
                     case (MnemonicManager.MNEMONIC_SYSTEM_BAUDRATE):
-                        //todo do this
+                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
+                    case (MnemonicManager.MNEMONIC_SYSTEM_HARDWARD_PLATFORM):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 

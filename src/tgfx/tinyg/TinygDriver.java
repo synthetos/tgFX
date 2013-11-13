@@ -22,6 +22,7 @@ import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
 import tgfx.hardwarePlatforms.HardwarePlatform;
+import tgfx.hardwarePlatforms.HardwarePlatformManager;
 
 public class TinygDriver extends Observable {
 
@@ -35,7 +36,8 @@ public class TinygDriver extends Observable {
     private String[] message = new String[2];
     public SimpleBooleanProperty connectionStatus = new SimpleBooleanProperty(false);
 //    private String platformHardwareName = "";
-    public HardwarePlatform hardwarePlatform;
+    public HardwarePlatform hardwarePlatform = new HardwarePlatform();
+    public HardwarePlatformManager hardwarePlatformManager = new HardwarePlatformManager();
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
@@ -65,17 +67,17 @@ public class TinygDriver extends Observable {
 //    }
     public void notifyBuildChanged() throws IOException, JSONException {
 
-        int _size = this.getMINIMAL_BUILD_VERSIONS().length;
-        double _versions[] = this.getMINIMAL_BUILD_VERSIONS();
-
-
-        if (TinygDriver.getInstance().m.getFirmwareBuild() < 200 && TinygDriver.getInstance().m.getFirmwareBuild() > 0.0) {
-            //This is a bit of a hack at the moment.  If currently the Due port is no where near 200
-            //so this works.  However eventually?  This will break.
-            HardwarePlatform.getInstance().getPlatformByName("ArduinoDue");
-        }else{
-            HardwarePlatform.getInstance().getPlatformByName("TinyG");
-        }
+//        int _size = this.getMINIMAL_BUILD_VERSIONS().length;
+//        double _versions[] = this.getMINIMAL_BUILD_VERSIONS();
+//
+//
+//        if (TinygDriver.getInstance().m.getFirmwareBuild() < 200 && TinygDriver.getInstance().m.getFirmwareBuild() > 0.0) {
+//            //This is a bit of a hack at the moment.  If currently the Due port is no where near 200
+//            //so this works.  However eventually?  This will break.
+//            HardwarePlatform.getInstance().getPlatformByName("ArduinoDue");
+//        }else{
+//            HardwarePlatform.getInstance().getPlatformByName("TinyG");
+//        }
 
 
         

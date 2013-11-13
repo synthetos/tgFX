@@ -126,7 +126,7 @@ public class MachineSettingsController implements Initializable {
     @FXML
     private void handleApplyMachineSettings() {
         try {
-            TinygDriver.getInstance().cmdManager.applyMachineUnitMode(machineSwitchType.getSelectionModel().getSelectedIndex());
+            TinygDriver.getInstance().cmdManager.applyMachineSwitchMode(machineSwitchType.getSelectionModel().getSelectedIndex());
             TinygDriver.getInstance().cmdManager.applyMachineUnitMode(machineUnitMode.getSelectionModel().getSelectedIndex());
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
