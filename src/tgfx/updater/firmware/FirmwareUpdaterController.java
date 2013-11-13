@@ -24,7 +24,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import jfxtras.labs.dialogs.MonologFX;
+import jfxtras.labs.dialogs.MonologFXBuilder;
+import jfxtras.labs.dialogs.MonologFXButton;
+import static jfxtras.labs.dialogs.MonologFXButton.Type.CANCEL;
+import static jfxtras.labs.dialogs.MonologFXButton.Type.YES;
+import jfxtras.labs.dialogs.MonologFXButtonBuilder;
 import tgfx.Main;
+import tgfx.ResponseParser;
 import tgfx.tinyg.*;
 
 /**
@@ -36,21 +43,16 @@ public class FirmwareUpdaterController implements Initializable {
 
     @FXML
     private Label currentFirmwareVersionLabel;
-    
-    @FXML 
+    @FXML
     private Button handleUpdateFirmware;
-    
     private SimpleDoubleProperty _currentVersionString = new SimpleDoubleProperty();
-
 //    private String tinygHexFileUrl = TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl();
-
     //    private String tinygHexFileUrl = "https://raw.github.com/synthetos/TinyG/master/firmware/tinyg/default/tinyg.hex";
     private String avrdudePath = new String();
     private String avrconfigPath = new String();
     static HashMap<String, String> platformSetup = new HashMap<>();
 //    private String currentFirmwareFile = "https://raw.github.com/synthetos/TinyG/master/version.current";
 //    private String currentFirmwareFile = TinygDriver.getInstance().hardwarePlatform.getLatestVersionUrl();
-    
 
     /**
      * Initializes the controller class.
@@ -109,16 +111,22 @@ public class FirmwareUpdaterController implements Initializable {
                 Runtime rt = Runtime.getRuntime();
 
                 try {
+                    System.out.println("Updating TinyG Now... Please Wait");
                     Process process = rt.exec(avrdudePath + " -p x192a3 -C " + avrconfigPath + " -c avr109 -b 115200 -P " + TinygDriver.getInstance().getPortName() + " -U flash:w:tinyg.hex");
                     InputStream is = process.getInputStream();
                     Main.postConsoleMessage("Attempting to update TinyG's firmware.");
                     process.waitFor();
 
-                } catch (        IOException | InterruptedException ex) {
+                } catch (IOException | InterruptedException ex) {
                     Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                System.out.println("Updating TinyG Now... Please Wait");
-
+                try {
+                    TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESET);
+                    TinygDriver.getInstance().disconnect();
+                    
+                } catch (Exception ex) {
+                    Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -142,10 +150,60 @@ public class FirmwareUpdaterController implements Initializable {
                     input.read(buffer);
                     String _currentVersionString = new String(buffer);
                     Double currentVal;
-                    if(TinygDriver.getInstance().m.getFirmwareBuild() < Double.valueOf(_currentVersionString)){
-                        
+                    if (TinygDriver.getInstance().m.getFirmwareBuild() < Double.valueOf(_currentVersionString)) {
+                        //We need to update your firmware
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                Main.postConsoleMessage("TinyG Firmware Update Available.");
+
+                                MonologFXButton btnYes = MonologFXButtonBuilder.create()
+                                        .defaultButton(true)
+                                        .icon("/testmonologfx/dialog_apply.png")
+                                        .type(MonologFXButton.Type.YES)
+                                        .build();
+
+                                MonologFXButton btnNo = MonologFXButtonBuilder.create()
+                                        .cancelButton(true)
+                                        .icon("/testmonologfx/dialog_cancel.png")
+                                        .type(MonologFXButton.Type.CANCEL)
+                                        .build();
+
+                                MonologFX mono = MonologFXBuilder.create()
+                                        .titleText("Firmware Update Available")
+                                        .message("There is a firmware update available for your TinyG Hardware. \n"
+                                        + "\n Click Yes to start your firmware update.")
+                                        .button(btnYes)
+                                        .button(btnNo)
+                                        .type(MonologFX.Type.ERROR)
+                                        .build();
+
+                                MonologFXButton.Type retval = mono.showDialog();
+
+                                switch (retval) {
+                                    case YES:
+//                                logger.info("Clicked Yes");
+
+                                        try {
+                                            Main.postConsoleMessage("This is going to take about 30 seconds.... Please Wait... Watch the flashies....");
+                                            handleUpdateFirmware(new ActionEvent());
+
+                                        } catch (Exception ex) {
+                                            Main.postConsoleMessage("Error in updating firmware.");
+                                        }
+                                        break;
+                                    case CANCEL:
+//                                logger.info("Clicked No");
+                                        Main.postConsoleMessage("TinyG firmware update cancelled.");
+                                        break;
+                                }
+                            }
+                        });
+
+                    } else {
+                        Main.postConsoleMessage("Your " + TinygDriver.getInstance().hardwarePlatform.getPlatformName() + "'s firmware is up to date...\n");
                     }
-                    
+
 //                    currentVal.valueOf(avrdudePath)
 //                    
 //                    
@@ -153,7 +211,7 @@ public class FirmwareUpdaterController implements Initializable {
 //                    FirmwareVersionLabel.setText(_currentVersionString);
 //                    if(currentFirmwareVersionLabel.getAlignment())
 
-                    
+
 
 
 
@@ -187,7 +245,7 @@ public class FirmwareUpdaterController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         NumberExpression ne = new SimpleDoubleProperty(_currentVersionString.doubleValue()).subtract(TinygDriver.getInstance().m.getFirmwareBuild());
-        
+
 //        BooleanExpression be = new SimpleDoubleProperty(TinygDriver.getInstance().m.getFirmwareVersion());
 //        _currentVersionString.TinygDriver.getInstance().m.firmwareBuild);
     }
