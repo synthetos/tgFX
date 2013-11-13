@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import javafx.animation.FadeTransition;
@@ -58,7 +59,7 @@ import tgfx.ui.tgfxsettings.TgfxSettingsController;
  */
 public class GcodeTabController implements Initializable {
 
-    private byte[] BAD_BYTES = {(byte) 0x21, (byte) 0x18, (byte) 0x7e, (byte) 0x25};
+    private byte[] BAD_BYTES = {(byte) 0x21, (byte) 0x18, (byte) 0x7e};
     private double scaleAmount;
     private int buildNumber;
     private String buildDate;
@@ -76,8 +77,13 @@ public class GcodeTabController implements Initializable {
     private double FEED_RATE_PERCENTAGE = .05;  //%5
     private double TRAVERSE_FEED_RATE = 1;  //%100
     private double NUDGE_FEED_RATE = .05;  //%5
-    
+    private static int totalGcodeLines = 0;
+    private static Date timeStartDt;
     /*  ######################## FXML ELEMENTS ############################*/
+    @FXML
+    private static Text timeElapsedTxt; 
+    @FXML
+    private static Text timeLeftTxt; 
     @FXML
     private Lcd xLcd, yLcd, zLcd, aLcd, velLcd; //DRO Lcds
     @FXML
@@ -87,7 +93,7 @@ public class GcodeTabController implements Initializable {
     @FXML
     private TableColumn<GcodeLine, String> gcodeCol;
     @FXML
-    private TableView gcodeView;
+    private static TableView gcodeView;
     @FXML
     private Text xAxisLocation, yAxisLocation;
     @FXML
@@ -397,6 +403,8 @@ public class GcodeTabController implements Initializable {
 //            }
 //        });
 
+        timeStartDt = new Date();
+
         setCNCMachineVisible(false);  //We default to NOT display the CNC machine pane.  Once the serial port is connected we will show this.
         //This adds our CNC Machine (2d preview) to our display window
         if (!gcodePane.getChildren().contains(cncMachine)) {
@@ -639,10 +647,18 @@ public class GcodeTabController implements Initializable {
             }
         });
     }
+    static int test = 1;
 
     @FXML
-    void handleTestButton(ActionEvent evt) throws Exception {
-        logger.info("Test Button....");
+    static void handleTestButton(ActionEvent evt) throws Exception {
+        //logger.info("Test Button....");
+        
+        updateProgress(test);
+        test += 5;
+
+        //tgfx.Main.postConsoleMessage("Test!");
+        //timeElapsedTxt.setText("hello");
+
 //        Iterator ii = null;
 //        Line l;
 //        cncMachine.getChildren().iterator();
@@ -682,6 +698,7 @@ public class GcodeTabController implements Initializable {
                         line.setLength(0);
                         line.append("{\"gc\":\"").append(_gcl.getCodeLine()).append("\"}\n");
                         TinygDriver.getInstance().write(line.toString());
+                        Thread.sleep(300);
                     }
                 }
                 TinygDriver.getInstance().write("**FILEDONE**");
@@ -696,14 +713,16 @@ public class GcodeTabController implements Initializable {
 
     @FXML
     private void handleRunFile(ActionEvent evt) {
-        isSendingFile.set(true); //disables jogging while file is running
-        taskActive = true; //Set the thread condition to start
-        Task fileSend = fileSenderTask();
-        Thread fsThread = new Thread(fileSend);
-        fsThread.setName("FileSender");
-        fsThread.start();
-
-
+        if (!isSendingFile.get()) {
+            isSendingFile.set(true); //disables jogging while file is running
+            taskActive = true; //Set the thread condition to start
+            Task fileSend = fileSenderTask();
+            Thread fsThread = new Thread(fileSend);
+            fsThread.setName("FileSender");
+            timeStartDt = new Date();
+            updateProgress(1);
+            fsThread.start();
+        }
     }
 
     public synchronized boolean isTaskActive() {
@@ -756,13 +775,14 @@ public class GcodeTabController implements Initializable {
                                 _linenumber++;
                             } else {
                                 Main.postConsoleMessage("ERROR: Your gcode file contains an invalid character.. Either !,% or ~. Remove this character and try again.");
-                                
+                                Main.postConsoleMessage("  Line " + _linenumber);
                                 data.clear(); //Remove all other previous entered lines
                                 break;
                             }
 
                         }
                     }
+                    totalGcodeLines = _linenumber;
 //                    logger.info("File Loading Complete");
                 } catch (FileNotFoundException ex) {
                     logger.error("File Not Found.");
@@ -844,5 +864,22 @@ public class GcodeTabController implements Initializable {
         cncMachine.autoScaleWorkTravelSpace(scaleAmount);
 //        widthSize.setText(decimalFormat.format(TinygDriver.getInstance().m.getAxisByName("x").getTravel_maximum()) + " " + TinygDriver.getInstance().m.getGcodeUnitMode().getValue());
 
+    }
+
+    // Scroll Gcode table view to specified line, show elapsed and remaining time
+    public static void updateProgress(int lineNum) {
+
+        if (isSendingFile.get() && lineNum > 0) {
+            gcodeView.scrollTo(lineNum);
+
+            // Show elapsed and remaining time
+            Date currentTimeDt = new Date();  // Get current time
+            long elapsed = (currentTimeDt.getTime() - timeStartDt.getTime());
+            float rate = elapsed / lineNum;
+            long remain = (long) ((totalGcodeLines - lineNum) * rate);  // remaining lines * secs per line
+            
+            timeElapsedTxt.setText( String.format("%02d:%02d", elapsed/60000, (elapsed/1000) % 60) ) ;
+            timeLeftTxt.setText(String.format("%02d:%02d", remain/60000, (remain/1000) % 60) ) ;
+        }
     }
 }
