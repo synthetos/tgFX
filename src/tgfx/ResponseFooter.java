@@ -31,6 +31,9 @@ public class ResponseFooter {
     public  long getCheckSum() {
         return checkSum;
     }
+    
+    
+    
 
     
     

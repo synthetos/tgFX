@@ -80,7 +80,7 @@
                 </HBox>
               </children>
             </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" HBox.hgrow="ALWAYS" HBox.margin="$x5">
+            <VBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" HBox.hgrow="ALWAYS">
               <children>
                 <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="200.0" style="-fx-background-color:black">
                   <children>
@@ -93,7 +93,7 @@
                       <graphic>
                         <Label id="lblMachine" text="Debug Mode">
                           <graphic>
-                            <ToggleButton id="settingDrawBtn" maxWidth="77.0" minWidth="77.0" mnemonicParsing="false" onAction="#handleTogglePreview" prefWidth="77.0" text="Enabled" />
+                            <ToggleButton id="settingDrawBtn" fx:id="settingDebugBtn" maxWidth="77.0" minWidth="77.0" mnemonicParsing="false" prefWidth="77.0" selected="true" text="Enabled" />
                           </graphic>
                         </Label>
                       </graphic>
@@ -104,6 +104,9 @@
                   </VBox.margin>
                 </HBox>
               </children>
+              <HBox.margin>
+                <Insets top="5.0" fx:id="x5" />
+              </HBox.margin>
             </VBox>
           </children>
         </HBox>

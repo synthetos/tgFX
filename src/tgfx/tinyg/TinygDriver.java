@@ -149,7 +149,7 @@ public class TinygDriver extends Observable {
                     break;
             }
         } catch (Exception ex) {
-            System.out.println("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
+            Main.print("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
         }
     }
 
@@ -188,7 +188,7 @@ public class TinygDriver extends Observable {
         }
 
 
-        System.out.println("[+]Applying Axis Settings...");
+        Main.print("[+]Applying Axis Settings...");
     }
 
     public void applyHardwareMotorSettings(Motor _motor, TextField tf) throws Exception {
@@ -271,7 +271,7 @@ public class TinygDriver extends Observable {
                 this.write("{\"" + _axis.getAxis_name().toLowerCase() + MnemonicManager.MNEMONIC_AXIS_ZERO_BACKOFF + "\":" + tf.getText() + "}\n");
             }
         }
-        System.out.println("[+]Applying " + _axis.getAxis_name() + " settings");
+        Main.print("[+]Applying " + _axis.getAxis_name() + " settings");
 
     }
 
@@ -444,11 +444,11 @@ public class TinygDriver extends Observable {
             } else if (motorNumber == 4) {
                 ser.write(CommandManager.CMD_QUERY_MOTOR_4_SETTINGS);
             } else {
-                System.out.println("Invalid Motor Number.. Please try again..");
+                Main.print("Invalid Motor Number.. Please try again..");
                 setChanged();
             }
         } catch (Exception ex) {
-            System.out.println("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
+            Main.print("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
 
 
         }
@@ -486,7 +486,7 @@ public class TinygDriver extends Observable {
         try {
             TinygDriver.queue.put((byte[]) queue);
         } catch (Exception e) {
-            System.out.println("ERROR n shit");
+            Main.print("ERROR n shit");
         }
     }
 
@@ -540,7 +540,7 @@ public class TinygDriver extends Observable {
 
     public void priorityWrite(Byte b) throws Exception {
         this.ser.priorityWrite(b);
-        System.out.println("+" + String.valueOf(b));
+        Main.print("+" + String.valueOf(b));
     }
 
     public void priorityWrite(String msg) throws Exception {
@@ -548,7 +548,7 @@ public class TinygDriver extends Observable {
             msg = msg + "\n";
         }
         ser.write(msg);
-        System.out.println("+" + msg);
+        Main.print("+" + msg);
     }
 
     /**

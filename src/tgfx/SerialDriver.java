@@ -118,7 +118,7 @@ public class SerialDriver implements SerialPortEventListener {
                 }
 
             } catch (Exception ex) {
-                System.out.println("Exception in Serial Event");
+                Main.print("Exception in Serial Event");
             }
         }
     }

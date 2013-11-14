@@ -91,7 +91,7 @@ public class ResponseParser extends Observable implements Runnable {
     @Override
     public void run() {
         logger.info("Response Parser Running");
-        System.out.println("[+]Response Parser Thread Running...");
+        Main.print("[+]Response Parser Thread Running...");
 
 
         while (RUN) {
@@ -118,7 +118,7 @@ public class ResponseParser extends Observable implements Runnable {
 
                     }
                     parseJSON(line);  //Take a line from the response queue when its ready and parse it.
-//                    System.out.println("GOT LINE: " + line);
+//                    Main.print("GOT LINE: " + line);
                 } else {
                     //Text Mode Response
                     if (!isTEXT_MODE()) {
@@ -546,7 +546,7 @@ public class ResponseParser extends Observable implements Runnable {
     public synchronized void parseJSON(String line) throws JSONException {
 
         logger.info("Got Line: " + line + " from TinyG.");
-        System.out.println("-" + line);
+        Main.print("-" + line);
         final JSONObject js = new JSONObject(line);
 
         if (js.has("r") || (js.has("sr"))) {

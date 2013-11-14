@@ -66,6 +66,7 @@ import org.json.JSONException;
 import tgfx.render.CNCMachine;
 import tgfx.ui.gcode.GcodeTabController;
 import tgfx.ui.machinesettings.MachineSettingsController;
+import tgfx.ui.tgfxsettings.TgfxSettingsController;
 import tgfx.ui.tinygconfig.TinyGConfigController;
 
 public class Main extends Stage implements Initializable, Observer {
@@ -145,7 +146,7 @@ public class Main extends Stage implements Initializable, Observer {
     }
 
     public void testMessage(String message) {
-        System.out.println("Message Hit");
+        Main.print("Message Hit");
 
     }
 
@@ -169,7 +170,7 @@ public class Main extends Stage implements Initializable, Observer {
 //            new Thread(SocketListner).start();
 //            btnRemoteListener.setDisable(true);
 //        } else {
-//            System.out.println("[!] Must be connected to TinyG First.");
+//            Main.print("[!] Must be connected to TinyG First.");
 //            tgfx.Main.postConsoleMessage("[!] Must be connected to TinyG First.");
 //        }
     }
@@ -267,7 +268,7 @@ public class Main extends Stage implements Initializable, Observer {
 
         } catch (Exception ex) {
             postConsoleMessage("[!]Error in onConnectActions: " + ex.getMessage());
-            System.out.println(ex.getMessage());
+            Main.print(ex.getMessage());
         }
     }
 
@@ -325,7 +326,7 @@ public class Main extends Stage implements Initializable, Observer {
 
         } catch (Exception ex) {
             postConsoleMessage("[!]Error in onConnectActions: " + ex.getMessage());
-            System.out.println(ex.getMessage());
+            Main.print(ex.getMessage());
         }
     }
 
@@ -340,7 +341,7 @@ public class Main extends Stage implements Initializable, Observer {
         if (Connect.getText().equals("Connect") && serialPorts.getSelectionModel().getSelectedItem() != (null)) {
             String serialPortSelected = serialPorts.getSelectionModel().getSelectedItem().toString();
 
-            System.out.println("[*]Attempting to Connect to TinyG.");
+            Main.print("[*]Attempting to Connect to TinyG.");
 
             if (!tg.initialize(serialPortSelected, 115200)) {  //This will be true if we connected when we tried to!
                 //Our connect attempt failed. 
@@ -415,23 +416,23 @@ public class Main extends Stage implements Initializable, Observer {
 //        TextField tField = (TextField) gcodesList.getSelectionModel().getSelectedItem();
 //        if (me.getButton() == me.getButton().SECONDARY) {
 ////            tg.write("{\"gc\":\"" + lbl.getText() + "\"}\n");
-//            System.out.println("RIGHT CLICKED");
+//            Main.print("RIGHT CLICKED");
 //
 //
 //        } else if (me.getButton() == me.getButton().PRIMARY && me.getClickCount() == 2) {
-//            System.out.println("double clicked");
+//            Main.print("double clicked");
 //            tField.setEditable(true);
 //
 //            //if (lbl.getParent().getStyleClass().contains("breakpoint")) {
 ////                lbl.getParent().getStyleClass().remove("breakpoint");
 ////                tgfx.Main.postConsoleMessage("BREAKPOINT REMOVED: " + lbl.getText() + "\n");
-////                System.out.println("BREAKPOINT REMOVED");
+////                Main.print("BREAKPOINT REMOVED");
 ////            } else {
 ////
-////                System.out.println("DOUBLE CLICKED");
+////                Main.print("DOUBLE CLICKED");
 ////                lbl.getStyleClass().removeAll(null);
 ////                lbl.getParent().getStyleClass().add("breakpoint");
-////                System.out.println("BREAKPOINT SET");
+////                Main.print("BREAKPOINT SET");
 ////                tgfx.Main.postConsoleMessage("BREAKPOINT SET: " + lbl.getText() + "\n");
 ////            };
 //        }
@@ -491,7 +492,7 @@ public class Main extends Stage implements Initializable, Observer {
 //            protected Object call() throws Exception {
 //                SocketMonitor sm = new SocketMonitor(Port);
 //
-//                System.out.println("[+]Trying to start remote monitor.");
+//                Main.print("[+]Trying to start remote monitor.");
 //                return true;
 //            }
 //        };
@@ -516,8 +517,8 @@ public class Main extends Stage implements Initializable, Observer {
 ////                        srCoord.setText(TinygDriver.getInstance().m.getCoordinateSystem().toString());
 ////                    }
 //                } catch (Exception ex) {
-//                    System.out.println("[!] Exception in updateGuiMachineSettings");
-//                    System.out.println(ex.getMessage());
+//                    Main.print("[!] Exception in updateGuiMachineSettings");
+//                    Main.print(ex.getMessage());
 //                }
 //            }
 //        });
@@ -677,7 +678,7 @@ public class Main extends Stage implements Initializable, Observer {
                         break;
 
                     default:
-                        System.out.println("[!]Invalid Routing Key: " + ROUTING_KEY);
+                        Main.print("[!]Invalid Routing Key: " + ROUTING_KEY);
                 }
             } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(Main.class
@@ -706,6 +707,14 @@ public class Main extends Stage implements Initializable, Observer {
             logger.error("Error Getting Build Info Token ".concat(propToken).concat(" not in Propertyfile!"));
         }
         return msg;
+    }
+    
+    public static void print(String msg){
+        if(TgfxSettingsController.settingDebugBtn.isSelected()){
+            System.out.println(msg);
+           
+        }
+        
     }
 
     @Override
@@ -819,7 +828,7 @@ public class Main extends Stage implements Initializable, Observer {
 //        input.textProperty().addListener(new ChangeListener<String>() {
 //               @Override
 //               public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
-//                    System.out.println(input.getCaretPosition());
+//                    Main.print(input.getCaretPosition());
 //                    Platform.runLater(new Runnable() {
 //                         @Override
 //                         public void run() {

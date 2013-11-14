@@ -162,7 +162,7 @@ public class SerialWriter implements Runnable {
             }
 
             ser.write(str);
-            System.out.println("+" + str);
+            Main.print("+" + str);
             logger.info("Wrote Line --> " + str);
         } catch (Exception ex) {
             logger.error("Error in SerialDriver Write");
@@ -171,7 +171,7 @@ public class SerialWriter implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("[+]Serial Writer Thread Running...");
+        Main.print("[+]Serial Writer Thread Running...");
         while (RUN) {
             try {
                 tmpCmd = (String) queue.take();  //Grab the line
@@ -186,9 +186,9 @@ public class SerialWriter implements Runnable {
                 }
                 this.write(tmpCmd);
             } catch (Exception ex) {
-                System.out.println("[!]Exception in SerialWriter Thread");
+                Main.print("[!]Exception in SerialWriter Thread");
             }
         }
-        System.out.println("[+]SerialWriter thread exiting...");
+        Main.print("[+]SerialWriter thread exiting...");
     }
 }

@@ -74,7 +74,7 @@ public class FirmwareUpdaterController implements Initializable {
                     avrdudePath = avd.getAbsolutePath().toString();
                 }
 
-                System.out.println("Trying to enter bootloader mode");
+                Main.print("Trying to enter bootloader mode");
                 Main.postConsoleMessage("Entering Bootloader mode.  tgFX will be un-responsive for then next 30 seconds.\n"
                         + "Your TinyG will start blinking rapidly while being programmed");
                 enterBootloaderMode();
@@ -85,7 +85,7 @@ public class FirmwareUpdaterController implements Initializable {
                 try {
                     url = new URL(TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl());
                     URLConnection urlConnection = url.openConnection();
-                    System.out.println("Opened Connection to Github");
+                    Main.print("Opened Connection to Github");
                     Main.postConsoleMessage("Downloading tinyg.hex file from github.com");
                     InputStream input;
                     input = urlConnection.getInputStream();
@@ -100,7 +100,7 @@ public class FirmwareUpdaterController implements Initializable {
                         }
                         output.close();
                         Main.postConsoleMessage("Finished Downloading tinyg.hex");
-                        System.out.println("Finished Downloading tinyg.hex");
+                        Main.print("Finished Downloading tinyg.hex");
                     }
                 } catch (MalformedURLException ex) {
                     Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
@@ -111,7 +111,7 @@ public class FirmwareUpdaterController implements Initializable {
                 Runtime rt = Runtime.getRuntime();
 
                 try {
-                    System.out.println("Updating TinyG Now... Please Wait");
+                    Main.print("Updating TinyG Now... Please Wait");
                     Process process = rt.exec(avrdudePath + " -p x192a3 -C " + avrconfigPath + " -c avr109 -b 115200 -P " + TinygDriver.getInstance().getPortName() + " -U flash:w:tinyg.hex");
                     InputStream is = process.getInputStream();
                     Main.postConsoleMessage("Attempting to update TinyG's firmware.");
@@ -133,7 +133,7 @@ public class FirmwareUpdaterController implements Initializable {
 
     @FXML
     private void checkFirmwareUpdate(ActionEvent event) {
-        System.out.println("Checking current Firmware Version");
+        Main.print("Checking current Firmware Version");
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -146,7 +146,7 @@ public class FirmwareUpdaterController implements Initializable {
                     InputStream input;
                     input = urlConnection.getInputStream();
                     byte[] buffer = new byte[4096];
-                    System.out.println("Checking end");
+                    Main.print("Checking end");
                     input.read(buffer);
                     String _currentVersionString = new String(buffer);
                     Double currentVal;

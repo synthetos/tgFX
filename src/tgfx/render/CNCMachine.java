@@ -275,7 +275,7 @@ public class CNCMachine extends Pane {
 //            gcodeWindow.setScaleX(scale);
 //            gcodeWindow.setScaleY(scale);
 //        }
-//        System.out.println(gcodePane.getHeight() - TinygDriver.getInstance().m.getAxisByName("y").getWork_position().get());
+//        Main.print(gcodePane.getHeight() - TinygDriver.getInstance().m.getAxisByName("y").getWork_position().get());
         double newX = TinygDriver.getInstance().m.getAxisByName("x").getMachinePositionSimple().get();// + magnification;
         double newY = this.getHeight() - TinygDriver.getInstance().m.getAxisByName("y").getMachinePositionSimple().get();//(gcodePane.getHeight() - (Double.valueOf(TinygDriver.getInstance().m.getAxisByName("y").getWork_position().get())));// + magnification;
        

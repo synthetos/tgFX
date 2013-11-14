@@ -14,6 +14,7 @@ import javafx.scene.control.TextField;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import tgfx.Main;
 import tgfx.tinyg.MnemonicManager;
 import tgfx.tinyg.TinygDriver;
 import tgfx.tinyg.responseCommand;
@@ -178,37 +179,37 @@ public final class Axis {
                     }
                 }
                 this.setAxis_mode(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _axisMode);
+                Main.print("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _axisMode);
                 return;
             }
             case "vm": {
                 int val = (int) Double.parseDouble(value);
                 this.setVelocityMaximum(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Velocity Max to: " + this.getVelocityMaximum());
+                Main.print("\t[+]Set Axis: " + this.getAxis_name() + " Velocity Max to: " + this.getVelocityMaximum());
                 return;
             }
             case "fr": {
                 int val = (int) Double.parseDouble(value);
                 this.setFeed_rate_maximum(val);
-                System.out.println("\t[+]Set Axis: " + this.getFeed_rate_maximum() + " Feed Rate Max to: " + this.getFeed_rate_maximum());
+                Main.print("\t[+]Set Axis: " + this.getFeed_rate_maximum() + " Feed Rate Max to: " + this.getFeed_rate_maximum());
                 return;
             }
             case "tm": {
                 int val = (int) Double.parseDouble(value);
                 this.setTravel_maximum(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Travel Max to: " + this.getTravel_maximum());
+                Main.print("\t[+]Set Axis: " + this.getAxis_name() + " Travel Max to: " + this.getTravel_maximum());
                 return;
             }
             case "jm": {
                 int val = (int) Double.parseDouble(value);
                 this.setJerkMaximum(val);
-                System.out.println("\t[+]Set Axis: " + this.getJerkMaximum() + " Jerk Max to: " + this.getJerkMaximum());
+                Main.print("\t[+]Set Axis: " + this.getJerkMaximum() + " Jerk Max to: " + this.getJerkMaximum());
                 return;
             }
             case "jd": {
                 int val = (int) Double.parseDouble(value);
                 this.setJunctionDevation(val);
-                System.out.println("\t[+]Set Axis: " + this.getJunction_devation() + " Junction Deviation Max to: " + this.getJunction_devation());
+                Main.print("\t[+]Set Axis: " + this.getJunction_devation() + " Junction Deviation Max to: " + this.getJunction_devation());
                 return;
             }
             case "sx": {
@@ -230,7 +231,7 @@ public final class Axis {
                     }
                 }
                 this.setMaxSwitchMode(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _switchMode);
+                Main.print("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _switchMode);
                 return;
             }
             case "sn": {
@@ -252,42 +253,42 @@ public final class Axis {
                     }
                 }
                 this.setMaxSwitchMode(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _switchMode);
+                Main.print("\t[+]Set Axis: " + this.getAxis_name() + " Axis Mode to: " + _switchMode);
                 return;
             }
 
             case "sv": {
                 int val = (int) Double.parseDouble(value);
                 this.setSearch_velocity(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Search Velocity to: " + this.getSearch_velocity());
+                Main.print("\t[+]Set Axis: " + this.getAxis_name() + " Search Velocity to: " + this.getSearch_velocity());
                 return;
             }
             case "lv": {
                 int val = (int) Double.parseDouble(value);
                 this.setLatch_velocity(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Latch Velocity to: " + this.getLatch_velocity());
+                Main.print("\t[+]Set Axis: " + this.getAxis_name() + " Latch Velocity to: " + this.getLatch_velocity());
                 return;
             }
             case "lb": {
                 int val = (int) Double.parseDouble(value);
                 this.setLatch_backoff(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Latch Back Off to: " + this.getLatch_backoff());
+                Main.print("\t[+]Set Axis: " + this.getAxis_name() + " Latch Back Off to: " + this.getLatch_backoff());
                 return;
             }
             case "zb": {
                 int val = (int) Double.parseDouble(value);
                 this.setZero_backoff(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Zero Back Off to: " + this.getZero_backoff());
+                Main.print("\t[+]Set Axis: " + this.getAxis_name() + " Zero Back Off to: " + this.getZero_backoff());
                 return;
             }
             case "ra": {
                 int val = (int) Double.parseDouble(value);
                 this.setRadius(val);
-                System.out.println("\t[+]Set Axis: " + this.getAxis_name() + " Radius to: " + this.getRadius());
+                Main.print("\t[+]Set Axis: " + this.getAxis_name() + " Radius to: " + this.getRadius());
                 return;
             }
             default: {
-                System.out.println("[!]Error... No such setting: " + value + " in Axis Settings...");
+                Main.print("[!]Error... No such setting: " + value + " in Axis Settings...");
             }
         }
     }
@@ -382,7 +383,7 @@ public final class Axis {
             this.setAxis_name("C");
             this.setAxisType(at);
         } else {
-            System.out.println("[!]Invalide Axis Name Specified.\n");
+            Main.print("[!]Invalide Axis Name Specified.\n");
         }
     }
 

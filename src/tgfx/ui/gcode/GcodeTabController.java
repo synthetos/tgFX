@@ -496,7 +496,7 @@ public class GcodeTabController implements Initializable {
             public void changed(ObservableValue o, Object oldVal,
                     Object newVal) {
                 logger.info("cncHeightChanged: " + cncMachine.getHeight());
-//                System.out.println(cncHeightString 
+//                Main.print(cncHeightString 
             }
         });
         cncMachine.maxWidthProperty().addListener(new ChangeListener() {
@@ -719,7 +719,7 @@ public class GcodeTabController implements Initializable {
             Thread fsThread = new Thread(fileSend);
             fsThread.setName("FileSender");
             timeStartDt = new Date();
-            updateProgress(1);
+//            updateProgress(1);
             fsThread.start();
         }
     }
@@ -868,17 +868,17 @@ public class GcodeTabController implements Initializable {
     // Scroll Gcode table view to specified line, show elapsed and remaining time
     public static void updateProgress(int lineNum) {
 
-        if (isSendingFile.get() && lineNum > 0) {
-            gcodeView.scrollTo(lineNum);
-
-            // Show elapsed and remaining time
-            Date currentTimeDt = new Date();  // Get current time
-            long elapsed = (currentTimeDt.getTime() - timeStartDt.getTime());
-            float rate = elapsed / lineNum;
-            long remain = (long) ((totalGcodeLines - lineNum) * rate);  // remaining lines * secs per line
-
-            timeElapsedTxt.setText(String.format("%02d:%02d", elapsed / 60000, (elapsed / 1000) % 60));
-            timeLeftTxt.setText(String.format("%02d:%02d", remain / 60000, (remain / 1000) % 60));
-        }
+//        if (isSendingFile.get() && lineNum > 0) {
+//            gcodeView.scrollTo(lineNum);
+//
+//            // Show elapsed and remaining time
+//            Date currentTimeDt = new Date();  // Get current time
+//            long elapsed = (currentTimeDt.getTime() - timeStartDt.getTime());
+//            float rate = elapsed / lineNum;
+//            long remain = (long) ((totalGcodeLines - lineNum) * rate);  // remaining lines * secs per line
+//
+//            timeElapsedTxt.setText(String.format("%02d:%02d", elapsed / 60000, (elapsed / 1000) % 60));
+//            timeLeftTxt.setText(String.format("%02d:%02d", remain / 60000, (remain / 1000) % 60));
+//        }
     }
 }

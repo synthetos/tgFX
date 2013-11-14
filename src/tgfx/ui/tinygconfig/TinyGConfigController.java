@@ -18,6 +18,7 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import org.apache.log4j.Logger;
+import tgfx.Main;
 import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
@@ -122,8 +123,8 @@ public class TinyGConfigController implements Initializable {
                         _updateGuiMotorSettings(MOTOR_ARGUMENT);
                     }
                 } catch (Exception ex) {
-                    System.out.println("[!]Exception in updateGuiMotorSettings...");
-                    System.out.println(ex.getMessage());
+                    Main.print("[!]Exception in updateGuiMotorSettings...");
+                    Main.print(ex.getMessage());
                 }
             }
         });
@@ -168,6 +169,7 @@ public class TinyGConfigController implements Initializable {
     }
 
     public static void _updateGuiAxisSettings(Axis ax) {
+        System.out.println("Update Gui Axis Settings");
         switch (ax.getAxis_name().toLowerCase()) {
             case "a":
                 axisAmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
@@ -314,9 +316,9 @@ public class TinyGConfigController implements Initializable {
                         _updateGuiAxisSettings(AXIS_NAME);
                     }
                 } catch (Exception ex) {
-                    System.out.println("[!]EXCEPTION in updateGuiAxisSettings");
-                    System.out.println("LINE: ");
-                    System.out.println(ex.getMessage());
+                    Main.print("[!]EXCEPTION in updateGuiAxisSettings");
+                    Main.print("LINE: ");
+                    Main.print(ex.getMessage());
                 }
 
             }
@@ -378,7 +380,7 @@ public class TinyGConfigController implements Initializable {
 
     @FXML
     void handleMotorQuerySettings(ActionEvent evt) {
-        System.out.println("[+]Querying Motor Config...");
+        Main.print("[+]Querying Motor Config...");
 //        Detect what motor tab is "active"...
         try {
             //            updateGuiAxisSettings();
@@ -397,7 +399,7 @@ public class TinyGConfigController implements Initializable {
                     break;
             }
         } catch (Exception ex) {
-            System.out.println("[!]Error Querying Single Motor....");
+            Main.print("[!]Error Querying Single Motor....");
         }
     }
 
@@ -414,8 +416,8 @@ public class TinyGConfigController implements Initializable {
 //            TinygDriver.getInstance().queryAllHardwareAxisSettings();
 
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-            System.out.println("ERROR IN HANDLEAPPLYAXISSETTINGS");
+            Main.print(ex.getMessage());
+            Main.print("ERROR IN HANDLEAPPLYAXISSETTINGS");
         }
 
     }
@@ -427,7 +429,7 @@ public class TinyGConfigController implements Initializable {
         try {
             TinygDriver.getInstance().queryHardwareSingleAxisSettings(_axisSelected.charAt(0));
         } catch (Exception ex) {
-            System.out.println("[!]Error Querying Axis: " + _axisSelected);
+            Main.print("[!]Error Querying Axis: " + _axisSelected);
         }
     }
     

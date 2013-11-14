@@ -28,6 +28,9 @@ public class TgfxSettingsController implements Initializable {
     
     @FXML
     private ToggleButton settingDrawBtn;
+    
+    @FXML
+    public static ToggleButton settingDebugBtn;
 
     
 
