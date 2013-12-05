@@ -548,6 +548,7 @@ public class Main extends Stage implements Initializable, Observer {
                 switch (ROUTING_KEY) {
                     case ("STATUS_REPORT"):
                         tgfx.ui.gcode.GcodeTabController.drawCanvasUpdate();
+                         
                         int rspLine = TinygDriver.getInstance().m.getLineNumber();
 
                         // Scroll Gcode view to stay in synch with TinyG acks during file send
@@ -561,8 +562,9 @@ public class Main extends Stage implements Initializable, Observer {
                             }
                             oldRspLine = rspLine;
                         }
-                    //TODO we need to push this into a message as well.
-//                        break;
+                        break; 
+                    
+                        
                     case ("CMD_GET_AXIS_SETTINGS"):
                         TinyGConfigController.updateGuiAxisSettings(KEY_ARGUMENT);
                         break;
@@ -680,9 +682,8 @@ public class Main extends Stage implements Initializable, Observer {
                     default:
                         Main.print("[!]Invalid Routing Key: " + ROUTING_KEY);
                 }
-            } catch (Exception ex) {
-                java.util.logging.Logger.getLogger(Main.class
-                        .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (IOException | JSONException ex) {
+                java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
             }
         }
     }
