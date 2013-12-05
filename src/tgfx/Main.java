@@ -562,7 +562,7 @@ public class Main extends Stage implements Initializable, Observer {
                             oldRspLine = rspLine;
                         }
                     //TODO we need to push this into a message as well.
-//                        break;
+                        break;
                     case ("CMD_GET_AXIS_SETTINGS"):
                         TinyGConfigController.updateGuiAxisSettings(KEY_ARGUMENT);
                         break;
