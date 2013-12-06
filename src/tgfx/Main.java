@@ -247,7 +247,7 @@ public class Main extends Stage implements Initializable, Observer {
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP); //Just waking things up.
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
-                        
+
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_PLATFORM);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_VERSION);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
@@ -479,7 +479,6 @@ public class Main extends Stage implements Initializable, Observer {
 //            input.positionCaret(input.lengthProperty().get());
         }
     }
-
 //    private Task initRemoteServer(String port) {
 //        final String Port = port;
 //        return new Task() {
@@ -519,8 +518,7 @@ public class Main extends Stage implements Initializable, Observer {
 //        });
 //
 //    }
-    
-    private int oldRspLine=0;
+    private int oldRspLine = 0;
 
     @Override
     public synchronized void update(Observable o, Object arg) {
@@ -542,12 +540,11 @@ public class Main extends Stage implements Initializable, Observer {
                  */
                 switch (ROUTING_KEY) {
                     case ("STATUS_REPORT"):
-                        tgfx.ui.gcode.GcodeTabController.drawCanvasUpdate();
-                         
+                        tgfx.ui.gcode.GcodeTabController.drawCanvasUpdate();                         
                         int rspLine = TinygDriver.getInstance().machine.getLineNumber();
 
                         // Scroll Gcode view to stay in synch with TinyG acks during file send
-                        if (rspLine != oldRspLine && GcodeTabController.isSendingFile.get() ) {
+                        if (rspLine != oldRspLine && GcodeTabController.isSendingFile.get()) {
                             GcodeTabController.updateProgress(rspLine);
                             // Check for gaps in TinyG acks - Note comments are not acked
                             if (rspLine != oldRspLine + 1) {
@@ -557,9 +554,9 @@ public class Main extends Stage implements Initializable, Observer {
                             }
                             oldRspLine = rspLine;
                         }
-                        break; 
-                    
-                        
+                        break;
+
+
                     case ("CMD_GET_AXIS_SETTINGS"):
                         TinyGConfigController.updateGuiAxisSettings(KEY_ARGUMENT);
                         break;
@@ -702,11 +699,12 @@ public class Main extends Stage implements Initializable, Observer {
         }
         return msg;
     }
-    
+
     public static void print(String msg){
         if(TgfxSettingsController.settingDebugBtn.isSelected()){
             System.out.println(msg);  
         }
+
     }
 
     @Override

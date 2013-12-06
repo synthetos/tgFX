@@ -540,7 +540,9 @@ public class TinygDriver extends Observable {
 
     public void priorityWrite(Byte b) throws Exception {
         this.ser.priorityWrite(b);
-        Main.print("+" + String.valueOf(b));
+        if(!Main.LOGLEVEL.equals("OFF")){
+            Main.print("+" + String.valueOf(b));
+        }
     }
 
     public void priorityWrite(String msg) throws Exception {
@@ -548,7 +550,10 @@ public class TinygDriver extends Observable {
             msg = msg + "\n";
         }
         ser.write(msg);
-        Main.print("+" + msg);
+        if(!Main.LOGLEVEL.equals("OFF")){
+            Main.print("+" + msg);
+        }
+        
     }
 
     /**

@@ -162,8 +162,11 @@ public class SerialWriter implements Runnable {
             }
 
             ser.write(str);
-            Main.print("+" + str);
-            logger.info("Wrote Line --> " + str);
+            if(!Main.LOGLEVEL.equals("OFF")){
+                Main.print("+" + str);
+            }
+            
+            
         } catch (Exception ex) {
             logger.error("Error in SerialDriver Write");
         }
