@@ -458,7 +458,7 @@ public class TinyGConfigController implements Initializable {
         //private void handleEnter(ActionEvent event) throws Exception {
         final KeyEvent keyEvent = (KeyEvent) event;
         if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-            Axis _axis = Machine.getInstance().getAxisByName(axisTabPane.getSelectionModel().getSelectedItem().getText().toLowerCase().substring(0, 1));
+            Axis _axis = TinygDriver.getInstance().getMachine().getAxisByName(axisTabPane.getSelectionModel().getSelectedItem().getText().toLowerCase().substring(0, 1));
             if (event.getSource().toString().startsWith("TextField")) {
                 //Object Returned is a TextField Object
                 TextField tf = (TextField) event.getSource();
