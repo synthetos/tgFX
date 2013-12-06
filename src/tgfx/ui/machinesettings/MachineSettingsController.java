@@ -48,8 +48,8 @@ public class MachineSettingsController implements Initializable {
     }
     
     public static void updateGuiMachineSettings() {
-        machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().machine.getGcodeUnitModeAsInt());
-        machineSwitchType.getSelectionModel().select(TinygDriver.getInstance().machine.getSwitchType());
+        machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().getMachine().getGcodeUnitModeAsInt());
+        machineSwitchType.getSelectionModel().select(TinygDriver.getInstance().getMachine().getSwitchType());
     }
 
     
@@ -60,10 +60,10 @@ public class MachineSettingsController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         populateConfigFiles();          //Populate all Config Files
-        hardwareId.textProperty().bind(TinygDriver.getInstance().machine.getHardwareId()); //Bind the tinyg hardware id to the tg driver value
-        hwVersion.textProperty().bind(TinygDriver.getInstance().machine.getHardwareVersion()); //Bind the tinyg version  to the tg driver value
-        firmwareVersion.textProperty().bind(TinygDriver.getInstance().machine.getFirmwareVersion());
-        buildNumb.textProperty().bind(TinygDriver.getInstance().machine.getFirmwareBuild().asString());
+        hardwareId.textProperty().bind(TinygDriver.getInstance().getMachine().getHardwareId()); //Bind the tinyg hardware id to the tg driver value
+        hwVersion.textProperty().bind(TinygDriver.getInstance().getMachine().getHardwareVersion()); //Bind the tinyg version  to the tg driver value
+        firmwareVersion.textProperty().bind(TinygDriver.getInstance().getMachine().getFirmwareVersion());
+        buildNumb.textProperty().bind(TinygDriver.getInstance().getMachine().getFirmwareBuild().asString());
         
     }
 
