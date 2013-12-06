@@ -1,5 +1,7 @@
 /**
- * tgFX Driver Class Copyright Synthetos.com lgpl
+ * tgFX Driver Class 
+ * Copyright 2012-2013  Synthetos LLC
+ * See license for terms.
  */
 package tgfx.tinyg;
 
@@ -17,12 +19,12 @@ import tgfx.Main;
 import tgfx.ResponseParser;
 import tgfx.SerialDriver;
 import tgfx.SerialWriter;
-import tgfx.ui.gcode.GcodeLine;
+import tgfx.hardwarePlatforms.HardwarePlatform;
+import tgfx.hardwarePlatforms.HardwarePlatformManager;
 import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
-import tgfx.hardwarePlatforms.HardwarePlatform;
-import tgfx.hardwarePlatforms.HardwarePlatformManager;
+import tgfx.ui.gcode.GcodeLine;
 
 public class TinygDriver extends Observable {
 
