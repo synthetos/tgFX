@@ -23,6 +23,7 @@ import tgfx.hardwarePlatforms.HardwarePlatform;
 import tgfx.hardwarePlatforms.HardwarePlatformManager;
 import tgfx.system.Axis;
 import tgfx.system.Machine;
+import tgfx.system.MachineFactory;
 import tgfx.system.Motor;
 import tgfx.ui.gcode.GcodeLine;
 
@@ -30,7 +31,7 @@ public class TinygDriver extends Observable {
 
     private double MINIMAL_BUILD_VERSIONS[] = {377.08, 13.01};
     static final Logger logger = Logger.getLogger(TinygDriver.class);
-    private Machine machine = Machine.getInstance();
+    private Machine machine = MachineFactory.getMachine();
     public QueueReport qr = QueueReport.getInstance();
     public MnemonicManager mneManager = new MnemonicManager();
     public ResponseManager resManager = new ResponseManager();
@@ -594,6 +595,6 @@ public class TinygDriver extends Observable {
     }
 
     public List<Axis> getInternalAllAxis() {
-        return (Machine.getInstance().getAllAxis());
+        return machine.getAllAxis();
     }
 }
