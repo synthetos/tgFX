@@ -233,7 +233,7 @@ public class GcodeTabController implements Initializable {
                         if (isKeyPressed) {  //We should find out of TinyG's distance mode is set to G90 before just firing this off.
 
                             CommandManager.stopJogMovement();
-                            if (TinygDriver.getInstance().machine.getGcode_distance_mode().equals(TinygDriver.getInstance().machine.gcode_distance_mode.INCREMENTAL)) {
+                            if (TinygDriver.getInstance().machine.getGcode_distance_mode().equals(TinygDriver.getInstance().machine.getGcode_distance_mode().INCREMENTAL)) {
                                 //We are in incremental mode we now will enter ABSOLUTE mode
                                 CommandManager.setAbsoluteMovementMode();
                             } //re-enable absolute mode
@@ -284,7 +284,7 @@ public class GcodeTabController implements Initializable {
 
     public static void drawCanvasUpdate() {
         if (TgfxSettingsController.isDrawPreview()) {
-            cncMachine.drawLine(TinygDriver.getInstance().machine.getMotionMode().get(), TinygDriver.getInstance().machine.getVelocity());
+            cncMachine.drawLine(TinygDriver.getInstance().machine.getMotionMode().get(), TinygDriver.getInstance().machine.getVelocityValue());
         }
     }
 
@@ -413,11 +413,11 @@ public class GcodeTabController implements Initializable {
 
         coordLocationGridPane.visibleProperty().bind(cncMachine.visibleProperty());  //This shows the coords when the cncMachine is visible.
 
-        xLcd.valueProperty().bind(TinygDriver.getInstance().machine.getAxisByName("x").getMachinePositionSimple().subtract(TinygDriver.getInstance().machine.getAxisByName("x").getOffset()).divide(TinygDriver.getInstance().machine.gcodeUnitDivision));
-        yLcd.valueProperty().bind(TinygDriver.getInstance().machine.getAxisByName("y").getMachinePositionSimple().subtract(TinygDriver.getInstance().machine.getAxisByName("y").getOffset()).divide(TinygDriver.getInstance().machine.gcodeUnitDivision));
-        zLcd.valueProperty().bind(TinygDriver.getInstance().machine.getAxisByName("z").getMachinePositionSimple().subtract(TinygDriver.getInstance().machine.getAxisByName("z").getOffset()).divide(TinygDriver.getInstance().machine.gcodeUnitDivision));
+        xLcd.valueProperty().bind(TinygDriver.getInstance().machine.getAxisByName("x").getMachinePositionSimple().subtract(TinygDriver.getInstance().machine.getAxisByName("x").getOffset()).divide(TinygDriver.getInstance().machine.getGcodeUnitDivision()));
+        yLcd.valueProperty().bind(TinygDriver.getInstance().machine.getAxisByName("y").getMachinePositionSimple().subtract(TinygDriver.getInstance().machine.getAxisByName("y").getOffset()).divide(TinygDriver.getInstance().machine.getGcodeUnitDivision()));
+        zLcd.valueProperty().bind(TinygDriver.getInstance().machine.getAxisByName("z").getMachinePositionSimple().subtract(TinygDriver.getInstance().machine.getAxisByName("z").getOffset()).divide(TinygDriver.getInstance().machine.getGcodeUnitDivision()));
         aLcd.valueProperty().bind(TinygDriver.getInstance().machine.getAxisByName("a").getMachinePositionSimple().subtract(TinygDriver.getInstance().machine.getAxisByName("a").getOffset()));
-        velLcd.valueProperty().bind(TinygDriver.getInstance().machine.velocity);
+        velLcd.valueProperty().bind(TinygDriver.getInstance().machine.getVelocity());
 
 
         /*######################################

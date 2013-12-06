@@ -60,10 +60,10 @@ public class MachineSettingsController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         populateConfigFiles();          //Populate all Config Files
-        hardwareId.textProperty().bind(TinygDriver.getInstance().machine.hardwareId); //Bind the tinyg hardware id to the tg driver value
-        hwVersion.textProperty().bind(TinygDriver.getInstance().machine.hardwareVersion); //Bind the tinyg version  to the tg driver value
-        firmwareVersion.textProperty().bind(TinygDriver.getInstance().machine.firmwareVersion);
-        buildNumb.textProperty().bind(TinygDriver.getInstance().machine.firmwareBuild.asString());
+        hardwareId.textProperty().bind(TinygDriver.getInstance().machine.getHardwareId()); //Bind the tinyg hardware id to the tg driver value
+        hwVersion.textProperty().bind(TinygDriver.getInstance().machine.getHardwareVersion()); //Bind the tinyg version  to the tg driver value
+        firmwareVersion.textProperty().bind(TinygDriver.getInstance().machine.getFirmwareVersion());
+        buildNumb.textProperty().bind(TinygDriver.getInstance().machine.getFirmwareBuild().asString());
         
     }
 

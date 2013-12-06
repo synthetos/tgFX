@@ -150,7 +150,7 @@ public class FirmwareUpdaterController implements Initializable {
                     input.read(buffer);
                     String _currentVersionString = new String(buffer);
                     Double currentVal;
-                    if (TinygDriver.getInstance().machine.getFirmwareBuild() < Double.valueOf(_currentVersionString)) {
+                    if (TinygDriver.getInstance().machine.getFirmwareBuildValue() < Double.valueOf(_currentVersionString)) {
                         //We need to update your firmware
                         Platform.runLater(new Runnable() {
                             @Override
