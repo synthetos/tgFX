@@ -95,7 +95,7 @@ public class TinyGConfigController implements Initializable {
     }
 
     public static void _updateGuiAxisSettings(String axname) {
-        Axis ax = TinygDriver.getInstance().m.getAxisByName(axname);
+        Axis ax = TinygDriver.getInstance().machine.getAxisByName(axname);
         _updateGuiAxisSettings(ax);
     }
 
@@ -115,7 +115,7 @@ public class TinyGConfigController implements Initializable {
                 try {
                     if (MOTOR_ARGUMENT == null) {
                         //Update ALL motor's gui settings
-                        for (Motor m : TinygDriver.getInstance().m.getMotors()) {
+                        for (Motor m : TinygDriver.getInstance().machine.getMotors()) {
                             _updateGuiMotorSettings(String.valueOf(m.getId_number()));
                         }
                     } else {
@@ -132,44 +132,44 @@ public class TinyGConfigController implements Initializable {
     
     public static void _updateGuiMotorSettings(String motor) {
 
-        switch (TinygDriver.getInstance().m.getMotorByNumber(Integer.valueOf(motor)).getId_number()) {
+        switch (TinygDriver.getInstance().machine.getMotorByNumber(Integer.valueOf(motor)).getId_number()) {
             case 1:
-                motor1ConfigMapAxis.getSelectionModel().select((TinygDriver.getInstance().m.getMotorByNumber(1).getMapToAxis()));
-                motor1ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(1).getMicrosteps());
-                motor1ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(1).isPolarityInt());
-                motor1ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(1).isPower_managementInt());
-                motor1ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(1).getStep_angle()));
-                motor1ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(1).getTravel_per_revolution()));
+                motor1ConfigMapAxis.getSelectionModel().select((TinygDriver.getInstance().machine.getMotorByNumber(1).getMapToAxis()));
+                motor1ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(1).getMicrosteps());
+                motor1ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(1).isPolarityInt());
+                motor1ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(1).isPower_managementInt());
+                motor1ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(1).getStep_angle()));
+                motor1ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(1).getTravel_per_revolution()));
                 break;
             case 2:
-                motor2ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(2).getMapToAxis());
-                motor2ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(2).getMicrosteps());
-                motor2ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(2).isPolarityInt());
-                motor2ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(2).isPower_managementInt());
-                motor2ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(2).getStep_angle()));
-                motor2ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(2).getTravel_per_revolution()));
+                motor2ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(2).getMapToAxis());
+                motor2ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(2).getMicrosteps());
+                motor2ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(2).isPolarityInt());
+                motor2ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(2).isPower_managementInt());
+                motor2ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(2).getStep_angle()));
+                motor2ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(2).getTravel_per_revolution()));
                 break;
             case 3:
-                motor3ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(3).getMapToAxis());
-                motor3ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(3).getMicrosteps());
-                motor3ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(3).isPolarityInt());
-                motor3ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(3).isPower_managementInt());
-                motor3ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(3).getStep_angle()));
-                motor3ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(3).getTravel_per_revolution()));
+                motor3ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(3).getMapToAxis());
+                motor3ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(3).getMicrosteps());
+                motor3ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(3).isPolarityInt());
+                motor3ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(3).isPower_managementInt());
+                motor3ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(3).getStep_angle()));
+                motor3ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(3).getTravel_per_revolution()));
                 break;
             case 4:
-                motor4ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(4).getMapToAxis());
-                motor4ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(4).getMicrosteps());
-                motor4ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(4).isPolarityInt());
-                motor4ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(4).isPower_managementInt());
-                motor4ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(4).getStep_angle()));
-                motor4ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(4).getTravel_per_revolution()));
+                motor4ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(4).getMapToAxis());
+                motor4ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(4).getMicrosteps());
+                motor4ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(4).isPolarityInt());
+                motor4ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(4).isPower_managementInt());
+                motor4ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(4).getStep_angle()));
+                motor4ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(4).getTravel_per_revolution()));
                 break;
         }
     }
 
     public static void _updateGuiAxisSettings(Axis ax) {
-        System.out.println("Update Gui Axis Settings");
+        
         switch (ax.getAxis_name().toLowerCase()) {
             case "a":
                 axisAmode.getSelectionModel().select(ax.getAxis_mode().ordinal());
@@ -308,7 +308,7 @@ public class TinyGConfigController implements Initializable {
                 try {
                     if (AXIS_NAME == null) {
                         //Axis was not provied as a sting argument.. so we update all of them
-                        for (Axis ax : TinygDriver.getInstance().m.getAllAxis()) {
+                        for (Axis ax : TinygDriver.getInstance().machine.getAllAxis()) {
                             _updateGuiAxisSettings(ax);
                         }
                     } else {
@@ -338,35 +338,35 @@ public class TinyGConfigController implements Initializable {
                 //every time one is.
 
                 try {
-                    for (Motor m : TinygDriver.getInstance().m.getMotors()) {
+                    for (Motor m : TinygDriver.getInstance().machine.getMotors()) {
                         if (m.getId_number() == 1) {
-                            motor1ConfigMapAxis.getSelectionModel().select((TinygDriver.getInstance().m.getMotorByNumber(1).getMapToAxis()));
-                            motor1ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(1).getMicrosteps());
-                            motor1ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(1).isPolarityInt());
-                            motor1ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(1).isPower_managementInt());
-                            motor1ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(1).getStep_angle()));
-                            motor1ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(1).getTravel_per_revolution()));
+                            motor1ConfigMapAxis.getSelectionModel().select((TinygDriver.getInstance().machine.getMotorByNumber(1).getMapToAxis()));
+                            motor1ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(1).getMicrosteps());
+                            motor1ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(1).isPolarityInt());
+                            motor1ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(1).isPower_managementInt());
+                            motor1ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(1).getStep_angle()));
+                            motor1ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(1).getTravel_per_revolution()));
                         } else if (m.getId_number() == 2) {
-                            motor2ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(2).getMapToAxis());
-                            motor2ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(2).getMicrosteps());
-                            motor2ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(2).isPolarityInt());
-                            motor2ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(2).isPower_managementInt());
-                            motor2ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(2).getStep_angle()));
-                            motor2ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(2).getTravel_per_revolution()));
+                            motor2ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(2).getMapToAxis());
+                            motor2ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(2).getMicrosteps());
+                            motor2ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(2).isPolarityInt());
+                            motor2ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(2).isPower_managementInt());
+                            motor2ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(2).getStep_angle()));
+                            motor2ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(2).getTravel_per_revolution()));
                         } else if (m.getId_number() == 3) {
-                            motor3ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(3).getMapToAxis());
-                            motor3ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(3).getMicrosteps());
-                            motor3ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(3).isPolarityInt());
-                            motor3ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(3).isPower_managementInt());
-                            motor3ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(3).getStep_angle()));
-                            motor3ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(3).getTravel_per_revolution()));
+                            motor3ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(3).getMapToAxis());
+                            motor3ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(3).getMicrosteps());
+                            motor3ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(3).isPolarityInt());
+                            motor3ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(3).isPower_managementInt());
+                            motor3ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(3).getStep_angle()));
+                            motor3ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(3).getTravel_per_revolution()));
                         } else if (m.getId_number() == 4) {
-                            motor4ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(4).getMapToAxis());
-                            motor4ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(4).getMicrosteps());
-                            motor4ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(4).isPolarityInt());
-                            motor4ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().m.getMotorByNumber(4).isPower_managementInt());
-                            motor4ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(4).getStep_angle()));
-                            motor4ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().m.getMotorByNumber(4).getTravel_per_revolution()));
+                            motor4ConfigMapAxis.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(4).getMapToAxis());
+                            motor4ConfigMicroSteps.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(4).getMicrosteps());
+                            motor4ConfigPolarity.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(4).isPolarityInt());
+                            motor4ConfigPowerMode.getSelectionModel().select(TinygDriver.getInstance().machine.getMotorByNumber(4).isPower_managementInt());
+                            motor4ConfigStepAngle.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(4).getStep_angle()));
+                            motor4ConfigTravelPerRev.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorByNumber(4).getTravel_per_revolution()));
                         }
                     }
                 } catch (Exception ex) {
@@ -439,7 +439,7 @@ public class TinyGConfigController implements Initializable {
         final KeyEvent keyEvent = (KeyEvent) event;
         if (keyEvent.getCode().equals(KeyCode.ENTER)) {
             TextField tf = (TextField) event.getSource();
-            Motor _motor = TinygDriver.getInstance().m.getMotorByNumber((motorTabPane.getSelectionModel().getSelectedItem().getText().toLowerCase().split(" "))[1]);
+            Motor _motor = TinygDriver.getInstance().machine.getMotorByNumber((motorTabPane.getSelectionModel().getSelectedItem().getText().toLowerCase().split(" "))[1]);
             //TODO: move the applyHardwareMotorSettings to this controller vs TinyGDriver.
              try {
                     tgfx.Main.postConsoleMessage("[+]Applying "+ tf.getId()+ ":"+ tf.getText()+"... \n");

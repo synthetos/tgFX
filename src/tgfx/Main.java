@@ -30,16 +30,11 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
-
-
 import jfxtras.labs.dialogs.MonologFXButton;
 import tgfx.render.Draw2d;
 import org.apache.log4j.Logger;
-
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
-import java.util.Timer;
-import java.util.logging.Level;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
@@ -81,7 +76,7 @@ public class Main extends Stage implements Initializable, Observer {
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
     final static ResourceBundle rb = ResourceBundle.getBundle("version");   //Used to track build date and build number
     public final static String LOGLEVEL = "OFF";
-//    public final static String LOGLEVEL = "INFO";
+    //public final static String LOGLEVEL = "INFO";
     @FXML
     private Circle cursor;
     @FXML
@@ -375,12 +370,12 @@ public class Main extends Stage implements Initializable, Observer {
     }
 
     public void onDisconnectActions() throws IOException, JSONException {
-        TinygDriver.getInstance().m.setFirmwareBuild(0.0);
-        TinygDriver.getInstance().m.firmwareBuild.set(0);
-        TinygDriver.getInstance().m.firmwareVersion.set("");
-        TinygDriver.getInstance().m.m_state.set("");
-        TinygDriver.getInstance().m.setLineNumber(0);
-        TinygDriver.getInstance().m.setMotionMode(0);
+        TinygDriver.getInstance().machine.setFirmwareBuild(0.0);
+        TinygDriver.getInstance().machine.firmwareBuild.set(0);
+        TinygDriver.getInstance().machine.firmwareVersion.set("");
+        TinygDriver.getInstance().machine.m_state.set("");
+        TinygDriver.getInstance().machine.setLineNumber(0);
+        TinygDriver.getInstance().machine.setMotionMode(0);
         Draw2d.setFirstDraw(true);
         tgfx.ui.gcode.GcodeTabController.setCNCMachineVisible(false);  //Once we disconnect we hide our gcode preview.
 
@@ -549,7 +544,7 @@ public class Main extends Stage implements Initializable, Observer {
                     case ("STATUS_REPORT"):
                         tgfx.ui.gcode.GcodeTabController.drawCanvasUpdate();
                          
-                        int rspLine = TinygDriver.getInstance().m.getLineNumber();
+                        int rspLine = TinygDriver.getInstance().machine.getLineNumber();
 
                         // Scroll Gcode view to stay in synch with TinyG acks during file send
                         if (rspLine != oldRspLine && GcodeTabController.isSendingFile.get() ) {
@@ -557,8 +552,8 @@ public class Main extends Stage implements Initializable, Observer {
                             // Check for gaps in TinyG acks - Note comments are not acked
                             if (rspLine != oldRspLine + 1) {
                                 int gap = oldRspLine + 1;
-//                                if (gap != 1)
-//                                    postConsoleMessage("NO RESPONSE FOR N" + gap  );  //mikeh says not to put this in... so we won't.
+                            //if (gap != 1)
+                            //postConsoleMessage("NO RESPONSE FOR N" + gap  );  //mikeh says not to put this in... so we won't.
                             }
                             oldRspLine = rspLine;
                         }
@@ -632,7 +627,7 @@ public class Main extends Stage implements Initializable, Observer {
 
                                 MonologFX mono = MonologFXBuilder.create()
                                         .titleText("TinyG Firware Build Outdated...")
-                                        .message("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.m.getFirmwareBuild() + "\n"
+                                        .message("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.machine.getFirmwareBuild() + "\n"
                                         + "Minmal Needed Version: " + tg.hardwarePlatform.getMinimalBuildVersion().toString() + "\n\n"
                                         + "Click ok to attempt to auto upgrade your TinyG. \nA Internet Connection is Required."
                                         + "\nClicking No will exit tgFX.")
@@ -642,8 +637,6 @@ public class Main extends Stage implements Initializable, Observer {
                                         .build();
 
                                 MonologFXButton.Type retval = mono.showDialog();
-
-
 
 
                                 switch (retval) {
@@ -700,7 +693,7 @@ public class Main extends Stage implements Initializable, Observer {
 
     }
 
-    public static final String getBuildInfo(String propToken) {
+    public static String getBuildInfo(String propToken) {
         String msg = "";
         try {
             msg = rb.getString(propToken);
@@ -712,10 +705,8 @@ public class Main extends Stage implements Initializable, Observer {
     
     public static void print(String msg){
         if(TgfxSettingsController.settingDebugBtn.isSelected()){
-            System.out.println(msg);
-           
+            System.out.println(msg);  
         }
-        
     }
 
     @Override
@@ -780,14 +771,14 @@ public class Main extends Stage implements Initializable, Observer {
         /*#######################################################
          * BINDINGS
          * #####################################################*/
-        srMomo.textProperty().bind(TinygDriver.getInstance().m.getMotionMode());
-        srVer.textProperty().bind(TinygDriver.getInstance().m.firmwareVersion);
-        srBuild.textProperty().bindBidirectional(TinygDriver.getInstance().m.firmwareBuild, sc);
-        srState.textProperty().bind(TinygDriver.getInstance().m.m_state);
-        srCoord.textProperty().bind(TinygDriver.getInstance().m.getCoordinateSystem());
-        srUnits.textProperty().bind(TinygDriver.getInstance().m.getGcodeUnitMode());
-        srCoord.textProperty().bind(TinygDriver.getInstance().m.gcm.getCurrentGcodeCoordinateSystemName());
-        srGcodeLine.textProperty().bind(TinygDriver.getInstance().m.getLineNumberSimple().asString());
+        srMomo.textProperty().bind(TinygDriver.getInstance().machine.getMotionMode());
+        srVer.textProperty().bind(TinygDriver.getInstance().machine.firmwareVersion);
+        srBuild.textProperty().bindBidirectional(TinygDriver.getInstance().machine.firmwareBuild, sc);
+        srState.textProperty().bind(TinygDriver.getInstance().machine.m_state);
+        srCoord.textProperty().bind(TinygDriver.getInstance().machine.getCoordinateSystem());
+        srUnits.textProperty().bind(TinygDriver.getInstance().machine.getGcodeUnitMode());
+        srCoord.textProperty().bind(TinygDriver.getInstance().machine.gcm.getCurrentGcodeCoordinateSystemName());
+        srGcodeLine.textProperty().bind(TinygDriver.getInstance().machine.getLineNumberSimple().asString());
 
 
         /*##########################

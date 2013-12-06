@@ -28,7 +28,7 @@ public class TinygDriver extends Observable {
 
     private double MINIMAL_BUILD_VERSIONS[] = {377.08, 13.01};
     static final Logger logger = Logger.getLogger(TinygDriver.class);
-    public Machine m = Machine.getInstance();
+    public Machine machine = Machine.getInstance();
     public QueueReport qr = QueueReport.getInstance();
     public MnemonicManager mneManager = new MnemonicManager();
     public ResponseManager resManager = new ResponseManager();
@@ -82,7 +82,7 @@ public class TinygDriver extends Observable {
 //        }else{
 //            HardwarePlatform.getInstance().getPlatformByName("TinyG");
 //        }
-        if(this.hardwarePlatform.getMinimalBuildVersion() < this.m.getFirmwareBuild()){
+        if(this.hardwarePlatform.getMinimalBuildVersion() < this.machine.getFirmwareBuild()){
             //This checks to see if the current build version on TinyG is greater than what tgFX's hardware profile needs.
         
         }
@@ -90,18 +90,18 @@ public class TinygDriver extends Observable {
        
         
 
-        if (this.m.getFirmwareBuild() < TinygDriver.getInstance().hardwarePlatform.getMinimalBuildVersion() && 
-                this.m.getFirmwareBuild() != 0.0) {
+        if (this.machine.getFirmwareBuild() < TinygDriver.getInstance().hardwarePlatform.getMinimalBuildVersion() && 
+                this.machine.getFirmwareBuild() != 0.0) {
             
             //too old of a build  we need to tell the GUI about this... This is where PUB/SUB will fix this 
             //bad way of alerting the gui about model changes.
             message[0] = "BUILD_ERROR";
-            message[1] = Double.toString(TinygDriver.getInstance().m.getFirmwareBuild());
+            message[1] = Double.toString(TinygDriver.getInstance().machine.getFirmwareBuild());
             setChanged();
             notifyObservers(message);
-            logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is NOT OK");
+            logger.info("Build Version: " + TinygDriver.getInstance().machine.getFirmwareBuild() + " is NOT OK");
         } else {
-            logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is OK");
+            logger.info("Build Version: " + TinygDriver.getInstance().machine.getFirmwareBuild() + " is OK");
             message[0] = "BUILD_OK";
             message[1] = null;
             setChanged();
@@ -158,7 +158,7 @@ public class TinygDriver extends Observable {
 
         GridPane _gp = (GridPane) _tab.getContent();
         int size = _gp.getChildren().size();
-        Axis _axis = this.m.getAxisByName(String.valueOf(_gp.getId().charAt(0)));
+        Axis _axis = this.machine.getAxisByName(String.valueOf(_gp.getId().charAt(0)));
         int i;
         for (i = 0; i < size; i++) {
             if (_gp.getChildren().get(i).getClass().toString().contains("TextField")) {
@@ -298,7 +298,7 @@ public class TinygDriver extends Observable {
         switch (rc.getSettingKey()) {
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
-                TinygDriver.getInstance().m.setLineNumber(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.setLineNumber(Integer.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
@@ -309,26 +309,26 @@ public class TinygDriver extends Observable {
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
 
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
@@ -338,7 +338,7 @@ public class TinygDriver extends Observable {
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
-                TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.setVelocity(Double.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
@@ -354,7 +354,7 @@ public class TinygDriver extends Observable {
          */
         Tab selectedTab = _tab.getTabPane().getSelectionModel().getSelectedItem();
         int _motorNumber = Integer.valueOf(selectedTab.getText().split(" ")[1].toString());
-        Motor _motor = this.m.getMotorByNumber(_motorNumber);
+        Motor _motor = this.machine.getMotorByNumber(_motorNumber);
 
         GridPane _gp = (GridPane) _tab.getContent();
         int size = _gp.getChildren().size();

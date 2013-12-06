@@ -94,7 +94,12 @@ public class SerialDriver implements SerialPortEventListener {
     public boolean isConnected() {
         return this.connectionState;
     }
-
+    
+    
+    
+    
+    
+    
     @Override
     public void serialEvent(SerialPortEvent oEvent) {
         byte[] inbuffer = new byte[1024];
@@ -109,7 +114,7 @@ public class SerialDriver implements SerialPortEventListener {
                     if ( inbuffer[i] == 0xA) { // inbuffer[i] is a \n
                         String f = new String(lineBuffer, 0, lineIdx);
                         if(!f.equals("")){ //Do not add "" to the jsonQueue..
-                            TinygDriver.getInstance().resParse.appendJsonQueue(f);
+                            TinygDriver.getInstance().appendJsonQueue(f);
                         }
                         lineIdx = 0;
                     } else {
