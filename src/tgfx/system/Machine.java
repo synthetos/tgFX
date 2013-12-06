@@ -13,11 +13,11 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import tgfx.tinyg.MnemonicManager;
-import org.json.JSONObject;
-import tgfx.tinyg.TinygDriver;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
+import org.json.JSONObject;
+import tgfx.tinyg.MnemonicManager;
+import tgfx.tinyg.TinygDriver;
 import tgfx.tinyg.responseCommand;
 
 /**
