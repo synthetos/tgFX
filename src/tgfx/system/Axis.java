@@ -638,7 +638,7 @@ public final class Axis {
                     //This is the largest travel max so far.. lets set it.
                     _maxTravel = _ax.getTravel_maximum();
                 }
-                TinygDriver.getInstance().machine.longestTravelAxisValue.set(_maxTravel); //We set this binding now to the largest value
+                TinygDriver.getInstance().machine.getLongestTravelAxisValue().set(_maxTravel); //We set this binding now to the largest value
             }
 
 

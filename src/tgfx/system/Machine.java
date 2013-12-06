@@ -26,48 +26,90 @@ import tgfx.tinyg.responseCommand;
  */
 public final class Machine {
 
+    /**
+     * @return the logger
+     */
+    public static Logger getLogger() {
+        return logger;
+    }
+
+    /**
+     * @param aLogger the logger to set
+     */
+    public static void setLogger(Logger aLogger) {
+        logger = aLogger;
+    }
+
+    /**
+     * @return the motion_mode
+     */
+    public static motion_modes getMotion_mode() {
+        return motion_mode;
+    }
+
+    /**
+     * @param aMotion_mode the motion_mode to set
+     */
+    public static void setMotion_mode(motion_modes aMotion_mode) {
+        motion_mode = aMotion_mode;
+    }
+
+    /**
+     * @return the machine_state
+     */
+    public static machine_states getMachine_state() {
+        return machine_state;
+    }
+
+    /**
+     * @param aMachine_state the machine_state to set
+     */
+    public static void setMachine_state(machine_states aMachine_state) {
+        machine_state = aMachine_state;
+    }
+
     //TG Specific
     //Machine EEPROM Values
     //binding
-    public SimpleDoubleProperty longestTravelAxisValue = new SimpleDoubleProperty();
-    public SimpleIntegerProperty xjoggingIncrement = new SimpleIntegerProperty();
-    public SimpleIntegerProperty yjoggingIncrement = new SimpleIntegerProperty();
-    public SimpleIntegerProperty zjoggingIncrement = new SimpleIntegerProperty();
-    public SimpleIntegerProperty ajoggingIncrement = new SimpleIntegerProperty();
-    public SimpleStringProperty m_state = new SimpleStringProperty();
-    public SimpleStringProperty m_mode = new SimpleStringProperty();
-    public SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();
-    public StringProperty firmwareVersion = new SimpleStringProperty();
-    public SimpleDoubleProperty hardwarePlatform = new SimpleDoubleProperty(0);
-    public StringProperty hardwareId = new SimpleStringProperty("na");
-    public StringProperty hardwareVersion = new SimpleStringProperty("na");
-    public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
+    private SimpleDoubleProperty longestTravelAxisValue = new SimpleDoubleProperty();
+    private SimpleIntegerProperty xjoggingIncrement = new SimpleIntegerProperty();
+    private SimpleIntegerProperty yjoggingIncrement = new SimpleIntegerProperty();
+    private SimpleIntegerProperty zjoggingIncrement = new SimpleIntegerProperty();
+    private SimpleIntegerProperty ajoggingIncrement = new SimpleIntegerProperty();
+    private SimpleStringProperty m_state = new SimpleStringProperty();
+    private SimpleStringProperty m_mode = new SimpleStringProperty();
+    private SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();
+    private StringProperty firmwareVersion = new SimpleStringProperty();
+    private SimpleDoubleProperty hardwarePlatform = new SimpleDoubleProperty(0);
+    private StringProperty hardwareId = new SimpleStringProperty("na");
+    private StringProperty hardwareVersion = new SimpleStringProperty("na");
+    private SimpleDoubleProperty velocity = new SimpleDoubleProperty();
     private StringProperty gcodeUnitMode = new SimpleStringProperty("mm");
-    public SimpleDoubleProperty gcodeUnitDivision = new SimpleDoubleProperty(1);
+    private SimpleDoubleProperty gcodeUnitDivision = new SimpleDoubleProperty(1);
 //    private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
     private int switchType = 0; //0=normally closed 1 = normally open
     private int status_report_interval;
 //    public Gcode_unit_modes gcode_startup_units;
-    public Gcode_select_plane gcode_select_plane;
-    public Gcode_coord_system gcode_select_coord_system;
-    public Gcode_path_control gcode_path_control;
-    public Gcode_distance_mode gcode_distance_mode = Gcode_distance_mode.ABSOLUTE;
+    private Gcode_select_plane gcode_select_plane;
+    private Gcode_coord_system gcode_select_coord_system;
+    private Gcode_path_control gcode_path_control;
+    private Gcode_distance_mode gcode_distance_mode = Gcode_distance_mode.ABSOLUTE;
     private boolean enable_acceleration;
     private float junction_acceleration;
     private float min_line_segment;
-    static final Logger logger = Logger.getLogger(TinygDriver.class);
+    private static Logger logger = Logger.getLogger(TinygDriver.class);
     private float min_arc_segment;
     private double min_segment_time;
-    public Ignore_CR_LF_ON_RX ignore_cr_lf_RX;
+    private Ignore_CR_LF_ON_RX ignore_cr_lf_RX;
     private boolean enable_CR_on_TX;
     private boolean enable_echo;
     private boolean enable_xon_xoff;
     private boolean enable_hashcode;
     //Misc
-    public SimpleIntegerProperty lineNumber = new SimpleIntegerProperty(0);
+    private SimpleIntegerProperty lineNumber = new SimpleIntegerProperty(0);
     private String last_message = new String("");
 //    public static motion_modes motion_mode = new SimpleIntegerProperty();
-    public static motion_modes motion_mode;
+    private static motion_modes motion_mode;
     private List<Motor> motors = new ArrayList<>();
     private List<Axis> axis = new ArrayList<>();
     private List<GcodeCoordinateSystem> gcodeCoordinateSystems = new ArrayList<>();
@@ -81,7 +123,420 @@ public final class Machine {
     private Motor Motor2 = new Motor(2);
     private Motor Motor3 = new Motor(3);
     private Motor Motor4 = new Motor(4);
-    public GcodeCoordinateManager gcm = new GcodeCoordinateManager();
+    private GcodeCoordinateManager gcm = new GcodeCoordinateManager();
+
+    /**
+     * @return the longestTravelAxisValue
+     */
+    public SimpleDoubleProperty getLongestTravelAxisValue() {
+        return longestTravelAxisValue;
+    }
+
+    /**
+     * @param longestTravelAxisValue the longestTravelAxisValue to set
+     */
+    public void setLongestTravelAxisValue(SimpleDoubleProperty longestTravelAxisValue) {
+        this.longestTravelAxisValue = longestTravelAxisValue;
+    }
+
+    /**
+     * @return the xjoggingIncrement
+     */
+    public SimpleIntegerProperty getXjoggingIncrement() {
+        return xjoggingIncrement;
+    }
+
+    /**
+     * @param xjoggingIncrement the xjoggingIncrement to set
+     */
+    public void setXjoggingIncrement(SimpleIntegerProperty xjoggingIncrement) {
+        this.xjoggingIncrement = xjoggingIncrement;
+    }
+
+    /**
+     * @return the yjoggingIncrement
+     */
+    public SimpleIntegerProperty getYjoggingIncrement() {
+        return yjoggingIncrement;
+    }
+
+    /**
+     * @param yjoggingIncrement the yjoggingIncrement to set
+     */
+    public void setYjoggingIncrement(SimpleIntegerProperty yjoggingIncrement) {
+        this.yjoggingIncrement = yjoggingIncrement;
+    }
+
+    /**
+     * @return the zjoggingIncrement
+     */
+    public SimpleIntegerProperty getZjoggingIncrement() {
+        return zjoggingIncrement;
+    }
+
+    /**
+     * @param zjoggingIncrement the zjoggingIncrement to set
+     */
+    public void setZjoggingIncrement(SimpleIntegerProperty zjoggingIncrement) {
+        this.zjoggingIncrement = zjoggingIncrement;
+    }
+
+    /**
+     * @return the ajoggingIncrement
+     */
+    public SimpleIntegerProperty getAjoggingIncrement() {
+        return ajoggingIncrement;
+    }
+
+    /**
+     * @param ajoggingIncrement the ajoggingIncrement to set
+     */
+    public void setAjoggingIncrement(SimpleIntegerProperty ajoggingIncrement) {
+        this.ajoggingIncrement = ajoggingIncrement;
+    }
+
+    /**
+     * @return the m_state
+     */
+    public SimpleStringProperty getM_state() {
+        return m_state;
+    }
+
+    /**
+     * @param m_state the m_state to set
+     */
+    public void setM_state(SimpleStringProperty m_state) {
+        this.m_state = m_state;
+    }
+
+    /**
+     * @return the m_mode
+     */
+    public SimpleStringProperty getM_mode() {
+        return m_mode;
+    }
+
+    /**
+     * @param m_mode the m_mode to set
+     */
+    public void setM_mode(SimpleStringProperty m_mode) {
+        this.m_mode = m_mode;
+    }
+
+    /**
+     * @param firmwareBuild the firmwareBuild to set
+     */
+    public void setFirmwareBuild(SimpleDoubleProperty firmwareBuild) {
+        this.firmwareBuild = firmwareBuild;
+    }
+
+    /**
+     * @param firmwareVersion the firmwareVersion to set
+     */
+    public void setFirmwareVersion(StringProperty firmwareVersion) {
+        this.firmwareVersion = firmwareVersion;
+    }
+
+    /**
+     * @return the hardwarePlatform
+     */
+    public SimpleDoubleProperty getHardwarePlatform() {
+        return hardwarePlatform;
+    }
+
+    /**
+     * @param hardwarePlatform the hardwarePlatform to set
+     */
+    public void setHardwarePlatform(SimpleDoubleProperty hardwarePlatform) {
+        this.hardwarePlatform = hardwarePlatform;
+    }
+
+    /**
+     * @param hardwareId the hardwareId to set
+     */
+    public void setHardwareId(StringProperty hardwareId) {
+        this.hardwareId = hardwareId;
+    }
+
+    /**
+     * @param hardwareVersion the hardwareVersion to set
+     */
+    public void setHardwareVersion(StringProperty hardwareVersion) {
+        this.hardwareVersion = hardwareVersion;
+    }
+
+    /**
+     * @param velocity the velocity to set
+     */
+    public void setVelocity(SimpleDoubleProperty velocity) {
+        this.velocity = velocity;
+    }
+
+    /**
+     * @param gcodeUnitMode the gcodeUnitMode to set
+     */
+    public void setGcodeUnitMode(StringProperty gcodeUnitMode) {
+        this.gcodeUnitMode = gcodeUnitMode;
+    }
+
+    /**
+     * @return the gcodeUnitDivision
+     */
+    public SimpleDoubleProperty getGcodeUnitDivision() {
+        return gcodeUnitDivision;
+    }
+
+    /**
+     * @param gcodeUnitDivision the gcodeUnitDivision to set
+     */
+    public void setGcodeUnitDivision(SimpleDoubleProperty gcodeUnitDivision) {
+        this.gcodeUnitDivision = gcodeUnitDivision;
+    }
+
+    /**
+     * @return the gcode_select_coord_system
+     */
+    public Gcode_coord_system getGcode_select_coord_system() {
+        return gcode_select_coord_system;
+    }
+
+    /**
+     * @param gcode_select_coord_system the gcode_select_coord_system to set
+     */
+    public void setGcode_select_coord_system(Gcode_coord_system gcode_select_coord_system) {
+        this.gcode_select_coord_system = gcode_select_coord_system;
+    }
+
+    /**
+     * @param gcode_path_control the gcode_path_control to set
+     */
+    public void setGcode_path_control(Gcode_path_control gcode_path_control) {
+        this.gcode_path_control = gcode_path_control;
+    }
+
+    /**
+     * @param gcode_distance_mode the gcode_distance_mode to set
+     */
+    public void setGcode_distance_mode(Gcode_distance_mode gcode_distance_mode) {
+        this.gcode_distance_mode = gcode_distance_mode;
+    }
+
+    /**
+     * @return the ignore_cr_lf_RX
+     */
+    public Ignore_CR_LF_ON_RX getIgnore_cr_lf_RX() {
+        return ignore_cr_lf_RX;
+    }
+
+    /**
+     * @param ignore_cr_lf_RX the ignore_cr_lf_RX to set
+     */
+    public void setIgnore_cr_lf_RX(Ignore_CR_LF_ON_RX ignore_cr_lf_RX) {
+        this.ignore_cr_lf_RX = ignore_cr_lf_RX;
+    }
+
+    /**
+     * @param lineNumber the lineNumber to set
+     */
+    public void setLineNumber(SimpleIntegerProperty lineNumber) {
+        this.lineNumber = lineNumber;
+    }
+
+    /**
+     * @param motors the motors to set
+     */
+    public void setMotors(List<Motor> motors) {
+        this.motors = motors;
+    }
+
+    /**
+     * @return the axis
+     */
+    public List<Axis> getAxis() {
+        return axis;
+    }
+
+    /**
+     * @param axis the axis to set
+     */
+    public void setAxis(List<Axis> axis) {
+        this.axis = axis;
+    }
+
+    /**
+     * @return the gcodeCoordinateSystems
+     */
+    public List<GcodeCoordinateSystem> getGcodeCoordinateSystems() {
+        return gcodeCoordinateSystems;
+    }
+
+    /**
+     * @param gcodeCoordinateSystems the gcodeCoordinateSystems to set
+     */
+    public void setGcodeCoordinateSystems(List<GcodeCoordinateSystem> gcodeCoordinateSystems) {
+        this.gcodeCoordinateSystems = gcodeCoordinateSystems;
+    }
+
+    /**
+     * @return the x
+     */
+    public Axis getX() {
+        return x;
+    }
+
+    /**
+     * @param x the x to set
+     */
+    public void setX(Axis x) {
+        this.x = x;
+    }
+
+    /**
+     * @return the y
+     */
+    public Axis getY() {
+        return y;
+    }
+
+    /**
+     * @param y the y to set
+     */
+    public void setY(Axis y) {
+        this.y = y;
+    }
+
+    /**
+     * @return the z
+     */
+    public Axis getZ() {
+        return z;
+    }
+
+    /**
+     * @param z the z to set
+     */
+    public void setZ(Axis z) {
+        this.z = z;
+    }
+
+    /**
+     * @return the a
+     */
+    public Axis getA() {
+        return a;
+    }
+
+    /**
+     * @param a the a to set
+     */
+    public void setA(Axis a) {
+        this.a = a;
+    }
+
+    /**
+     * @return the b
+     */
+    public Axis getB() {
+        return b;
+    }
+
+    /**
+     * @param b the b to set
+     */
+    public void setB(Axis b) {
+        this.b = b;
+    }
+
+    /**
+     * @return the c
+     */
+    public Axis getC() {
+        return c;
+    }
+
+    /**
+     * @param c the c to set
+     */
+    public void setC(Axis c) {
+        this.c = c;
+    }
+
+    /**
+     * @return the Motor1
+     */
+    public Motor getMotor1() {
+        return Motor1;
+    }
+
+    /**
+     * @param Motor1 the Motor1 to set
+     */
+    public void setMotor1(Motor Motor1) {
+        this.Motor1 = Motor1;
+    }
+
+    /**
+     * @return the Motor2
+     */
+    public Motor getMotor2() {
+        return Motor2;
+    }
+
+    /**
+     * @param Motor2 the Motor2 to set
+     */
+    public void setMotor2(Motor Motor2) {
+        this.Motor2 = Motor2;
+    }
+
+    /**
+     * @return the Motor3
+     */
+    public Motor getMotor3() {
+        return Motor3;
+    }
+
+    /**
+     * @param Motor3 the Motor3 to set
+     */
+    public void setMotor3(Motor Motor3) {
+        this.Motor3 = Motor3;
+    }
+
+    /**
+     * @return the Motor4
+     */
+    public Motor getMotor4() {
+        return Motor4;
+    }
+
+    /**
+     * @param Motor4 the Motor4 to set
+     */
+    public void setMotor4(Motor Motor4) {
+        this.Motor4 = Motor4;
+    }
+
+    /**
+     * @return the gcm
+     */
+    public GcodeCoordinateManager getGcm() {
+        return gcm;
+    }
+
+    /**
+     * @param gcm the gcm to set
+     */
+    public void setGcm(GcodeCoordinateManager gcm) {
+        this.gcm = gcm;
+    }
+
+    /**
+     * @param coordinateSystem the coordinateSystem to set
+     */
+    public void setCoordinateSystem(SimpleStringProperty coordinateSystem) {
+        this.coordinateSystem = coordinateSystem;
+    }
 
     public static enum motion_modes {
 //        [momo] motion_mode        - 0=traverse, 1=straight feed, 2=cw arc, 3=ccw arc
@@ -103,7 +558,7 @@ public final class Machine {
     }
 
     public String getSwitchTypeAsString() {
-        if (switchType == 0) {
+        if (getSwitchType() == 0) {
             return ("Normally Open");
         } else {
             return ("Normally Closed");
@@ -126,10 +581,10 @@ public final class Machine {
 
         switch (gdm) {
             case 0:
-                this.gcode_distance_mode = Gcode_distance_mode.ABSOLUTE;
+                this.setGcode_distance_mode(Gcode_distance_mode.ABSOLUTE);
                 break;
             case 1:
-                this.gcode_distance_mode = Gcode_distance_mode.INCREMENTAL;
+                this.setGcode_distance_mode(Gcode_distance_mode.INCREMENTAL);
         }
 
     }
@@ -149,11 +604,11 @@ public final class Machine {
     public void setGcodeSelectPlane(int gsp) {
         switch (gsp) {
             case 0:
-                this.gcode_select_plane = Gcode_select_plane.XY;
+                this.setGcode_select_plane(Gcode_select_plane.XY);
             case 1:
-                this.gcode_select_plane = Gcode_select_plane.XZ;
+                this.setGcode_select_plane(Gcode_select_plane.XZ);
             case 2:
-                this.gcode_select_plane = Gcode_select_plane.YZ;
+                this.setGcode_select_plane(Gcode_select_plane.YZ);
         }
     }
 
@@ -170,7 +625,7 @@ public final class Machine {
 //        return(gcodeUnitDivision.divide(2));
 //    }
     public void setHardwareId(String hwIdString) {
-        hardwareId.set(hwIdString);
+        getHardwareId().set(hwIdString);
     }
 
     public StringProperty getHardwareVersion() {
@@ -192,28 +647,28 @@ public final class Machine {
 
         reset, cycle, stop, end, run, hold, homing, probe, jog
     }
-    public static machine_states machine_state;
+    private static machine_states machine_state;
 
     public Ignore_CR_LF_ON_RX getIgnore_cr_lf_TX() {
-        return ignore_cr_lf_RX;
+        return getIgnore_cr_lf_RX();
     }
 
     public void setIgnore_cr_lf_TX(Ignore_CR_LF_ON_RX ignore_cr_lf_TX) {
 
-        this.ignore_cr_lf_RX = ignore_cr_lf_TX;
+        this.setIgnore_cr_lf_RX(ignore_cr_lf_TX);
     }
 
     public void setIgnore_cr_lf_RX(int ignore_cr_lf_RX) {
         //Send a int
         switch (ignore_cr_lf_RX) {
             case 0:
-                this.ignore_cr_lf_RX = Ignore_CR_LF_ON_RX.OFF;
+                this.setIgnore_cr_lf_RX(Ignore_CR_LF_ON_RX.OFF);
                 break;
             case 1:
-                this.ignore_cr_lf_RX = Ignore_CR_LF_ON_RX.CR;
+                this.setIgnore_cr_lf_RX(Ignore_CR_LF_ON_RX.CR);
                 break;
             case 2:
-                this.ignore_cr_lf_RX = Ignore_CR_LF_ON_RX.LF;
+                this.setIgnore_cr_lf_RX(Ignore_CR_LF_ON_RX.LF);
                 break;
         }
     }
@@ -257,13 +712,13 @@ public final class Machine {
     public void setGcodePathControl(int gpc) {
         switch (gpc) {
             case 0:
-                this.gcode_path_control = Gcode_path_control.G61;
+                this.setGcode_path_control(Gcode_path_control.G61);
                 break;
             case 1:
-                this.gcode_path_control = Gcode_path_control.G61POINT1;
+                this.setGcode_path_control(Gcode_path_control.G61POINT1);
                 break;
             case 2:
-                this.gcode_path_control = Gcode_path_control.G64;
+                this.setGcode_path_control(Gcode_path_control.G64);
                 break;
         }
     }
@@ -328,13 +783,13 @@ public final class Machine {
 
     public void setGcodeUnits(int unitMode) {
         if (unitMode == 0) {
-            gcodeUnitMode.setValue("inches");
-            gcodeUnitDivision.set(25.4);  //mm to inches conversion   
+            getGcodeUnitMode().setValue("inches");
+            getGcodeUnitDivision().set(25.4);  //mm to inches conversion   
 
 
         } else if (unitMode == 1) {
-            gcodeUnitMode.setValue("mm");
-            gcodeUnitDivision.set(1.0);
+            getGcodeUnitMode().setValue("mm");
+            getGcodeUnitDivision().set(1.0);
 
         }
 
@@ -346,7 +801,7 @@ public final class Machine {
     }
 
     public int getGcodeUnitModeAsInt() {
-        if (gcodeUnitMode.get().equals(Gcode_unit_modes.mm.toString())) {
+        if (getGcodeUnitMode().get().equals(Gcode_unit_modes.mm.toString())) {
             return (1);
         } else {
             return (0);
@@ -359,10 +814,10 @@ public final class Machine {
 
         switch (_tmpgcu) {
             case (0):
-                gcodeUnitMode.set(Gcode_unit_modes.inches.toString());
+                getGcodeUnitMode().set(Gcode_unit_modes.inches.toString());
                 break;
             case (1):
-                gcodeUnitMode.set(Gcode_unit_modes.mm.toString());
+                getGcodeUnitMode().set(Gcode_unit_modes.mm.toString());
                 break;
         }
     }
@@ -371,21 +826,21 @@ public final class Machine {
 //        this.gcode_unit_mode = gcode_units;
 //    }
     public SimpleStringProperty getMotionMode() {
-        return (m_mode);
+        return (getM_mode());
     }
 
     public void setMotionMode(int mode) {
 
         if (mode == 0) {
-            m_mode.set(motion_modes.traverse.toString());
+            getM_mode().set(motion_modes.traverse.toString());
         } else if (mode == 1) {
-            m_mode.set(motion_modes.feed.toString());
+            getM_mode().set(motion_modes.feed.toString());
         } else if (mode == 2) {
-            m_mode.set(motion_modes.cw_arc.toString());
+            getM_mode().set(motion_modes.cw_arc.toString());
         } else if (mode == 3) {
-            m_mode.set(motion_modes.ccw_arc.toString());
+            getM_mode().set(motion_modes.ccw_arc.toString());
         } else {
-            m_mode.set(motion_modes.cancel.toString());
+            getM_mode().set(motion_modes.cancel.toString());
         }
     }
 //
@@ -426,10 +881,12 @@ public final class Machine {
         this.enable_xon_xoff = enable_xon_xoff;
     }
 
-    public double getFirmwareBuild() {
+    public double getFirmwareBuildValue() {
         return firmwareBuild.getValue();
     }
-
+    public SimpleDoubleProperty getFirmwareBuild() {
+        return firmwareBuild;
+    }
     public void setFirmwareBuild(double firmware_build) throws IOException, JSONException {
 
         this.firmwareBuild.set(firmware_build);
@@ -441,7 +898,7 @@ public final class Machine {
     }
 
     public void setFirmwareVersion(String fv) {
-        this.firmwareVersion.setValue(fv);
+        this.getFirmwareVersion().setValue(fv);
     }
 
     public int getLineNumber() {
@@ -457,7 +914,7 @@ public final class Machine {
     }
 
     public SimpleStringProperty getMachineState() {
-        return this.m_state;
+        return this.getM_state();
     }
 
 //    public void setCoordinateSystem(String cord) {
@@ -506,31 +963,31 @@ public final class Machine {
 
         switch (state) {
             case 1:
-                m_state.set(machine_states.reset.toString());
+                getM_state().set(machine_states.reset.toString());
                 break;
             case 2:
-                m_state.set(machine_states.cycle.toString());
+                getM_state().set(machine_states.cycle.toString());
                 break;
             case 3:
-                m_state.set(machine_states.stop.toString());
+                getM_state().set(machine_states.stop.toString());
                 break;
             case 4:
-                m_state.set(machine_states.end.toString());
+                getM_state().set(machine_states.end.toString());
                 break;
             case 5:
-                m_state.set(machine_states.run.toString());
+                getM_state().set(machine_states.run.toString());
                 break;
             case 6:
-                m_state.set(machine_states.hold.toString());
+                getM_state().set(machine_states.hold.toString());
                 break;
             case 7:
-                m_state.set(machine_states.homing.toString());
+                getM_state().set(machine_states.homing.toString());
                 break;
             case 8:
-                m_state.set(machine_states.probe.toString());
+                getM_state().set(machine_states.probe.toString());
                 break;
             case 9:
-                m_state.set(machine_states.jog.toString());
+                getM_state().set(machine_states.jog.toString());
                 break;
         }
     }
@@ -559,8 +1016,11 @@ public final class Machine {
         this.min_segment_time = min_segment_time;
     }
 
-    public Double getVelocity() {
+    public Double getVelocityValue() {
         return (velocity.get());
+    }
+    public SimpleDoubleProperty getVelocity() {
+        return velocity;
     }
 
     public void setVelocity(double vel) {
@@ -608,7 +1068,7 @@ public final class Machine {
     }
 
     public GcodeCoordinateSystem getCoordinateSystemByName(String name) {
-        for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
+        for (GcodeCoordinateSystem _tmpGCS : getGcodeCoordinateSystems()) {
             if (_tmpGCS.getCoordinate().equals(name)) {
                 return (_tmpGCS);
             }
@@ -617,9 +1077,9 @@ public final class Machine {
     }
 
     public GcodeCoordinateSystem getCoordinateSystemByNumberMnemonic(int number) {
-        for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
+        for (GcodeCoordinateSystem _tmpGCS : getGcodeCoordinateSystems()) {
             if (_tmpGCS.getCoordinateNumberMnemonic() == number) {
-                logger.info("Returned " + _tmpGCS.getCoordinate() + " coord system");
+                getLogger().info("Returned " + _tmpGCS.getCoordinate() + " coord system");
                 return (_tmpGCS);
             }
         }
@@ -627,9 +1087,9 @@ public final class Machine {
     }
 
     public GcodeCoordinateSystem getCoordinateSystemByTgNumber(int number) {
-        for (GcodeCoordinateSystem _tmpGCS : gcodeCoordinateSystems) {
+        for (GcodeCoordinateSystem _tmpGCS : getGcodeCoordinateSystems()) {
             if (_tmpGCS.getCoordinateNumberByTgFormat() == number) {
-                logger.info("Returned " + _tmpGCS.getCoordinate() + " coord system");
+                getLogger().info("Returned " + _tmpGCS.getCoordinate() + " coord system");
                 return (_tmpGCS);
             }
         }
@@ -637,7 +1097,7 @@ public final class Machine {
     }
 
     public List<Axis> getAllAxis() {
-        return axis;
+        return getAxis();
     }
 
     public List getAllLinearAxis() {
@@ -664,7 +1124,7 @@ public final class Machine {
     }
 
     public Axis getAxisByName(String name) {
-        for (Axis tmpAxis : axis) {
+        for (Axis tmpAxis : getAxis()) {
             if (tmpAxis.getAxis_name().equals(name.toUpperCase())) {
                 return (tmpAxis);
             }
@@ -678,7 +1138,7 @@ public final class Machine {
     }
 
     public Motor getMotorByNumber(int i) {
-        for (Motor m : motors) {
+        for (Motor m : getMotors()) {
             if (m.getId_number() == i) {
                 return (m);
             }
@@ -746,7 +1206,7 @@ public final class Machine {
                 TinygDriver.getInstance().machine.setGcodeUnits(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_COORDNIATE_MODE):
-                TinygDriver.getInstance().machine.gcm.setCurrentGcodeCoordinateSystem(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.getGcm().setCurrentGcodeCoordinateSystem(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
                 TinygDriver.getInstance().machine.setVelocity(Double.valueOf(rc.getSettingValue()));
@@ -756,7 +1216,7 @@ public final class Machine {
 
 //This is the main method to parser a JSON sys object
     public void applyJsonSystemSetting(JSONObject js, String parent) throws IOException {
-        logger.info("Applying JSON Object to System Group");
+        getLogger().info("Applying JSON Object to System Group");
         Iterator ii = js.keySet().iterator();
         try {
             while (ii.hasNext()) {
@@ -767,99 +1227,99 @@ public final class Machine {
                 switch (_key) {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_BAUDRATE):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_HARDWARD_PLATFORM):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
 //                        TinygDriver.getInstance().hardwarePlatform.setHardwarePlatformVersion(Integer.valueOf(rc.getSettingValue()));
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_HARDWARE_VERSION):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().hardwarePlatformManager.setHardwarePlatformByVersionNumber(Integer.valueOf(rc.getSettingValue()));
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO):
                         TinygDriver.getInstance().machine.setEnable_echo(Boolean.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_JSON_MODE):
                         //TinygDriver.getInstance().m(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_XON):
                         TinygDriver.getInstance().machine.setEnable_xon_xoff(Boolean.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_BUILD):
                         TinygDriver.getInstance().machine.setFirmwareBuild(Double.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_VERSION):
                         TinygDriver.getInstance().machine.setFirmwareVersion(rc.getSettingValue());
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_COORDINATE_SYSTEM):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
 //                        TinygDriver.getInstance().m.setCoordinateSystem(rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_DISTANCE_MODE):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().machine.setGcodeDistanceMode(rc.getSettingValue());
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().machine.setGcodePathControl(rc.getSettingValue());
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE):
                         //TinygDriver.getInstance().m.setGcodeSelectPlane(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().machine.setGcodeSelectPlane(rc.getSettingValue());
                         break;
 
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_IGNORE_CR):
 //                        TinygDriver.getInstance().m.setIgnore_cr_lf_RX(rc.getSettingValue());
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_JSON_VOBERSITY):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_JUNCTION_ACCELERATION):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_MIN_ARC_SEGMENT):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_MIN_LINE_SEGMENT):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_MIN_TIME_SEGMENT):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_QUEUE_REPORTS):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_SWITCH_TYPE):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().machine.setSwitchType(Integer.valueOf(rc.getSettingValue()));
                         String[] message = new String[2];
                         message[0] = "MACHINE_UPDATE";
@@ -871,14 +1331,19 @@ public final class Machine {
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_TEXT_VOBERSITY):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_TINYG_ID_VERSION):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         this.setHardwareId(rc.getSettingValue());
                         break;
 
+
+
+//                    case (MnemonicManager.MNEMONIC_SYSTEM_LAST_MESSAGE):
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        break;
 
 
 //                    case (MnemonicManager.MNEMONIC_SYSTEM_LAST_MESSAGE):
@@ -897,7 +1362,7 @@ public final class Machine {
             }
 
         } catch (JSONException | NumberFormatException ex) {
-            logger.error("Error in ApplyJsonSystemSetting in Machine:SYS group");
+            getLogger().error("Error in ApplyJsonSystemSetting in Machine:SYS group");
         }
 
     }
