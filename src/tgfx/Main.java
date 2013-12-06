@@ -14,6 +14,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -52,6 +53,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONException;
 import tgfx.render.CNCMachine;
 import tgfx.render.Draw2d;
+import tgfx.system.Machine;
 import tgfx.system.StatusCode;
 import tgfx.tinyg.CommandManager;
 import tgfx.tinyg.TinygDriver;
@@ -368,10 +370,10 @@ public class Main extends Stage implements Initializable, Observer {
 
     public void onDisconnectActions() throws IOException, JSONException {
         TinygDriver.getInstance().machine.setFirmwareBuild(0.0);
-        TinygDriver.getInstance().machine.firmwareBuild.set(0);
-        TinygDriver.getInstance().machine.firmwareVersion.set("");
-        TinygDriver.getInstance().machine.m_state.set("");
-        TinygDriver.getInstance().machine.setLineNumber(0);
+        TinygDriver.getInstance().machine.setFirmwareBuild(0.0D);
+        TinygDriver.getInstance().machine.getFirmwareVersion().set("");
+        TinygDriver.getInstance().machine.getM_state().set("");
+        TinygDriver.getInstance().machine.setLineNumber(new SimpleIntegerProperty(0));
         TinygDriver.getInstance().machine.setMotionMode(0);
         Draw2d.setFirstDraw(true);
         tgfx.ui.gcode.GcodeTabController.setCNCMachineVisible(false);  //Once we disconnect we hide our gcode preview.
@@ -766,14 +768,15 @@ public class Main extends Stage implements Initializable, Observer {
         /*#######################################################
          * BINDINGS
          * #####################################################*/
-        srMomo.textProperty().bind(TinygDriver.getInstance().machine.getMotionMode());
-        srVer.textProperty().bind(TinygDriver.getInstance().machine.firmwareVersion);
-        srBuild.textProperty().bindBidirectional(TinygDriver.getInstance().machine.firmwareBuild, sc);
-        srState.textProperty().bind(TinygDriver.getInstance().machine.m_state);
-        srCoord.textProperty().bind(TinygDriver.getInstance().machine.getCoordinateSystem());
-        srUnits.textProperty().bind(TinygDriver.getInstance().machine.getGcodeUnitMode());
-        srCoord.textProperty().bind(TinygDriver.getInstance().machine.gcm.getCurrentGcodeCoordinateSystemName());
-        srGcodeLine.textProperty().bind(TinygDriver.getInstance().machine.getLineNumberSimple().asString());
+        Machine m = TinygDriver.getInstance().machine;
+        srMomo.textProperty().bind(m.getMotionMode());
+        srVer.textProperty().bind(m.getFirmwareVersion());
+        srBuild.textProperty().bindBidirectional( m.getFirmwareBuild(), sc);
+        srState.textProperty().bind(m.getM_state());
+        srCoord.textProperty().bind(m.getCoordinateSystem());
+        srUnits.textProperty().bind(m.getGcodeUnitMode());
+        srCoord.textProperty().bind(m.getGcm().getCurrentGcodeCoordinateSystemName());
+        srGcodeLine.textProperty().bind(m.getLineNumberSimple().asString());
 
 
         /*##########################
