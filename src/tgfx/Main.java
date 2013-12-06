@@ -369,12 +369,12 @@ public class Main extends Stage implements Initializable, Observer {
     }
 
     public void onDisconnectActions() throws IOException, JSONException {
-        TinygDriver.getInstance().machine.setFirmwareBuild(0.0);
-        TinygDriver.getInstance().machine.setFirmwareBuild(0.0D);
-        TinygDriver.getInstance().machine.getFirmwareVersion().set("");
-        TinygDriver.getInstance().machine.getM_state().set("");
-        TinygDriver.getInstance().machine.setLineNumber(new SimpleIntegerProperty(0));
-        TinygDriver.getInstance().machine.setMotionMode(0);
+        TinygDriver.getInstance().getMachine().setFirmwareBuild(0.0);
+        TinygDriver.getInstance().getMachine().setFirmwareBuild(0.0D);
+        TinygDriver.getInstance().getMachine().getFirmwareVersion().set("");
+        TinygDriver.getInstance().getMachine().getM_state().set("");
+        TinygDriver.getInstance().getMachine().setLineNumber(new SimpleIntegerProperty(0));
+        TinygDriver.getInstance().getMachine().setMotionMode(0);
         Draw2d.setFirstDraw(true);
         tgfx.ui.gcode.GcodeTabController.setCNCMachineVisible(false);  //Once we disconnect we hide our gcode preview.
 
@@ -540,7 +540,7 @@ public class Main extends Stage implements Initializable, Observer {
                 switch (ROUTING_KEY) {
                     case ("STATUS_REPORT"):
                         tgfx.ui.gcode.GcodeTabController.drawCanvasUpdate();                         
-                        int rspLine = TinygDriver.getInstance().machine.getLineNumber();
+                        int rspLine = TinygDriver.getInstance().getMachine().getLineNumber();
 
                         // Scroll Gcode view to stay in synch with TinyG acks during file send
                         if (rspLine != oldRspLine && GcodeTabController.isSendingFile.get()) {
@@ -623,7 +623,7 @@ public class Main extends Stage implements Initializable, Observer {
 
                                 MonologFX mono = MonologFXBuilder.create()
                                         .titleText("TinyG Firware Build Outdated...")
-                                        .message("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.machine.getFirmwareBuild() + "\n"
+                                        .message("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.getMachine().getFirmwareBuild() + "\n"
                                         + "Minmal Needed Version: " + tg.hardwarePlatform.getMinimalBuildVersion().toString() + "\n\n"
                                         + "Click ok to attempt to auto upgrade your TinyG. \nA Internet Connection is Required."
                                         + "\nClicking No will exit tgFX.")
@@ -768,7 +768,7 @@ public class Main extends Stage implements Initializable, Observer {
         /*#######################################################
          * BINDINGS
          * #####################################################*/
-        Machine m = TinygDriver.getInstance().machine;
+        Machine m = TinygDriver.getInstance().getMachine();
         srMomo.textProperty().bind(m.getMotionMode());
         srVer.textProperty().bind(m.getFirmwareVersion());
         srBuild.textProperty().bindBidirectional( m.getFirmwareBuild(), sc);
