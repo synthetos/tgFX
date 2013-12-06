@@ -150,7 +150,7 @@ public class FirmwareUpdaterController implements Initializable {
                     input.read(buffer);
                     String _currentVersionString = new String(buffer);
                     Double currentVal;
-                    if (TinygDriver.getInstance().machine.getFirmwareBuildValue() < Double.valueOf(_currentVersionString)) {
+                    if (TinygDriver.getInstance().getMachine().getFirmwareBuildValue() < Double.valueOf(_currentVersionString)) {
                         //We need to update your firmware
                         Platform.runLater(new Runnable() {
                             @Override
@@ -244,7 +244,7 @@ public class FirmwareUpdaterController implements Initializable {
     //https://github.com/synthetos/TinyG/blob/master/readme.md
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        NumberExpression ne = new SimpleDoubleProperty(_currentVersionString.doubleValue()).subtract(TinygDriver.getInstance().machine.getFirmwareBuild());
+        NumberExpression ne = new SimpleDoubleProperty(_currentVersionString.doubleValue()).subtract(TinygDriver.getInstance().getMachine().getFirmwareBuild());
 
 //        BooleanExpression be = new SimpleDoubleProperty(TinygDriver.getInstance().m.getFirmwareVersion());
 //        _currentVersionString.TinygDriver.getInstance().m.firmwareBuild);
