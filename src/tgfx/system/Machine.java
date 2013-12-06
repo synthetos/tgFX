@@ -1160,39 +1160,39 @@ public final class Machine {
 
         switch (rc.getSettingKey()) {
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
-                TinygDriver.getInstance().machine.setLineNumber(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().setLineNumber(Integer.valueOf(rc.getSettingValue()));
                 setLineNumber(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MOTION_MODE):
-                TinygDriver.getInstance().machine.setMotionMode(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().setMotionMode(Integer.valueOf(rc.getSettingValue()));
                 break;
             //Machine Position Cases
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSX):
-                TinygDriver.getInstance().machine.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSY):
-                TinygDriver.getInstance().machine.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSZ):
-                TinygDriver.getInstance().machine.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MACHINEPOSA):
-                TinygDriver.getInstance().machine.getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().getAxisByName(rc.getSettingKey().charAt(3)).setMachinePosition(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_WORKOFFSETX):
-                TinygDriver.getInstance().machine.getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_WORKOFFSETY):
-                TinygDriver.getInstance().machine.getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_WORKOFFSETZ):
-                TinygDriver.getInstance().machine.getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_WORKOFFSETA):
-                TinygDriver.getInstance().machine.getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().getAxisByName(rc.getSettingKey().charAt(3)).setOffset(Double.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_TINYG_DISTANCE_MODE):
-                TinygDriver.getInstance().machine.setGcodeDistanceMode(rc.getSettingValue());
+                TinygDriver.getInstance().getMachine().setGcodeDistanceMode(rc.getSettingValue());
                 break;
 
             /*
@@ -1200,16 +1200,16 @@ public final class Machine {
              */
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
-                TinygDriver.getInstance().machine.setMachineState(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().setMachineState(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_UNIT):
-                TinygDriver.getInstance().machine.setGcodeUnits(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().setGcodeUnits(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_COORDNIATE_MODE):
-                TinygDriver.getInstance().machine.getGcm().setCurrentGcodeCoordinateSystem(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().getGcm().setCurrentGcodeCoordinateSystem(Integer.valueOf(rc.getSettingValue()));
                 break;
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
-                TinygDriver.getInstance().machine.setVelocity(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().getMachine().setVelocity(Double.valueOf(rc.getSettingValue()));
                 break;
         }
     }
@@ -1240,7 +1240,7 @@ public final class Machine {
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO):
-                        TinygDriver.getInstance().machine.setEnable_echo(Boolean.valueOf(rc.getSettingValue()));
+                        TinygDriver.getInstance().getMachine().setEnable_echo(Boolean.valueOf(rc.getSettingValue()));
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
@@ -1250,17 +1250,17 @@ public final class Machine {
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_XON):
-                        TinygDriver.getInstance().machine.setEnable_xon_xoff(Boolean.valueOf(rc.getSettingValue()));
+                        TinygDriver.getInstance().getMachine().setEnable_xon_xoff(Boolean.valueOf(rc.getSettingValue()));
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_BUILD):
-                        TinygDriver.getInstance().machine.setFirmwareBuild(Double.valueOf(rc.getSettingValue()));
+                        TinygDriver.getInstance().getMachine().setFirmwareBuild(Double.valueOf(rc.getSettingValue()));
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_VERSION):
-                        TinygDriver.getInstance().machine.setFirmwareVersion(rc.getSettingValue());
+                        TinygDriver.getInstance().getMachine().setFirmwareVersion(rc.getSettingValue());
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
@@ -1271,16 +1271,16 @@ public final class Machine {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_DISTANCE_MODE):
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().machine.setGcodeDistanceMode(rc.getSettingValue());
+                        TinygDriver.getInstance().getMachine().setGcodeDistanceMode(rc.getSettingValue());
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL):
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().machine.setGcodePathControl(rc.getSettingValue());
+                        TinygDriver.getInstance().getMachine().setGcodePathControl(rc.getSettingValue());
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE):
                         //TinygDriver.getInstance().m.setGcodeSelectPlane(Float.valueOf(rc.getSettingValue()));
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().machine.setGcodeSelectPlane(rc.getSettingValue());
+                        TinygDriver.getInstance().getMachine().setGcodeSelectPlane(rc.getSettingValue());
                         break;
 
 
@@ -1320,7 +1320,7 @@ public final class Machine {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_SWITCH_TYPE):
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().machine.setSwitchType(Integer.valueOf(rc.getSettingValue()));
+                        TinygDriver.getInstance().getMachine().setSwitchType(Integer.valueOf(rc.getSettingValue()));
                         String[] message = new String[2];
                         message[0] = "MACHINE_UPDATE";
                         message[1] = null;
