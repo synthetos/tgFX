@@ -1,5 +1,5 @@
 /*
- * Copyright Synthetos LLC
+ * Copyright (c) 2013 Synthetos LLC
  * Rileyporter@gmail.com
  * www.synthetos.com
  * 
@@ -7,9 +7,9 @@
 package tgfx;
 
 import java.io.IOException;
-import tgfx.tinyg.TinygDriver;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.MissingResourceException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
@@ -18,9 +18,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.InputEvent;
@@ -28,37 +30,32 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.web.WebView;
-import jfxtras.labs.dialogs.MonologFXButton;
-import tgfx.render.Draw2d;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
-import java.util.MissingResourceException;
-import javafx.scene.Scene;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
-import javafx.util.StringConverter;
-import jfxtras.labs.scene.control.gauge.Lcd;
-import jfxtras.labs.scene.control.gauge.LcdBuilder;
-import jfxtras.labs.scene.control.gauge.StyleModel;
-import tgfx.ui.gcode.GcodeHistory;
-import tgfx.system.StatusCode;
-import tgfx.tinyg.CommandManager;
+import javafx.scene.web.WebView;
 
 
 import javafx.stage.Stage;
-
+import javafx.util.StringConverter;
 import jfxtras.labs.dialogs.MonologFX;
 import jfxtras.labs.dialogs.MonologFXBuilder;
+import jfxtras.labs.dialogs.MonologFXButton;
 import jfxtras.labs.dialogs.MonologFXButtonBuilder;
+import jfxtras.labs.scene.control.gauge.Lcd;
+import jfxtras.labs.scene.control.gauge.LcdBuilder;
+import jfxtras.labs.scene.control.gauge.StyleModel;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
-
 import tgfx.render.CNCMachine;
+import tgfx.render.Draw2d;
+import tgfx.system.StatusCode;
+import tgfx.tinyg.CommandManager;
+import tgfx.tinyg.TinygDriver;
+import tgfx.ui.gcode.GcodeHistory;
 import tgfx.ui.gcode.GcodeTabController;
 import tgfx.ui.machinesettings.MachineSettingsController;
 import tgfx.ui.tgfxsettings.TgfxSettingsController;
