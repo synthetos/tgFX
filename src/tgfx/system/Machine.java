@@ -898,7 +898,7 @@ public final class Machine {
     }
 
     public void setFirmwareVersion(String fv) {
-        this.getFirmwareVersion().setValue(fv);
+        firmwareVersion.setValue(fv);
     }
 
     public int getLineNumber() {
