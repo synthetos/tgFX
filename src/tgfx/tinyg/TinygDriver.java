@@ -82,7 +82,7 @@ public class TinygDriver extends Observable {
 //        }else{
 //            HardwarePlatform.getInstance().getPlatformByName("TinyG");
 //        }
-        if(this.hardwarePlatform.getMinimalBuildVersion() < this.machine.getFirmwareBuild()){
+        if(this.hardwarePlatform.getMinimalBuildVersion() < this.machine.getFirmwareBuildValue()){
             //This checks to see if the current build version on TinyG is greater than what tgFX's hardware profile needs.
         
         }
@@ -90,16 +90,16 @@ public class TinygDriver extends Observable {
        
         
 
-        if (this.machine.getFirmwareBuild() < TinygDriver.getInstance().hardwarePlatform.getMinimalBuildVersion() && 
-                this.machine.getFirmwareBuild() != 0.0) {
+        if (this.machine.getFirmwareBuildValue() < TinygDriver.getInstance().hardwarePlatform.getMinimalBuildVersion() && 
+                this.machine.getFirmwareBuildValue() != 0.0) {
             
             //too old of a build  we need to tell the GUI about this... This is where PUB/SUB will fix this 
             //bad way of alerting the gui about model changes.
             message[0] = "BUILD_ERROR";
-            message[1] = Double.toString(TinygDriver.getInstance().machine.getFirmwareBuild());
+            message[1] = Double.toString(TinygDriver.getInstance().machine.getFirmwareBuildValue());
             setChanged();
             notifyObservers(message);
-            logger.info("Build Version: " + TinygDriver.getInstance().machine.getFirmwareBuild() + " is NOT OK");
+            logger.info("Build Version: " + TinygDriver.getInstance().machine.getFirmwareBuildValue() + " is NOT OK");
         } else {
             logger.info("Build Version: " + TinygDriver.getInstance().machine.getFirmwareBuild() + " is OK");
             message[0] = "BUILD_OK";
