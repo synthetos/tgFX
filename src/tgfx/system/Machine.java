@@ -194,9 +194,7 @@ public interface Machine {
 
     int getStatus_report_interval();
 
-    int getSwitchType();
-
-    String getSwitchTypeAsString();
+    switchNoNc getSwitchType();
 
     SimpleDoubleProperty getVelocity();
 
@@ -408,40 +406,6 @@ public interface Machine {
 
     void setMachineName(String machineName);
 
-    //    public void setCoordinate_mode(double m) {
-    //        int c = (int) (m); //Convert this to a int
-    //        setCoordinate_mode(c);
-    //    }
-    //    public int getCoordinateSystemOrd() {
-    //        coordinate_systems[] cs = coordinate_systems.values();
-    //        return 1;
-    //    }
-    //
-    //    public void setCoordinate_mode(int c) {
-    //        switch (c) {
-    //            case 1:
-    //                coordinateSystem.set(coordinate_systems.g54.toString());
-    //                break;
-    //            case 2:
-    //                coordinateSystem.set(coordinate_systems.g55.toString());
-    //                break;
-    //            case 3:
-    //                coordinateSystem.set(coordinate_systems.g56.toString());
-    //                break;
-    //            case 4:
-    //                coordinateSystem.set(coordinate_systems.g57.toString());
-    //                break;
-    //            case 5:
-    //                coordinateSystem.set(coordinate_systems.g58.toString());
-    //                break;
-    //            case 6:
-    //                coordinateSystem.set(coordinate_systems.g59.toString());
-    //                break;
-    //            default:
-    //                coordinateSystem.set(coordinate_systems.g54.toString());
-    //                break;
-    //        }
-    //    }
     void setMachineState(int state);
 
     void setMin_arc_segment(float min_arc_segment);
@@ -481,7 +445,9 @@ public interface Machine {
 
     void setStatus_report_interval(int status_report_interval);
 
+    void setSwitchType(switchNoNc swType);
     void setSwitchType(int swType);
+    
 
     /**
      * @param velocity the velocity to set
@@ -519,15 +485,14 @@ public interface Machine {
      * @param zjoggingIncrement the zjoggingIncrement to set
      */
     void setZjoggingIncrement(SimpleIntegerProperty zjoggingIncrement);
-        public static enum Ignore_CR_LF_ON_RX {
-        //OFF means neither is ignored on RX
-
-        OFF, CR, LF
+    
+    enum Ignore_CR_LF_ON_RX {
+        OFF, //OFF means neither is ignored on RX
+        CR, LF
     }
 
     enum Gcode_unit_modes {
         //gun
-
         inches, //G20
         mm      //G21
     };
@@ -542,13 +507,11 @@ public interface Machine {
 
     enum Gcode_distance_mode {
         //gdi
-
         ABSOLUTE, //G90
         INCREMENTAL   //91
     }
     enum Gcode_path_control {
         //gpl
-
         G61,
         G61POINT1,
         G64
@@ -556,13 +519,35 @@ public interface Machine {
 
     enum Gcode_coord_system {
         //gco
-
         G54, G55, G56, G57, G58, G59
     }
 
     enum selection_plane {
-
         G17, G18, G19
     };
-
+   /**
+    * Switch type Normally Open (no) or normally closed (nc)
+    * this is switchType, but that name is used in too many places for me (pat) to change it without
+    * understanding more of the code.
+    */ 
+    enum switchNoNc {    //0=normally closed 1 = normally open
+         normallyClosed,
+         normallyOpen;
+         
+        @Override
+        public String toString() {
+            String rval = (this == switchNoNc.normallyClosed) ? "Normally Closed" :  "Normally Open";
+            return rval;
+        }
+        public static switchNoNc valueMatching(int val) {
+            switchNoNc rval = normallyClosed;
+            for (switchNoNc s : values()) {
+                if (s.ordinal() == val) {
+                    rval = s;
+                    break;
+                }
+            }
+            return rval;
+        }
+    }
 }
