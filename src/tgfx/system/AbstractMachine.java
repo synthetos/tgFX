@@ -624,15 +624,6 @@ public final class AbstractMachine implements Machine {
     }
 
     @Override
-    public String getSwitchTypeAsString() {
-        if (getSwitchType() == switchNoNc.normallyClosed) {
-            return ("Normally Open");
-        } else {
-            return ("Normally Closed");
-        }
-    }
-
-    @Override
     public Gcode_select_plane getGcode_select_plane() {
         return gcode_select_plane;
     }
