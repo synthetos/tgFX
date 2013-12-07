@@ -27,6 +27,63 @@ import tgfx.tinyg.responseCommand;
  */
 public final class AbstractMachine implements Machine {
 
+    //TG Specific
+    //Machine EEPROM Values
+    //binding
+    private SimpleDoubleProperty longestTravelAxisValue = new SimpleDoubleProperty();
+    private SimpleIntegerProperty xjoggingIncrement = new SimpleIntegerProperty();
+    private SimpleIntegerProperty yjoggingIncrement = new SimpleIntegerProperty();
+    private SimpleIntegerProperty zjoggingIncrement = new SimpleIntegerProperty();
+    private SimpleIntegerProperty ajoggingIncrement = new SimpleIntegerProperty();
+    private SimpleStringProperty m_state = new SimpleStringProperty();
+    private SimpleStringProperty m_mode = new SimpleStringProperty();
+    private SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();
+    private StringProperty firmwareVersion = new SimpleStringProperty();
+    private SimpleDoubleProperty hardwarePlatform = new SimpleDoubleProperty(0);
+    private StringProperty hardwareId = new SimpleStringProperty("na");
+    private StringProperty hardwareVersion = new SimpleStringProperty("na");
+    private SimpleDoubleProperty velocity = new SimpleDoubleProperty();
+    private StringProperty gcodeUnitMode = new SimpleStringProperty("mm");
+    private SimpleDoubleProperty gcodeUnitDivision = new SimpleDoubleProperty(1);
+//    private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
+    private switchNoNc switchType = switchNoNc.normallyClosed; //0=normally closed 1 = normally open
+    private int status_report_interval;
+//    public Gcode_unit_modes gcode_startup_units;
+    private Gcode_select_plane gcode_select_plane;
+    private Gcode_coord_system gcode_select_coord_system;
+    private Gcode_path_control gcode_path_control;
+    private Gcode_distance_mode gcode_distance_mode = Gcode_distance_mode.ABSOLUTE;
+    private boolean enable_acceleration;
+    private float junction_acceleration;
+    private float min_line_segment;
+    private static Logger logger = Logger.getLogger(TinygDriver.class);
+    private float min_arc_segment;
+    private double min_segment_time;
+    private Ignore_CR_LF_ON_RX ignore_cr_lf_RX;
+    private boolean enable_CR_on_TX;
+    private boolean enable_echo;
+    private boolean enable_xon_xoff;
+    private boolean enable_hashcode;
+    //Misc
+    private SimpleIntegerProperty lineNumber = new SimpleIntegerProperty(0);
+    private String last_message = "";
+//    public static motion_modes motion_mode = new SimpleIntegerProperty();
+    private static motion_modes motion_mode;
+    private List<Motor> motors = new ArrayList<>();
+    private List<Axis> axis = new ArrayList<>();
+    private List<GcodeCoordinateSystem> gcodeCoordinateSystems = new ArrayList<>();
+    private Axis x = new Axis(Axis.AXIS.X, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
+    private Axis y = new Axis(Axis.AXIS.Y, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
+    private Axis z = new Axis(Axis.AXIS.Z, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
+    private Axis a = new Axis(Axis.AXIS.A, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
+    private Axis b = new Axis(Axis.AXIS.B, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
+    private Axis c = new Axis(Axis.AXIS.C, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
+    private Motor Motor1 = new Motor(1);
+    private Motor Motor2 = new Motor(2);
+    private Motor Motor3 = new Motor(3);
+    private Motor Motor4 = new Motor(4);
+    private GcodeCoordinateManager gcm = new GcodeCoordinateManager();
+
     /**
      * @return the logger
      */
@@ -68,63 +125,6 @@ public final class AbstractMachine implements Machine {
     public static void setMachine_state(machine_states aMachine_state) {
         machine_state = aMachine_state;
     }
-
-    //TG Specific
-    //Machine EEPROM Values
-    //binding
-    private SimpleDoubleProperty longestTravelAxisValue = new SimpleDoubleProperty();
-    private SimpleIntegerProperty xjoggingIncrement = new SimpleIntegerProperty();
-    private SimpleIntegerProperty yjoggingIncrement = new SimpleIntegerProperty();
-    private SimpleIntegerProperty zjoggingIncrement = new SimpleIntegerProperty();
-    private SimpleIntegerProperty ajoggingIncrement = new SimpleIntegerProperty();
-    private SimpleStringProperty m_state = new SimpleStringProperty();
-    private SimpleStringProperty m_mode = new SimpleStringProperty();
-    private SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();
-    private StringProperty firmwareVersion = new SimpleStringProperty();
-    private SimpleDoubleProperty hardwarePlatform = new SimpleDoubleProperty(0);
-    private StringProperty hardwareId = new SimpleStringProperty("na");
-    private StringProperty hardwareVersion = new SimpleStringProperty("na");
-    private SimpleDoubleProperty velocity = new SimpleDoubleProperty();
-    private StringProperty gcodeUnitMode = new SimpleStringProperty("mm");
-    private SimpleDoubleProperty gcodeUnitDivision = new SimpleDoubleProperty(1);
-//    private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
-    private int switchType = 0; //0=normally closed 1 = normally open
-    private int status_report_interval;
-//    public Gcode_unit_modes gcode_startup_units;
-    private Gcode_select_plane gcode_select_plane;
-    private Gcode_coord_system gcode_select_coord_system;
-    private Gcode_path_control gcode_path_control;
-    private Gcode_distance_mode gcode_distance_mode = Gcode_distance_mode.ABSOLUTE;
-    private boolean enable_acceleration;
-    private float junction_acceleration;
-    private float min_line_segment;
-    private static Logger logger = Logger.getLogger(TinygDriver.class);
-    private float min_arc_segment;
-    private double min_segment_time;
-    private Ignore_CR_LF_ON_RX ignore_cr_lf_RX;
-    private boolean enable_CR_on_TX;
-    private boolean enable_echo;
-    private boolean enable_xon_xoff;
-    private boolean enable_hashcode;
-    //Misc
-    private SimpleIntegerProperty lineNumber = new SimpleIntegerProperty(0);
-    private String last_message = new String("");
-//    public static motion_modes motion_mode = new SimpleIntegerProperty();
-    private static motion_modes motion_mode;
-    private List<Motor> motors = new ArrayList<>();
-    private List<Axis> axis = new ArrayList<>();
-    private List<GcodeCoordinateSystem> gcodeCoordinateSystems = new ArrayList<>();
-    private Axis x = new Axis(Axis.AXIS.X, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
-    private Axis y = new Axis(Axis.AXIS.Y, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
-    private Axis z = new Axis(Axis.AXIS.Z, Axis.AXIS_TYPE.LINEAR, Axis.AXIS_MODES.STANDARD);
-    private Axis a = new Axis(Axis.AXIS.A, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
-    private Axis b = new Axis(Axis.AXIS.B, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
-    private Axis c = new Axis(Axis.AXIS.C, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
-    private Motor Motor1 = new Motor(1);
-    private Motor Motor2 = new Motor(2);
-    private Motor Motor3 = new Motor(3);
-    private Motor Motor4 = new Motor(4);
-    private GcodeCoordinateManager gcm = new GcodeCoordinateManager();
 
     /**
      * @return the longestTravelAxisValue
@@ -610,18 +610,22 @@ public final class AbstractMachine implements Machine {
     }
 
     @Override
-    public void setSwitchType(int swType) {
-        this.switchType = swType;
+    public void setSwitchType(switchNoNc swType) {
+        switchType = swType;
+    }
+    @Override
+    public void setSwitchType(int val) {
+        switchType = switchNoNc.valueMatching(val);
     }
 
     @Override
-    public int getSwitchType() {
+    public switchNoNc getSwitchType() {
         return (switchType);
     }
 
     @Override
     public String getSwitchTypeAsString() {
-        if (getSwitchType() == 0) {
+        if (getSwitchType() == switchNoNc.normallyClosed) {
             return ("Normally Open");
         } else {
             return ("Normally Closed");
@@ -1335,7 +1339,7 @@ public final class AbstractMachine implements Machine {
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO):
-                        TinygDriver.getInstance().getMachine().setEnable_echo(Boolean.valueOf(rc.getSettingValue()));
+                        setEnable_echo(Boolean.valueOf(rc.getSettingValue()));
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
@@ -1345,42 +1349,40 @@ public final class AbstractMachine implements Machine {
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_XON):
-                        TinygDriver.getInstance().getMachine().setEnable_xon_xoff(Boolean.valueOf(rc.getSettingValue()));
+                        setEnable_xon_xoff(Boolean.valueOf(rc.getSettingValue()));
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_BUILD):
-                        TinygDriver.getInstance().getMachine().setFirmwareBuild(Double.valueOf(rc.getSettingValue()));
+                        setFirmwareBuild(Double.valueOf(rc.getSettingValue()));
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_VERSION):
-                        TinygDriver.getInstance().getMachine().setFirmwareVersion(rc.getSettingValue());
+                        setFirmwareVersion(rc.getSettingValue());
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_COORDINATE_SYSTEM):
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-//                        TinygDriver.getInstance().m.setCoordinateSystem(rc.getSettingValue());
+//                      setCoordinateSystem(rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_DISTANCE_MODE):
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().getMachine().setGcodeDistanceMode(rc.getSettingValue());
+                        setGcodeDistanceMode(rc.getSettingValue());
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL):
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().getMachine().setGcodePathControl(rc.getSettingValue());
+                        setGcodePathControl(rc.getSettingValue());
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE):
                         //TinygDriver.getInstance().m.setGcodeSelectPlane(Float.valueOf(rc.getSettingValue()));
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().getMachine().setGcodeSelectPlane(rc.getSettingValue());
+                        setGcodeSelectPlane(rc.getSettingValue());
                         break;
-
-
                     case (MnemonicManager.MNEMONIC_SYSTEM_IGNORE_CR):
-//                        TinygDriver.getInstance().m.setIgnore_cr_lf_RX(rc.getSettingValue());
+//                      setIgnore_cr_lf_RX(rc.getSettingValue());
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
@@ -1415,7 +1417,7 @@ public final class AbstractMachine implements Machine {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_SWITCH_TYPE):
                         getLogger().info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().getMachine().setSwitchType(Integer.valueOf(rc.getSettingValue()));
+                        setSwitchType(Integer.valueOf(rc.getSettingValue()));
                         String[] message = new String[2];
                         message[0] = "MACHINE_UPDATE";
                         message[1] = null;
