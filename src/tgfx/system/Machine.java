@@ -157,30 +157,7 @@ public interface Machine {
 
     double getMin_segment_time();
 
-    //    public void setGcodeUnits(Gcode_unit_modes gcode_units) {
-    //        this.gcode_unit_mode = gcode_units;
-    //    }
     SimpleStringProperty getMotionMode();
-
-    /**
-     * @return the Motor1
-     */
-    Motor getMotor1();
-
-    /**
-     * @return the Motor2
-     */
-    Motor getMotor2();
-
-    /**
-     * @return the Motor3
-     */
-    Motor getMotor3();
-
-    /**
-     * @return the Motor4
-     */
-    Motor getMotor4();
 
     int getMotorAxis(Motor m);
 
@@ -415,26 +392,6 @@ public interface Machine {
     void setMin_segment_time(double min_segment_time);
 
     void setMotionMode(int mode);
-
-    /**
-     * @param Motor1 the Motor1 to set
-     */
-    void setMotor1(Motor Motor1);
-
-    /**
-     * @param Motor2 the Motor2 to set
-     */
-    void setMotor2(Motor Motor2);
-
-    /**
-     * @param Motor3 the Motor3 to set
-     */
-    void setMotor3(Motor Motor3);
-
-    /**
-     * @param Motor4 the Motor4 to set
-     */
-    void setMotor4(Motor Motor4);
 
     void setMotorAxis(int motorNumber, int x);
 
