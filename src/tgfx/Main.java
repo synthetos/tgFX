@@ -51,7 +51,7 @@ import jfxtras.labs.scene.control.gauge.StyleModel;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
-import tgfx.render.CNCMachinePane;
+import tgfx.render.CncMachinePreview;
 import tgfx.render.Draw2d;
 import tgfx.system.Machine;
 import tgfx.system.StatusCode;
@@ -595,7 +595,7 @@ public class Main extends Stage implements Initializable, Observer {
                         if (KEY_ARGUMENT.trim().equals("SYSTEM READY")) {
                             //The board has been reset and is ready to re-init our internal tgFX models
                             onDisconnectActions();
-                            CNCMachinePane.resetDrawingCoords();
+                            CncMachinePreview.resetDrawingCoords();
                             onConnectActions();
                         }
 

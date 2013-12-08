@@ -80,12 +80,12 @@ public abstract class AbstractMachine implements Machine {
     private Axis a = new Axis(Axis.AXIS.A, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
     private Axis b = new Axis(Axis.AXIS.B, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
     private Axis c = new Axis(Axis.AXIS.C, Axis.AXIS_TYPE.ROTATIONAL, Axis.AXIS_MODES.STANDARD);
-    private Motor Motor1 = new Motor(1);
-    private Motor Motor2 = new Motor(2);
-    private Motor Motor3 = new Motor(3);
-    private Motor Motor4 = new Motor(4);
     private GcodeCoordinateManager gcm = new GcodeCoordinateManager();
 
+public AbstractMachine() {
+    initialize();
+}
+abstract void initialize();
     /**
      * @return the logger
      */
@@ -513,70 +513,6 @@ public abstract class AbstractMachine implements Machine {
     }
 
     /**
-     * @return the Motor1
-     */
-    @Override
-    public Motor getMotor1() {
-        return Motor1;
-    }
-
-    /**
-     * @param Motor1 the Motor1 to set
-     */
-    @Override
-    public void setMotor1(Motor Motor1) {
-        this.Motor1 = Motor1;
-    }
-
-    /**
-     * @return the Motor2
-     */
-    @Override
-    public Motor getMotor2() {
-        return Motor2;
-    }
-
-    /**
-     * @param Motor2 the Motor2 to set
-     */
-    @Override
-    public void setMotor2(Motor Motor2) {
-        this.Motor2 = Motor2;
-    }
-
-    /**
-     * @return the Motor3
-     */
-    @Override
-    public Motor getMotor3() {
-        return Motor3;
-    }
-
-    /**
-     * @param Motor3 the Motor3 to set
-     */
-    @Override
-    public void setMotor3(Motor Motor3) {
-        this.Motor3 = Motor3;
-    }
-
-    /**
-     * @return the Motor4
-     */
-    @Override
-    public Motor getMotor4() {
-        return Motor4;
-    }
-
-    /**
-     * @param Motor4 the Motor4 to set
-     */
-    @Override
-    public void setMotor4(Motor Motor4) {
-        this.Motor4 = Motor4;
-    }
-
-    /**
      * @return the gcm
      */
     @Override
@@ -816,27 +752,17 @@ public abstract class AbstractMachine implements Machine {
         //return how many numbers are in the system
         return (this.getMotors().size());
     }
-    //TG Composer Specific
-    private String machineName;
-
-    @Override
-    public abstract String getName();
 
     @Override
     public void setGcodeUnits(int unitMode) {
         if (unitMode == 0) {
             getGcodeUnitMode().setValue("inches");
             getGcodeUnitDivision().set(25.4);  //mm to inches conversion   
-
-
         } else if (unitMode == 1) {
             getGcodeUnitMode().setValue("mm");
             getGcodeUnitDivision().set(1.0);
-
         }
-
     }
-//
 
     @Override
     public StringProperty getGcodeUnitMode() {
@@ -900,11 +826,6 @@ public abstract class AbstractMachine implements Machine {
     @Override
     public void setStatus_report_interval(int status_report_interval) {
         this.status_report_interval = status_report_interval;
-    }
-
-    @Override
-    public void setMachineName(String machineName) {
-        this.machineName = machineName;
     }
 
     @Override
@@ -1111,32 +1032,6 @@ public abstract class AbstractMachine implements Machine {
         private static final Machine INSTANCE = MachineFactory.getMachine();
     }
 
-    public AbstractMachine() {
-
-//        this.firmwareVersion
-
-        //Initially set gcode units to mm
-//        setGcodeUnits(Gcode_unit_modes.MM.toString());
-        motors.add(Motor1);
-        motors.add(Motor2);
-        motors.add(Motor3);
-        motors.add(Motor4);
-
-
-        axis.add(x);
-        axis.add(y);
-        axis.add(z);
-        axis.add(a);
-        axis.add(b);
-        axis.add(c);
-
-
-        setMotionMode(0);
-        xjoggingIncrement.bind(getAxisByName("X").getTravelMaxSimple());
-        yjoggingIncrement.bind(getAxisByName("Y").getTravelMaxSimple());
-        zjoggingIncrement.bind(getAxisByName("Z").getTravelMaxSimple());
-
-    }
 
     @Override
     public double getJoggingIncrementByAxis(String axisName) {
