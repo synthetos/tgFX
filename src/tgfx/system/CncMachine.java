@@ -5,6 +5,7 @@
 
 package tgfx.system;
 
+import java.util.List;
 import org.apache.log4j.Logger;
 /**
  * The <code> CncMachine</code> class implements a concrete implementation of a Machine
@@ -27,4 +28,21 @@ public class CncMachine extends AbstractMachine implements Machine {
     public void setMachineName(String machineName) {
         name = machineName;
     }
+    
+    @Override
+final void initialize() {
+    List<Axis> axis = getAxis();
+    axis.add(getX());
+    axis.add(getY());
+    axis.add(getZ());
+    axis.add(getA());
+    axis.add(getB());
+    axis.add(getC());
+
+    setMotionMode(0);
+    getXjoggingIncrement().bind(getX().getTravelMaxSimple());
+    getYjoggingIncrement().bind(getY().getTravelMaxSimple());
+    getZjoggingIncrement().bind(getZ().getTravelMaxSimple());
+}
+
 }
