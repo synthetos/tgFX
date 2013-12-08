@@ -35,9 +35,9 @@ import tgfx.ui.gcode.GcodeTabController;
  *
  * @author rileyporter
  */
-public class CNCMachine extends Pane {
+public class CncMachinePreview extends Pane {
 
-    public static StackPane gcodePane = new StackPane(); //Holds CNCMachine
+    public static StackPane gcodePane = new StackPane(); //Holds CncMachinePreview
     private BooleanExpression cursorVisibleBinding;
     private DecimalFormat df = new DecimalFormat("#.##");
     private final Circle cursorPoint = new Circle(2, javafx.scene.paint.Color.RED);
@@ -47,9 +47,9 @@ public class CNCMachine extends Pane {
     private double magnification = 1;
     private SimpleDoubleProperty cncHeight = new SimpleDoubleProperty();
     private SimpleDoubleProperty cncWidth = new SimpleDoubleProperty();
-    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(CNCMachine.class);
+    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(CncMachinePreview.class);
 
-    public CNCMachine() {
+    public CncMachinePreview() {
         //Cursor point indicator
         cursorPoint.setRadius(1);
 
@@ -147,7 +147,7 @@ public class CNCMachine extends Pane {
                                 TinygDriver.getInstance().write(CommandManager.CMD_APPLY_SYSTEM_ZERO_ALL_AXES);
                                 TinygDriver.getInstance().write(CommandManager.CMD_QUERY_STATUS_REPORT);
                             } catch (Exception ex) {
-                                Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+                                Logger.getLogger(CncMachinePreview.class.getName()).log(Level.SEVERE, null, ex);
                             }
                             //G92 does not invoke a status report... So we need to generate one to have
                             //Our GUI update the coordinates to zero
