@@ -46,7 +46,7 @@ import javafx.util.Duration;
 import jfxtras.labs.scene.control.gauge.Lcd;
 import org.apache.log4j.Logger;
 import tgfx.Main;
-import tgfx.render.CNCMachine;
+import tgfx.render.CNCMachinePane;
 import tgfx.render.Draw2d;
 import tgfx.tinyg.CommandManager;
 import tgfx.tinyg.TinygDriver;
@@ -66,8 +66,8 @@ public class GcodeTabController implements Initializable {
     private boolean taskActive = false;
     static final Logger logger = Logger.getLogger(GcodeTabController.class);
     public ObservableList data; //List to store the gcode file
-    public static StackPane gcodePane = new StackPane(); //Holds CNCMachine  This needs to be before CNCMachine()
-    private static CNCMachine cncMachine = new CNCMachine();
+    public static StackPane gcodePane = new StackPane(); //Holds CNCMachinePane  This needs to be before CNCMachinePane()
+    private static CNCMachinePane cncMachine = new CNCMachinePane();
     private final EventHandler keyPress;
     private final EventHandler keyRelease;
     private String _axis = new String();
@@ -207,7 +207,7 @@ public class GcodeTabController implements Initializable {
                             }
 
                         } catch (Exception ex) {
-                            java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+                            java.util.logging.Logger.getLogger(CNCMachinePane.class.getName()).log(Level.SEVERE, null, ex);
                         }
 
 
@@ -240,7 +240,7 @@ public class GcodeTabController implements Initializable {
                             isKeyPressed = false; //reset the press flag
                         }
                     } catch (Exception ex) {
-                        java.util.logging.Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+                        java.util.logging.Logger.getLogger(CNCMachinePane.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
                 }
