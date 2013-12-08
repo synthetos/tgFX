@@ -37,7 +37,7 @@ public interface Machine {
 
     List<Axis> getAllAxis();
 
-    List getAllLinearAxis();
+    List<Axis> getAllLinearAxis();
 
     /**
      * @return the axis
@@ -147,7 +147,7 @@ public interface Machine {
      */
     SimpleStringProperty getM_state();
 
-    String getMachineName();
+    String getName();
 
     SimpleStringProperty getMachineState();
 
