@@ -23,7 +23,7 @@ public class MachineFactory {
         lock.writeLock().lock();
         try {
             if (theMachine == null) {
-                theMachine = new AbstractMachine();
+                theMachine = new CncMachine();
             }
             rval = theMachine;
         } finally {
