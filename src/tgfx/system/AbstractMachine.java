@@ -23,9 +23,11 @@ import tgfx.tinyg.responseCommand;
 /**
  * The <code>AbstractMachine</code> class implements common methods and variables for a Machine. 
  * Concrete implementations will subclass from this.
+ * @see Machine
+ * @see CncMachine
  * @author ril3y, pfarrell
  */
-public final class AbstractMachine implements Machine {
+public abstract class AbstractMachine implements Machine {
 
     //TG Specific
     //Machine EEPROM Values
@@ -818,9 +820,7 @@ public final class AbstractMachine implements Machine {
     private String machineName;
 
     @Override
-    public String getMachineName() {
-        return machineName;
-    }
+    public abstract String getName();
 
     @Override
     public void setGcodeUnits(int unitMode) {
@@ -1108,8 +1108,7 @@ public final class AbstractMachine implements Machine {
     }
 
     private static class MachineHolder {
-
-        private static final Machine INSTANCE = new AbstractMachine();
+        private static final Machine INSTANCE = MachineFactory.getMachine();
     }
 
     public AbstractMachine() {
@@ -1140,8 +1139,8 @@ public final class AbstractMachine implements Machine {
     }
 
     @Override
-    public double getJoggingIncrementByAxis(String _axisName) {
-        return getAxisByName(_axisName).getTravelMaxSimple().get();
+    public double getJoggingIncrementByAxis(String axisName) {
+        return getAxisByName(axisName).getTravelMaxSimple().get();
     }
 
     @Override
@@ -1182,23 +1181,15 @@ public final class AbstractMachine implements Machine {
     }
 
     @Override
-    public List getAllLinearAxis() {
+    public List<Axis> getAllLinearAxis() {
+        List<Axis> rval = new ArrayList();
 
-        List _allAxis = getAllAxis();
-        List _retAxisList = new ArrayList();
-
-
-        Axis _ax;
-
-        for (int i = 0; i < _allAxis.size(); i++) {
-            Axis a = (Axis) _allAxis.get(i);
+        for (Axis a : getAllAxis()) {
             if (a.getAxisType().equals(Axis.AXIS_TYPE.LINEAR)) {
-                _retAxisList.add(a);
+                rval.add(a);
             }
-
         }
-        return _retAxisList;
-
+        return rval;
     }
 
     @Override
