@@ -381,6 +381,8 @@ public interface Machine {
      */
     void setM_state(SimpleStringProperty m_state);
 
+    void setMachineName(String machineName);
+
     void setMachineState(int state);
 
     void setMin_arc_segment(float min_arc_segment);
@@ -397,8 +399,6 @@ public interface Machine {
      * @param motors the motors to set
      */
     void setMotors(List<Motor> motors);
-
-    void setName(String machineName);
 
     void setStatus_report_interval(int status_report_interval);
 
