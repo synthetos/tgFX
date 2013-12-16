@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2013 Synthetos LLC. All Rights reserved.
- * see license.txt for terms.
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
 package tgfx.render;
 
@@ -30,7 +30,7 @@ import tgfx.tinyg.TinygDriver;
 import tgfx.ui.gcode.GcodeTabController;
 
 /**
- * The <code>CncMachinePreview</code> is all about drawing the 2d preview.  Meaning.. the table size the lines everything.
+ *
  * @author rileyporter
  */
 public class CncMachinePreview extends Pane {
