@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -21,9 +23,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.stage.FileChooser;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import tgfx.Main;
 import tgfx.tinyg.CommandManager;
+import tgfx.tinyg.MnemonicManager;
 import tgfx.tinyg.TinygDriver;
+
+import javafx.concurrent.Task;
+import javafx.scene.control.ProgressBar;
 
 /**
  * FXML Controller class
@@ -32,6 +39,7 @@ import tgfx.tinyg.TinygDriver;
  */
 public class MachineSettingsController implements Initializable {
 
+    private DecimalFormat decimalFormat = new DecimalFormat("################################.############################");
     private static final Logger logger = Logger.getLogger(MachineSettingsController.class);
     @FXML
     private static Label firmwareVersion;
@@ -41,19 +49,18 @@ public class MachineSettingsController implements Initializable {
     private ListView configsListView;
     @FXML
     private static ChoiceBox machineSwitchType, machineUnitMode;
-   
+    @FXML
+    private ProgressBar configProgress;
 
-    public static double getCurrentBuildNumber(){
-        return(Double.valueOf(firmwareVersion.getText()));
+    public static double getCurrentBuildNumber() {
+        return (Double.valueOf(firmwareVersion.getText()));
     }
-    
+
     public static void updateGuiMachineSettings() {
         machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().machine.getGcodeUnitModeAsInt());
         machineSwitchType.getSelectionModel().select(TinygDriver.getInstance().machine.getSwitchType());
     }
 
-    
-    
     /**
      * Initializes the controller class.
      */
@@ -65,6 +72,7 @@ public class MachineSettingsController implements Initializable {
         firmwareVersion.textProperty().bind(TinygDriver.getInstance().machine.firmwareVersion);
         buildNumb.textProperty().bind(TinygDriver.getInstance().machine.firmwareBuild.asString());
         
+
     }
 
     private void populateConfigFiles() {
@@ -101,6 +109,33 @@ public class MachineSettingsController implements Initializable {
 
     @FXML
     private void handleImportConfig(ActionEvent event) throws Exception {
+    }
+
+    private void writeConfigValue(JSONObject j) throws Exception {
+
+
+
+        String topLevelParent = new String();
+        topLevelParent = (String) j.names().get(0);
+        Iterator it = j.getJSONObject(topLevelParent).keys();
+
+        while (it.hasNext()) {
+            String k = (String) it.next();
+            Double value = (Double) j.getJSONObject(topLevelParent).getDouble(k);
+            System.out.println("This is the value " + k + " " + decimalFormat.format(value));
+            //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
+
+
+            String singleJsonSetting = new String("{\"" + topLevelParent + k + "\":" + value + "}\n");
+            TinygDriver.getInstance().write(singleJsonSetting);
+            Thread.sleep(400);
+
+        }
+
+    }
+
+    @FXML
+    private void handleLoadConfig(ActionEvent event) throws Exception {
         //This function gets the config file selected and applys the settings onto tinyg.
         InputStream fis;
         BufferedReader br;
@@ -109,15 +144,44 @@ public class MachineSettingsController implements Initializable {
         fis = new FileInputStream(selected_config);
         br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 
+        Task task = new Task<Void>() {
+            @Override
+            public Void call() {
+                int max = 1000;
+                for (int i = 1; i <= max; i++) {
+                    if (isCancelled()) {
+                        break;
+                    }
+                    updateProgress(i, max);
+                }
+                return null;
+
+            }
+        };
+
+//        configProgress.progressProperty().bind(task.progressProperty());
+//        new Thread(task).start();
+
+
+
+
         while ((line = br.readLine()) != null) {
             if (TinygDriver.getInstance().isConnected().get()) {
-                if (line.startsWith("NAME:")) {
+                if (line.startsWith("{\"name")) {
                     //This is the name of the CONFIG lets not write this to TinyG 
                     tgfx.Main.postConsoleMessage("[+]Loading " + line.split(":")[1] + " config into TinyG... Please Wait...");
                 } else {
-                    TinygDriver.getInstance().write(line + "\n");    //Write the line to tinyG
-                    Thread.sleep(100);      //Writing Values to eeprom can take a bit of time..
-                    tgfx.Main.postConsoleMessage("[+]Writing Config String: " + line + "\n");
+
+
+
+                    JSONObject js = new JSONObject(line);
+
+
+                    writeConfigValue(js);
+//                    TinygDriver.getInstance().write(line + "\n");    //Write the line to tinyG
+//                    Thread.sleep(200);      //Writing Values to eeprom can take a bit of time..
+
+                    //tgfx.Main.postConsoleMessage("[+]Writing Config String: " + line + "\n");
                 }
             }
         }
