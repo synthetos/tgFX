@@ -26,27 +26,28 @@ Thanks and remember that tgFX is still in beta. Try running a job with the motor
 
 Binary Downloads
 ==
-For those that want to test out tgFX on their TinyG the latest binaries will be located here :
-https://www.dropbox.com/sh/huiupgemipv8f4q/X2l_1EH-gx
-**Notes:
+For those that want to test out tgFX on their TinyG the latest binaries will be located here at the <a href="https://www.dropbox.com/sh/huiupgemipv8f4q/X2l_1EH-gx">Download Page</a>
+<br><b>Notes:</b>
 Linux binaries are not provided.  However, it is possible to run tgFX in Linux through the Netbeans IDE.
-If you are going to use tgFX on OSX you will need to preform a minor fix to enable tgFX to connect to your TinyG.  You can read more about this here:
-https://github.com/synthetos/tgFX/wiki/Troubleshooting#cannot-connect-to-serial-port----osx
+
+<br>
+If you are going to use tgFX on OSX you will need to preform a minor fix to enable tgFX to connect to your TinyG.  You can read more about this here:<br>
+<a href="https://github.com/synthetos/tgFX/wiki/Troubleshooting#cannot-connect-to-serial-port----osx">Here</a>
 
 Bugs 
 ==
-If you find bugs please open an issue here:
-https://github.com/synthetos/tgFX/issues?direction=desc&sort=created&state=open
+If you find bugs please open an issue here:<br>
+<a href="https://github.com/synthetos/tgFX/issues?direction=desc&sort=created&state=open">tgFX Github Issues</a>
 
 
 Developers:
 ===
-If you would like to setup your development enviroment for Mac we have a wiki page here.
-https://github.com/synthetos/tgFX/wiki/Developer-Notes
+If you would like to setup your development enviroment for Mac we have a wiki page here.<br>
+<a href="https://github.com/synthetos/tgFX/wiki/Developer-Notes">tgFX Developer Notes</a>
 
 
 
-
+<a id="software-disclaimer">
 Software Disclaimer
 ===
 While Synthetos LLC makes every effort to deliver high quality products, we do not guarantee that our products are free from defects. Our software is provided “as is," and you use the software at your own risk.
