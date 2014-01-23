@@ -30,7 +30,8 @@ For those that want to test out tgFX on their TinyG the latest binaries will be 
 https://www.dropbox.com/sh/huiupgemipv8f4q/X2l_1EH-gx
 **Notes:
 Linux binaries are not provided.  However, it is possible to run tgFX in Linux through the Netbeans IDE.
-
+If you are going to use tgFX on OSX you will need to preform a minor fix to enable tgFX to connect to your TinyG.  You can read more about this here:
+https://github.com/synthetos/tgFX/wiki/Troubleshooting#cannot-connect-to-serial-port----osx
 
 Bugs 
 ==
