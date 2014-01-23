@@ -11,23 +11,26 @@ Please note that tgFX is NOT backwards compatible with firmware older tinyg firm
 
 Getting Started
 ==
+Most people want to know where to get the binary download for tgFX and move on.  While this is possible, we urge you to read the wiki pages on how to use tgFX with TinyG.  Using any software to control CNC machines anc be dangerous and is definitely taking 10 minutes to read tgFX's wiki pages for saftey's sake.  That being said please refer to Synthetos LLC's Software Disclaimer.
+
 Current binary builds for Windows and OSX (linux has not be fully tested) are avilable here:
 https://www.dropbox.com/sh/huiupgemipv8f4q/X2l_1EH-gx
 
 
+Usage and Instructions
+==
+Instructions on installing, using and configuring tgFX with TinyG can be found on the tgFX wiki located here:
+https://github.com/synthetos/tgFX/wiki
 
-Installing
-===
-Installing tgFX is very easy.  All you have to do is go down to the Binary Download section below and follow the dropbox link.  
-NOTE: OSX USERS
-Please note that if you are using the OSX binary please read the instructions here:
-https://github.com/synthetos/tgFX/wiki/Troubleshooting#cannot-connect-to-serial-port----osx
 
 Binary Downloads
 ==
 For those that want to test out tgFX on their TinyG the latest binaries will be located here :
 https://www.dropbox.com/sh/huiupgemipv8f4q/X2l_1EH-gx
-<br>
+
+
+Bugs 
+==
 If you find bugs please open an issue here:
 https://github.com/synthetos/tgFX/issues?direction=desc&sort=created&state=open
 
