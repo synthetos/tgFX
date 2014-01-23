@@ -1,7 +1,7 @@
 tgFX - A TinyG GUI
 ====
 A JavaFX 2 based GUI controller for the TinyG motion controller.
-![TinyG v6 Board](http://farm9.staticflickr.com/8247/8454110427_b09b5a622b_c.jpg)
+![TinyG v6 Board](http://farm4.staticflickr.com/3715/11916877794_2a33fb091c_c.jpg)
 <br>
 
 This code is under heavy development.
