@@ -1,6 +1,10 @@
 tgFX - A TinyG GUI
 ====
-A JavaFX 2 based GUI controller for the TinyG motion controller.
+<p>
+A JavaFX 2 based GUI controller for the TinyG motion controller.<p>
+Currently tgFX allows for sending of gcode files, configuring axes/motors/machine settings and a 2d preview of the CNC toolpath for the TinyG motion control system.
+<br>
+
 ![TinyG v6 Board](http://farm4.staticflickr.com/3715/11916877794_2a33fb091c_c.jpg)
 <br>
 
