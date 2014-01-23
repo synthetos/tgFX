@@ -11,10 +11,9 @@ Please note that tgFX is NOT backwards compatible with firmware older tinyg firm
 
 Getting Started
 ==
-Most people want to know where to get the binary download for tgFX and move on.  While this is possible, we urge you to read the wiki pages on how to use tgFX with TinyG.  Using any software to control CNC machines anc be dangerous and is definitely taking 10 minutes to read tgFX's wiki pages for saftey's sake.  That being said please refer to Synthetos LLC's Software Disclaimer.
+Most people want to know where to get the binary download for tgFX and move on.  While this is possible, we urge you to read the wiki pages on how to use tgFX with TinyG.  Using any software to control CNC machines can be dangerous and is definitely woth the time of taking 10 minutes to read tgFX's wiki pages for saftey's sake.  That being said please refer to Synthetos LLC's Software Disclaimer.
 
-Current binary builds for Windows and OSX (linux has not be fully tested) are avilable here:
-https://www.dropbox.com/sh/huiupgemipv8f4q/X2l_1EH-gx
+
 
 
 Usage and Instructions
@@ -22,11 +21,15 @@ Usage and Instructions
 Instructions on installing, using and configuring tgFX with TinyG can be found on the tgFX wiki located here:
 https://github.com/synthetos/tgFX/wiki
 
+Thanks and remember that tgFX is still in beta. Try running a job with the motors inhibited before attempting to cut.
+===
 
 Binary Downloads
 ==
 For those that want to test out tgFX on their TinyG the latest binaries will be located here :
 https://www.dropbox.com/sh/huiupgemipv8f4q/X2l_1EH-gx
+**Notes:
+Linux binaries are not provided.  However, it is possible to run tgFX in Linux through the Netbeans IDE.
 
 
 Bugs 
@@ -41,9 +44,6 @@ If you would like to setup your development enviroment for Mac we have a wiki pa
 https://github.com/synthetos/tgFX/wiki/Developer-Notes
 
 
-
-Thanks and remember that tgFX is still in beta. Try running a job with the motors inhibited before attempting to cut.
-==
 
 
 Software Disclaimer
