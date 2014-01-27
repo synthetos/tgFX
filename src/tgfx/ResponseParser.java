@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2013-2014 Synthetos LLC. All Rights reserved.
+ * http://www.synthetos.com
  */
 package tgfx;
 
@@ -8,7 +8,6 @@ import org.json.*;
 import java.util.Iterator;
 import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
-import java.util.logging.Level;
 import javafx.application.Platform;
 import jfxtras.labs.dialogs.MonologFX;
 import jfxtras.labs.dialogs.MonologFXBuilder;
@@ -39,15 +38,15 @@ import tgfx.tinyg.responseCommand;
  * @author ril3y
  */
 public class ResponseParser extends Observable implements Runnable {
-
+    /** logger instance */
+    private static final Logger logger = Logger.getLogger(ResponseParser.class);
 //    private BlockingQueue jsonQueue = new ArrayBlockingQueue(1024);
     private boolean TEXT_MODE = false;
     private String[] message = new String[2];
-    private BlockingQueue responseQueue;
+    private BlockingQueue<String> responseQueue;
     boolean RUN = true;
     String buf = "";
     public ResponseFooter responseFooter = new ResponseFooter();  //our holder for ResponseFooter Data
-    private static Logger logger = Logger.getLogger(ResponseParser.class);
     //These values are for mapping what n'Th element inthe json footer array maps to which values.
     private static final int FOOTER_ELEMENT_PROTOCOL_VERSION = 0;
     private static final int FOOTER_ELEMENT_STATUS_CODE = 1;
@@ -66,14 +65,13 @@ public class ResponseParser extends Observable implements Runnable {
 
     public void appendJsonQueue(String jq) {
         try {
-            this.responseQueue.put(jq);
-
+            responseQueue.put(jq);
         } catch (Exception ex) {
             logger.error("ERROR in appendJsonQueue", ex);
         }
     }
 
-    public ResponseParser(BlockingQueue bq) {
+    public ResponseParser(BlockingQueue<String> bq) {
         //Default constructor
         responseQueue = bq;
 
@@ -99,7 +97,7 @@ public class ResponseParser extends Observable implements Runnable {
 
         while (RUN) {
             try {
-                line = (String) responseQueue.take();
+                line = responseQueue.take();
                 if (line.equals("")) {
                     continue;
                 }
@@ -472,10 +470,8 @@ public class ResponseParser extends Observable implements Runnable {
 
                                 try {
                                     TinygDriver.getInstance().priorityWrite((byte) 0x18);
-
                                 } catch (Exception ex) {
-                                    java.util.logging.Logger.getLogger(ResponseParser.class
-                                            .getName()).log(Level.SEVERE, null, ex);
+                                    logger.error(ex);
                                 }
                                 break;
                             case CANCEL:
@@ -584,8 +580,7 @@ public class ResponseParser extends Observable implements Runnable {
                         }
 
                     } catch (JSONException ex) {
-                        java.util.logging.Logger.getLogger(ResponseParser.class
-                                .getName()).log(Level.SEVERE, null, ex);
+                        logger.error(ex);
                     }
                 }
             });
