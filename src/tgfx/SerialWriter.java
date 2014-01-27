@@ -1,14 +1,12 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2013-2014 Synthetos LLC. All Rights reserved.
+ * http://www.synthetos.com
  */
 package tgfx;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import tgfx.tinyg.TinygDriver;
+import org.apache.log4j.Logger;
 import tgfx.ui.gcode.GcodeTabController;
 
 /**
@@ -17,8 +15,8 @@ import tgfx.ui.gcode.GcodeTabController;
  */
 public class SerialWriter implements Runnable {
 
-    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SerialWriter.class);
-    private BlockingQueue queue;
+    private static Logger logger = Logger.getLogger(SerialWriter.class);
+    private BlockingQueue<String> queue;
     private boolean RUN = true;
     private boolean cleared  = false;
     private String tmpCmd;
@@ -51,17 +49,14 @@ public class SerialWriter implements Runnable {
  
    public void clearQueueBuffer() {
         queue.clear();
-        this.cleared = true; // We set this to tell teh mutex with waiting for an ack to send a line that it should not send a line.. we were asked to be cleared.
+        this.cleared = true; // We set this to tell the mutex with waiting for an ack to send a line that it should not send a line.. we were asked to be cleared.
         try {
             //This is done in resetBuffer is this needed?
             buffer_available.set(BUFFER_SIZE);
             this.setThrottled(false);
             this.notifyAck();
-            
-            
-          
         } catch (Exception ex) {
-            Logger.getLogger(SerialWriter.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 
@@ -177,7 +172,7 @@ public class SerialWriter implements Runnable {
         Main.print("[+]Serial Writer Thread Running...");
         while (RUN) {
             try {
-                tmpCmd = (String) queue.take();  //Grab the line
+                tmpCmd = queue.take();  //Grab the line
                 if(tmpCmd.equals("**FILEDONE**")){
                     //Our end of file sending token has been detected.
                     //We will not enable jogging by setting isSendingFile to false
