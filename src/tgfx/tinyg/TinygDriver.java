@@ -1,5 +1,7 @@
 /**
- * tgFX Driver Class Copyright Synthetos.com lgpl
+ * tgFX Driver Class 
+ * Copyright (C) 2014 Synthetos LLC. All Rights reserved.
+ * http://www.synthetos.com
  */
 package tgfx.tinyg;
 
@@ -52,6 +54,8 @@ public class TinygDriver extends Observable {
     public SerialWriter serialWriter = new SerialWriter(writerQueue);
     private boolean PAUSED = false;
     public final static int MAX_BUFFER = 240;
+    private AtomicBoolean connectionSemaphore = new AtomicBoolean(false); 
+    private AsyncTimer connectionTimer;
 
     /**
      * Singleton Code for the Serial Port Object
@@ -76,9 +80,11 @@ public class TinygDriver extends Observable {
         return connectionTimer;
     }
     
-    private AtomicBoolean connectionSemaphore = new AtomicBoolean(false); 
-    AsyncTimer connectionTimer;
-    
+
+   /**
+    * gets the Connection semaphore
+    * @return the Connection semaphore
+    */ 
     public AtomicBoolean getConnectionSemaphore(){
         return connectionSemaphore;
     }
@@ -102,7 +108,6 @@ public class TinygDriver extends Observable {
         
         }
         
-       
         
 
         if (this.machine.getFirmwareBuild() < TinygDriver.getInstance().hardwarePlatform.getMinimalBuildVersion() && 
