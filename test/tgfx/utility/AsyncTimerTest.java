@@ -80,6 +80,5 @@ public class AsyncTimerTest {
         public AtomicBoolean getTimeSemaphore() {
             return timerKicked;
         }
-        
     }
 }
