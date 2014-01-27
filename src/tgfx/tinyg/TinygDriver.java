@@ -6,6 +6,7 @@ package tgfx.tinyg;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
@@ -23,6 +24,7 @@ import tgfx.system.Machine;
 import tgfx.system.Motor;
 import tgfx.hardwarePlatforms.HardwarePlatform;
 import tgfx.hardwarePlatforms.HardwarePlatformManager;
+import tgfx.utility.AsyncTimer;
 
 public class TinygDriver extends Observable {
 
@@ -66,7 +68,20 @@ public class TinygDriver extends Observable {
 //        this.MINIMAL_BUILD_VERSION = MINIMAL_BUILD_VERSION;
 //    }
     
+    public void setAsyncTimer(AsyncTimer value){
+        connectionTimer = value;
+    }
     
+    public AsyncTimer getAsyncTimer(){
+        return connectionTimer;
+    }
+    
+    private AtomicBoolean connectionSemaphore = new AtomicBoolean(false); 
+    AsyncTimer connectionTimer;
+    
+    public AtomicBoolean getConnectionSemaphore(){
+        return connectionSemaphore;
+    }
     
     
     public void notifyBuildChanged() throws IOException, JSONException {

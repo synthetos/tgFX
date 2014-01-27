@@ -35,6 +35,7 @@ import tgfx.render.Draw2d;
 import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
@@ -63,9 +64,11 @@ import tgfx.ui.gcode.GcodeTabController;
 import tgfx.ui.machinesettings.MachineSettingsController;
 import tgfx.ui.tgfxsettings.TgfxSettingsController;
 import tgfx.ui.tinygconfig.TinyGConfigController;
+import tgfx.utility.Timeable;
 
-public class Main extends Stage implements Initializable, Observer {
-
+public class Main extends Stage implements Timeable, Initializable, Observer {
+    
+    int CONNECTION_TIMEOUT_VALUE = 10000;  //This is the amount of time in milliseconds that will go until we say the connection has timed out.
     public static String OS = System.getProperty("os.name").toLowerCase();
     private int delayValue = 150; //Time between config set'ers.
     private boolean buildChecked = false;  //this is checked apon initial connect.  Once this is set to true
@@ -122,6 +125,11 @@ public class Main extends Stage implements Initializable, Observer {
         } else {
             return ("win");
         }
+    }
+
+    @Override
+    public AtomicBoolean getTimeSemaphore() {
+        return TinygDriver.getInstance().getConnectionSemaphore();
     }
 
     private static boolean isLinux() {
