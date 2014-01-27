@@ -18,5 +18,6 @@ nb-configuration.xml
 
 nbproject/UPDATED.TXT
 nbproject/jfx-impl.xml
+nbproject/genfiles.properties
 
 *.bak
