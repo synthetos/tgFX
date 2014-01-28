@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2013-2014 Synthetos LLC. All Rights reserved.
+ * http://www.synthetos.com
  */
 package tgfx;
 
@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -17,7 +18,7 @@ import java.util.Enumeration;
  * @author ril3y
  */
 public class SerialDriver implements SerialPortEventListener {
-    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SerialWriter.class);
+    private static Logger logger = Logger.getLogger(SerialWriter.class);
     private boolean connectionState = false;
     public String portArray[] = null; 
     public SerialPort serialPort;
@@ -32,9 +33,14 @@ public class SerialDriver implements SerialPortEventListener {
     public ArrayList<String> lastRes = new ArrayList();
     public double offsetPointer = 0;
  
-    
-  
-
+   /** 
+    * private constructor since this is a singleton
+    */ 
+    private SerialDriver() {
+    }
+    public static SerialDriver getInstance() {
+        return SerialDriver.SerialDriverHolder.INSTANCE;
+    }
     public void write(String str) {
         try {
             this.output.write(str.getBytes());
@@ -43,8 +49,6 @@ public class SerialDriver implements SerialPortEventListener {
             logger.error("Error in SerialDriver Write");
             logger.error("\t" + ex.getMessage());
         }
-
-
     }
 
     public void priorityWrite(String str) throws Exception {
@@ -54,17 +58,6 @@ public class SerialDriver implements SerialPortEventListener {
     public void priorityWrite(Byte b) throws Exception {
         logger.debug("[*] Priority Write Sent\n");
         this.output.write(b);
-    }
-
-    private SerialDriver() {
-    }
-
-    public static SerialDriver getInstance() {
-        return SerialDriver.SerialDriverHolder.INSTANCE;
-    }
-
-    private static class SerialDriverHolder {
-        private static final SerialDriver INSTANCE = new SerialDriver();
     }
 
     public synchronized void disconnect() {
@@ -94,10 +87,6 @@ public class SerialDriver implements SerialPortEventListener {
     public boolean isConnected() {
         return this.connectionState;
     }
-    
-    
-    
-    
     
     
     @Override
@@ -131,7 +120,7 @@ public class SerialDriver implements SerialPortEventListener {
     public static String[] listSerialPorts() {
         Enumeration ports = CommPortIdentifier.getPortIdentifiers();
         ArrayList portList = new ArrayList();
-        String portArray[] = null;
+
         while (ports.hasMoreElements()) {
             CommPortIdentifier port = (CommPortIdentifier) ports.nextElement();
             
@@ -146,7 +135,7 @@ public class SerialDriver implements SerialPortEventListener {
                 portList.add(port.getName());  //Go ahead and add the ports that made it though the logic above
             }
         }
-        portArray = (String[]) portList.toArray(new String[0]);
+        String portArray[] = (String[]) portList.toArray(new String[0]);
         return portArray;
     }
 
@@ -184,8 +173,6 @@ public class SerialDriver implements SerialPortEventListener {
             logger.debug("[+]Opened " + port + " successfully.");
             setConnected(true); //Register that this is connectionState.
             
-            
-            
             return true;
 
         } catch (PortInUseException ex) {
@@ -198,6 +185,12 @@ public class SerialDriver implements SerialPortEventListener {
             logger.error("[*] " + ex.getMessage());
             return false;
         }
-
     }
+   /**
+    * usual IBM-approved singleton helper class.
+    */ 
+    private static class SerialDriverHolder {
+        private static final SerialDriver INSTANCE = new SerialDriver();
+    }
+
 }
