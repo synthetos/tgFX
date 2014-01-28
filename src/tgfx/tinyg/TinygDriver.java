@@ -50,7 +50,7 @@ public class TinygDriver extends Observable {
     public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(10);
     public static ArrayBlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(30);
     public static ArrayBlockingQueue<GcodeLine[]> writerQueue = new ArrayBlockingQueue<>(50000);
-    public ResponseParser resParse = new ResponseParser(jsonQueue); // Our
+    public ResponseParser resParse = new ResponseParser();
     public SerialWriter serialWriter = new SerialWriter(writerQueue);
     private boolean PAUSED = false;
     public final static int MAX_BUFFER = 240;
