@@ -7,14 +7,12 @@ package tgfx;
 import org.json.*;
 import java.util.Iterator;
 import java.util.Observable;
-import java.util.concurrent.BlockingQueue;
 import javafx.application.Platform;
 import jfxtras.labs.dialogs.MonologFX;
 import jfxtras.labs.dialogs.MonologFXBuilder;
 import jfxtras.labs.dialogs.MonologFXButton;
 import static jfxtras.labs.dialogs.MonologFXButton.Type.YES;
 import jfxtras.labs.dialogs.MonologFXButtonBuilder;
-
 
 import org.apache.log4j.Logger;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_A;
@@ -40,7 +38,6 @@ import tgfx.tinyg.responseCommand;
 public class ResponseParser extends Observable implements Runnable {
     /** logger instance */
     private static final Logger logger = Logger.getLogger(ResponseParser.class);
-//    private BlockingQueue jsonQueue = new ArrayBlockingQueue(1024);
     private boolean TEXT_MODE = false;
     private String[] message = new String[2];
     boolean RUN = true;
@@ -54,14 +51,6 @@ public class ResponseParser extends Observable implements Runnable {
     private JSONArray footerValues;
     private String line;
 
-    public boolean isTEXT_MODE() {
-        return TEXT_MODE;
-    }
-
-    public void setTEXT_MODE(boolean TEXT_MODE) {
-        this.TEXT_MODE = TEXT_MODE;
-    }
-
     public ResponseParser() {
         //Setup Logging for ResponseParser
         if (Main.LOGLEVEL.equals("INFO")) {
@@ -72,7 +61,14 @@ public class ResponseParser extends Observable implements Runnable {
             logger.setLevel(org.apache.log4j.Level.OFF);
         }
     }
+    
+    public boolean isTEXT_MODE() {
+        return TEXT_MODE;
+    }
 
+    public void setTEXT_MODE(boolean TEXT_MODE) {
+        this.TEXT_MODE = TEXT_MODE;
+    }
     @Override
     public void run() {
         logger.info("Response Parser Running");
