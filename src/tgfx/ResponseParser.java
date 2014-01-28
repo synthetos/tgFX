@@ -43,7 +43,6 @@ public class ResponseParser extends Observable implements Runnable {
 //    private BlockingQueue jsonQueue = new ArrayBlockingQueue(1024);
     private boolean TEXT_MODE = false;
     private String[] message = new String[2];
-    private BlockingQueue<String> responseQueue;
     boolean RUN = true;
     String buf = "";
     public ResponseFooter responseFooter = new ResponseFooter();  //our holder for ResponseFooter Data
@@ -63,18 +62,7 @@ public class ResponseParser extends Observable implements Runnable {
         this.TEXT_MODE = TEXT_MODE;
     }
 
-    public void appendJsonQueue(String jq) {
-        try {
-            responseQueue.put(jq);
-        } catch (Exception ex) {
-            logger.error("ERROR in appendJsonQueue", ex);
-        }
-    }
-
-    public ResponseParser(BlockingQueue<String> bq) {
-        //Default constructor
-        responseQueue = bq;
-
+    public ResponseParser() {
         //Setup Logging for ResponseParser
         if (Main.LOGLEVEL.equals("INFO")) {
             logger.setLevel(org.apache.log4j.Level.INFO);
@@ -83,7 +71,6 @@ public class ResponseParser extends Observable implements Runnable {
         } else {
             logger.setLevel(org.apache.log4j.Level.OFF);
         }
-
     }
 
     @Override
@@ -92,12 +79,9 @@ public class ResponseParser extends Observable implements Runnable {
         if(!Main.LOGLEVEL.equals("OFF")){
             Main.print("[+]Response Parser Thread Running...");
         }
-        
-
-
         while (RUN) {
             try {
-                line = responseQueue.take();
+                line = TinygDriver.getInstance().jsonQueue.take();
                 if (line.equals("")) {
                     continue;
                 }
@@ -138,47 +122,18 @@ public class ResponseParser extends Observable implements Runnable {
                 }
             } catch (InterruptedException | JSONException ex) {
                 logger.error("[!]Error in responseParser run(): " + ex.getMessage());
-
             }
         }
     }
 
     private boolean isJsonObject(JSONObject js, String strVal) throws Exception {
-
         if (js.get(strVal).getClass().toString().contains("JSONObject")) {
             return true;
         } else {
             return false;
         }
     }
-
-//    public void applyStatusReport(JSONObject js) throws Exception {
-//
-//        logger.info("Applying JSON Object to System Group");
-//        Iterator ii = js.keySet().iterator();
-//        while (ii.hasNext()) {
-//            String _key = ii.next().toString();
-//            String _val = js.get(_key).toString();
-//            String _parent;
-//            _parent = (TinygDriver.getInstance().mneManager.lookupSingleGroup(_key)).getSettingParent();
-//            final responseCommand rc = new responseCommand(_parent, _key, _val);
-//            TinygDriver.getInstance().m.applyJsonStatusReport(rc);
-//            setChanged();
-//            String[] message = new String[2];
-//            message[0] = "STATUS_REPORT";
-//            message[1] = null;
-//            notifyObservers(message);
-//        }
-//        //Set the status report values 
-////            TinygDriver.getInstance().m.getAxisByName("X").setWork_position(js.getDouble("posx"));
-////            TinygDriver.getInstance().m.getAxisByName("Y").setWork_position(js.getDouble("posy"));
-////            TinygDriver.getInstance().m.getAxisByName("Z").setWork_position(js.getDouble("posz"));
-////            TinygDriver.getInstance().m.getAxisByName("A").setWork_position(js.getDouble("posa"));
-////            TinygDriver.getInstance().m.setMachineState(js.getInt("stat"));
-////            TinygDriver.getInstance().m.setMotionMode(js.getInt("momo"));
-////            TinygDriver.getInstance().m.setVelocity(js.getDouble("vel"));
-//
-//    }
+ 
     public void applySettingMasterGroup(JSONObject js, String pg) throws Exception {
         String parentGroup;
         if (pg.equals(MNEMONIC_GROUP_STATUS_REPORT)) {
@@ -221,10 +176,8 @@ public class ResponseParser extends Observable implements Runnable {
          * often that instead of walking the normal parsing tree.. this skips to
          * the end
          */
-        String parentGroup;
         try {
-            Iterator ii;
-            ii = js.keySet().iterator();
+            Iterator ii = js.keySet().iterator();
             //This is a special multi single value response object
             while (ii.hasNext()) {
                 String key = ii.next().toString();
@@ -253,9 +206,7 @@ public class ResponseParser extends Observable implements Runnable {
     }
 
     public void applySetting(JSONObject js) {
-        String parentGroup;
         try {
-
             if (js.length() == 0) {
                 //This is a blank object we just return and move on
             } else if (js.keySet().size() > 1) { //If there are more than one object in the json response
@@ -289,7 +240,6 @@ public class ResponseParser extends Observable implements Runnable {
                             }
                             responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroup(key);
                             rc.setSettingValue(js.get(key).toString());
-                            parentGroup = rc.getSettingParent();
                             _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pair
                             break;
                     }
@@ -316,8 +266,6 @@ public class ResponseParser extends Observable implements Runnable {
             logger.error("[!] Error in applySetting(JsonOBject js) : " + ex.getMessage());
             logger.error("[!]JSON String Was: " + js.toString());
             logger.error("Error in Line: " + js);
-
-
         }
     }
 
