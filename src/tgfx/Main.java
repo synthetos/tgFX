@@ -2,12 +2,10 @@
  * Copyright Synthetos LLC
  * Rileyporter@gmail.com
  * www.synthetos.com
- * 
  */
 package tgfx;
 
 import java.io.IOException;
-import tgfx.tinyg.TinygDriver;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Observable;
@@ -31,27 +29,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import jfxtras.labs.dialogs.MonologFXButton;
-import tgfx.render.Draw2d;
 import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
-
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.util.StringConverter;
 import jfxtras.labs.scene.control.gauge.Lcd;
 import jfxtras.labs.scene.control.gauge.LcdBuilder;
 import jfxtras.labs.scene.control.gauge.StyleModel;
-import tgfx.ui.gcode.GcodeHistory;
-import tgfx.system.StatusCode;
-import tgfx.tinyg.CommandManager;
-
-
 import javafx.stage.Stage;
 
 import jfxtras.labs.dialogs.MonologFX;
@@ -59,14 +49,26 @@ import jfxtras.labs.dialogs.MonologFXBuilder;
 import jfxtras.labs.dialogs.MonologFXButtonBuilder;
 import org.json.JSONException;
 
+import tgfx.tinyg.TinygDriver;
+import tgfx.system.StatusCode;
+import tgfx.tinyg.CommandManager;
 import tgfx.render.CNCMachine;
+import tgfx.render.Draw2d;
+import tgfx.ui.gcode.GcodeHistory;
 import tgfx.ui.gcode.GcodeTabController;
 import tgfx.ui.machinesettings.MachineSettingsController;
 import tgfx.ui.tgfxsettings.TgfxSettingsController;
 import tgfx.ui.tinygconfig.TinyGConfigController;
-import tgfx.utility.Timeable;
 
-public class Main extends Stage implements Timeable, Initializable, Observer {
+/**
+ * The <code>Main</code> class is logically the "main" class of the application, but
+ * due to how javaFX's framework is setup, it is not the first class executed on
+ * application startup, rather that is TgFX, which is kicked off under the control of the XML
+ * instructions.
+ * @see TgFX
+ * @author riley 
+ */
+public class Main extends Stage implements Initializable, Observer {
     
     int CONNECTION_TIMEOUT_VALUE = 10000;  //This is the amount of time in milliseconds that will go until we say the connection has timed out.
     public static String OS = System.getProperty("os.name").toLowerCase();
@@ -125,11 +127,6 @@ public class Main extends Stage implements Timeable, Initializable, Observer {
         } else {
             return ("win");
         }
-    }
-
-    @Override
-    public AtomicBoolean getTimeSemaphore() {
-        return TinygDriver.getInstance().getConnectionSemaphore();
     }
 
     private static boolean isLinux() {
@@ -237,7 +234,7 @@ public class Main extends Stage implements Timeable, Initializable, Observer {
     /**
      * These are the actions that need to be ran upon successful serial port
      * connection. If you have something that you want to "auto run" on connect.
-     * // * This is the place to do so. This met0 hod is called in
+     * This is the place to do so. This method is called in
      * handleConnect.
      */
     private void onConnectActions() {
@@ -321,11 +318,8 @@ public class Main extends Stage implements Timeable, Initializable, Observer {
                     } catch (Exception ex) {
                         logger.error("Error in OnConnectActions() " + ex.getMessage());
                     }
-
                 }
             });
-
-
 
         } catch (Exception ex) {
             postConsoleMessage("[!]Error in onConnectActions: " + ex.getMessage());
