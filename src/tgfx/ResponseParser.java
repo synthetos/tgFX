@@ -131,7 +131,7 @@ public class ResponseParser extends Observable implements Runnable {
     }
  
     public void applySettingMasterGroup(JSONObject js, String pg) throws Exception {
-        String parentGroup;
+        
         if (pg.equals(MNEMONIC_GROUP_STATUS_REPORT)) {
             //This is a status report master object that came in through a response object.
             //meaning that the response was asked for like this {"sr":""} and returned like this.
@@ -156,7 +156,7 @@ public class ResponseParser extends Observable implements Runnable {
                         } else {
                             //This is the normal case
                             rc.setSettingValue(js.get(key).toString());
-                            parentGroup = rc.getSettingParent();
+                            String parentGroup = rc.getSettingParent();
                             _applySettings(rc.buildJsonObject(), rc.getSettingParent()); //we will supply the parent object name for each key pai
                         }
                     }
