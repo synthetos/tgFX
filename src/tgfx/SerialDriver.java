@@ -112,6 +112,7 @@ public class SerialDriver implements SerialPortEventListener {
                 }
 
             } catch (Exception ex) {
+                logger.error(ex);
                 Main.print("Exception in Serial Event");
             }
         }
@@ -146,6 +147,7 @@ public class SerialDriver implements SerialPortEventListener {
 
         if (isConnected()) {
             String returnMsg = "[*] Port Already Connected.\n";
+            logger.info(returnMsg);
             return (true);
         }
 
