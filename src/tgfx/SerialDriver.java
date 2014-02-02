@@ -22,7 +22,6 @@ public class SerialDriver implements SerialPortEventListener {
     private boolean connectionState = false;
     public String portArray[] = null; 
     public SerialPort serialPort;
-    private String port;
     public InputStream input;
     public OutputStream output;
     private boolean CANCELLED = false;
@@ -61,7 +60,6 @@ public class SerialDriver implements SerialPortEventListener {
     }
 
     public synchronized void disconnect() {
-
         if (serialPort != null) {
             serialPort.close();
             setConnected(false); //Set our disconnected state
@@ -143,7 +141,6 @@ public class SerialDriver implements SerialPortEventListener {
     public boolean initialize(String port, int DATA_RATE) {
         
         int TIME_OUT = 2000;
-        this.port = port;
 
         if (isConnected()) {
             String returnMsg = "[*] Port Already Connected.\n";
