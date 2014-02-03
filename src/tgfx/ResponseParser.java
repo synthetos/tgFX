@@ -36,7 +36,10 @@ import tgfx.tinyg.responseCommand;
  * @author ril3y
  */
 public class ResponseParser extends Observable implements Runnable {
-    /** logger instance */
+
+    /**
+     * logger instance
+     */
     private static final Logger logger = Logger.getLogger(ResponseParser.class);
     private boolean TEXT_MODE = false;
     private String[] message = new String[2];
@@ -61,7 +64,7 @@ public class ResponseParser extends Observable implements Runnable {
             logger.setLevel(org.apache.log4j.Level.OFF);
         }
     }
-    
+
     public boolean isTEXT_MODE() {
         return TEXT_MODE;
     }
@@ -69,15 +72,16 @@ public class ResponseParser extends Observable implements Runnable {
     public void setTEXT_MODE(boolean TEXT_MODE) {
         this.TEXT_MODE = TEXT_MODE;
     }
+
     @Override
     public void run() {
         logger.info("Response Parser Running");
-        if(!Main.LOGLEVEL.equals("OFF")){
+        if (!Main.LOGLEVEL.equals("OFF")) {
             Main.print("[+]Response Parser Thread Running...");
         }
         while (RUN) {
             try {
-                line = TinygDriver.getInstance().jsonQueue.take();
+                line = TinygDriver.jsonQueue.take();
                 if (line.equals("")) {
                     continue;
                 }
@@ -129,9 +133,9 @@ public class ResponseParser extends Observable implements Runnable {
             return false;
         }
     }
- 
+
     public void applySettingMasterGroup(JSONObject js, String pg) throws Exception {
-        
+
         if (pg.equals(MNEMONIC_GROUP_STATUS_REPORT)) {
             //This is a status report master object that came in through a response object.
             //meaning that the response was asked for like this {"sr":""} and returned like this.
@@ -141,7 +145,7 @@ public class ResponseParser extends Observable implements Runnable {
             //so we can now just pass it to the applySettingStatusReport method.
             applySettingStatusReport(js);
         } else {
-             if (js.keySet().size() > 1) {
+            if (js.keySet().size() > 1) {
                 Iterator ii = js.keySet().iterator();
                 //This is a special multi single value response object
                 while (ii.hasNext()) {
@@ -384,7 +388,7 @@ public class ResponseParser extends Observable implements Runnable {
                     @Override
                     public void run() {
                         Main.postConsoleMessage("TinyG Alarm " + line);
-                        
+
                         MonologFXButton btnYes = MonologFXButtonBuilder.create()
                                 .defaultButton(true)
                                 .icon("/testmonologfx/dialog_apply.png")
@@ -489,20 +493,29 @@ public class ResponseParser extends Observable implements Runnable {
     public synchronized void parseJSON(String line) throws JSONException {
 
         logger.info("Got Line: " + line + " from TinyG.");
-        if(!Main.LOGLEVEL.equals("OFF")){
+        if (!Main.LOGLEVEL.equals("OFF")) {
             Main.print("-" + line);
         }
-        
+
         final JSONObject js = new JSONObject(line);
 
-        if (js.has("r") || (js.has("sr"))) {
+        if (js.has("r") || (js.has("sr")) || (js.has("tgfx"))) { //tgfx is for messages like timeout connections
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        //The new version of TinyG's footer has a footer element in each response.
-                        //We parse it here 
-                        if (js.has("f")) {
+                       
+                        if (js.has("tgfx")) {
+                            //This is for when tgfx times out when trying to connect to TinyG.
+                            //tgFX puts a message in the response parser queue to be parsed here.
+                            setChanged();
+                            message[0] = "TINYG_CONNECTION_TIMEOUT";
+                            message[1] = (String) js.get("tgfx") + "\n";
+                            notifyObservers(message);
+                            
+                        } else if (js.has("f")) {
+                            //The new version of TinyG's footer has a footer element in each response.
+                            //We parse it here
                             parseFooter(js.getJSONArray("f"));
                             if (js.has("r")) {
                                 applySetting(js.getJSONObject("r"));

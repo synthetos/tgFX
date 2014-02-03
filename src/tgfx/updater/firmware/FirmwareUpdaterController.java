@@ -48,8 +48,8 @@ public class FirmwareUpdaterController implements Initializable {
     private SimpleDoubleProperty _currentVersionString = new SimpleDoubleProperty();
 //    private String tinygHexFileUrl = TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl();
     //    private String tinygHexFileUrl = "https://raw.github.com/synthetos/TinyG/master/firmware/tinyg/default/tinyg.hex";
-    private String avrdudePath = new String();
-    private String avrconfigPath = new String();
+    private static String avrdudePath = new String();
+    private static String avrconfigPath = new String();
     static HashMap<String, String> platformSetup = new HashMap<>();
 //    private String currentFirmwareFile = "https://raw.github.com/synthetos/TinyG/master/version.current";
 //    private String currentFirmwareFile = TinygDriver.getInstance().hardwarePlatform.getLatestVersionUrl();
@@ -58,7 +58,7 @@ public class FirmwareUpdaterController implements Initializable {
      * Initializes the controller class.
      */
     @FXML
-    private void handleUpdateFirmware(ActionEvent event) {
+    public static void handleUpdateFirmware(ActionEvent event) {
 
         Platform.runLater(new Runnable() {
             @Override
@@ -250,7 +250,7 @@ public class FirmwareUpdaterController implements Initializable {
 //        _currentVersionString.TinygDriver.getInstance().m.firmwareBuild);
     }
 
-    protected void enterBootloaderMode() {
+    protected static void enterBootloaderMode() {
         if (TinygDriver.getInstance().isConnected().get()) {
             //We need to disconnect from tinyg after issuing out boot command.
             try {
