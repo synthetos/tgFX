@@ -90,7 +90,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
     final static ResourceBundle rb = ResourceBundle.getBundle("version");   //Used to track build date and build number
     //public final static String LOGLEVEL = "OFF";
-    private QueueUsingTimer connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
+    private QueueUsingTimer connectionTimer;
     public final static String LOGLEVEL = "INFO";
     @FXML
     private Circle cursor;
@@ -196,7 +196,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
      */
     private void onConnectActions() {
         try {
-
+            connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -220,8 +220,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 }
             });
 
-
-
         } catch (Exception ex) {
             postConsoleMessage("[!]Error in onConnectActions: " + ex.getMessage());
             Main.print(ex.getMessage());
@@ -237,8 +235,9 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 public void run() {
 
                     try {
-
-                        connectionTimer.disarm();
+                        if (connectionTimer != null) {
+                            connectionTimer.disarm();
+                        }
 
                         /*####################################
                          *Priority Write's Must Observe the delays or you will smash TinyG as it goes into a "disable interrupt mode" to write values to EEPROM 
