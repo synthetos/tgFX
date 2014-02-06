@@ -403,7 +403,7 @@ public class TinyGConfigController implements Initializable {
 
     @FXML
     private void handleAxisApplySettings(ActionEvent evt) {
-        tgfx.Main.postConsoleMessage("[+]Applying Axis.......\n");
+        tgfx.Main.postConsoleMessage("[+]Applying Axis...\n");
         try {
 
             TinygDriver.getInstance().applyHardwareAxisSettings(axisTabPane.getSelectionModel().getSelectedItem());
