@@ -48,8 +48,8 @@
                                     </HBox>
                                     <GridPane id="movementGP" hgap="15.0" style="-fx-padding: 10" vgap="15.0" VBox.vgrow="NEVER">
                                       <children>
-                                        <Label id="lblMachine" text="Harware ID:" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
-                                        <Label id="motorTxt" text="Harware Version:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Label id="lblMachine" text="Hardware ID:" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
+                                        <Label id="motorTxt" text="Hardware Version:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                         <Label id="motorTxt" fx:id="hwVersion" text="..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                         <Label id="motorTxt" fx:id="hardwareId" text="..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                         <Label id="motorTxt" text="Firmware Version:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
