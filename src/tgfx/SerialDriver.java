@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import org.apache.log4j.Logger;
+import tgfx.utility.UtilityFunctions;
 
 
 /**
@@ -125,7 +126,7 @@ public class SerialDriver implements SerialPortEventListener {
             
             if (port.getPortType() == CommPortIdentifier.PORT_SERIAL && !port.getName().contains("Bluetooth")) {  //remove default bluetooth ports
                 
-                if(Main.getOperatingSystem().equals("mac")){
+                if(UtilityFunctions.getOperatingSystem().equals("mac")){
                     if(port.getName().contains("tty")){
                         continue; //We want to remove the the duplicate tty's and just provide the "cu" ports in the drop down.
                     }

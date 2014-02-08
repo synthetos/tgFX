@@ -25,6 +25,17 @@ public class HardwarePlatform {
     private String manufacturer;
     private String firmwareUrl;
     private int hardwarePlatformVersion;
+    private boolean isUpgradeable;
+
+    public boolean isIsUpgradeable() {
+        return isUpgradeable;
+    }
+
+    public void setIsUpgradeable(boolean isUpgradeable) {
+        this.isUpgradeable = isUpgradeable;
+    }
+    
+    
     
     public int getPlatformHardwareVersion(){
         return this.hardwarePlatformVersion;

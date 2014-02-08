@@ -56,6 +56,7 @@ public class TinygDriver extends Observable {
     public final static int MAX_BUFFER = 240;
     private AtomicBoolean connectionSemaphore = new AtomicBoolean(false); 
     private AsyncTimer connectionTimer;
+    private boolean timedout = false;
 
     /**
      * Singleton Code for the Serial Port Object
@@ -87,6 +88,14 @@ public class TinygDriver extends Observable {
     */ 
     public AtomicBoolean getConnectionSemaphore(){
         return connectionSemaphore;
+    }
+
+    public boolean isTimedout() {
+        return timedout;
+    }
+
+    public void setTimedout(boolean timedout) {
+        this.timedout = timedout;
     }
     
     
@@ -478,7 +487,7 @@ public class TinygDriver extends Observable {
 
         //Setup Logging for TinyG Driver
         if (Main.LOGLEVEL.equals("INFO")) {
-//            logger.setLevel(org.apache.log4j.Level.INFO);
+            logger.setLevel(org.apache.log4j.Level.INFO);
         } else if (Main.LOGLEVEL.equals("ERROR")) {
             logger.setLevel(org.apache.log4j.Level.ERROR);
         } else {

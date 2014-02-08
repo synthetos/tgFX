@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import tgfx.Main;
 import tgfx.tinyg.CommandManager;
-import tgfx.tinyg.MnemonicManager;
 import tgfx.tinyg.TinygDriver;
 
 import javafx.concurrent.Task;
@@ -42,19 +41,11 @@ public class MachineSettingsController implements Initializable {
     private DecimalFormat decimalFormat = new DecimalFormat("################################.############################");
     private static final Logger logger = Logger.getLogger(MachineSettingsController.class);
     @FXML
-    private static Label firmwareVersion;
-    @FXML
-    private Label hwVersion, buildNumb, hardwareId;
-    @FXML
     private ListView configsListView;
     @FXML
     private static ChoiceBox machineSwitchType, machineUnitMode;
     @FXML
     private ProgressBar configProgress;
-
-    public static double getCurrentBuildNumber() {
-        return (Double.valueOf(firmwareVersion.getText()));
-    }
 
     public static void updateGuiMachineSettings() {
         machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().machine.getGcodeUnitModeAsInt());
@@ -67,11 +58,8 @@ public class MachineSettingsController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         populateConfigFiles();          //Populate all Config Files
-        hardwareId.textProperty().bind(TinygDriver.getInstance().machine.hardwareId); //Bind the tinyg hardware id to the tg driver value
-        hwVersion.textProperty().bind(TinygDriver.getInstance().machine.hardwareVersion); //Bind the tinyg version  to the tg driver value
-        firmwareVersion.textProperty().bind(TinygDriver.getInstance().machine.firmwareVersion);
-        buildNumb.textProperty().bind(TinygDriver.getInstance().machine.firmwareBuild.asString());
-        
+
+
 
     }
 
@@ -137,6 +125,9 @@ public class MachineSettingsController implements Initializable {
     @FXML
     private void handleLoadConfig(ActionEvent event) throws Exception {
         //This function gets the config file selected and applys the settings onto tinyg.
+//        if(configsListView.getSelectionModel().getSelectedIndex() < -1){
+//            
+//        }
         InputStream fis;
         BufferedReader br;
         String line;
@@ -144,49 +135,48 @@ public class MachineSettingsController implements Initializable {
         fis = new FileInputStream(selected_config);
         br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 
+        
+        
         Task task = new Task<Void>() {
             @Override
             public Void call() {
-                int max = 1000;
+                int max = 100000000;
                 for (int i = 1; i <= max; i++) {
-                    if (isCancelled()) {
-                        break;
-                    }
                     updateProgress(i, max);
                 }
                 return null;
-
             }
         };
+        configProgress.progressProperty().bind(task.progressProperty());
+        new Thread(task).start();
+        
+        
+
+    }
 
 //        configProgress.progressProperty().bind(task.progressProperty());
 //        new Thread(task).start();
-
-
-
-
-        while ((line = br.readLine()) != null) {
-            if (TinygDriver.getInstance().isConnected().get()) {
-                if (line.startsWith("{\"name")) {
-                    //This is the name of the CONFIG lets not write this to TinyG 
-                    tgfx.Main.postConsoleMessage("[+]Loading " + line.split(":")[1] + " config into TinyG... Please Wait...");
-                } else {
-
-
-
-                    JSONObject js = new JSONObject(line);
-
-
-                    writeConfigValue(js);
-//                    TinygDriver.getInstance().write(line + "\n");    //Write the line to tinyG
-//                    Thread.sleep(200);      //Writing Values to eeprom can take a bit of time..
-
-                    //tgfx.Main.postConsoleMessage("[+]Writing Config String: " + line + "\n");
-                }
-            }
-        }
-    }
-
+//        while ((line = br.readLine()) != null) {
+//            if (TinygDriver.getInstance().isConnected().get()) {
+//                if (line.startsWith("{\"name")) {
+//                    //This is the name of the CONFIG lets not write this to TinyG 
+//                    tgfx.Main.postConsoleMessage("[+]Loading " + line.split(":")[1] + " config into TinyG... Please Wait...");
+//                } else {
+//
+//
+//
+//                    JSONObject js = new JSONObject(line);
+//
+//
+//                    writeConfigValue(js);
+////                    TinygDriver.getInstance().write(line + "\n");    //Write the line to tinyG
+////                    Thread.sleep(200);      //Writing Values to eeprom can take a bit of time..
+//
+//                    //tgfx.Main.postConsoleMessage("[+]Writing Config String: " + line + "\n");
+//                }
+//            }
+//        }
+//    }
     @FXML
     private void handleApplyMachineSettings() {
         try {

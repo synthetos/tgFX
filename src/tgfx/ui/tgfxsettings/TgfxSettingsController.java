@@ -12,7 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import org.apache.log4j.Logger;
-import static tgfx.Main.getBuildInfo;
+import tgfx.utility.UtilityFunctions;
 
 /**
  * FXML Controller class
@@ -76,7 +76,7 @@ public class TgfxSettingsController implements Initializable {
         settingDrawBtn.setSelected(true);  //We set drawing preview to default
         settingDrawBtn.setText("Enabled");
         
-        tgfxBuildNumber.setText(getBuildInfo("BUILD"));
+        tgfxBuildNumber.setText(UtilityFunctions.getBuildInfo("BUILD"));
         tgfxVersion.setText(".95");
 
         tgfxBuildDate.setId("lblMachine");

@@ -276,7 +276,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
             if (tg.isConnected().get()) {
 
-                postConsoleMessage("[*]Connected to " + serialPortSelected + " Serial Port Successfully.\n");
+                postConsoleMessage("[*]Opened Port: " + serialPortSelected + " Attempting to get TinyG Build Version Now...\n");
                 Connect.setText("Disconnect");
 
                 /**
@@ -510,7 +510,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         break;
 
                     default:
-                        Main.print("[!]Invalid Routing Key: " + ROUTING_KEY);
+                        logger.error("[!]Invalid Routing Key: " + ROUTING_KEY);
                 }
             } catch (IOException | JSONException ex) {
                 java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
@@ -520,7 +520,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
     private void doTinyGConnectionTimeout() {
         Main.postConsoleMessage("ERROR! - tgFX timed out while attempting to connect to TinyG.  \nVerify the port you selected and that power is applied to your TinyG.");
-        
+        TinygDriver.getInstance().setTimedout(true);  //we set this to tell the firmware updater that we have no clue what platform we are dealing with because it timed out.
         Platform.runLater(new Runnable() {
             @Override
             public void run() {

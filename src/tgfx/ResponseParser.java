@@ -362,14 +362,11 @@ public class ResponseParser extends Observable implements Runnable {
                 logger.info("HOME");
                 break;
             case (MNEMONIC_GROUP_SYSTEM):
-//                logger.info(MNEMONIC_GROUP_SYSTEM);
                 TinygDriver.getInstance().machine.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
-//*
                 /**
                  * UNCOMMENT THIS BELOW WHEN WE HAVE MACHINE SETTINGS THAT NEED
                  * TO UPDATE THE GU
                  */
-//                setChanged();
                 message[0] = "MACHINE_UPDATE";
                 message[1] = null;
                 setChanged();
