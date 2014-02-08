@@ -91,6 +91,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     //public final static String LOGLEVEL = "OFF";
     private QueueUsingTimer connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
     public final static String LOGLEVEL = "OFF";
+
     @FXML
     private Circle cursor;
     @FXML
@@ -162,7 +163,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
      */
     private void onConnectActions() {
         try {
-
+            connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -186,8 +187,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 }
             });
 
-
-
         } catch (Exception ex) {
             postConsoleMessage("[!]Error in onConnectActions: " + ex.getMessage());
             Main.print(ex.getMessage());
@@ -203,8 +202,9 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 public void run() {
 
                     try {
-
-                        connectionTimer.disarm();
+                        if (connectionTimer != null) {
+                            connectionTimer.disarm();
+                        }
 
                         /*####################################
                          *Priority Write's Must Observe the delays or you will smash TinyG as it goes into a "disable interrupt mode" to write values to EEPROM 
