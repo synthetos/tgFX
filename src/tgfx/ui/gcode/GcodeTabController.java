@@ -357,7 +357,7 @@ public class GcodeTabController implements Initializable {
 
     @FXML
     private void handleClearScreen(ActionEvent evt) {
-        tgfx.Main.postConsoleMessage("[+]Clearning Screen...\n");
+        tgfx.Main.postConsoleMessage("[+]Clearing Screen...\n");
         cncMachine.clearScreen();
         Draw2d.setFirstDraw(true);  //clear this so our first line added draws correctly
     }
