@@ -24,7 +24,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
@@ -32,7 +31,6 @@ import jfxtras.labs.dialogs.MonologFXButton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
-import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
@@ -78,6 +76,7 @@ import tgfx.utility.QueuedTimerable;
  */
 public class Main extends Stage implements Initializable, Observer, QueuedTimerable<String> {
 
+    private int oldRspLine = 0;
     private String CONNECTION_TIMEOUT = "{\"tgfx\": \"TinyG Connection Timeout\"}";
     int CONNECTION_TIMEOUT_VALUE = 5000;  //This is the amount of time in milliseconds that will go until we say the connection has timed out.
     public static String OS = System.getProperty("os.name").toLowerCase();
@@ -88,10 +87,10 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     private TinygDriver tg = TinygDriver.getInstance();
     private String PROMPT = "tinyg>";
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
-    final static ResourceBundle rb = ResourceBundle.getBundle("version");   //Used to track build date and build number
+    
     //public final static String LOGLEVEL = "OFF";
     private QueueUsingTimer connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
-    public final static String LOGLEVEL = "INFO";
+    public final static String LOGLEVEL = "OFF";
     @FXML
     private Circle cursor;
     @FXML
@@ -125,40 +124,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     @FXML
     private TabPane topTabPane;
 
-    public static String getOperatingSystem() {
-        if (isWindows()) {
-            return ("win");
-        } else if (isMac()) {
-            return ("mac");
-        } else if (isUnix()) {
-            return ("unix");
-        } else if (isLinux()) {
-            return ("linux");  //not tested yet 380.08
-        } else {
-            return ("win");
-        }
-    }
-
-    private static boolean isLinux() {
-        return (OS.indexOf("lin") >= 0);
-    }
-
-    private static boolean isWindows() {
-        return (OS.indexOf("win") >= 0);
-    }
-
-    private static boolean isMac() {
-        return (OS.indexOf("mac") >= 0);
-    }
-
-    private static boolean isUnix() {
-        return (OS.indexOf("nux") >= 0);
-    }
-
-    public void testMessage(String message) {
-        Main.print("Message Hit");
-
-    }
+    
 
     public Main() {
         //Setup Logging for TinyG Driver
@@ -479,7 +445,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 //        });
 //
 //    }
-    private int oldRspLine = 0;
+    
 
     @Override
     public synchronized void update(Observable o, Object arg) {
@@ -627,7 +593,8 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
             //The board has been reset and is ready to re-init our internal tgFX models
             onDisconnectActions();
             CNCMachine.resetDrawingCoords();
-            onConnectActions();
+            //onConnectActions();  WE ARE DISABLING THIS FOR NOW.  THIS SHOULD KICK OF A RE-QUERY OF THE TINYG ON RESET.  
+            //HOWEVER IT IS MAKING OnConnectionActions run 2x.  Need to fix this.
         }
     }
 
@@ -724,15 +691,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
     }
 
-    public static String getBuildInfo(String propToken) {
-        String msg = "";
-        try {
-            msg = rb.getString(propToken);
-        } catch (MissingResourceException e) {
-            logger.error("Error Getting Build Info Token ".concat(propToken).concat(" not in Propertyfile!"));
-        }
-        return msg;
-    }
+    
 
     public static void print(String msg) {
         if (TgfxSettingsController.settingDebugBtn.isSelected()) {
