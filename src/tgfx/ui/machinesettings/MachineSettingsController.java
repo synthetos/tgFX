@@ -7,6 +7,7 @@ package tgfx.ui.machinesettings;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -19,7 +20,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.stage.FileChooser;
 import org.apache.log4j.Logger;
@@ -30,6 +30,7 @@ import tgfx.tinyg.TinygDriver;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.ProgressBar;
+import org.json.JSONException;
 
 /**
  * FXML Controller class
@@ -38,7 +39,7 @@ import javafx.scene.control.ProgressBar;
  */
 public class MachineSettingsController implements Initializable {
 
-    private DecimalFormat decimalFormat = new DecimalFormat("################################.############################");
+    private final DecimalFormat decimalFormat = new DecimalFormat("################################.############################");
     private static final Logger logger = Logger.getLogger(MachineSettingsController.class);
     @FXML
     private ListView configsListView;
@@ -54,12 +55,13 @@ public class MachineSettingsController implements Initializable {
 
     /**
      * Initializes the controller class.
+     *
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         populateConfigFiles();          //Populate all Config Files
-
-
 
     }
 
@@ -70,9 +72,9 @@ public class MachineSettingsController implements Initializable {
         String files;
         File folder = new File(path);
         File[] listOfFiles = folder.listFiles();
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-                files = listOfFiles[i].getName();
+        for (File listOfFile : listOfFiles) {
+            if (listOfFile.isFile()) {
+                files = listOfFile.getName();
                 if (files.endsWith(".config") || files.endsWith(".json")) {
                     configsListView.getItems().add(files);
                 }
@@ -99,63 +101,108 @@ public class MachineSettingsController implements Initializable {
     private void handleImportConfig(ActionEvent event) throws Exception {
     }
 
-    private void writeConfigValue(JSONObject j) throws Exception {
-
-
-
-        String topLevelParent = new String();
-        topLevelParent = (String) j.names().get(0);
-        Iterator it = j.getJSONObject(topLevelParent).keys();
-
-        while (it.hasNext()) {
-            String k = (String) it.next();
-            Double value = (Double) j.getJSONObject(topLevelParent).getDouble(k);
-            System.out.println("This is the value " + k + " " + decimalFormat.format(value));
-            //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
-
-
-            String singleJsonSetting = new String("{\"" + topLevelParent + k + "\":" + value + "}\n");
-            TinygDriver.getInstance().write(singleJsonSetting);
-            Thread.sleep(400);
-
-        }
-
+    private int getConfigElementLength(JSONObject js) throws JSONException {
+        //This method is used to get the total number of json objects to write for loading config progress bar to work
+        String topLevelParent;
+        topLevelParent = (String) js.names().get(0);
+        //JSONObject tmp = js.get(topLevelParent);
+        int jsonKeyLength = js.getJSONObject(topLevelParent).length();
+        return jsonKeyLength;
     }
 
     @FXML
     private void handleLoadConfig(ActionEvent event) throws Exception {
+
+//        Task task = new Task<Void>() {
+//            @Override
+//            public Void call() {
+//                int max = 100000000;
+//                for (int i = 1; i <= max; i++) {
+//                    updateProgress(i, max);
+//                }
+//                return null;
+//            }
+//        };
         //This function gets the config file selected and applys the settings onto tinyg.
-//        if(configsListView.getSelectionModel().getSelectedIndex() < -1){
-//            
-//        }
         InputStream fis;
+
         BufferedReader br;
-        String line;
-        File selected_config = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + configsListView.getSelectionModel().getSelectedItem());
+
+        final File selected_config = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + configsListView.getSelectionModel().getSelectedItem());
         fis = new FileInputStream(selected_config);
+
         br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 
-        
-        
-        Task task = new Task<Void>() {
+        //Loop though the file to get the total elements we need to write
+        //for the progress bar to function
+        String line;
+
+        int elementCount = 1;
+
+        while ((line = br.readLine()) != null) {
+            if (line.startsWith("{\"name")) {
+            } else {
+                JSONObject js = new JSONObject(line);
+                elementCount = elementCount + getConfigElementLength(js);
+            }
+        }
+
+        final int maxElements = elementCount;
+        logger.info("Max Elements is: " + String.valueOf(maxElements));
+        Task task = null;
+        task = new Task<Void>() {
             @Override
-            public Void call() {
-                int max = 100000000;
-                for (int i = 1; i <= max; i++) {
-                    updateProgress(i, max);
+            public Void call() throws IOException, JSONException, Exception {
+                String line = new String();
+                int count = 1;
+                final BufferedReader br2;
+                InputStream fis2;
+
+                fis2 = new FileInputStream(selected_config);
+                br2 = new BufferedReader(new InputStreamReader(fis2, Charset.forName("UTF-8")));
+
+                while ((line = br2.readLine()) != null) {
+                    if (line.startsWith("{\"name")) {
+                        //This is the name of the CONFIG lets not write this to TinyG 
+                        tgfx.Main.postConsoleMessage("[+]Loading " + line.split(":")[1] + " config into TinyG... Please Wait...");
+                    } else {
+                        JSONObject js = new JSONObject(line);
+
+                        String topLevelParent = new String();
+                        topLevelParent = (String) js.names().get(0);
+                        Iterator it = js.getJSONObject(topLevelParent).keys();
+
+                        while (it.hasNext()) {
+                            String k = (String) it.next();
+                            Double value = (Double) js.getJSONObject(topLevelParent).getDouble(k);
+                            System.out.println("This is the value " + k + " " + decimalFormat.format(value));
+                            //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
+
+                            String singleJsonSetting = "{\"" + topLevelParent + k + "\":" + value + "}\n";
+                            TinygDriver.getInstance().write(singleJsonSetting);
+                            count = count + 1;
+                            Thread.sleep(400);
+                            updateProgress(count, maxElements);
+                        }
+
+                        TinygDriver.getInstance().write(line + "\n");    //Write the line to tinyG
+                        //Thread.sleep(200);      //Writing Values to eeprom can take a bit of time..
+                        tgfx.Main.postConsoleMessage("[+]Writing Config String: " + line + "\n");
+                        
+
+                        logger.info("Count is: " + String.valueOf(count) + "of " + String.valueOf(maxElements));
+                    }
                 }
                 return null;
             }
         };
-        configProgress.progressProperty().bind(task.progressProperty());
-        new Thread(task).start();
-        
-        
+        if (TinygDriver.getInstance().isConnected().get()) {
+            configProgress.progressProperty().bind(task.progressProperty());
+            new Thread(task).start();
+        }
 
     }
 
-//        configProgress.progressProperty().bind(task.progressProperty());
-//        new Thread(task).start();
 //        while ((line = br.readLine()) != null) {
 //            if (TinygDriver.getInstance().isConnected().get()) {
 //                if (line.startsWith("{\"name")) {

@@ -25,7 +25,7 @@ public class QueueUsingTimerTest implements QueuedTimerable<String> {
     
     @BeforeClass
     public static void setUpClass() {
-        theQueue = new ArrayBlockingQueue<String>(100);
+        theQueue = new ArrayBlockingQueue<>(100);
     }
     
     @AfterClass
@@ -47,7 +47,7 @@ public class QueueUsingTimerTest implements QueuedTimerable<String> {
     public void testRun() {
         System.out.println("run");
         
-        QueueUsingTimer<String> instance = new QueueUsingTimer<String>(5000, this, SPECIAL_ENTRY);
+        QueueUsingTimer<String> instance = new QueueUsingTimer<>(5000, this, SPECIAL_ENTRY);
         instance.start();
         long start = System.currentTimeMillis();
         double sum = 0.0;

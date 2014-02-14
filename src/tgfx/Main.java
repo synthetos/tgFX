@@ -528,21 +528,22 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 MonologFXButton btnYes = MonologFXButtonBuilder.create()
                         .defaultButton(true)
                         .icon("/testmonologfx/dialog_apply.png")
-                        .type(MonologFXButton.Type.YES)
+                        .type(MonologFXButton.Type.CUSTOM2)
+                        .label("Auto Upgrade")
                         .build();
 
                 MonologFXButton btnNo = MonologFXButtonBuilder.create()
                         .cancelButton(true)
                         .icon("/testmonologfx/dialog_cancel.png")
-                        .type(MonologFXButton.Type.NO)
+                        .type(MonologFXButton.Type.CUSTOM1)
+                        .label("Skip")
                         .build();
 
                 MonologFX mono = MonologFXBuilder.create()
                         .titleText("TinyG Connection Timeout")
-                        .message("tgFX timed out while trying to connect to your TinyG.\nYour TinyG might have a too old firmware version or\n"
-                        + "You might have selected the wrong port?"
-                        + "Click ok to attempt to auto upgrade your TinyG. \nA Internet Connection is Required."
-                        + "\nClicking No will allow you to select a different serial port to try again.")
+                        .message("tgFX timed out while trying to connect to your TinyG.\nYour TinyG might have a version of firmware that is too old or"
+                        +       " you might have selected the wrong serial port.  \nClick Auto Upgrade to attempt to upgrade your TinyG. This feature only works for TinyG boards not the Arduino Due port of TinyG."
+                        + "\nA Internet Connection is Required.  Clicking No will allow you to select a different serial port to try to connect to a different serial port.")
                         .button(btnYes)
                         .button(btnNo)
                         .type(MonologFX.Type.ERROR)
@@ -552,8 +553,8 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
 
                 switch (retval) {
-                    case YES:
-                        logger.info("Clicked Yes");
+                    case CUSTOM2:
+                        logger.info("Clicked Auto Upgrade");
 
 
                         Platform.runLater(
@@ -567,7 +568,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         });
                         break;
                         
-                    case NO:
+                    case CUSTOM1:
                         logger.info("Clicked No");
                         TinygDriver.getInstance().disconnect(); //free up the serial port to be able to try another one.
                         break;
