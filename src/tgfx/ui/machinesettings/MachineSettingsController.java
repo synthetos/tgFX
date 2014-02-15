@@ -200,30 +200,8 @@ public class MachineSettingsController implements Initializable {
             configProgress.progressProperty().bind(task.progressProperty());
             new Thread(task).start();
         }
-
     }
 
-//        while ((line = br.readLine()) != null) {
-//            if (TinygDriver.getInstance().isConnected().get()) {
-//                if (line.startsWith("{\"name")) {
-//                    //This is the name of the CONFIG lets not write this to TinyG 
-//                    tgfx.Main.postConsoleMessage("[+]Loading " + line.split(":")[1] + " config into TinyG... Please Wait...");
-//                } else {
-//
-//
-//
-//                    JSONObject js = new JSONObject(line);
-//
-//
-//                    writeConfigValue(js);
-////                    TinygDriver.getInstance().write(line + "\n");    //Write the line to tinyG
-////                    Thread.sleep(200);      //Writing Values to eeprom can take a bit of time..
-//
-//                    //tgfx.Main.postConsoleMessage("[+]Writing Config String: " + line + "\n");
-//                }
-//            }
-//        }
-//    }
     @FXML
     private void handleApplyMachineSettings() {
         try {
