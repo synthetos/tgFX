@@ -146,11 +146,11 @@ public static String[] listSerialPorts() {
 
             }
 
-            if (UtilityFunctions.getOperatingSystem().equals("mac")) {
-                if (_tmpPort.getPortName().contains("tty")) {
-                    continue; //We want to remove the the duplicate tty's and just provide the "cu" ports in the drop down.
-                }
-            }
+//            if (UtilityFunctions.getOperatingSystem().equals("mac")) {
+//                if (_tmpPort.getPortName().contains("tty")) {
+//                    continue; //We want to remove the the duplicate tty's and just provide the "cu" ports in the drop down.
+//                }
+//            }
 
             portList.add(_tmpPort.getPortName());  //Go ahead and add the ports that made it though the logic above
         }

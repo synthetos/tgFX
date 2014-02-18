@@ -30,7 +30,6 @@ import javafx.scene.web.WebView;
 import jfxtras.labs.dialogs.MonologFXButton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
-import java.util.MissingResourceException;
 import java.util.logging.Level;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
