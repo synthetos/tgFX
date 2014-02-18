@@ -1,15 +1,21 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2013-2014 Synthetos LLC. All Rights reserved.
+ * http://www.synthetos.com
  */
 package tgfx;
 
 import tgfx.tinyg.TinygDriver;
-import gnu.io.*;
+//import gnu.io.*;
+import jssc.SerialPort;
+import jssc.*;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import org.apache.log4j.Logger;
+import tgfx.utility.UtilityFunctions;
 
 /**
  *
@@ -17,53 +23,23 @@ import java.util.Enumeration;
  */
 public class SerialDriver implements SerialPortEventListener {
 
-    private final boolean DEBUG = true;
-//    private final boolean DEBUG = false;
+    private static Logger logger = Logger.getLogger(SerialWriter.class);
     private boolean connectionState = false;
-    public String portArray[] = null; //Holder 
+    public String portArray[] = null;
     public SerialPort serialPort;
-    private String port;
-    private String buf = "";
-    private String flow = new String();
-    private static final Object mutex = new Object();
     public InputStream input;
     public OutputStream output;
-    private static boolean throttled = false;
-    private boolean PAUSED = false;
     private boolean CANCELLED = false;
-    //DEBUG
-//    public ByteArrayOutputStream bof = new ByteArrayOutputStream();
     private static byte[] lineBuffer = new byte[1024];
     private static int lineIdx = 0;
     public String debugFileBuffer = "";
     public byte[] debugBuffer = new byte[1024];
     public ArrayList<String> lastRes = new ArrayList();
     public double offsetPointer = 0;
-    //DEBUG
 
-    public void write(String str) {
-        try {
-            this.output.write(str.getBytes());
-            Main.logger.info("Wrote Line: " + str);
-
-
-        } catch (Exception ex) {
-            Main.logger.error("Error in SerialDriver Write");
-            Main.logger.error("\t" + ex.getMessage());
-        }
-
-
-    }
-
-    public void priorityWrite(String str) throws Exception {
-        this.output.write(str.getBytes());
-    }
-
-    public void priorityWrite(Byte b) throws Exception {
-        Main.logger.debug("[*] Priority Write Sent\n");
-        this.output.write(b);
-    }
-
+    /**
+     * private constructor since this is a singleton
+     */
     private SerialDriver() {
     }
 
@@ -71,16 +47,31 @@ public class SerialDriver implements SerialPortEventListener {
         return SerialDriver.SerialDriverHolder.INSTANCE;
     }
 
-    private static class SerialDriverHolder {
-
-        private static final SerialDriver INSTANCE = new SerialDriver();
+    public void write(String str) {
+        try {
+            serialPort.writeBytes(str.getBytes());
+            //this.output.write(str.getBytes());
+            logger.info("Wrote Line: " + str);
+        } catch (Exception ex) {
+            logger.error("Error in SerialDriver Write");
+            logger.error("\t" + ex.getMessage());
+        }
     }
 
-    public synchronized void disconnect() {
+    public void priorityWrite(String str) throws Exception {
+        serialPort.writeBytes(str.getBytes());
+        //this.output.write(str.getBytes());
+    }
 
+    public void priorityWrite(Byte b) throws Exception {
+        logger.debug("[*] Priority Write Sent\n");
+        serialPort.writeByte(b);
+        //this.output.write(b);
+    }
+
+    public synchronized void disconnect() throws SerialPortException {
         if (serialPort != null) {
-            //serialPort.removeEventListener();
-            serialPort.close();
+            serialPort.closePort();
             setConnected(false); //Set our disconnected state
         }
     }
@@ -106,85 +97,123 @@ public class SerialDriver implements SerialPortEventListener {
     }
 
     @Override
-    public void serialEvent(SerialPortEvent oEvent) {
+    public void serialEvent(SerialPortEvent event) {
         byte[] inbuffer = new byte[1024];
+        int bytesToRead;
+        byte[] tmpBuffer = null;
 
-        if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+        bytesToRead = event.getEventValue();
+        //tmpBuffer = serialPort.readBytes(bytesToRead);
+
+        if (event.isRXCHAR()) {
             try {
-                int cnt = input.read(inbuffer, 0, inbuffer.length);
-                for (int i = 0; i < cnt; i++) {
-                    if ( inbuffer[i] == 0xA) { // inbuffer[i] is a \n
-                        String f = new String(lineBuffer, 0, lineIdx);
-                        if(!f.equals("")){ //Do not add "" to the jsonQueue..
-                            TinygDriver.getInstance().resParse.appendJsonQueue(f);
-                        }
-                        lineIdx = 0;
-                    } else {
-                        lineBuffer[lineIdx++] = inbuffer[i];
-                    }
-                }
-
-            } catch (Exception ex) {
-                System.out.println("Exception in Serial Event");
+                //            int bytesToRead = input.read(inbuffer, 0, inbuffer.length);
+                tmpBuffer = serialPort.readBytes(bytesToRead, 10);
+            } catch (    SerialPortException | SerialPortTimeoutException ex) {
+                java.util.logging.Logger.getLogger(SerialDriver.class.getName()).log(Level.SEVERE, null, ex);
             }
+            
+            for (int i = 0; i < bytesToRead; i++) {
+                if (tmpBuffer[i] == 0x11 || tmpBuffer[i] == 0x13) {  //We have to filter our XON or XOFF charaters from JSON
+                    continue;
+                }
+                if (tmpBuffer[i] == 0xA) { // inbuffer[i] is a \n
+                    String f = new String(lineBuffer, 0, lineIdx);
+                    if (!f.equals("")) { //Do not add "" to the jsonQueue..
+                        TinygDriver.getInstance().appendJsonQueue(f);
+                    }
+                    lineIdx = 0;
+                } else {
+                    lineBuffer[lineIdx++] = tmpBuffer[i];
+                }
+            }
+
         }
     }
 
-    public static String[] listSerialPorts() {
-        Enumeration ports = CommPortIdentifier.getPortIdentifiers();
+
+
+
+
+public static String[] listSerialPorts() {
+        String[] ports = jssc.SerialPortList.getPortNames();
         ArrayList portList = new ArrayList();
-        String portArray[] = null;
-        while (ports.hasMoreElements()) {
-            CommPortIdentifier port = (CommPortIdentifier) ports.nextElement();
-            if (port.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-                portList.add(port.getName());
+
+        for (String port : ports) {
+//            CommPortIdentifier port = (CommPortIdentifier) ports.nextElement();
+            SerialPort _tmpPort = new SerialPort(port);
+            if (!_tmpPort.getPortName().contains("Bluetooth")) {
+
             }
+
+//            if (UtilityFunctions.getOperatingSystem().equals("mac")) {
+//                if (_tmpPort.getPortName().contains("tty")) {
+//                    continue; //We want to remove the the duplicate tty's and just provide the "cu" ports in the drop down.
+//                }
+//            }
+
+            portList.add(_tmpPort.getPortName());  //Go ahead and add the ports that made it though the logic above
         }
-        portArray = (String[]) portList.toArray(new String[0]);
+
+        String portArray[] = (String[]) portList.toArray(new String[0]);
         return portArray;
     }
 
-    public boolean initialize(String port, int DATA_RATE) {
+    public boolean initialize(String port, int DATA_RATE) throws SerialPortException {
+
         int TIME_OUT = 2000;
-        this.port = port;
 
         if (isConnected()) {
             String returnMsg = "[*] Port Already Connected.\n";
+            logger.info(returnMsg);
             return (true);
         }
 
-        try {
-            CommPortIdentifier portId = CommPortIdentifier.getPortIdentifier(port);
-            // Get the port's ownership
-            serialPort = (SerialPort) portId.open("TG", TIME_OUT);
-            // set port parameters
-            serialPort.setSerialPortParams(DATA_RATE,
-                    SerialPort.DATABITS_8,
-                    SerialPort.STOPBITS_1, 
-                   SerialPort.PARITY_NONE);
+//            CommPortIdentifier portId = CommPortIdentifier.getPortIdentifier(port);
+        // Get the port's ownership
+//            serialPort = (SerialPort) portId("TG", TIME_OUT);
+        // set port parameters
+        serialPort = new SerialPort(port);
+        serialPort.openPort();
+        serialPort.setParams(DATA_RATE,
+                SerialPort.DATABITS_8,
+                SerialPort.STOPBITS_1,
+                SerialPort.PARITY_NONE);
 
-            // open the streams
-            input = serialPort.getInputStream();
-            output = serialPort.getOutputStream();
+        // open the streams
+        //input = serialPort.getInputBufferBytesCount;
+        //output = serialPort.getOutputStream();
+        serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
+        serialPort.setRTS(true);
 
-            // add event listeners
-            serialPort.addEventListener(this);
-            serialPort.notifyOnDataAvailable(true);
+        // add event listeners
+        serialPort.addEventListener(this);
+        //            serialPort.addEventListener(this);notifyOnDataAvailable(true);
+        
+        logger.debug("[+]Opened " + port + " successfully.");
+        setConnected(true); //Register that this is connectionState.
 
-            Main.logger.debug("[+]Opened " + port + " successfully.");
-            setConnected(true); //Register that this is connectionState.
-            return true;
+        return true;
 
-        } catch (PortInUseException ex) {
-            Main.logger.error("[*] Port In Use Error: " + ex.getMessage());
-            return false;
-        } catch (NoSuchPortException ex) {
-            Main.logger.error("[*] No Such Port Error: " + ex.getMessage());
-            return false;
-        } catch (Exception ex) {
-            Main.logger.error("[*] " + ex.getMessage());
-            return false;
-        }
+//        } catch (PortInUseException ex) {
+//            logger.error("[*] Port In Use Error: " + ex.getMessage());
+//            return false;
+//        } catch (NoSuchPortException ex) {
+//            logger.error("[*] No Such Port Error: " + ex.getMessage());
+//            return false;
+//        } catch (Exception ex) {
+//            logger.error("[*] " + ex.getMessage());
+//            return false;
+//        }
+    
 
-    }
+}
+
+    /**
+     * usual IBM-approved singleton helper class.
+     */
+    private static class SerialDriverHolder {
+
+    private static final SerialDriver INSTANCE = new SerialDriver();
+}
 }

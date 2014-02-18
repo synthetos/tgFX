@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import tgfx.updater.firmware.*?>
+
+<AnchorPane prefHeight="-1.0" prefWidth="-1.0" style=" " xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.updater.firmware.FirmwareUpdaterController">
+  <children>
+    <VBox id="firmwareUpdateVbox" alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="350.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <children>
+        <HBox id="motor_config_hbox" alignment="TOP_CENTER" minWidth="-1.0" prefWidth="-1.0" style="-fx-background-color: black;" VBox.vgrow="NEVER">
+          <children>
+            <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Version Information" />
+          </children>
+          <padding>
+            <Insets bottom="5.0" top="5.0" />
+          </padding>
+          <VBox.margin>
+            <Insets />
+          </VBox.margin>
+        </HBox>
+        <VBox prefHeight="300.0" prefWidth="100.0" spacing="10.0" style="-fx-background-color: rgba(40%,33%,10%,0.2)" VBox.vgrow="NEVER">
+          <children>
+            <HBox id="none" alignment="CENTER" minWidth="-1.0" prefWidth="-1.0" style="" VBox.vgrow="NEVER">
+              <children>
+                <VBox prefHeight="-1.0" prefWidth="-1.0" style="" HBox.hgrow="ALWAYS">
+                  <children>
+                    <GridPane id="movementGP" hgap="15.0" style="-fx-padding: 10" vgap="15.0" VBox.vgrow="NEVER">
+                      <children>
+                        <Label id="lblMachine" text="Harware ID:" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font size="15.0" fx:id="x1" />
+                          </font>
+                        </Label>
+                        <Label id="motorTxt" font="$x1" text="Harware Version:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label id="motorTxt" fx:id="hwVersion" text="..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label id="motorTxt" fx:id="hardwareId" text="..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label id="motorTxt" font="$x1" text="Firmware Version:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label id="motorTxt" fx:id="firmwareVersion" text="..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                      </children>
+                      <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+                      </columnConstraints>
+                      <rowConstraints>
+                        <RowConstraints maxHeight="18.0" prefHeight="18.0" vgrow="ALWAYS" />
+                        <RowConstraints maxHeight="18.0" prefHeight="18.0" vgrow="ALWAYS" />
+                        <RowConstraints maxHeight="18.0" prefHeight="18.0" vgrow="ALWAYS" />
+                      </rowConstraints>
+                    </GridPane>
+                  </children>
+                </VBox>
+              </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
+              <children>
+                <Label id="latestFirmwareLabel" fx:id="latestFirmwareBuild" text="Click Check for Updates" textFill="WHITE">
+                  <graphic>
+                    <Text fill="#10cc00" font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Latest Firmware Build:" />
+                  </graphic>
+                </Label>
+              </children>
+              <padding>
+                <Insets left="5.0" fx:id="x2" />
+              </padding>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" padding="$x2" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
+              <children>
+                <Label id="currentFirmwareLabel" fx:id="buildNumb" text="unknown" textFill="WHITE">
+                  <graphic>
+                    <Text fill="#10cc00" font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Your Firmware Build:" />
+                  </graphic>
+                </Label>
+              </children>
+            </HBox>
+            <HBox alignment="BOTTOM_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+              <children>
+                <Button id="checkFirmwareUpdate" mnemonicParsing="false" onAction="#checkFirmwareUpdate" text="Check For Updates" />
+                <Button mnemonicParsing="false" onAction="#handleUpdateFirmware" text="Update Firmware" />
+              </children>
+              <padding>
+                <Insets bottom="10.0" right="5.0" />
+              </padding>
+            </HBox>
+          </children>
+        </VBox>
+      </children>
+      <padding>
+        <Insets />
+      </padding>
+    </VBox>
+  </children>
+</AnchorPane>

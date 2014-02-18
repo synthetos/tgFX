@@ -1,0 +1,9 @@
+{
+    "platformName": "ArduinoDue",
+    "minimalBuildVersion": 23.06,
+    "latestVersionUrl": "https://raw.github.com/synthetos/g2/master/version.current",
+    "manufacturer": "Atmel",
+    "firmwareUrl": "https://github.com/synthetos/g2/raw/master/TinyG2/TinyG2.elf",
+    "hardwarePlatformVersion":0,
+    "isUpgradeable":"false"
+}

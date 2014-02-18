@@ -1,16 +1,23 @@
 /**
- * tgFX Driver Class Copyright Synthetos.com lgpl
+ * tgFX Driver Class 
+ * Copyright (C) 2014 Synthetos LLC. All Rights reserved.
+ * http://www.synthetos.com
  */
 package tgfx.tinyg;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import org.apache.log4j.Level;
+import jssc.SerialPortException;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
+import tgfx.Main;
 import tgfx.ResponseParser;
 import tgfx.SerialDriver;
 import tgfx.SerialWriter;
@@ -18,68 +25,128 @@ import tgfx.ui.gcode.GcodeLine;
 import tgfx.system.Axis;
 import tgfx.system.Machine;
 import tgfx.system.Motor;
+import tgfx.hardwarePlatforms.HardwarePlatform;
+import tgfx.hardwarePlatforms.HardwarePlatformManager;
+import tgfx.utility.AsyncTimer;
 
 public class TinygDriver extends Observable {
-    private double MINIMAL_BUILD_VERSION = 377.08;
+
+    private double MINIMAL_BUILD_VERSIONS[] = {377.08, 13.01};
     static final Logger logger = Logger.getLogger(TinygDriver.class);
-    public Machine m = Machine.getInstance();
+    public Machine machine = Machine.getInstance();
     public QueueReport qr = QueueReport.getInstance();
     public MnemonicManager mneManager = new MnemonicManager();
     public ResponseManager resManager = new ResponseManager();
     public CommandManager cmdManager = new CommandManager();
     private String[] message = new String[2];
-    
-    
-    
-    
+    public SimpleBooleanProperty connectionStatus = new SimpleBooleanProperty(false);
+//    private String platformHardwareName = "";
+    public HardwarePlatform hardwarePlatform = new HardwarePlatform();
+    public HardwarePlatformManager hardwarePlatformManager = new HardwarePlatformManager();
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
     public ArrayList<String> connections = new ArrayList<>();
     private SerialDriver ser = SerialDriver.getInstance();
-    public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(10);
+    public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(10000);
     public static ArrayBlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(30);
     public static ArrayBlockingQueue<GcodeLine[]> writerQueue = new ArrayBlockingQueue<>(50000);
-    public ResponseParser resParse = new ResponseParser(jsonQueue); // Our
+    public ResponseParser resParse = new ResponseParser();
     public SerialWriter serialWriter = new SerialWriter(writerQueue);
     private boolean PAUSED = false;
-    public static int MAX_BUFFER = 254;
+    public final static int MAX_BUFFER = 240;
+    private AtomicBoolean connectionSemaphore = new AtomicBoolean(false); 
+    private AsyncTimer connectionTimer;
+    private boolean timedout = false;
 
     /**
      * Singleton Code for the Serial Port Object
      *
      * @return
      */
-    public double getMINIMAL_BUILD_VERSION() {
-        return MINIMAL_BUILD_VERSION;
+    public double[] getMINIMAL_BUILD_VERSIONS() {
+        return MINIMAL_BUILD_VERSIONS;
     }
 
-    public void setMINIMAL_BUILD_VERSION(double MINIMAL_BUILD_VERSION) {
-        this.MINIMAL_BUILD_VERSION = MINIMAL_BUILD_VERSION;
+//    public voic addMin
+//    
+//    public void setMINIMAL_BUILD_VERSION(double MINIMAL_BUILD_VERSION) {
+//        this.MINIMAL_BUILD_VERSION = MINIMAL_BUILD_VERSION;
+//    }
+    
+    public void setAsyncTimer(AsyncTimer value){
+        connectionTimer = value;
+    }
+    
+    public AsyncTimer getAsyncTimer(){
+        return connectionTimer;
+    }
+    
+
+   /**
+    * gets the Connection semaphore
+    * @return the Connection semaphore
+    */ 
+    public AtomicBoolean getConnectionSemaphore(){
+        return connectionSemaphore;
     }
 
+    public boolean isTimedout() {
+        return timedout;
+    }
+
+    public void setTimedout(boolean timedout) {
+        this.timedout = timedout;
+    }
     
     
-    
-    public void notifyBuildChanged(){
-       
-        if (this.m.getFirmwareBuild() < MINIMAL_BUILD_VERSION && this.m.getFirmwareBuild() != 0.0) {
+    public void notifyBuildChanged() throws IOException, JSONException {
+
+//        int _size = this.getMINIMAL_BUILD_VERSIONS().length;
+//        double _versions[] = this.getMINIMAL_BUILD_VERSIONS();
+//
+//
+//        if (TinygDriver.getInstance().m.getFirmwareBuild() < 200 && TinygDriver.getInstance().m.getFirmwareBuild() > 0.0) {
+//            //This is a bit of a hack at the moment.  If currently the Due port is no where near 200
+//            //so this works.  However eventually?  This will break.
+//            HardwarePlatform.getInstance().getPlatformByName("ArduinoDue");
+//        }else{
+//            HardwarePlatform.getInstance().getPlatformByName("TinyG");
+//        }
+        if(this.hardwarePlatform.getMinimalBuildVersion() < this.machine.getFirmwareBuild()){
+            //This checks to see if the current build version on TinyG is greater than what tgFX's hardware profile needs.
+        
+        }
+        
+        
+
+        if (this.machine.getFirmwareBuild() < TinygDriver.getInstance().hardwarePlatform.getMinimalBuildVersion() && 
+                this.machine.getFirmwareBuild() != 0.0) {
+            
             //too old of a build  we need to tell the GUI about this... This is where PUB/SUB will fix this 
             //bad way of alerting the gui about model changes.
-            message[0]  = "BUILD_ERROR";
-            message[1] = Double.toString(TinygDriver.getInstance().m.getFirmwareBuild());
+            message[0] = "BUILD_ERROR";
+            message[1] = Double.toString(TinygDriver.getInstance().machine.getFirmwareBuild());
             setChanged();
             notifyObservers(message);
-             logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is NOT OK");
-        } else{
-            logger.info("Build Version: " + TinygDriver.getInstance().m.getFirmwareBuild() + " is OK");
-            message[0]  = "BUILD_OK";
+            logger.info("Build Version: " + TinygDriver.getInstance().machine.getFirmwareBuild() + " is NOT OK");
+        } else {
+            logger.info("Build Version: " + TinygDriver.getInstance().machine.getFirmwareBuild() + " is OK");
+            message[0] = "BUILD_OK";
             message[1] = null;
             setChanged();
             notifyObservers(message);
         }
+
     }
-    
+
+//    public String getPlatformHardwareName() {
+//        return platformHardwareName;
+//    }
+//
+//    public void setPlatformHardwareName(String platformHardwareName) {
+//        this.platformHardwareName = platformHardwareName;
+//    }
     public static TinygDriver getInstance() {
         return TinygDriverHolder.INSTANCE;
     }
@@ -112,7 +179,7 @@ public class TinygDriver extends Observable {
                     break;
             }
         } catch (Exception ex) {
-            System.out.println("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
+            Main.print("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
         }
     }
 
@@ -121,7 +188,7 @@ public class TinygDriver extends Observable {
 
         GridPane _gp = (GridPane) _tab.getContent();
         int size = _gp.getChildren().size();
-        Axis _axis = this.m.getAxisByName(String.valueOf(_gp.getId().charAt(0)));
+        Axis _axis = this.machine.getAxisByName(String.valueOf(_gp.getId().charAt(0)));
         int i;
         for (i = 0; i < size; i++) {
             if (_gp.getChildren().get(i).getClass().toString().contains("TextField")) {
@@ -151,7 +218,7 @@ public class TinygDriver extends Observable {
         }
 
 
-        System.out.println("[+]Applying Axis Settings...");
+        Main.print("[+]Applying Axis Settings...");
     }
 
     public void applyHardwareMotorSettings(Motor _motor, TextField tf) throws Exception {
@@ -234,7 +301,7 @@ public class TinygDriver extends Observable {
                 this.write("{\"" + _axis.getAxis_name().toLowerCase() + MnemonicManager.MNEMONIC_AXIS_ZERO_BACKOFF + "\":" + tf.getText() + "}\n");
             }
         }
-        System.out.println("[+]Applying " + _axis.getAxis_name() + " settings");
+        Main.print("[+]Applying " + _axis.getAxis_name() + " settings");
 
     }
 
@@ -261,7 +328,7 @@ public class TinygDriver extends Observable {
         switch (rc.getSettingKey()) {
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
-                TinygDriver.getInstance().m.setLineNumber(Integer.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.setLineNumber(Integer.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
@@ -272,26 +339,26 @@ public class TinygDriver extends Observable {
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
 
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
-                TinygDriver.getInstance().m.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
@@ -301,7 +368,7 @@ public class TinygDriver extends Observable {
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
-                TinygDriver.getInstance().m.setVelocity(Double.valueOf(rc.getSettingValue()));
+                TinygDriver.getInstance().machine.setVelocity(Double.valueOf(rc.getSettingValue()));
                 TinygDriver.logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
@@ -317,7 +384,7 @@ public class TinygDriver extends Observable {
          */
         Tab selectedTab = _tab.getTabPane().getSelectionModel().getSelectedItem();
         int _motorNumber = Integer.valueOf(selectedTab.getText().split(" ")[1].toString());
-        Motor _motor = this.m.getMotorByNumber(_motorNumber);
+        Motor _motor = this.machine.getMotorByNumber(_motorNumber);
 
         GridPane _gp = (GridPane) _tab.getContent();
         int size = _gp.getChildren().size();
@@ -407,20 +474,26 @@ public class TinygDriver extends Observable {
             } else if (motorNumber == 4) {
                 ser.write(CommandManager.CMD_QUERY_MOTOR_4_SETTINGS);
             } else {
-                System.out.println("Invalid Motor Number.. Please try again..");
+                Main.print("Invalid Motor Number.. Please try again..");
                 setChanged();
             }
         } catch (Exception ex) {
-            System.out.println("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
+            Main.print("[!]Error in queryHardwareSingleMotorSettings() " + ex.getMessage());
 
 
         }
     }
 
     private TinygDriver() {
-        logger.setLevel(Level.ERROR);
-//        logger.setLevel(Level.DEBUG);
-//        logger.setLevel(Level.INFO);
+
+        //Setup Logging for TinyG Driver
+        if (Main.LOGLEVEL.equals("INFO")) {
+            logger.setLevel(org.apache.log4j.Level.INFO);
+        } else if (Main.LOGLEVEL.equals("ERROR")) {
+            logger.setLevel(org.apache.log4j.Level.ERROR);
+        } else {
+            logger.setLevel(org.apache.log4j.Level.OFF);
+        }
     }
 
     private static class TinygDriverHolder {
@@ -433,8 +506,6 @@ public class TinygDriver extends Observable {
         super.addObserver(obsrvr);
     }
 
-
-
     public void appendJsonQueue(String line) {
         // This adds full normalized json objects to our jsonQueue.
         TinygDriver.jsonQueue.add(line);
@@ -445,7 +516,7 @@ public class TinygDriver extends Observable {
         try {
             TinygDriver.queue.put((byte[]) queue);
         } catch (Exception e) {
-            System.out.println("ERROR n shit");
+            Main.print("ERROR n shit");
         }
     }
 
@@ -472,16 +543,19 @@ public class TinygDriver extends Observable {
         this.ser.setConnected(choice);
     }
 
-    public boolean initialize(String portName, int dataRate) {
+    public boolean initialize(String portName, int dataRate) throws SerialPortException {
         return (this.ser.initialize(portName, dataRate));
     }
 
-    public void disconnect() {
+    public void disconnect() throws SerialPortException {
         this.ser.disconnect();
     }
 
-    public boolean isConnected() {
-        return this.ser.isConnected();
+    public SimpleBooleanProperty isConnected() {
+        //Our binding to keep tabs in the us of if we are connected to TinyG or not.
+        //This is mostly used to disable the UI if we are not connected.
+        connectionStatus.set(this.ser.isConnected());
+        return (connectionStatus);
     }
 
     /**
@@ -496,6 +570,9 @@ public class TinygDriver extends Observable {
 
     public void priorityWrite(Byte b) throws Exception {
         this.ser.priorityWrite(b);
+        if(!Main.LOGLEVEL.equals("OFF")){
+            Main.print("+" + String.valueOf(b));
+        }
     }
 
     public void priorityWrite(String msg) throws Exception {
@@ -503,6 +580,10 @@ public class TinygDriver extends Observable {
             msg = msg + "\n";
         }
         ser.write(msg);
+        if(!Main.LOGLEVEL.equals("OFF")){
+            Main.print("+" + msg);
+        }
+        
     }
 
     /**
@@ -523,7 +604,7 @@ public class TinygDriver extends Observable {
 
     public String getPortName() {
         // Return the serial port name that is connected.
-        return ser.serialPort.getName();
+        return ser.serialPort.getPortName();
     }
 
     public List<Axis> getInternalAllAxis() {

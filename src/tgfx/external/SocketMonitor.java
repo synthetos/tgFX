@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.nio.channels.ClosedChannelException;
 import java.util.Observable;
 import java.util.Observer;
+import tgfx.Main;
 import tgfx.tinyg.TinygDriver;
 
 /**
@@ -39,22 +40,22 @@ public class SocketMonitor {
             server = new ServerSocket(LISTENER_PORT);
             return (true);
         } catch (IOException e) {
-            System.out.println("Could not listen on port: " + String.valueOf(LISTENER_PORT));
+            Main.print("Could not listen on port: " + String.valueOf(LISTENER_PORT));
             return (false);
         }
     }
 
     public void handleConnections() {
-        System.out.println("[+]Remote Monitor Listening for Connections....");
+        Main.print("[+]Remote Monitor Listening for Connections....");
 //        while (ser.isConnected()) {
             try {
                 final Socket socket = server.accept();
             ConnectionHandler connectionHandler = new ConnectionHandler(socket);
             } catch (IOException ex) {
-                System.out.println("[!]Error: " + ex.getMessage());
+                Main.print("[!]Error: " + ex.getMessage());
             }
 //        }
-        System.out.println("[!]Socket Monitor Terminated...");
+        Main.print("[!]Socket Monitor Terminated...");
 
     }
 
@@ -83,7 +84,7 @@ class ConnectionHandler implements Runnable, Observer {
             } catch (IOException ex) {
                 disconnect = true;
             } catch (Exception ex) {
-                System.out.println("update(): " + ex.getMessage());
+                Main.print("update(): " + ex.getMessage());
             }
         }
     }
@@ -92,7 +93,7 @@ class ConnectionHandler implements Runnable, Observer {
         this.socket = socket;
 
         SerialDriver ser = SerialDriver.getInstance();
-       System.out.println("[+]Opening Remote Listener Socket");
+       Main.print("[+]Opening Remote Listener Socket");
 //        ser.addObserver(this);
        Thread t = new Thread(this);
 //        t.start();
@@ -106,7 +107,7 @@ class ConnectionHandler implements Runnable, Observer {
     public void run() {
         try {
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//            System.out.println("GOT: " + stdIn.readLine());
+//            Main.print("GOT: " + stdIn.readLine());
 //            try {
 //                this.write("[+]Connected to tgFX\n");
 //            } catch (Exception ex) {
@@ -122,11 +123,11 @@ class ConnectionHandler implements Runnable, Observer {
                 } catch (IOException ex) {
                     disconnect = true;
                 } catch (Exception ex) {
-                    System.out.println("run(): " + ex.getMessage());
+                    Main.print("run(): " + ex.getMessage());
                     break;
                 }
             }
-            System.out.println("[+]Closing Remote Listener Socket");
+            Main.print("[+]Closing Remote Listener Socket");
             socket.close();
 
         } catch (IOException e) {

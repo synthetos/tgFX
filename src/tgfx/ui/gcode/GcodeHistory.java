@@ -35,18 +35,18 @@ public final class GcodeHistory {
         if (commandIndex == 0) {
             commandIndex++; //Edge case when you are at the 0th command
             String _tmpHistory = commandHistory.get(commandIndex);
-//            System.out.println(" Get Next History got " + _tmpHistory + " at index " + commandIndex);
+//            Main.print(" Get Next History got " + _tmpHistory + " at index " + commandIndex);
             return (_tmpHistory);
         } else {
 
             if (commandIndex == commandHistory.size() - 1) {
                 String _tmpHistory = commandHistory.get(commandIndex);
-//                System.out.println(" Get Next History got " + _tmpHistory + " at index " + commandIndex);
+//                Main.print(" Get Next History got " + _tmpHistory + " at index " + commandIndex);
                 return (_tmpHistory);
             } else {
                 commandIndex++;
                 String _tmpHistory = commandHistory.get(commandIndex);
-//                System.out.println(" Get Next History got " + _tmpHistory + " at index " + commandIndex);
+//                Main.print(" Get Next History got " + _tmpHistory + " at index " + commandIndex);
                 return (_tmpHistory);
             }
         }
@@ -56,11 +56,11 @@ public final class GcodeHistory {
         if (commandIndex == commandHistory.size() - 1) {
             commandIndex--; //Edge case when you are at the last command in the history
             String _tmpHistory = commandHistory.get(commandIndex);
-//            System.out.println(" Get Next History got " + _tmpHistory + " at index " + commandIndex);
+//            Main.print(" Get Next History got " + _tmpHistory + " at index " + commandIndex);
             return (_tmpHistory);
         } else {
             String _tmpHistory = commandHistory.get(commandIndex);
-//            System.out.println("Get Previous History got " + _tmpHistory + " at index " + commandIndex);
+//            Main.print("Get Previous History got " + _tmpHistory + " at index " + commandIndex);
             if (commandIndex == 0) {
                 return (_tmpHistory);
             } else {

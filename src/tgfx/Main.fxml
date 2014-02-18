@@ -23,116 +23,114 @@
 <?import jfxtras.labs.scene.control.gauge.Marker?>
 <?import jfxtras.labs.scene.control.gauge.Section?>
 <?import jfxtras.labs.scene.control.window.*?>
-<?scenebuilder-classpath-element ../../lib/jfxtras-labs-2.2-r5-20121222.173143-8.jar?>
+<?scenebuilder-classpath-element ../../lib/jfxtras-labs-2.2-r6-20130520.173858-1.jar?>
 
-<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml" fx:controller="tgfx.Main">
-    <children>
-        <BorderPane disable="false" prefHeight="-1.0" prefWidth="-1.0" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <bottom>
-                <VBox alignment="CENTER" prefHeight="168.0" prefWidth="-1.0" style="-fx-background-color: GREY;" BorderPane.alignment="CENTER">
-                    <children>
-                        <TextArea fx:id="console" editable="false" focusTraversable="false" maxHeight="300.0" minHeight="50.0" wrapText="true" VBox.vgrow="ALWAYS">
-                            <prefHeight>
-                                <Long fx:value="75" />
-                            </prefHeight>
-                            <prefWidth>
-                                <Long fx:value="-1" />
-                            </prefWidth>
-                        </TextArea>
-                        <TextField fx:id="input" onKeyPressed="#handleKeyPress" promptText="TinyG&gt;">
-                            <prefWidth>
-                                <Long fx:value="-1" />
-                            </prefWidth>
-                        </TextField>
-                        <FlowPane id="flowPane1" alignment="CENTER_RIGHT" columnHalignment="CENTER" maxHeight="22.0" minHeight="22.0" prefHeight="22.0" style="-fx-background-color:black;" VBox.vgrow="ALWAYS">
-                            <children>
-                                <Label id="srText" text="Gcode Block #" textFill="WHITE" />
-                                <Label id="srText" fx:id="srGcodeLine" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="0">
-                                    <textFill>
-                                        <Color blue="0.624" green="0.624" red="0.624" fx:id="x1" />
-                                    </textFill>
-                                </Label>
-                                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                                <Label id="srText" text="Units" textFill="WHITE" />
-                                <Label id="srText" fx:id="srUnits" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
-                                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                                <Label id="srText" text="Ver" textFill="WHITE" />
-                                <Label id="srText" fx:id="srVer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1">
-                                    <graphicTextGap>
-                                        <Long fx:value="4" />
-                                    </graphicTextGap>
-                                </Label>
-                                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                                <Label id="srText" text="Build" textFill="WHITE" />
-                                <Label id="srText" fx:id="srBuild" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
-                                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                                <Label id="srText" text="Motion Mode" textFill="WHITE">
-                                    <FlowPane.margin>
-                                        <Insets left="5.0" right="5.0" fx:id="x6_x0" />
-                                    </FlowPane.margin>
-                                </Label>
-                                <Label id="srText" fx:id="srMomo" alignment="CENTER" maxWidth="78.0" prefWidth="78.0" text="?" textFill="$x1">
-                                    <FlowPane.margin>
-                                        <Insets right="5.0" fx:id="x2" />
-                                    </FlowPane.margin>
-                                </Label>
-                                <Separator id="separatorVertical1" orientation="VERTICAL" />
-                                <Label id="srText" text="State" textFill="WHITE">
-                                    <FlowPane.margin>
-                                        <Insets left="5.0" fx:id="x3" />
-                                    </FlowPane.margin>
-                                </Label>
-                                <Label id="srText" fx:id="srState" alignment="CENTER" maxWidth="-Infinity" prefWidth="55.0" text="?" FlowPane.margin="$x2">
-                                    <textFill>
-                                        <Color blue="0.750" green="0.750" red="0.750" fx:id="x4" />
-                                    </textFill>
-                                </Label>
-                                <Separator id="separatorVertical3" orientation="VERTICAL">
-                                    <FlowPane.margin>
-                                        <Insets right="20.0" />
-                                    </FlowPane.margin>
-                                </Separator>
-                                <Label id="srText" text="Coord System" textFill="WHITE" />
-                                <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
-                                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                                <Label id="srText" text="Buffer" textFill="WHITE" visible="false" />
-                                <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" visible="true" />
-                            </children>
-                            <hgap>
-                                <Long fx:value="0" />
-                            </hgap>
-                            <prefWidth>
-                                <Long fx:value="-1" />
-                            </prefWidth>
-                        </FlowPane>
-                    </children>
-                    <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
-                    </padding>
-                    <spacing>
-                        <Long fx:value="5" />
-                    </spacing>
-                    <BorderPane.margin>
-                        <Insets fx:id="x77" />
-                    </BorderPane.margin>
-                </VBox>
-            </bottom>
-            <center>
-                <TabPane fx:id="topTabPane" disable="false" focusTraversable="false" style="">
-                    <prefHeight>
-                        <Long fx:value="-1" />
-                    </prefHeight>
-                    <prefWidth>
-                        <Long fx:value="-1" />
-                    </prefWidth>
-                    <tabs>
-                        
-                        <fx:include source="ui/gcode/GcodeTab.fxml" />
-                        <fx:include source="ui/tinygconfig/TinyGConfig.fxml" />
-                        <fx:include source="ui/machinesettings/MachineSettings.fxml" />
-                        <fx:include source="ui/tgfxsettings/TgfxSettings.fxml"></fx:include>
-                        
-                        <Tab fx:id="documentation_tab" closable="false" disable="false" text="Simple Gcoder">
+<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.Main">
+  <children>
+    <BorderPane disable="false" prefHeight="-1.0" prefWidth="-1.0" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <bottom>
+        <VBox id="consoleHBox" fx:id="consoleVBox" alignment="CENTER" prefHeight="168.0" prefWidth="-1.0" style="-fx-background-color: GREY;" BorderPane.alignment="CENTER">
+          <children>
+            <TextArea fx:id="console" editable="false" focusTraversable="false" maxHeight="300.0" minHeight="50.0" wrapText="true" VBox.vgrow="ALWAYS">
+              <prefHeight>
+                <Long fx:value="75" />
+              </prefHeight>
+              <prefWidth>
+                <Long fx:value="-1" />
+              </prefWidth>
+            </TextArea>
+            <TextField fx:id="input" onKeyPressed="#handleKeyPress" promptText="TinyG&gt;">
+              <prefWidth>
+                <Long fx:value="-1" />
+              </prefWidth>
+            </TextField>
+            <FlowPane id="flowPane1" alignment="CENTER_RIGHT" columnHalignment="CENTER" maxHeight="22.0" minHeight="22.0" prefHeight="22.0" style="-fx-background-color:black;" VBox.vgrow="ALWAYS">
+              <children>
+                <Label id="srText" text="Gcode Block #" textFill="WHITE" />
+                <Label id="srText" fx:id="srGcodeLine" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="0">
+                  <textFill>
+                    <Color blue="0.624" green="0.624" red="0.624" fx:id="x1" />
+                  </textFill>
+                </Label>
+                <Separator id="separatorVertical4" orientation="VERTICAL" />
+                <Label id="srText" text="Units" textFill="WHITE" />
+                <Label id="srText" fx:id="srUnits" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
+                <Separator id="separatorVertical4" orientation="VERTICAL" />
+                <Label id="srText" text="Ver" textFill="WHITE" />
+                <Label id="srText" fx:id="srVer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1">
+                  <graphicTextGap>
+                    <Long fx:value="4" />
+                  </graphicTextGap>
+                </Label>
+                <Separator id="separatorVertical4" orientation="VERTICAL" />
+                <Label id="srText" text="Build" textFill="WHITE" />
+                <Label id="srText" fx:id="srBuild" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
+                <Separator id="separatorVertical4" orientation="VERTICAL" />
+                <Label id="srText" text="Motion Mode" textFill="WHITE">
+                  <FlowPane.margin>
+                    <Insets left="5.0" right="5.0" fx:id="x6_x0" />
+                  </FlowPane.margin>
+                </Label>
+                <Label id="srText" fx:id="srMomo" alignment="CENTER" maxWidth="78.0" prefWidth="78.0" text="?" textFill="$x1">
+                  <FlowPane.margin>
+                    <Insets right="5.0" fx:id="x2" />
+                  </FlowPane.margin>
+                </Label>
+                <Separator id="separatorVertical1" orientation="VERTICAL" />
+                <Label id="srText" fx:id="srState" text="State" textFill="WHITE">
+                  <FlowPane.margin>
+                    <Insets left="5.0" fx:id="x3" />
+                  </FlowPane.margin>
+                </Label>
+                <Label id="srText" fx:id="srState" alignment="CENTER" maxWidth="-Infinity" prefWidth="55.0" text="?" FlowPane.margin="$x2">
+                  <textFill>
+                    <Color blue="0.750" green="0.750" red="0.750" fx:id="x4" />
+                  </textFill>
+                </Label>
+                <Separator id="separatorVertical3" orientation="VERTICAL">
+                  <FlowPane.margin>
+                    <Insets right="20.0" />
+                  </FlowPane.margin>
+                </Separator>
+                <Label id="srText" text="Coord System" textFill="WHITE" />
+                <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
+                <Separator id="separatorVertical4" orientation="VERTICAL" />
+                <Label id="srText" text="Buffer" textFill="WHITE" visible="false" />
+                <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" visible="true" />
+              </children>
+              <hgap>
+                <Long fx:value="0" />
+              </hgap>
+              <prefWidth>
+                <Long fx:value="-1" />
+              </prefWidth>
+            </FlowPane>
+          </children>
+          <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
+          </padding>
+          <spacing>
+            <Long fx:value="5" />
+          </spacing>
+          <BorderPane.margin>
+            <Insets fx:id="x77" />
+          </BorderPane.margin>
+        </VBox>
+      </bottom>
+      <center>
+        <TabPane fx:id="topTabPane" disable="false" focusTraversable="false" style="">
+          <prefHeight>
+            <Long fx:value="-1" />
+          </prefHeight>
+          <prefWidth>
+            <Long fx:value="-1" />
+          </prefWidth>
+          <tabs>
+            <fx:include source="ui/gcode/GcodeTab.fxml" />
+            <fx:include source="ui/tinygconfig/TinyGConfig.fxml" />
+            <fx:include source="ui/machinesettings/MachineSettings.fxml" />
+            <fx:include source="ui/tgfxsettings/TgfxSettings.fxml" />
+            <!--                        <Tab fx:id="documentation_tab" closable="false" disable="false" text="Simple Gcoder">
                             <content>
                                 <AnchorPane id="docs" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
                                     <children>
@@ -140,8 +138,8 @@
                                     </children>
                                 </AnchorPane>
                             </content>
-                        </Tab>
-                        <Tab closable="false" disable="false" text="Documentation">
+                        </Tab>-->
+            <!--                        <Tab closable="false" disable="false" text="Documentation">
                             <content>
                                 <AnchorPane id="docs" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
                                     <children>
@@ -149,70 +147,79 @@
                                     </children>
                                 </AnchorPane>
                             </content>
-                        </Tab>
-                    </tabs>
-                </TabPane>
-            </center>
-            <top>
-                <HBox fx:id="topMainTitle" alignment="CENTER" opacity="1.0" rotate="0.0" style="" visible="true">
-                    <children>
-                        <AnchorPane id="topMainTitle" depthTest="INHERIT" rotate="0.0" style="" HBox.hgrow="ALWAYS">
-                            <children>
-                                <StackPane rotate="0.0" style="" AnchorPane.bottomAnchor="25.5" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="25.5">
-                                    <children>
-                                        <Text fx:id="tgfxTitle" fill="WHITE" stroke="$x4" strokeType="OUTSIDE" strokeWidth="0.0" text="tgFX" textAlignment="CENTER">
-                                            <effect>
-                                                <Glow level="0.841685694828346" />
-                                            </effect>
-                                            <StackPane.margin>
-                                                <Insets left="20.0" />
-                                            </StackPane.margin>
-                                        </Text>
-                                    </children>
-                                    <prefHeight>
-                                        <Long fx:value="-1" />
-                                    </prefHeight>
-                                    <prefWidth>
-                                        <Long fx:value="-1" />
-                                    </prefWidth>
-                                </StackPane>
-                                <HBox alignment="CENTER" prefHeight="105.0" AnchorPane.rightAnchor="20.0">
-                                    <children>
-                                        <Label fx:id="serialTitle" alignment="CENTER" prefHeight="27.0" prefWidth="131.0" text="Serial Ports: " />
-                                        <ChoiceBox fx:id="serialPorts" focusTraversable="false" minHeight="21.0" minWidth="120.0" HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="Connect" focusTraversable="false" onAction="#handleConnect" text="Connect" />
-                                        <Button fx:id="reScan" focusTraversable="false" onAction="#FXreScanSerial" text="Re-Scan" />
-                                    </children>
-                                    <prefWidth>
-                                        <Long fx:value="-1" />
-                                    </prefWidth>
-                                    <spacing>
-                                        <Long fx:value="5" />
-                                    </spacing>
-                                </HBox>
-                            </children>
-                            <prefHeight>
-                                <Long fx:value="-1" />
-                            </prefHeight>
-                            <prefWidth>
-                                <Long fx:value="-1" />
-                            </prefWidth>
-                        </AnchorPane>
-                    </children>
-                    <prefHeight>
-                        <Long fx:value="105" />
-                    </prefHeight>
-                    <prefWidth>
-                        <Long fx:value="-1" />
-                    </prefWidth>
+                        </Tab>-->
+          </tabs>
+        </TabPane>
+      </center>
+      <top>
+        <HBox fx:id="topMainTitle" alignment="CENTER" maxHeight="105.0" minHeight="80.0" opacity="1.0" prefHeight="80.0" rotate="0.0" style="" visible="true">
+          <children>
+            <AnchorPane id="topMainTitle" depthTest="INHERIT" maxHeight="-Infinity" minHeight="-1.0" minWidth="-Infinity" opacity="1.0" prefHeight="-1.0" prefWidth="-1.0" rotate="0.0" style="" HBox.hgrow="ALWAYS">
+              <children>
+                <StackPane layoutX="0.0" prefHeight="-1.0" rotate="0.0" style="">
+                  <children>
+                    <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" StackPane.alignment="TOP_CENTER">
+                      <children>
+                        <VBox id="VBox" alignment="CENTER" spacing="5.0">
+                          <children>
+                            <Text fx:id="tgfxTitle" fill="#ff3d00" fontSmoothingType="GRAY" strikethrough="false" stroke="$x4" strokeType="OUTSIDE" strokeWidth="0.0" text="tgFX" textAlignment="CENTER">
+                              <effect>
+                                <Glow level="0.841685694828346" />
+                              </effect>
+                            </Text>
+                            <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="synthetos.com">
+                              <font>
+                                <Font name="System Bold" size="12.0" />
+                              </font>
+                            </Text>
+                          </children>
+                        </VBox>
+                        <ImageView id="stepper.png" fitHeight="46.26190370832171" fitWidth="29.0" opacity="0.6" preserveRatio="true">
+                          <image>
+                            <Image url="@stepper.png" preserveRatio="true" smooth="true" />
+                          </image>
+                        </ImageView>
+                      </children>
+                      <padding>
+                        <Insets left="15.0" />
+                      </padding>
+                    </HBox>
+                  </children>
+                  <prefWidth>
+                    <Long fx:value="-1" />
+                  </prefWidth>
+                </StackPane>
+                <HBox alignment="CENTER" layoutY="20.0" prefHeight="-1.0" AnchorPane.rightAnchor="0.0">
+                  <children>
+                    <Label fx:id="serialTitle" alignment="CENTER" prefHeight="27.0" prefWidth="131.0" text="Serial Ports: " />
+                    <ChoiceBox fx:id="serialPorts" focusTraversable="false" minHeight="21.0" minWidth="120.0" HBox.hgrow="ALWAYS" />
+                    <Button fx:id="Connect" focusTraversable="false" onAction="#handleConnect" text="Connect" />
+                    <Button fx:id="reScan" focusTraversable="false" onAction="#FXreScanSerial" text="Re-Scan" />
+                  </children>
+                  <prefWidth>
+                    <Long fx:value="-1" />
+                  </prefWidth>
+                  <spacing>
+                    <Long fx:value="5" />
+                  </spacing>
                 </HBox>
-            </top>
-        </BorderPane>
-    </children>
-    <layoutX>
-        <Long fx:value="0" />
-    </layoutX>
-    <stylesheets>
-        <URL value="@new_main.css.css" />
-    </stylesheets>
+              </children>
+              <padding>
+                <Insets right="15.0" />
+              </padding>
+            </AnchorPane>
+          </children>
+          <prefWidth>
+            <Long fx:value="-1" />
+          </prefWidth>
+        </HBox>
+      </top>
+    </BorderPane>
+  </children>
+  <layoutX>
+    <Long fx:value="0" />
+  </layoutX>
+  <stylesheets>
+    <URL value="@new_main.css" />
+  </stylesheets>
 </fx:root>

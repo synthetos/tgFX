@@ -1,0 +1,9 @@
+{
+    "platformName": "TinyG",
+    "minimalBuildVersion": 380.05,
+    "latestVersionUrl": "https://raw.github.com/synthetos/TinyG/master/version.current",
+    "manufacturer": "Synthetos",
+    "firmwareUrl": "https://raw.github.com/synthetos/TinyG/master/firmware/tinyg/default/tinyg.hex",
+    "hardwarePlatformVersion":8,
+    "isUpgradeable":"true"
+}

@@ -30,7 +30,7 @@
 }
 
 #gcodeWindow {
-    -fx-background-color: black;
+    -fx-background-color: darkslategray;
 }
 
 #previewVbox{
@@ -51,18 +51,28 @@
 }
 
 .button {
-    -fx-padding: 5 22 5 22;   
+    -fx-background-color: #c3c4c4, linear-gradient(#d6d6d6 50%, white 100%),radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
+    -fx-background-radius: 30;
+    -fx-background-insets: 0,1,1;
+    -fx-text-fill: black;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 3, 0.0 , 0 , 1 );
+    
+    -fx-padding: 5 22 5 22;  
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-font-size: 11pt;
+    
+    
+    /*
     -fx-border-color: #e2e2e2;
     -fx-border-width: 2;
     -fx-background-radius: 0;
     -fx-background-color: #1d1d1d;
-     -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
-    -fx-font-size: 11pt;
-    -fx-text-fill: #d8d8d8;
+-fx-text-fill: #d8d8d8;
+    */
 }
 
 .button:hover{
-    -fx-background-color: #3a3a3a;
+    -fx-background-color: #FF6600;
 }
 
 .button:pressed, .button:default:hover:pressed
@@ -150,8 +160,8 @@ root {
     -fx-background-image: url("carbon.png");
 -fx-background-color:
         #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
-        linear-gradient(#20262b, #191d22),
-        radial-gradient(center 80% 10%, radius 80%, rgba(255, 266, 266,0.9), rgba(255,255,255,0));
+        linear-gradient(#20262b, #191d22);  /*,
+        radial-gradient(center 80% 10%, radius 80%, rgba(255, 266, 266,0.9), rgba(255,255,255,0)); */
 
     
 /*    -fx-background-color: hsl(0,0%,90%);
@@ -193,34 +203,3 @@ root {
     -fx-text-overrun: clip;
     -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
