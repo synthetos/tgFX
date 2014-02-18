@@ -30,6 +30,7 @@ import jfxtras.labs.dialogs.MonologFXButton;
 import static jfxtras.labs.dialogs.MonologFXButton.Type.CANCEL;
 import static jfxtras.labs.dialogs.MonologFXButton.Type.YES;
 import jfxtras.labs.dialogs.MonologFXButtonBuilder;
+import jssc.SerialPortException;
 import tgfx.Main;
 import tgfx.tinyg.*;
 import tgfx.utility.UtilityFunctions;
@@ -84,7 +85,11 @@ public class FirmwareUpdaterController implements Initializable {
                     Main.print("Trying to enter bootloader mode");
                     Main.postConsoleMessage("Entering Bootloader mode.  tgFX will be un-responsive for then next 30 seconds.\n"
                             + "Your TinyG will start blinking rapidly while being programmed");
-                    enterBootloaderMode();
+                    try {
+                        enterBootloaderMode();
+                    } catch (SerialPortException ex) {
+                        Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
 
 
                     //Download TinyG.hex
@@ -268,7 +273,7 @@ public class FirmwareUpdaterController implements Initializable {
 //        _currentVersionString.TinygDriver.getInstance().m.firmwareBuild);
     }
 
-    protected static void enterBootloaderMode() {
+    protected static void enterBootloaderMode() throws SerialPortException {
         if (TinygDriver.getInstance().isConnected().get()) {
             //We need to disconnect from tinyg after issuing out boot command.
             try {
