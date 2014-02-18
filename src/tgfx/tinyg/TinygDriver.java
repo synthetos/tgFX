@@ -14,6 +14,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import jssc.SerialPortException;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import tgfx.Main;
@@ -47,7 +48,7 @@ public class TinygDriver extends Observable {
      */
     public ArrayList<String> connections = new ArrayList<>();
     private SerialDriver ser = SerialDriver.getInstance();
-    public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(10);
+    public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(10000);
     public static ArrayBlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(30);
     public static ArrayBlockingQueue<GcodeLine[]> writerQueue = new ArrayBlockingQueue<>(50000);
     public ResponseParser resParse = new ResponseParser();
@@ -542,11 +543,11 @@ public class TinygDriver extends Observable {
         this.ser.setConnected(choice);
     }
 
-    public boolean initialize(String portName, int dataRate) {
+    public boolean initialize(String portName, int dataRate) throws SerialPortException {
         return (this.ser.initialize(portName, dataRate));
     }
 
-    public void disconnect() {
+    public void disconnect() throws SerialPortException {
         this.ser.disconnect();
     }
 
@@ -603,7 +604,7 @@ public class TinygDriver extends Observable {
 
     public String getPortName() {
         // Return the serial port name that is connected.
-        return ser.serialPort.getName();
+        return ser.serialPort.getPortName();
     }
 
     public List<Axis> getInternalAllAxis() {

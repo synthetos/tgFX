@@ -101,105 +101,110 @@ public class MachineSettingsController implements Initializable {
     private void handleImportConfig(ActionEvent event) throws Exception {
     }
 
-    private int getConfigElementLength(JSONObject js) throws JSONException {
-        //This method is used to get the total number of json objects to write for loading config progress bar to work
-        String topLevelParent;
-        topLevelParent = (String) js.names().get(0);
-        //JSONObject tmp = js.get(topLevelParent);
-        int jsonKeyLength = js.getJSONObject(topLevelParent).length();
-        return jsonKeyLength;
+
+    private void writeConfigValue(JSONObject j) throws Exception {
+
+        String topLevelParent = new String();
+        topLevelParent = (String) j.names().get(0);
+        Iterator it = j.getJSONObject(topLevelParent).keys();
+
+        while (it.hasNext()) {
+            String k = (String) it.next();
+            Double value = (Double) j.getJSONObject(topLevelParent).getDouble(k);
+            System.out.println("This is the value " + k + " " + decimalFormat.format(value));
+            //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
+
+            String singleJsonSetting = new String("{\"" + topLevelParent + k + "\":" + value + "}\n");
+            TinygDriver.getInstance().write(singleJsonSetting);
+            Thread.sleep(400);
+
+        }
+
+    }
+
+    private int getElementCount(JSONObject j) throws JSONException {
+        //We are getting a count of all the values we need to send from the config file.
+        if (j.has("name")) { //We do not want the name of the config to count as stuff to write.
+            return 0;
+        } else {
+            String topLevelParent = new String();
+            topLevelParent = (String) j.names().get(0);
+            return j.getJSONObject(topLevelParent).length();
+        }
     }
 
     @FXML
     private void handleLoadConfig(ActionEvent event) throws Exception {
-
-//        Task task = new Task<Void>() {
-//            @Override
-//            public Void call() {
-//                int max = 100000000;
-//                for (int i = 1; i <= max; i++) {
-//                    updateProgress(i, max);
-//                }
-//                return null;
-//            }
-//        };
         //This function gets the config file selected and applys the settings onto tinyg.
-        InputStream fis;
+        InputStream fis, fis2;
+        final BufferedReader br, br2;
 
-        BufferedReader br;
-
-        final File selected_config = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + configsListView.getSelectionModel().getSelectedItem());
+        //Why are we reading the file 2x?  It is to get the count of elemnts we need to write.. then writing each line... so we just do it 2x.
+        File selected_config = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + configsListView.getSelectionModel().getSelectedItem());
         fis = new FileInputStream(selected_config);
+        fis2 = new FileInputStream(selected_config);
 
         br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
+        br2 = new BufferedReader(new InputStreamReader(fis2, Charset.forName("UTF-8")));
 
-        //Loop though the file to get the total elements we need to write
-        //for the progress bar to function
-        String line;
 
-        int elementCount = 1;
-
-        while ((line = br.readLine()) != null) {
-            if (line.startsWith("{\"name")) {
-            } else {
-                JSONObject js = new JSONObject(line);
-                elementCount = elementCount + getConfigElementLength(js);
-            }
-        }
-
-        final int maxElements = elementCount;
-        logger.info("Max Elements is: " + String.valueOf(maxElements));
-        Task task = null;
+ 
+        Task task;
         task = new Task<Void>() {
             @Override
-            public Void call() throws IOException, JSONException, Exception {
-                String line = new String();
-                int count = 1;
-                final BufferedReader br2;
-                InputStream fis2;
-
-                fis2 = new FileInputStream(selected_config);
-                br2 = new BufferedReader(new InputStreamReader(fis2, Charset.forName("UTF-8")));
+            public Void call() throws IOException, Exception {
+                String line;
+                int maxElements = 0;
+                int currentElement = 0;
+                String filename = new String();
 
                 while ((line = br2.readLine()) != null) {
-                    if (line.startsWith("{\"name")) {
-                        //This is the name of the CONFIG lets not write this to TinyG 
-                        tgfx.Main.postConsoleMessage("[+]Loading " + line.split(":")[1] + " config into TinyG... Please Wait...");
-                    } else {
-                        JSONObject js = new JSONObject(line);
+                    JSONObject j = new JSONObject(line);
+                    maxElements = maxElements + getElementCount(j);
+                }
 
-                        String topLevelParent = new String();
-                        topLevelParent = (String) js.names().get(0);
-                        Iterator it = js.getJSONObject(topLevelParent).keys();
+                while ((line = br.readLine()) != null) {
+                    if (TinygDriver.getInstance().isConnected().get()) {
+                        if (line.startsWith("{\"name")) {
+                            //This is the name of the CONFIG lets not write this to TinyG 
+                            filename = line.split(":")[1];
+                            tgfx.Main.postConsoleMessage("[+]Loading " + filename + " config into TinyG... Please Wait...");
+                        } else {
 
-                        while (it.hasNext()) {
-                            String k = (String) it.next();
-                            Double value = (Double) js.getJSONObject(topLevelParent).getDouble(k);
-                            System.out.println("This is the value " + k + " " + decimalFormat.format(value));
-                            //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
+                            JSONObject j = new JSONObject(line);
 
-                            String singleJsonSetting = "{\"" + topLevelParent + k + "\":" + value + "}\n";
-                            TinygDriver.getInstance().write(singleJsonSetting);
-                            count = count + 1;
-                            Thread.sleep(400);
-                            updateProgress(count, maxElements);
+                            String topLevelParent;
+                            topLevelParent = (String) j.names().get(0);
+                            Iterator it = j.getJSONObject(topLevelParent).keys();
+
+                            while (it.hasNext()) {
+                                String k = (String) it.next();
+                                Double value = (Double) j.getJSONObject(topLevelParent).getDouble(k);
+                                System.out.println("This is the value " + k + " " + decimalFormat.format(value));
+                                Main.postConsoleMessage("Applied: " + k + ":" + decimalFormat.format(value));
+                                //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
+
+                                String singleJsonSetting = "{\"" + topLevelParent + k + "\":" + value + "}\n";
+                                TinygDriver.getInstance().write(singleJsonSetting);
+                                updateProgress(currentElement, maxElements);
+                                Thread.sleep(400); //Writing Values to eeprom can take a bit of time..
+                                currentElement++;
+                            }
                         }
-
-                        TinygDriver.getInstance().write(line + "\n");    //Write the line to tinyG
-                        //Thread.sleep(200);      //Writing Values to eeprom can take a bit of time..
-                        tgfx.Main.postConsoleMessage("[+]Writing Config String: " + line + "\n");
-                        
-
-                        logger.info("Count is: " + String.valueOf(count) + "of " + String.valueOf(maxElements));
                     }
                 }
+                updateProgress(0, 0); //reset the progress bar
+                Main.postConsoleMessage("Finished Loading " + filename + ".");
                 return null;
             }
         };
+        
         if (TinygDriver.getInstance().isConnected().get()) {
             configProgress.progressProperty().bind(task.progressProperty());
             new Thread(task).start();
         }
+
+       
     }
 
     @FXML

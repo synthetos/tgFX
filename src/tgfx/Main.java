@@ -31,6 +31,7 @@ import jfxtras.labs.dialogs.MonologFXButton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.util.MissingResourceException;
+import java.util.logging.Level;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
@@ -48,6 +49,7 @@ import jfxtras.labs.dialogs.MonologFXBuilder;
 import static jfxtras.labs.dialogs.MonologFXButton.Type.NO;
 import static jfxtras.labs.dialogs.MonologFXButton.Type.YES;
 import jfxtras.labs.dialogs.MonologFXButtonBuilder;
+import jssc.SerialPortException;
 import org.json.JSONException;
 
 import tgfx.tinyg.TinygDriver;
@@ -562,7 +564,11 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                             @Override
                             public void run() {
                                 FirmwareUpdaterController.handleUpdateFirmware(null);
-                                tg.disconnect();
+                                try {
+                                    tg.disconnect();
+                                } catch (SerialPortException ex) {
+                                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                }
                                 Main.postConsoleMessage("Firmware Updated: Click Connect.");
                             }
                         });
@@ -570,7 +576,11 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         
                     case CUSTOM1:
                         logger.info("Clicked No");
-                        TinygDriver.getInstance().disconnect(); //free up the serial port to be able to try another one.
+                try {
+                    TinygDriver.getInstance().disconnect(); //free up the serial port to be able to try another one.
+                } catch (SerialPortException ex) {
+                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
                         break;
                 }
             }
@@ -676,14 +686,22 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                             @Override
                             public void run() {
                                 webEngFirmware.load("https://github.com/synthetos/TinyG/wiki/TinyG-Boot-Loader#wiki-updating");
-                                tg.disconnect();
+                                try {
+                                    tg.disconnect();
+                                } catch (SerialPortException ex) {
+                                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                }
                                 Connect.setText("Connect");
                             }
                         });
                         break;
                     case NO:
                         logger.info("Clicked No");
-                        tg.disconnect();
+                try {
+                    tg.disconnect();
+                } catch (SerialPortException ex) {
+                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
                         System.exit(0);
                         break;
                 }
