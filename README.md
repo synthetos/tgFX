@@ -11,7 +11,7 @@ Currently tgFX allows for sending of gcode files, configuring axes/motors/machin
 <br>
 
 
-![TinyG v6 Board](http://farm4.staticflickr.com/3715/11916877794_2a33fb091c_c.jpg)
+![TinyG v6 Board](http://farm4.staticflickr.com/3782/12606007663_8c948a46d5_c.jpg)
 <br>
 
 This code is under heavy development.
