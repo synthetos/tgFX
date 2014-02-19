@@ -29,6 +29,7 @@ import tgfx.tinyg.CommandManager;
 import tgfx.tinyg.TinygDriver;
 
 import javafx.concurrent.Task;
+import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import org.json.JSONException;
 
@@ -45,6 +46,9 @@ public class MachineSettingsController implements Initializable {
     private ListView configsListView;
     @FXML
     private static ChoiceBox machineSwitchType, machineUnitMode;
+    @FXML
+    private Button loadbutton;
+    
     @FXML
     private ProgressBar configProgress;
 
@@ -84,21 +88,24 @@ public class MachineSettingsController implements Initializable {
 
     @FXML
     private void handleSaveCurrentSettings(ActionEvent event) throws Exception {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                FileChooser fc = new FileChooser();
-                fc.setInitialDirectory(new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator")));
-                fc.setTitle("Save Current TinyG Configuration");
-                File f = fc.showSaveDialog(null);
-                if (f.canWrite()) {
-                }
+        Main.postConsoleMessage("Saving current of Config Files is unsupported at this time.\n");
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+                
+//                FileChooser fc = new FileChooser();
+//                fc.setInitialDirectory(new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator")));
+//                fc.setTitle("Save Current TinyG Configuration");
+//                File f = fc.showSaveDialog(null);
+//                if (f.canWrite()) {
+//                }
             }
-        });
-    }
+//        });
+//    }
 
     @FXML
     private void handleImportConfig(ActionEvent event) throws Exception {
+        Main.postConsoleMessage("Importing of Config Files is unsupported at this time.\n");
     }
 
 
@@ -113,8 +120,7 @@ public class MachineSettingsController implements Initializable {
             Double value = (Double) j.getJSONObject(topLevelParent).getDouble(k);
             System.out.println("This is the value " + k + " " + decimalFormat.format(value));
             //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
-
-            String singleJsonSetting = new String("{\"" + topLevelParent + k + "\":" + value + "}\n");
+            String singleJsonSetting = "{\"" + topLevelParent + k + "\":" + value + "}\n";
             TinygDriver.getInstance().write(singleJsonSetting);
             Thread.sleep(400);
 
@@ -138,9 +144,13 @@ public class MachineSettingsController implements Initializable {
         //This function gets the config file selected and applys the settings onto tinyg.
         InputStream fis, fis2;
         final BufferedReader br, br2;
-
+        if(configsListView.getSelectionModel().isEmpty()){
+            Main.postConsoleMessage("Please select a valid config file");
+            return;
+        }
         //Why are we reading the file 2x?  It is to get the count of elemnts we need to write.. then writing each line... so we just do it 2x.
         File selected_config = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + configsListView.getSelectionModel().getSelectedItem());
+        
         fis = new FileInputStream(selected_config);
         fis2 = new FileInputStream(selected_config);
 
@@ -195,12 +205,15 @@ public class MachineSettingsController implements Initializable {
                 }
                 updateProgress(0, 0); //reset the progress bar
                 Main.postConsoleMessage("Finished Loading " + filename + ".");
+                loadbutton.setDisable(false);
                 return null;
+                
             }
         };
         
         if (TinygDriver.getInstance().isConnected().get()) {
             configProgress.progressProperty().bind(task.progressProperty());
+            loadbutton.setDisable(true);
             new Thread(task).start();
         }
 

@@ -59,21 +59,7 @@ public class TinygDriver extends Observable {
     private AsyncTimer connectionTimer;
     private boolean timedout = false;
 
-    /**
-     * Singleton Code for the Serial Port Object
-     *
-     * @return
-     */
-    public double[] getMINIMAL_BUILD_VERSIONS() {
-        return MINIMAL_BUILD_VERSIONS;
-    }
 
-//    public voic addMin
-//    
-//    public void setMINIMAL_BUILD_VERSION(double MINIMAL_BUILD_VERSION) {
-//        this.MINIMAL_BUILD_VERSION = MINIMAL_BUILD_VERSION;
-//    }
-    
     public void setAsyncTimer(AsyncTimer value){
         connectionTimer = value;
     }
@@ -561,12 +547,16 @@ public class TinygDriver extends Observable {
     /**
      * All Methods involving writing to TinyG.. This messages will call the
      * SerialDriver write methods from here.
+     * @param msg
+     * @throws java.lang.Exception
      */
     public synchronized void write(String msg) throws Exception {
 
         TinygDriver.getInstance().serialWriter.addCommandToBuffer(msg);
         logger.info("Send to Command Buffer >> " + msg);
     }
+    
+   
 
     public void priorityWrite(Byte b) throws Exception {
         this.ser.priorityWrite(b);

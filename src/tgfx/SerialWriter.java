@@ -119,7 +119,7 @@ public class SerialWriter implements Runnable {
         }
         Main.postConsoleMessage(" Gcode Comment << " + gcodeComment);
     }
-
+    
     public void write(String str) {
         try {
             synchronized (mutex) {
@@ -162,7 +162,7 @@ public class SerialWriter implements Runnable {
             }
             
             
-        } catch (Exception ex) {
+        } catch (InterruptedException ex) {
             logger.error("Error in SerialDriver Write");
         }
     }
