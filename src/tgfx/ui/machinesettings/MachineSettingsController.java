@@ -88,7 +88,7 @@ public class MachineSettingsController implements Initializable {
 
     @FXML
     private void handleSaveCurrentSettings(ActionEvent event) throws Exception {
-        Main.postConsoleMessage("Saving current of Config Files is unsupported at this time.\n");
+        Main.postConsoleMessage("Saving current of Config Files is unsupported at this time.");
 //        Platform.runLater(new Runnable() {
 //            @Override
 //            public void run() {
@@ -105,7 +105,7 @@ public class MachineSettingsController implements Initializable {
 
     @FXML
     private void handleImportConfig(ActionEvent event) throws Exception {
-        Main.postConsoleMessage("Importing of Config Files is unsupported at this time.\n");
+        Main.postConsoleMessage("Importing of Config Files is unsupported at this time.");
     }
 
 

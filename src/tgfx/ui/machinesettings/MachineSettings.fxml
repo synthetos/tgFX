@@ -138,8 +138,8 @@
                             </ProgressBar>
                             <HBox id="hBox5" alignment="CENTER" spacing="10.0" visible="true" VBox.vgrow="NEVER">
                               <children>
-                                <Button id="button2" text="Import" />
-                                <Button fx:id="loadbutton" id="button1" onAction="#handleLoadConfig" text="Load" />
+                                <Button fx:id="importButton" id="importButton" text="Import" onAction="#handleImportConfig" />
+                                <Button fx:id="loadbutton" id="loadButton" onAction="#handleLoadConfig" text="Load" />
                                 <Button id="saveConfig" mnemonicParsing="false" onAction="#handleSaveCurrentSettings" text="Save" />
                               </children>
                               <padding>
