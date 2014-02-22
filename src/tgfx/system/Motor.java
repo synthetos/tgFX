@@ -152,7 +152,7 @@ public class Motor {
     }
 
     //This is the main method to parser a JSON Motor object
-    public void applyJsonSystemSetting(JSONObject js, String parent) {
+public void applyJsonSystemSetting(JSONObject js, String parent) {
         logger.info("Applying JSON Object to " + parent + " Group");
         Iterator ii = js.keySet().iterator();
         try {

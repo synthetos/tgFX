@@ -38,7 +38,7 @@ public final class Machine {
     public SimpleStringProperty m_mode = new SimpleStringProperty();
     public SimpleDoubleProperty firmwareBuild = new SimpleDoubleProperty();
     public StringProperty firmwareVersion = new SimpleStringProperty();
-    public SimpleDoubleProperty hardwarePlatform = new SimpleDoubleProperty(0);
+    public SimpleIntegerProperty hardwarePlatform = new SimpleIntegerProperty(0);
     public StringProperty hardwareId = new SimpleStringProperty("na");
     public StringProperty hardwareVersion = new SimpleStringProperty("na");
     public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
@@ -110,6 +110,18 @@ public final class Machine {
         }
     }
 
+    public SimpleIntegerProperty getHardwarePlatform() {
+        return hardwarePlatform;
+    }
+
+    public void setHardwarePlatform(Integer hardwarePlatform) {
+        this.hardwarePlatform.set(hardwarePlatform);
+    }
+
+
+
+    
+    
     public Gcode_select_plane getGcode_select_plane() {
         return gcode_select_plane;
     }
@@ -178,9 +190,7 @@ public final class Machine {
     }
 
     public void setHardwareVersion(String hardwareVersion) {
-        int h = Integer.valueOf(hardwareVersion);
-//        this.hardwareVersion.set(hardwareVersion);
-        TinygDriver.getInstance().hardwarePlatformManager.setHardwarePlatformByVersionNumber(h);
+        this.hardwareVersion.set(hardwareVersion);
     }
 
 //    public static enum motion_modes {
@@ -771,12 +781,14 @@ public final class Machine {
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_HARDWARD_PLATFORM):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-//                        TinygDriver.getInstance().hardwarePlatform.setHardwarePlatformVersion(Integer.valueOf(rc.getSettingValue()));
+//                        TinygDriver.getInstance().machine.setHardwarePlatform(Integer.valueOf(rc.getSettingValue()));
+                        TinygDriver.getInstance().hardwarePlatformManager.setHardwarePlatformByVersionNumber(Integer.valueOf(rc.getSettingValue()));
                         break;
+                        
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_HARDWARE_VERSION):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        TinygDriver.getInstance().hardwarePlatformManager.setHardwarePlatformByVersionNumber(Integer.valueOf(rc.getSettingValue()));
+                        TinygDriver.getInstance().machine.setHardwareVersion(rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO):

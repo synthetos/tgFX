@@ -13,6 +13,7 @@ import jfxtras.labs.dialogs.MonologFXBuilder;
 import jfxtras.labs.dialogs.MonologFXButton;
 import static jfxtras.labs.dialogs.MonologFXButton.Type.YES;
 import jfxtras.labs.dialogs.MonologFXButtonBuilder;
+import org.apache.log4j.Level;
 
 import org.apache.log4j.Logger;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_A;
@@ -57,11 +58,11 @@ public class ResponseParser extends Observable implements Runnable {
     public ResponseParser() {
         //Setup Logging for ResponseParser
         if (Main.LOGLEVEL.equals("INFO")) {
-            logger.setLevel(org.apache.log4j.Level.INFO);
+            logger.setLevel(Level.INFO);
         } else if (Main.LOGLEVEL.equals("ERROR")) {
-            logger.setLevel(org.apache.log4j.Level.ERROR);
+            logger.setLevel(Level.ERROR);
         } else {
-            logger.setLevel(org.apache.log4j.Level.OFF);
+            logger.setLevel(Level.OFF);
         }
     }
 
@@ -226,6 +227,7 @@ public class ResponseParser extends Observable implements Runnable {
                             message[0] = "TINYG_USER_MESSAGE";
                             message[1] = (String) js.get(key) + "\n";
                             logger.info("[+]TinyG Message Sent:  " + js.get(key) + "\n");
+                            
                             setChanged();
                             notifyObservers(message);
                             break;
@@ -262,10 +264,13 @@ public class ResponseParser extends Observable implements Runnable {
                     _applySettings(js, js.keys().next().toString());
                 }
             }
-        } catch (Exception ex) {
+        } catch (JSONException ex) {
             logger.error("[!] Error in applySetting(JsonOBject js) : " + ex.getMessage());
             logger.error("[!]JSON String Was: " + js.toString());
             logger.error("Error in Line: " + js);
+        } catch (Exception ex) {
+            logger.error("[!] Error in applySetting(JsonOBject js) : " + ex.getMessage());
+            logger.error(ex.getClass().toString());
         }
     }
 
@@ -361,6 +366,11 @@ public class ResponseParser extends Observable implements Runnable {
             case ("hom"):
                 logger.info("HOME");
                 break;
+
+            case ("msg"):
+                //NOP
+                break;
+
             case (MNEMONIC_GROUP_SYSTEM):
                 TinygDriver.getInstance().machine.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
                 /**
@@ -438,8 +448,12 @@ public class ResponseParser extends Observable implements Runnable {
                 String newJs;
 //                  String _key = parentGroup; //I changed this to deal with the fb mnemonic.. not sure if this works all over.
                 rc.setSettingValue(String.valueOf(js.get(js.keys().next().toString())));
-                logger.info("Single Key Value: " + rc.getSettingParent() + rc.getSettingKey() + rc.getSettingValue());
-                this.applySetting(rc.buildJsonObject()); //We pass the new json object we created from the string above
+                logger.info("Single Key Value: Group:" + rc.getSettingParent() +" key:" + rc.getSettingKey() +" value:"+ rc.getSettingValue());
+                if(rc.getSettingValue().equals((""))){
+                    logger.info(rc.getSettingKey() + " value was null");
+                }else{
+                    this.applySetting(rc.buildJsonObject()); //We pass the new json object we created from the string above
+                }
             }
 
 
@@ -489,7 +503,7 @@ public class ResponseParser extends Observable implements Runnable {
 
     public synchronized void parseJSON(String line) throws JSONException {
 
-        logger.info("Got Line: " + line + " from TinyG.");
+        //logger.info("Got Line: " + line + " from TinyG.");
         if (!Main.LOGLEVEL.equals("OFF")) {
             Main.print("-" + line);
         }
@@ -501,7 +515,7 @@ public class ResponseParser extends Observable implements Runnable {
                 @Override
                 public void run() {
                     try {
-                       
+
                         if (js.has("tgfx")) {
                             //This is for when tgfx times out when trying to connect to TinyG.
                             //tgFX puts a message in the response parser queue to be parsed here.
@@ -509,7 +523,7 @@ public class ResponseParser extends Observable implements Runnable {
                             message[0] = "TINYG_CONNECTION_TIMEOUT";
                             message[1] = (String) js.get("tgfx") + "\n";
                             notifyObservers(message);
-                            
+
                         } else if (js.has("f")) {
                             //The new version of TinyG's footer has a footer element in each response.
                             //We parse it here

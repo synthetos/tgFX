@@ -51,23 +51,29 @@ public class FirmwareUpdaterController implements Initializable {
     @FXML
     private Button handleUpdateFirmware;
     private SimpleDoubleProperty _currentVersionString = new SimpleDoubleProperty();
-//    private String tinygHexFileUrl = TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl();
-    //    private String tinygHexFileUrl = "https://raw.github.com/synthetos/TinyG/master/firmware/tinyg/default/tinyg.hex";
     private static String avrdudePath = new String();
     private static String avrconfigPath = new String();
     static HashMap<String, String> platformSetup = new HashMap<>();
-//    private String currentFirmwareFile = "https://raw.github.com/synthetos/TinyG/master/version.current";
-//    private String currentFirmwareFile = TinygDriver.getInstance().hardwarePlatform.getLatestVersionUrl();
+    
+
 
     /**
      * Initializes the controller class.
      */
     @FXML
     public static void handleUpdateFirmware(ActionEvent event) {
+        
+        if(TinygDriver.getInstance().hardwarePlatform.getPlatformHardwareVersion() == -1){
+            //This code checks to see if a hardware platform has been applied.
+            //if the hpv is -1 then it has not.  So we guess that the board is a v8 TinyG.
+            TinygDriver.getInstance().hardwarePlatformManager.setPlatformByName("TinyG");
+        }
 
-        if (TinygDriver.getInstance().hardwarePlatform.isIsUpgradeable() ||  TinygDriver.getInstance().isTimedout()) {
+        if (TinygDriver.getInstance().isTimedout() || TinygDriver.getInstance().hardwarePlatform.isIsUpgradeable()) {
             //This platform can be upgraded    
 
+        
+            
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -116,8 +122,12 @@ public class FirmwareUpdaterController implements Initializable {
                         }
                     } catch (MalformedURLException ex) {
                         Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
+                        Main.postConsoleMessage("Error downloading the TinyG update from: " + TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl());
+                        Main.postConsoleMessage("Check your internetion connection and try again.  Firmware update aborted...");
                     } catch (IOException ex) {
                         Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
+                        Main.postConsoleMessage("Error updating your TinyG.  IOERROR");
+                        return;
                     }
 
                     Runtime rt = Runtime.getRuntime();
@@ -128,17 +138,20 @@ public class FirmwareUpdaterController implements Initializable {
                         InputStream is = process.getInputStream();
                         Main.postConsoleMessage("Attempting to update TinyG's firmware.");
                         process.waitFor();
+                        Thread.sleep(2000);//sleep a bit and let the firmware init
+                        TinygDriver.getInstance().sendReconnectRequest();
+                        
+                        Main.postConsoleMessage("Firmware Updated: Click Connect.");
 
-                    } catch (IOException | InterruptedException ex) {
+                    } catch (MalformedURLException ex){
+                        Main.postConsoleMessage("TinyG update URL: "+ TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl() + " is invalid, check the platform config "
+                                + "file you are using in the configs directory.");
+                        Main.postConsoleMessage("Firmware update aborted...");
+                        return;
+                    }catch (IOException | InterruptedException ex) {
                         Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    try {
-                        TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_RESET);
-                        TinygDriver.getInstance().disconnect();
-
-                    } catch (Exception ex) {
-                        Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                 
                 }
             });
         } else {
@@ -146,9 +159,7 @@ public class FirmwareUpdaterController implements Initializable {
         }
     }
 
-//    public static double getCurrentBuildNumber() {
-//        return (Double.valueOf(firmwareVersion.getText()));
-//    }
+
 
     @FXML
     private void checkFirmwareUpdate(ActionEvent event) {
@@ -266,6 +277,7 @@ public class FirmwareUpdaterController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         NumberExpression ne = new SimpleDoubleProperty(_currentVersionString.doubleValue()).subtract(TinygDriver.getInstance().machine.getFirmwareBuild());
         hardwareId.textProperty().bind(TinygDriver.getInstance().machine.hardwareId); //Bind the tinyg hardware id to the tg driver value
+        //hwVersion.textProperty().bind(TinygDriver.getInstance().machine.hardwareVersion); //Bind the tinyg version  to the tg driver value
         hwVersion.textProperty().bind(TinygDriver.getInstance().machine.hardwareVersion); //Bind the tinyg version  to the tg driver value
         firmwareVersion.textProperty().bind(TinygDriver.getInstance().machine.firmwareVersion);
         buildNumb.textProperty().bind(TinygDriver.getInstance().machine.firmwareBuild.asString());
@@ -283,7 +295,7 @@ public class FirmwareUpdaterController implements Initializable {
             } catch (Exception ex) {
                 Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
             }
-            TinygDriver.getInstance().disconnect();
+            TinygDriver.getInstance().sendDisconnectRequest();
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ex) {

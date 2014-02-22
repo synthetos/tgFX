@@ -7,6 +7,7 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 <?import tgfx.updater.firmware.*?>
 
@@ -39,10 +40,10 @@
                           </font>
                         </Label>
                         <Label id="motorTxt" font="$x1" text="Harware Version:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <Label id="motorTxt" fx:id="hwVersion" text="..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Label id="motorTxt" fx:id="hardwareId" text="..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label id="motorTxt" fx:id="hwVersion" text="unknown" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label id="motorTxt" fx:id="hardwareId" text="unknown" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <Label id="motorTxt" font="$x1" text="Firmware Version:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <Label id="motorTxt" fx:id="firmwareVersion" text="..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Label id="motorTxt" fx:id="firmwareVersion" text="unknown" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                       </children>
                       <columnConstraints>
                         <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
@@ -60,11 +61,12 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
               <children>
-                <Label id="latestFirmwareLabel" fx:id="latestFirmwareBuild" text="Click Check for Updates" textFill="WHITE">
-                  <graphic>
-                    <Text fill="#10cc00" font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Latest Firmware Build:" />
-                  </graphic>
-                </Label>
+                <Label id="latestFirmwareLabel" fx:id="latestFirmwareBuild" text="Click Check for Updates" textFill="WHITE" />
+                <Text font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Latest Firmware Build:">
+                  <fill>
+                    <Color blue="0.000" green="0.800" red="0.063" fx:id="x3" />
+                  </fill>
+                </Text>
               </children>
               <padding>
                 <Insets left="5.0" fx:id="x2" />
@@ -74,7 +76,7 @@
               <children>
                 <Label id="currentFirmwareLabel" fx:id="buildNumb" text="unknown" textFill="WHITE">
                   <graphic>
-                    <Text fill="#10cc00" font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Your Firmware Build:" />
+                    <Text fill="$x3" font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Your Firmware Build:" />
                   </graphic>
                 </Label>
               </children>

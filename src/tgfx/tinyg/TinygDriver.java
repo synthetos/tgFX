@@ -15,6 +15,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import jssc.SerialPortException;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import tgfx.Main;
@@ -125,6 +126,25 @@ public class TinygDriver extends Observable {
         }
 
     }
+    
+    public void sendReconnectRequest(){
+        logger.info("Reconnect Request Sent.");
+        message[0] = "RECONNECT";
+        message[1] = null;
+        setChanged();
+        notifyObservers(message);
+    }
+    
+        
+    public void sendDisconnectRequest(){
+        logger.info("Disconnect Request Sent.");
+        message[0] = "DISCONNECT";
+        message[1] = null;
+        setChanged();
+        notifyObservers(message);
+    }
+    
+    
 
 //    public String getPlatformHardwareName() {
 //        return platformHardwareName;
@@ -474,11 +494,11 @@ public class TinygDriver extends Observable {
 
         //Setup Logging for TinyG Driver
         if (Main.LOGLEVEL.equals("INFO")) {
-            logger.setLevel(org.apache.log4j.Level.INFO);
+            logger.setLevel(Level.INFO);
         } else if (Main.LOGLEVEL.equals("ERROR")) {
-            logger.setLevel(org.apache.log4j.Level.ERROR);
+            logger.setLevel(Level.ERROR);
         } else {
-            logger.setLevel(org.apache.log4j.Level.OFF);
+            logger.setLevel(Level.OFF);
         }
     }
 
@@ -502,7 +522,7 @@ public class TinygDriver extends Observable {
         try {
             TinygDriver.queue.put((byte[]) queue);
         } catch (Exception e) {
-            Main.print("ERROR n shit");
+            Main.print("ERROR appending to the Response Queue");
         }
     }
 
@@ -553,7 +573,9 @@ public class TinygDriver extends Observable {
     public synchronized void write(String msg) throws Exception {
 
         TinygDriver.getInstance().serialWriter.addCommandToBuffer(msg);
-        logger.info("Send to Command Buffer >> " + msg);
+        if(!Main.LOGLEVEL.equals("OFF")){
+            Main.print("+" + msg);
+        }
     }
     
    
