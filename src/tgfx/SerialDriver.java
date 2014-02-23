@@ -5,17 +5,13 @@
 package tgfx;
 
 import tgfx.tinyg.TinygDriver;
-//import gnu.io.*;
 import jssc.SerialPort;
 import jssc.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
-import tgfx.utility.UtilityFunctions;
 
 /**
  *
@@ -110,7 +106,7 @@ public class SerialDriver implements SerialPortEventListener {
                 //            int bytesToRead = input.read(inbuffer, 0, inbuffer.length);
                 tmpBuffer = serialPort.readBytes(bytesToRead, 10);
             } catch (    SerialPortException | SerialPortTimeoutException ex) {
-                java.util.logging.Logger.getLogger(SerialDriver.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
             }
             
             for (int i = 0; i < bytesToRead; i++) {
