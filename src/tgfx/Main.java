@@ -469,12 +469,11 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         logger.error("[!]Invalid Routing Key: " + ROUTING_KEY);
                 }
             } catch (IOException | JSONException ex) {
-                java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
+                logger.error(ex);
             } catch (SerialPortException ex) {
-                java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
             } catch (Exception ex) {
-                java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
             }
         }
     }
@@ -526,7 +525,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                                 try {
                                     tg.disconnect();
                                 } catch (SerialPortException ex) {
-                                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                    logger.error(ex);
                                 }
 
                             }
@@ -539,9 +538,8 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                             if(TinygDriver.getInstance().isConnected().get()){
                                 TinygDriver.getInstance().disconnect(); //free up the serial port to be able to try another one.
                             }
-                            
                         } catch (SerialPortException ex) {
-                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.error(ex);
                         }
                         break;
                 }
@@ -652,7 +650,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                                 try {
                                     tg.disconnect();
                                 } catch (SerialPortException ex) {
-                                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                    logger.error(ex);
                                 }
                                 Connect.setText("Connect");
                             }
@@ -663,7 +661,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         try {
                             tg.disconnect();
                         } catch (SerialPortException ex) {
-                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.error(ex);
                         }
                         System.exit(0);
                         break;
@@ -690,7 +688,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         tg.resParse.addObserver(this);  //Add the tinygdriver to this observer
         tg.addObserver(this);
         this.reScanSerial();            //Populate our serial ports
-        final Logger logger = Logger.getLogger(Main.class);
         final Logger resParserLogger = Logger.getLogger(ResponseParser.class);
         final Logger serialDriverLogger = Logger.getLogger(SerialDriver.class);
 
@@ -727,8 +724,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
          * LOGGER CONFIG
          ######################################*/
         BasicConfigurator.configure();
-        //        logger.setLevel(Level.ERROR);
-        //        logger.setLevel(Level.INFO);
     /*#######################################################
          * String Converters
          * #####################################################*/
