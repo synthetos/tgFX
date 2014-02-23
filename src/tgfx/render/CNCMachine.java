@@ -1,13 +1,11 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2014 Synthetos LLC. All Rights reserved.
+ * http://www.synthetos.com
  */
 package tgfx.render;
 
 import java.text.DecimalFormat;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
@@ -26,6 +24,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.beans.value.ChangeListener;
+import org.apache.log4j.Logger;
 import tgfx.Main;
 import tgfx.tinyg.CommandManager;
 import tgfx.tinyg.TinygDriver;
@@ -47,15 +47,11 @@ public class CNCMachine extends Pane {
     private double magnification = 1;
     private SimpleDoubleProperty cncHeight = new SimpleDoubleProperty();
     private SimpleDoubleProperty cncWidth = new SimpleDoubleProperty();
-    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(CNCMachine.class);
+    private static final Logger logger = Logger.getLogger(CNCMachine.class);
 
     public CNCMachine() {
         //Cursor point indicator
         cursorPoint.setRadius(1);
-
-
-
-
 
         this.setMaxSize(0, 0);  //hide this element until we connect
         //Set our machine size from tinyg travel max
@@ -63,7 +59,6 @@ public class CNCMachine extends Pane {
         this.setPadding(new Insets(10));
         this.setFocusTraversable(true);
         this.setFocused(true);
-
 
 
         /*####################################
@@ -81,33 +76,14 @@ public class CNCMachine extends Pane {
         cursorText.setFill(Color.YELLOW);
         cursorText.setFont(Font.font("Arial", 6));
 
-
-
         setupLayout(); //initial layout setup in constructor
-
-
 
         /*####################################
          *Event / Change Listeners
          *#################################### */
 
-//ugh...
-//
-//
-//        ChangeListener posChangeListener = new ChangeListener() {
-//            @Override
-//            public void changed(ObservableValue ov, Object t, Object t1) {
-//                if (TinygDriver.getInstance().m.getAxisByName("y").getMachinePosition() > heightProperty().get()
-//                        || TinygDriver.getInstance().m.getAxisByName("x").getMachinePosition() > widthProperty().get()) {
-//                    hideOrShowCursor(false);
-//                } else {
-//                    hideOrShowCursor(true);
-//                }
-//
-//            }
-//        };
 
-
+        ChangeListener posChangeListener = new MachineChangeListener(this);
 
         this.setOnMouseExited(new EventHandler<MouseEvent>() {
             @Override
@@ -147,7 +123,7 @@ public class CNCMachine extends Pane {
                                 TinygDriver.getInstance().write(CommandManager.CMD_APPLY_SYSTEM_ZERO_ALL_AXES);
                                 TinygDriver.getInstance().write(CommandManager.CMD_QUERY_STATUS_REPORT);
                             } catch (Exception ex) {
-                                Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+                                logger.error(ex);
                             }
                             //G92 does not invoke a status report... So we need to generate one to have
                             //Our GUI update the coordinates to zero
@@ -177,7 +153,7 @@ public class CNCMachine extends Pane {
 //        cursorPoint.layoutYProperty().addListener(posChangeListener);
     }
 
-    private void hideOrShowCursor(boolean choice) {
+    void hideOrShowCursor(boolean choice) {
         this.visibleProperty().set(choice);
     }
 
