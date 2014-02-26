@@ -61,8 +61,8 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
               <children>
-                <Label id="latestFirmwareLabel" fx:id="latestFirmwareBuild" text="Click Check for Updates" textFill="WHITE" />
-                <Text font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Latest Firmware Build:">
+                  <Label id="latestFirmwareLabel" fx:id="latestFirmwareBuild" text="Click Check for Updates" textFill="WHITE" />
+                  <Text font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Latest Firmware Build:">
                   <fill>
                     <Color blue="0.000" green="0.800" red="0.063" fx:id="x3" />
                   </fill>
@@ -84,7 +84,7 @@
             <HBox alignment="BOTTOM_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
               <children>
                 <Button id="checkFirmwareUpdate" mnemonicParsing="false" onAction="#checkFirmwareUpdate" text="Check For Updates" />
-                <Button mnemonicParsing="false" onAction="#handleUpdateFirmware" text="Update Firmware" />
+                <Button fx:id="handleUpdateFirmware" mnemonicParsing="false" onAction="#handleUpdateFirmware" text="Update Firmware" />
               </children>
               <padding>
                 <Insets bottom="10.0" right="5.0" />

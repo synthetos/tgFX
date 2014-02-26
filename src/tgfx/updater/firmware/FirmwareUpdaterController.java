@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.binding.NumberExpression;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -49,117 +50,136 @@ public class FirmwareUpdaterController implements Initializable {
     @FXML
     private Label currentFirmwareVersionLabel;
     @FXML
-    private Button handleUpdateFirmware;
+    private static Button handleUpdateFirmware;
     private SimpleDoubleProperty _currentVersionString = new SimpleDoubleProperty();
     private static String avrdudePath = new String();
     private static String avrconfigPath = new String();
     static HashMap<String, String> platformSetup = new HashMap<>();
-    
 
+    private static Task updateFirmware() {
+        Task task;
+        task = new Task<Void>() {
+            @Override
+            public Void call() throws IOException, Exception {
+                
+                File avc = new File("tools" + File.separator + "config" + File.separator + "avrdude.conf");
+                avrconfigPath = avc.getAbsolutePath();
+                if (UtilityFunctions.getOperatingSystem().equals("mac")) {
+                    File avd = new File("tools" + File.separator + "avrdude");
+                    avrdudePath = avd.getAbsolutePath();
+                } else {
+                    File avd = new File("tools" + File.separator + "avrdude.exe");
+                    avrdudePath = avd.getAbsolutePath();
+                }
+
+                Main.print("Trying to enter bootloader mode");
+                Main.postConsoleMessage("Entering Bootloader mode.  tgFX will be un-responsive for then next 30 seconds.\n"
+                        + "Your TinyG will start blinking rapidly while being programmed");
+                try {
+                    
+                    enterBootloaderMode();
+                } catch (SerialPortException ex) {
+                    Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                //Download TinyG.hex
+                URL url;
+                try {
+                    url = new URL(TinygDriver.getInstance().machine.hardwarePlatform.getFirmwareUrl());
+                    URLConnection urlConnection = url.openConnection();
+                    Main.print("Opened Connection to Github");
+                    Main.postConsoleMessage("Downloading tinyg.hex file from github.com");
+                    InputStream input;
+                    input = urlConnection.getInputStream();
+
+                    try (OutputStream output = new FileOutputStream(new File("tinyg.hex"))) {
+                        byte[] buffer = new byte[4096];
+                        int n = -1;
+                        while ((n = input.read(buffer)) != -1) {
+                            if (n > 0) {
+                                output.write(buffer, 0, n);
+                            }
+                        }
+                        output.close();
+                        Main.postConsoleMessage("Finished Downloading tinyg.hex");
+                        Main.print("Finished Downloading tinyg.hex");
+                    }
+                } catch (MalformedURLException ex) {
+                    Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
+                    Main.postConsoleMessage("Error downloading the TinyG update from: " + TinygDriver.getInstance().machine.hardwarePlatform.getFirmwareUrl());
+                    Main.postConsoleMessage("Check your internetion connection and try again.  Firmware update aborted...");
+                } catch (IOException ex) {
+                    Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
+                    Main.postConsoleMessage("Error updating your TinyG.  IOERROR");
+                    return null;
+                }
+
+                Runtime rt = Runtime.getRuntime();
+
+                try {
+                    Main.postConsoleMessage("Updating TinyG Now... Please Wait");
+                    Process process = rt.exec(avrdudePath + " -p x192a3 -C " + avrconfigPath + " -c avr109 -b 115200 -P " + TinygDriver.getInstance().getPortName() + " -U flash:w:tinyg.hex");
+                    InputStream is = process.getInputStream();
+                    Main.postConsoleMessage("Attempting to update TinyG's firmware.");
+                    process.waitFor();
+                    Thread.sleep(2000);//sleep a bit and let the firmware init
+                    TinygDriver.getInstance().sendReconnectRequest();
+
+                    Main.postConsoleMessage("Firmware update complete.");
+                    toggleUpdateFirmwareButton(true);
+
+                } catch (MalformedURLException ex) {
+                    Main.postConsoleMessage("TinyG update URL: " + TinygDriver.getInstance().machine.hardwarePlatform.getFirmwareUrl() + " is invalid, check the platform config "
+                            + "file you are using in the configs directory.");
+                    Main.postConsoleMessage("Firmware update aborted...");
+                    return null;
+                } catch (IOException | InterruptedException ex) {
+                    Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                return null;
+
+            }
+        };
+        return task;
+   
+    }
+
+    private static void toggleUpdateFirmwareButton(boolean choice) {
+        final boolean bChoice = choice;
+        
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                handleUpdateFirmware.disableProperty().set(bChoice);  //when we are updating we dont want to hit it 2x
+            }
+        });
+    }
 
     /**
      * Initializes the controller class.
      */
     @FXML
     public static void handleUpdateFirmware(ActionEvent event) {
-        
-        if(TinygDriver.getInstance().hardwarePlatform.getPlatformHardwareVersion() == -1){
+
+        if (TinygDriver.getInstance().machine.hardwarePlatform.getHardwarePlatformVersion() == -1) {
             //This code checks to see if a hardware platform has been applied.
             //if the hpv is -1 then it has not.  So we guess that the board is a v8 TinyG.
             TinygDriver.getInstance().hardwarePlatformManager.setPlatformByName("TinyG");
         }
 
-        if (TinygDriver.getInstance().isTimedout() || TinygDriver.getInstance().hardwarePlatform.isIsUpgradeable()) {
-            //This platform can be upgraded    
-
-        
+        if (TinygDriver.getInstance().isTimedout() || TinygDriver.getInstance().machine.hardwarePlatform.isIsUpgradeable()) {
+            //This platform can be upgraded  
             
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-
-                    File avc = new File("tools" + File.separator + "config" + File.separator + "avrdude.conf");
-                    avrconfigPath = avc.getAbsolutePath().toString();
-                    if (UtilityFunctions.getOperatingSystem().equals("mac")) {
-                        File avd = new File("tools" + File.separator + "avrdude");
-                        avrdudePath = avd.getAbsolutePath().toString();
-                    } else {
-                        File avd = new File("tools" + File.separator + "avrdude.exe");
-                        avrdudePath = avd.getAbsolutePath().toString();
-                    }
-
-                    Main.print("Trying to enter bootloader mode");
-                    Main.postConsoleMessage("Entering Bootloader mode.  tgFX will be un-responsive for then next 30 seconds.\n"
-                            + "Your TinyG will start blinking rapidly while being programmed");
-                    try {
-                        enterBootloaderMode();
-                    } catch (SerialPortException ex) {
-                        Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-
-                    //Download TinyG.hex
-                    URL url;
-                    try {
-                        url = new URL(TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl());
-                        URLConnection urlConnection = url.openConnection();
-                        Main.print("Opened Connection to Github");
-                        Main.postConsoleMessage("Downloading tinyg.hex file from github.com");
-                        InputStream input;
-                        input = urlConnection.getInputStream();
-
-                        try (OutputStream output = new FileOutputStream(new File("tinyg.hex"))) {
-                            byte[] buffer = new byte[4096];
-                            int n = -1;
-                            while ((n = input.read(buffer)) != -1) {
-                                if (n > 0) {
-                                    output.write(buffer, 0, n);
-                                }
-                            }
-                            output.close();
-                            Main.postConsoleMessage("Finished Downloading tinyg.hex");
-                            Main.print("Finished Downloading tinyg.hex");
-                        }
-                    } catch (MalformedURLException ex) {
-                        Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
-                        Main.postConsoleMessage("Error downloading the TinyG update from: " + TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl());
-                        Main.postConsoleMessage("Check your internetion connection and try again.  Firmware update aborted...");
-                    } catch (IOException ex) {
-                        Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
-                        Main.postConsoleMessage("Error updating your TinyG.  IOERROR");
-                        return;
-                    }
-
-                    Runtime rt = Runtime.getRuntime();
-
-                    try {
-                        Main.print("Updating TinyG Now... Please Wait");
-                        Process process = rt.exec(avrdudePath + " -p x192a3 -C " + avrconfigPath + " -c avr109 -b 115200 -P " + TinygDriver.getInstance().getPortName() + " -U flash:w:tinyg.hex");
-                        InputStream is = process.getInputStream();
-                        Main.postConsoleMessage("Attempting to update TinyG's firmware.");
-                        process.waitFor();
-                        Thread.sleep(2000);//sleep a bit and let the firmware init
-                        TinygDriver.getInstance().sendReconnectRequest();
-                        
-                        Main.postConsoleMessage("Firmware Updated: Click Connect.");
-
-                    } catch (MalformedURLException ex){
-                        Main.postConsoleMessage("TinyG update URL: "+ TinygDriver.getInstance().hardwarePlatform.getFirmwareUrl() + " is invalid, check the platform config "
-                                + "file you are using in the configs directory.");
-                        Main.postConsoleMessage("Firmware update aborted...");
-                        return;
-                    }catch (IOException | InterruptedException ex) {
-                        Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                 
-                }
-            });
+            toggleUpdateFirmwareButton(false);
+            Task task = updateFirmware();
+            new Thread(task).start();
+            toggleUpdateFirmwareButton(true);
+            
         } else {
             Main.postConsoleMessage("Sorry your TinyG platform cannot be auto upgraded at this time.  Please see the TinyG wiki for manual upgrade instructions.");
         }
     }
-
-
 
     @FXML
     private void checkFirmwareUpdate(ActionEvent event) {
@@ -168,11 +188,9 @@ public class FirmwareUpdaterController implements Initializable {
             @Override
             public void run() {
                 try {
-                    URL url = new URL(TinygDriver.getInstance().hardwarePlatform.getLatestVersionUrl());
+                    URL url = new URL(TinygDriver.getInstance().machine.hardwarePlatform.getLatestVersionUrl());
                     URLConnection urlConnection = url.openConnection();
 
-                    //                    
-                    //                Main.postConsoleMessage("Downloading tinyg.hex file from github.com");
                     InputStream input;
                     input = urlConnection.getInputStream();
                     byte[] buffer = new byte[4096];
@@ -181,7 +199,7 @@ public class FirmwareUpdaterController implements Initializable {
                     String _currentVersionString = new String(buffer);
                     latestFirmwareBuild.setText(_currentVersionString);
                     Double currentVal;
-                    if (TinygDriver.getInstance().machine.getFirmwareBuild() < Double.valueOf(_currentVersionString).doubleValue()) {
+                    if (TinygDriver.getInstance().machine.getFirmwareBuild() < Double.parseDouble(_currentVersionString)) {
                         //We need to update your firmware
                         Platform.runLater(new Runnable() {
                             @Override
@@ -203,7 +221,7 @@ public class FirmwareUpdaterController implements Initializable {
                                 MonologFX mono = MonologFXBuilder.create()
                                         .titleText("Firmware Update Available")
                                         .message("There is a firmware update available for your TinyG Hardware. \n"
-                                        + "\n Click Yes to start your firmware update.")
+                                                + "\n Click Yes to start your firmware update.")
                                         .button(btnYes)
                                         .button(btnNo)
                                         .type(MonologFX.Type.ERROR)
@@ -232,47 +250,19 @@ public class FirmwareUpdaterController implements Initializable {
                         });
 
                     } else {
-                        Main.postConsoleMessage("Your " + TinygDriver.getInstance().hardwarePlatform.getPlatformName() + "'s firmware is up to date...\n");
+                        Main.postConsoleMessage("Your " + TinygDriver.getInstance().machine.hardwarePlatform.getPlatformName() + "'s firmware is up to date...\n");
                     }
 
-//                    currentVal.valueOf(avrdudePath)
-//                    
-//                    
-//                    
-//                    FirmwareVersionLabel.setText(_currentVersionString);
-//                    if(currentFirmwareVersionLabel.getAlignment())
-
-
-
-
-
-
-
-                    //                    try (OutputStream output = new FileOutputStream(new File("tinyg.hex"))) {
-                    //                        byte[] buffer = new byte[4096];
-                    //                        int n = -1;
-                    //                        while ((n = input.read(buffer)) != -1) {
-                    //                            if (n > 0) {
-                    //                                output.write(buffer, 0, n);
-                    //                            }
-                    //                        }
-                    //                        output.close();
-                    //                        Main.postConsoleMessage("Finished Downloading tinyg.hex");
-                    //                
-                    //
                 } catch (MalformedURLException ex) {
                     Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IOException ex) {
                     Logger.getLogger(FirmwareUpdaterController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
-
             }
         });
 
     }
 
-    //https://github.com/synthetos/TinyG/blob/master/readme.md
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         NumberExpression ne = new SimpleDoubleProperty(_currentVersionString.doubleValue()).subtract(TinygDriver.getInstance().machine.getFirmwareBuild());
@@ -281,8 +271,7 @@ public class FirmwareUpdaterController implements Initializable {
         hwVersion.textProperty().bind(TinygDriver.getInstance().machine.hardwareVersion); //Bind the tinyg version  to the tg driver value
         firmwareVersion.textProperty().bind(TinygDriver.getInstance().machine.firmwareVersion);
         buildNumb.textProperty().bind(TinygDriver.getInstance().machine.firmwareBuild.asString());
-//        BooleanExpression be = new SimpleDoubleProperty(TinygDriver.getInstance().m.getFirmwareVersion());
-//        _currentVersionString.TinygDriver.getInstance().m.firmwareBuild);
+
     }
 
     protected static void enterBootloaderMode() throws SerialPortException {

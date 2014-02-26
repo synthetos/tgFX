@@ -21,79 +21,70 @@ public class HardwarePlatform {
     private ArrayList<HardwarePlatform> availablePlatforms = new ArrayList<>();
     
  
-    
-    
-    private SimpleStringProperty  platformName;
-    private SimpleDoubleProperty minimalBuildVersion = new SimpleDoubleProperty(0.0);
-    private SimpleStringProperty latestVersionUrl = new SimpleStringProperty("");
-    private SimpleStringProperty manufacturer = new SimpleStringProperty("");
-    private SimpleStringProperty firmwareUrl = new SimpleStringProperty("");
-    private SimpleIntegerProperty hardwarePlatformVersion = new SimpleIntegerProperty(-1);
+    private String platformName;
+    private Double minimalBuildVersion;
+    private String latestVersionUrl;
+    private String manufacturer;
+    private String firmwareUrl;
+    private int hardwarePlatformVersion = -1;
+    private boolean isUpgradeable;
 
-    public SimpleIntegerProperty getHardwarePlatformVersion() {
+    public int getHardwarePlatformVersion() {
         return hardwarePlatformVersion;
-    }
-    private SimpleBooleanProperty isUpgradeable = new SimpleBooleanProperty(false);
-
-    public boolean isIsUpgradeable() {
-        return isUpgradeable.get();
-    }
-
-    public void setIsUpgradeable(boolean isUpgradeable) {
-        this.isUpgradeable.set(isUpgradeable);
-    }
-    
-    
-    
-    public int getPlatformHardwareVersion(){
-        return this.hardwarePlatformVersion.get();
     }
 
     public void setHardwarePlatformVersion(int hardwarePlatformVersion) {
-        this.hardwarePlatformVersion.set(hardwarePlatformVersion);
+        this.hardwarePlatformVersion = hardwarePlatformVersion;
     }
-    
-    
+
+    public boolean isIsUpgradeable() {
+        return isUpgradeable;
+    }
+
+    public void setIsUpgradeable(boolean isUpgradeable) {
+        this.isUpgradeable = isUpgradeable;
+    }
 
     public String getPlatformName() {
-        return platformName.get();
+        return platformName;
     }
 
     public void setPlatformName(String platformName) {
-        this.platformName.set(platformName);
-    }
-
-    public String getLatestVersionUrl() {
-        return latestVersionUrl.get();
-    }
-
-    public void setLatestVersionUrl(String latestVersionUrl) {
-        this.latestVersionUrl.set(latestVersionUrl);
-    }
-
-    public String getFirmwareUrl() {
-        return firmwareUrl.get();
-    }
-
-    public void setFirmwareUrl(String firmwareUrl) {
-        this.firmwareUrl.set(firmwareUrl);
-    }
-
-    public String getManufacturer() {
-        return manufacturer.get();
-    }
-
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer.set(manufacturer);
+        this.platformName = platformName;
     }
 
     public Double getMinimalBuildVersion() {
-        return minimalBuildVersion.get();
+        return minimalBuildVersion;
     }
 
     public void setMinimalBuildVersion(Double minimalBuildVersion) {
-        this.minimalBuildVersion.set(minimalBuildVersion);
+        this.minimalBuildVersion = minimalBuildVersion;
     }
+
+    public String getLatestVersionUrl() {
+        return latestVersionUrl;
+    }
+
+    public void setLatestVersionUrl(String latestVersionUrl) {
+        this.latestVersionUrl = latestVersionUrl;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public String getFirmwareUrl() {
+        return firmwareUrl;
+    }
+
+    public void setFirmwareUrl(String firmwareUrl) {
+        this.firmwareUrl = firmwareUrl;
+    }
+   
 
     public HardwarePlatform() {
     }
@@ -107,8 +98,6 @@ public class HardwarePlatform {
         private static final HardwarePlatform INSTANCE = new HardwarePlatform();
     }
 
-    public void applyPlatformConfig(File f) {
-    }
-    
+
   
 }

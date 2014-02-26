@@ -34,7 +34,7 @@ public class HardwarePlatformManager {
     public boolean setPlatformByName(String name) {
         for (int i = 0; i < availablePlatforms.size(); i++) {
             if (availablePlatforms.get(i).getPlatformName().equals(name)) {
-                TinygDriver.getInstance().hardwarePlatform = availablePlatforms.get(i);
+                TinygDriver.getInstance().machine.hardwarePlatform = availablePlatforms.get(i);
                 logger.info("Applied " + name + " hardware Profile to System");
                 return true;
             }
@@ -46,8 +46,8 @@ public class HardwarePlatformManager {
 
 
         for (int i = 0; i < availablePlatforms.size(); i++) {
-            if (availablePlatforms.get(i).getPlatformHardwareVersion() == verNumber) {
-                TinygDriver.getInstance().hardwarePlatform = availablePlatforms.get(i);
+            if (availablePlatforms.get(i).getHardwarePlatformVersion() == verNumber) {
+                TinygDriver.getInstance().machine.hardwarePlatform = availablePlatforms.get(i);
                 logger.info("Applied " + verNumber + " hardware platform id number to System");
                 return true;
 
@@ -69,8 +69,10 @@ public class HardwarePlatformManager {
                         BufferedReader br = new BufferedReader(new FileReader(file));
                         HardwarePlatform hp = gson.fromJson(br, HardwarePlatform.class);
                         availablePlatforms.add(hp);
-                    } catch (FileNotFoundException | JsonSyntaxException | JsonIOException ex) {
+                    } catch (FileNotFoundException | JsonIOException ex) {
                         logger.error("Error loading hardware platforms: " + ex.getMessage());
+                    }catch (JsonSyntaxException ex){
+                        logger.error(ex.getMessage());
                     }
                 }
             }

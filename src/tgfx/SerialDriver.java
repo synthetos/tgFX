@@ -70,7 +70,7 @@ public class SerialDriver implements SerialPortEventListener {
     }
 
     public synchronized void disconnect() throws SerialPortException {
-        if (serialPort != null) {
+        if (serialPort != null && serialPort.isOpened()) {
             serialPort.closePort();
             setConnected(false); //Set our disconnected state
         }

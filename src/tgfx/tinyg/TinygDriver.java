@@ -2,6 +2,7 @@
  * tgFX Driver Class 
  * Copyright (C) 2014 Synthetos LLC. All Rights reserved.
  * http://www.synthetos.com
+ * 
  */
 package tgfx.tinyg;
 
@@ -32,7 +33,7 @@ import tgfx.utility.AsyncTimer;
 
 public class TinygDriver extends Observable {
 
-    private double MINIMAL_BUILD_VERSIONS[] = {377.08, 13.01};
+//    private double MINIMAL_BUILD_VERSIONS[] = {377.08, 13.01};
     static final Logger logger = Logger.getLogger(TinygDriver.class);
     public Machine machine = Machine.getInstance();
     public QueueReport qr = QueueReport.getInstance();
@@ -41,14 +42,14 @@ public class TinygDriver extends Observable {
     public CommandManager cmdManager = new CommandManager();
     private String[] message = new String[2];
     public SimpleBooleanProperty connectionStatus = new SimpleBooleanProperty(false);
-//    private String platformHardwareName = "";
-    public HardwarePlatform hardwarePlatform = new HardwarePlatform();
+
+
     public HardwarePlatformManager hardwarePlatformManager = new HardwarePlatformManager();
     /**
      * Static commands for TinyG to get settings from the TinyG Driver Board
      */
     public ArrayList<String> connections = new ArrayList<>();
-    private SerialDriver ser = SerialDriver.getInstance();
+    private final SerialDriver ser = SerialDriver.getInstance();
     public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(10000);
     public static ArrayBlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(30);
     public static ArrayBlockingQueue<GcodeLine[]> writerQueue = new ArrayBlockingQueue<>(50000);
@@ -56,7 +57,7 @@ public class TinygDriver extends Observable {
     public SerialWriter serialWriter = new SerialWriter(writerQueue);
     private boolean PAUSED = false;
     public final static int MAX_BUFFER = 240;
-    private AtomicBoolean connectionSemaphore = new AtomicBoolean(false); 
+    private final AtomicBoolean connectionSemaphore = new AtomicBoolean(false); 
     private AsyncTimer connectionTimer;
     private boolean timedout = false;
 
@@ -89,25 +90,14 @@ public class TinygDriver extends Observable {
     
     public void notifyBuildChanged() throws IOException, JSONException {
 
-//        int _size = this.getMINIMAL_BUILD_VERSIONS().length;
-//        double _versions[] = this.getMINIMAL_BUILD_VERSIONS();
-//
-//
-//        if (TinygDriver.getInstance().m.getFirmwareBuild() < 200 && TinygDriver.getInstance().m.getFirmwareBuild() > 0.0) {
-//            //This is a bit of a hack at the moment.  If currently the Due port is no where near 200
-//            //so this works.  However eventually?  This will break.
-//            HardwarePlatform.getInstance().getPlatformByName("ArduinoDue");
-//        }else{
-//            HardwarePlatform.getInstance().getPlatformByName("TinyG");
-//        }
-        if(this.hardwarePlatform.getMinimalBuildVersion() < this.machine.getFirmwareBuild()){
+
+        if(machine.hardwarePlatform.getMinimalBuildVersion() < this.machine.getFirmwareBuild()){
             //This checks to see if the current build version on TinyG is greater than what tgFX's hardware profile needs.
-        
         }
         
         
 
-        if (this.machine.getFirmwareBuild() < TinygDriver.getInstance().hardwarePlatform.getMinimalBuildVersion() && 
+        if (machine.getFirmwareBuild() < TinygDriver.getInstance().machine.hardwarePlatform.getMinimalBuildVersion() && 
                 this.machine.getFirmwareBuild() != 0.0) {
             
             //too old of a build  we need to tell the GUI about this... This is where PUB/SUB will fix this 
@@ -117,7 +107,9 @@ public class TinygDriver extends Observable {
             setChanged();
             notifyObservers(message);
             logger.info("Build Version: " + TinygDriver.getInstance().machine.getFirmwareBuild() + " is NOT OK");
-        } else {
+        } else if(machine.getFirmwareBuild() == 0.0){
+            
+        }else {
             logger.info("Build Version: " + TinygDriver.getInstance().machine.getFirmwareBuild() + " is OK");
             message[0] = "BUILD_OK";
             message[1] = null;
@@ -128,6 +120,7 @@ public class TinygDriver extends Observable {
     }
     
     public void sendReconnectRequest(){
+        Main.postConsoleMessage("Attempting to reconnecto to TinyG...");
         logger.info("Reconnect Request Sent.");
         message[0] = "RECONNECT";
         message[1] = null;
@@ -145,14 +138,6 @@ public class TinygDriver extends Observable {
     }
     
     
-
-//    public String getPlatformHardwareName() {
-//        return platformHardwareName;
-//    }
-//
-//    public void setPlatformHardwareName(String platformHardwareName) {
-//        this.platformHardwareName = platformHardwareName;
-//    }
     public static TinygDriver getInstance() {
         return TinygDriverHolder.INSTANCE;
     }
@@ -544,6 +529,7 @@ public class TinygDriver extends Observable {
 
     /**
      * Connection Methods
+     * @param choice
      */
     public void setConnected(boolean choice) {
         this.ser.setConnected(choice);

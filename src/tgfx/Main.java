@@ -66,11 +66,10 @@ import tgfx.utility.QueueUsingTimer;
 import tgfx.utility.QueuedTimerable;
 
 /**
- * The
- * <code>Main</code> class is logically the "main" class of the application, but
- * due to how javaFX's framework is setup, it is not the first class executed on
- * application startup, rather that is TgFX, which is kicked off under the
- * control of the XML instructions.
+ * The <code>Main</code> class is logically the "main" class of the application,
+ * but due to how javaFX's framework is setup, it is not the first class
+ * executed on application startup, rather that is TgFX, which is kicked off
+ * under the control of the XML instructions.
  *
  * @see TgFX
  * @author riley
@@ -90,7 +89,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
     //public final static String LOGLEVEL = "OFF";
     private QueueUsingTimer connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
-    public final static String LOGLEVEL = "OFF";
+    public final static String LOGLEVEL = "INFO";
     @FXML
     private Circle cursor;
     @FXML
@@ -249,60 +248,89 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
     @FXML
     private void handleConnect(ActionEvent event) throws Exception {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                if (serialPorts.getSelectionModel().getSelectedItem() == (null)) {
+                    postConsoleMessage("[!]Error Connecting to Serial Port please select a valid port.\n");
+                    return;
+                }
+                if (Connect.getText().equals("Connect") && serialPorts.getSelectionModel().getSelectedItem() != (null)) {
+                    try {
+                        String serialPortSelected = serialPorts.getSelectionModel().getSelectedItem().toString();
+                        
+                        Main.print("[*]Attempting to Connect to TinyG.");
+                        
+                        if (!tg.initialize(serialPortSelected, 115200)) {  //This will be true if we connected when we tried to!
+                            //Our connect attempt failed.
+                            postConsoleMessage("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.");
+                        }
+                        
+                        if (tg.isConnected().get()) {
+                            
+                            postConsoleMessage("[*]Opened Port: " + serialPortSelected + " Attempting to get TinyG Build Version Now...\n");
+                            Connect.setText("Disconnect");
+                            
+                            /**
+                             * *******************************
+                             * OnConnect Actions Called Here
+                             * *******************************
+                             */
+                            onConnectActions();
+                        }
+                    } catch (SerialPortException ex) {
+                        java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    try {
+                        onDisconnectActions();
+                        if (!tg.isConnected().get()) {
+                            postConsoleMessage("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
+                            Connect.setText("Connect");
+                            
+                        }
+                    } catch (IOException ex) {
+                        java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (JSONException ex) {
+                        java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (SerialPortException ex) {
+                        java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
 
-        if (serialPorts.getSelectionModel().getSelectedItem() == (null)) {
-            postConsoleMessage("[!]Error Connecting to Serial Port please select a valid port.\n");
-            return;
-        }
-        if (Connect.getText().equals("Connect") && serialPorts.getSelectionModel().getSelectedItem() != (null)) {
-            String serialPortSelected = serialPorts.getSelectionModel().getSelectedItem().toString();
-
-            Main.print("[*]Attempting to Connect to TinyG.");
-
-            if (!tg.initialize(serialPortSelected, 115200)) {  //This will be true if we connected when we tried to!
-                //Our connect attempt failed. 
-                postConsoleMessage("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.");
+                }
             }
+        });
 
-            if (tg.isConnected().get()) {
-
-                postConsoleMessage("[*]Opened Port: " + serialPortSelected + " Attempting to get TinyG Build Version Now...\n");
-                Connect.setText("Disconnect");
-
-                /**
-                 * ******************************
-                 * OnConnect Actions Called Here ******************************
-                 */
-                onConnectActions();
-            }
-        } else {
-            onDisconnectActions();
-            if (!tg.isConnected().get()) {
-                postConsoleMessage("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
-                Connect.setText("Connect");
-
-            }
-
-        }
     }
 
     public void onDisconnectActions() throws IOException, JSONException, SerialPortException {
         TinygDriver.getInstance().disconnect();
-        Connect.setText("Connect");
-        TinygDriver.getInstance().machine.setFirmwareBuild(0.0);
-        TinygDriver.getInstance().machine.firmwareBuild.set(0);
-        TinygDriver.getInstance().machine.firmwareVersion.set("");
-        TinygDriver.getInstance().machine.m_state.set("");
-        TinygDriver.getInstance().machine.setLineNumber(0);
-        TinygDriver.getInstance().machine.setMotionMode(0);
-        Draw2d.setFirstDraw(true);
-        tgfx.ui.gcode.GcodeTabController.setCNCMachineVisible(false);  //Once we disconnect we hide our gcode preview.
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Connect.setText("Connect");
+                    TinygDriver.getInstance().machine.setFirmwareBuild(0.0);
+                    TinygDriver.getInstance().machine.firmwareBuild.set(0);
+                    TinygDriver.getInstance().machine.firmwareVersion.set("");
+                    TinygDriver.getInstance().machine.m_state.set("");
+                    TinygDriver.getInstance().machine.setLineNumber(0);
+                    TinygDriver.getInstance().machine.setMotionMode(0);
+                    Draw2d.setFirstDraw(true);
+                    tgfx.ui.gcode.GcodeTabController.setCNCMachineVisible(false);  //Once we disconnect we hide our gcode preview.
 
-        TinygDriver.getInstance().serialWriter.resetBuffer();
-        TinygDriver.getInstance().serialWriter.clearQueueBuffer();
-        TinygDriver.getInstance().serialWriter.notifyAck();
-        buildChecked = false; //Reset this so we can enable checking the build again on disconnect
-        GcodeTabController.setGcodeTextTemp("TinyG Disconnected.");
+                    TinygDriver.getInstance().serialWriter.resetBuffer();
+                    TinygDriver.getInstance().serialWriter.clearQueueBuffer();
+                    TinygDriver.getInstance().serialWriter.notifyAck();
+                    buildChecked = false; //Reset this so we can enable checking the build again on disconnect
+                    GcodeTabController.setGcodeTextTemp("TinyG Disconnected.");
+                } catch (IOException ex) {
+                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (JSONException ex) {
+                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
 
     }
 
@@ -464,7 +492,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         handleConnect(new ActionEvent());
                         break;
 
-
                     default:
                         logger.error("[!]Invalid Routing Key: " + ROUTING_KEY);
                 }
@@ -503,8 +530,8 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 MonologFX mono = MonologFXBuilder.create()
                         .titleText("TinyG Connection Timeout")
                         .message("tgFX timed out while trying to connect to your TinyG.\nYour TinyG might have a version of firmware that is too old or"
-                        + " you might have selected the wrong serial port.  \nClick Auto Upgrade to attempt to upgrade your TinyG. This feature only works for TinyG boards not the Arduino Due port of TinyG."
-                        + "\nA Internet Connection is Required.  Clicking No will allow you to select a different serial port to try to connect to a different serial port.")
+                                + " you might have selected the wrong serial port.  \nClick Auto Upgrade to attempt to upgrade your TinyG. This feature only works for TinyG boards not the Arduino Due port of TinyG."
+                                + "\nA Internet Connection is Required.  Clicking No will allow you to select a different serial port to try to connect to a different serial port.")
                         .button(btnYes)
                         .button(btnNo)
                         .type(MonologFX.Type.ERROR)
@@ -512,34 +539,32 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
                 MonologFXButton.Type retval = mono.showDialog();
 
-
                 switch (retval) {
                     case CUSTOM2:
                         logger.info("Clicked Auto Upgrade");
 
-
                         Platform.runLater(
                                 new Runnable() {
-                            @Override
-                            public void run() {
-                                FirmwareUpdaterController.handleUpdateFirmware(null);
-                                try {
-                                    tg.disconnect();
-                                } catch (SerialPortException ex) {
-                                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                                }
+                                    @Override
+                                    public void run() {
+                                        FirmwareUpdaterController.handleUpdateFirmware(null);
+                                        try {
+                                            tg.disconnect();
+                                        } catch (SerialPortException ex) {
+                                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
 
-                            }
-                        });
+                                    }
+                                });
                         break;
 
                     case CUSTOM1:
                         logger.info("Clicked No");
                         try {
-                            if(TinygDriver.getInstance().isConnected().get()){
+                            if (TinygDriver.getInstance().isConnected().get()) {
                                 TinygDriver.getInstance().disconnect(); //free up the serial port to be able to try another one.
                             }
-                            
+
                         } catch (SerialPortException ex) {
                             java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -568,7 +593,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
             CNCMachine.resetDrawingCoords();
             //onConnectActions();  WE ARE DISABLING THIS FOR NOW.  THIS SHOULD KICK OF A RE-QUERY OF THE TINYG ON RESET.  
             //HOWEVER IT IS MAKING OnConnectionActions run 2x.  Need to fix this.
-        }else if(KEY_ARGUMENT.contains("WARNING")){
+        } else if (KEY_ARGUMENT.contains("WARNING")) {
             postConsoleMessage(KEY_ARGUMENT);
         }
     }
@@ -621,9 +646,9 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 MonologFX mono = MonologFXBuilder.create()
                         .titleText("TinyG Firware Build Outdated...")
                         .message("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.machine.getFirmwareBuild() + "\n"
-                        + "Minmal Needed Version: " + tg.hardwarePlatform.getMinimalBuildVersion().toString() + "\n\n"
-                        + "Click ok to attempt to auto upgrade your TinyG. \nA Internet Connection is Required."
-                        + "\nClicking No will exit tgFX.")
+                                + "Minmal Needed Version: " + tg.machine.hardwarePlatform.getMinimalBuildVersion().toString() + "\n\n"
+                                + "Click ok to attempt to auto upgrade your TinyG. \nA Internet Connection is Required."
+                                + "\nClicking No will exit tgFX.")
                         .button(btnYes)
                         .button(btnNo)
                         .type(MonologFX.Type.ERROR)
@@ -646,17 +671,17 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
                         Platform.runLater(
                                 new Runnable() {
-                            @Override
-                            public void run() {
-                                webEngFirmware.load("https://github.com/synthetos/TinyG/wiki/TinyG-Boot-Loader#wiki-updating");
-                                try {
-                                    tg.disconnect();
-                                } catch (SerialPortException ex) {
-                                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                Connect.setText("Connect");
-                            }
-                        });
+                                    @Override
+                                    public void run() {
+                                        webEngFirmware.load("https://github.com/synthetos/TinyG/wiki/TinyG-Boot-Loader#wiki-updating");
+                                        try {
+                                            tg.disconnect();
+                                        } catch (SerialPortException ex) {
+                                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                        Connect.setText("Connect");
+                                    }
+                                });
                         break;
                     case NO:
                         logger.info("Clicked No");
@@ -686,7 +711,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         /*####################################
          *MISC INIT CODE 
          #################################### */
-
         tg.resParse.addObserver(this);  //Add the tinygdriver to this observer
         tg.addObserver(this);
         this.reScanSerial();            //Populate our serial ports
@@ -706,7 +730,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         /*######################################
          * THREAD INITS
          ######################################*/
-
         Thread serialWriterThread = new Thread(tg.serialWriter);
 
         serialWriterThread.setName(
