@@ -89,7 +89,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
     //public final static String LOGLEVEL = "OFF";
     private QueueUsingTimer connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
-    public final static String LOGLEVEL = "INFO";
+    public final static String LOGLEVEL = "OFF";
     @FXML
     private Circle cursor;
     @FXML
@@ -171,7 +171,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
 
-                        TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_PLATFORM);
+//                        TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_PLATFORM);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_VERSION);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
                         //Thread.sleep(delayValue);  //Should not need this for query operations

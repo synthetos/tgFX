@@ -61,12 +61,12 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
               <children>
-                  <Label id="latestFirmwareLabel" fx:id="latestFirmwareBuild" text="Click Check for Updates" textFill="WHITE" />
-                  <Text font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Latest Firmware Build:">
+                <Text font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Latest Firmware Build:">
                   <fill>
                     <Color blue="0.000" green="0.800" red="0.063" fx:id="x3" />
                   </fill>
                 </Text>
+                <Label id="latestFirmwareLabel" fx:id="latestFirmwareBuild" text="Click Check for Updates" textFill="WHITE" />
               </children>
               <padding>
                 <Insets left="5.0" fx:id="x2" />
