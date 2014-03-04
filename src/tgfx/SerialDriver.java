@@ -12,10 +12,8 @@ import jssc.*;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import org.apache.log4j.Logger;
-import tgfx.utility.UtilityFunctions;
 
 /**
  *
@@ -51,7 +49,7 @@ public class SerialDriver implements SerialPortEventListener {
         try {
             serialPort.writeBytes(str.getBytes());
             //this.output.write(str.getBytes());
-            logger.info("Wrote Line: " + str);
+            logger.debug("Wrote Line: " + str);
         } catch (Exception ex) {
             logger.error("Error in SerialDriver Write");
             logger.error("\t" + ex.getMessage());

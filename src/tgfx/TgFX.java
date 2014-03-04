@@ -76,8 +76,8 @@ public class TgFX extends Application {
 
 
 
-        stage.setMinHeight(800);
-        stage.setMinWidth(1280);
+        stage.setMinHeight(648);
+        stage.setMinWidth(1152);
         stage.setScene(scene);
         stage.show();
     }

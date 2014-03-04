@@ -166,7 +166,7 @@
                 </HBox>
               </children>
               <effect>
-                <DropShadow color="WHITE" height="8.857142857142872" radius="3.9285714285714324" spread="0.49206349206349204" width="8.857142857142858" />
+                <DropShadow color="WHITE" height="8.857142857142861" radius="3.9285714285714297" spread="0.49206349206349204" width="8.857142857142858" />
               </effect>
               <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
@@ -183,9 +183,9 @@
             <Insets bottom="10.0" top="10.0" />
           </padding>
         </HBox>
-        <VBox fx:id="positionsVbox" alignment="CENTER" fillWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" style="" HBox.hgrow="NEVER">
+        <VBox fx:id="positionsVbox" alignment="CENTER" fillWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" style="" visible="true" HBox.hgrow="NEVER">
           <children>
-            <Lcd fx:id="xLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" ledVisible="true" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="X Axis Position" unit="mm">
+            <Lcd fx:id="xLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" ledVisible="true" maxHeight="-1.0" maxWidth="-1.0" minHeight="-Infinity" minWidth="-Infinity" onMousePressed="#handleDroMouseClick" prefHeight="40.0" prefWidth="120.0" title="X Axis Position" unit="mm">
               <contextMenu>
                 <ContextMenu fx:id="xAxisContextMenu">
                   <items>
@@ -195,7 +195,7 @@
                 </ContextMenu>
               </contextMenu>
             </Lcd>
-            <Lcd fx:id="yLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="Y Axis Position" unit="mm">
+            <Lcd fx:id="yLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" maxHeight="-1.0" maxWidth="-1.0" minHeight="-Infinity" minWidth="-Infinity" onMousePressed="#handleDroMouseClick" prefHeight="40.0" prefWidth="120.0" title="Y Axis Position" unit="mm">
               <contextMenu>
                 <ContextMenu fx:id="yAxisContextMenu">
                   <items>
@@ -205,7 +205,7 @@
                 </ContextMenu>
               </contextMenu>
             </Lcd>
-            <Lcd fx:id="zLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="Z Axis Position" unit="mm">
+            <Lcd fx:id="zLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMousePressed="#handleDroMouseClick" prefHeight="40.0" prefWidth="120.0" title="Z Axis Position" unit="mm">
               <contextMenu>
                 <ContextMenu fx:id="zAxisContextMenu">
                   <items>
@@ -215,7 +215,7 @@
                 </ContextMenu>
               </contextMenu>
             </Lcd>
-            <Lcd fx:id="aLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" onMousePressed="#handleDroMouseClick" prefHeight="70.0" prefWidth="200.0" title="A Axis Position" unit="mm">
+            <Lcd fx:id="aLcd" focusTraversable="false" lcdDecimals="3" lcdDesign="BLACK" lcdUnitVisible="true" lcdValueFont="LCD" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMousePressed="#handleDroMouseClick" prefHeight="40.0" prefWidth="120.0" title="A Axis Position" unit="mm">
               <contextMenu>
                 <ContextMenu fx:id="aAxisContextMenu">
                   <items>
@@ -224,12 +224,12 @@
                 </ContextMenu>
               </contextMenu>
             </Lcd>
-            <Lcd fx:id="velLcd" focusTraversable="false" lcdDecimals="0" lcdDesign="RED_DARKRED" lcdUnitVisible="true" lcdValueFont="LCD" prefHeight="70.0" prefWidth="200.0" title="Velocity" unit="mm/min" />
-            <Button fx:id="gcodeZero" focusTraversable="false" maxWidth="133.0" minWidth="133.0" onAction="#handleZeroSystem" text="Zero Axes" VBox.vgrow="NEVER" />
+            <Lcd fx:id="velLcd" focusTraversable="false" lcdDecimals="0" lcdDesign="RED_DARKRED" lcdUnitVisible="true" lcdValueFont="LCD" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="120.0" title="Velocity" unit="mm/min" />
+            <Button fx:id="gcodeZero" focusTraversable="false" maxWidth="-1.0" minWidth="-1.0" onAction="#handleZeroSystem" text="Zero Axes" VBox.vgrow="NEVER" />
             <Button focusTraversable="false" mnemonicParsing="false" onAction="#handleHomeXYZ" text="Home Axes" />
           </children>
           <padding>
-            <Insets right="15.0" top="15.0" />
+            <Insets top="15.0" />
           </padding>
         </VBox>
       </children>

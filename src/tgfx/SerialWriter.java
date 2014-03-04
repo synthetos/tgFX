@@ -74,12 +74,12 @@ public class SerialWriter implements Runnable {
 
     public synchronized void setBuffer(int val) {
         buffer_available.set(val);
-        logger.info("Got a BUFFER Response.. reset it to: " + val);
+        logger.debug("Got a BUFFER Response.. reset it to: " + val);
     }
 
     public synchronized void addBytesReturnedToBuffer(int lenBytesReturned) {
         buffer_available.set(getBufferValue() + lenBytesReturned);
-        logger.info("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");
+        logger.debug("Returned " + lenBytesReturned + " to buffer.  Buffer is now at " + buffer_available + "\n");
     }
 
     public void addCommandToBuffer(String cmd) {

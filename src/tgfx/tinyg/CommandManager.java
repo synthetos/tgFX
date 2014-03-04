@@ -65,7 +65,7 @@ public class CommandManager {
     //Homeing Commandings
     public static final String CMD_APPLY_HOME_X_AXIS = "{\"gc\":\"g28.2x0\"}\n";
     public static final String CMD_APPLY_HOME_Y_AXIS = "{\"gc\":\"g28.2y0\"}\n";
-    public static final String CMD_APPLY_HOME_Z_AXIS = "{\"gc\":\"g28.2a0\"}\n";
+    public static final String CMD_APPLY_HOME_Z_AXIS = "{\"gc\":\"g28.2z0\"}\n";
     public static final String CMD_APPLY_HOME_A_AXIS = "{\"gc\":\"g28.2a0\"}\n";
     //ZERO Commands
     public static final String CMD_APPLY_ZERO_X_AXIS = "{\"gc\":\"g92x0\"}\n";

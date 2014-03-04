@@ -27,9 +27,9 @@
 
 <fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.Main">
   <children>
-    <BorderPane disable="false" prefHeight="-1.0" prefWidth="-1.0" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <BorderPane disable="false" prefHeight="-1.0" prefWidth="-1.0" style="" visible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
-        <VBox id="consoleHBox" fx:id="consoleVBox" alignment="CENTER" prefHeight="168.0" prefWidth="-1.0" style="-fx-background-color: GREY;" BorderPane.alignment="CENTER">
+        <VBox id="consoleHBox" fx:id="consoleVBox" alignment="CENTER" prefHeight="120.0" prefWidth="-1.0" style="-fx-background-color: GREY;" visible="true" BorderPane.alignment="CENTER">
           <children>
             <TextArea fx:id="console" editable="false" focusTraversable="false" maxHeight="300.0" minHeight="50.0" wrapText="true" VBox.vgrow="ALWAYS">
               <prefHeight>
@@ -39,7 +39,7 @@
                 <Long fx:value="-1" />
               </prefWidth>
             </TextArea>
-            <TextField fx:id="input" onKeyPressed="#handleKeyPress" promptText="TinyG&gt;">
+            <TextField fx:id="input" onKeyPressed="#handleKeyPress" prefHeight="40.0" promptText="TinyG&gt;">
               <prefWidth>
                 <Long fx:value="-1" />
               </prefWidth>
@@ -118,7 +118,7 @@
         </VBox>
       </bottom>
       <center>
-        <TabPane fx:id="topTabPane" disable="false" focusTraversable="false" style="">
+        <TabPane fx:id="topTabPane" disable="false" focusTraversable="false" rotateGraphic="false" side="RIGHT" style="" visible="true" BorderPane.alignment="CENTER">
           <prefHeight>
             <Long fx:value="-1" />
           </prefHeight>
@@ -149,63 +149,31 @@
                             </content>
                         </Tab>-->
           </tabs>
+          <BorderPane.margin>
+            <Insets fx:id="x77" />
+          </BorderPane.margin>
         </TabPane>
       </center>
       <top>
-        <HBox fx:id="topMainTitle" alignment="CENTER" maxHeight="105.0" minHeight="80.0" opacity="1.0" prefHeight="80.0" rotate="0.0" style="" visible="true">
+        <HBox fx:id="topMainTitle" alignment="CENTER" fillHeight="true" maxHeight="35.0" minHeight="35.0" opacity="1.0" prefHeight="35.0" rotate="0.0" style="" visible="true">
           <children>
-            <AnchorPane id="topMainTitle" depthTest="INHERIT" maxHeight="-Infinity" minHeight="-1.0" minWidth="-Infinity" opacity="1.0" prefHeight="-1.0" prefWidth="-1.0" rotate="0.0" style="" HBox.hgrow="ALWAYS">
+            <AnchorPane id="topMainTitle" depthTest="INHERIT" maxHeight="-1.0" minHeight="-1.0" minWidth="-1.0" opacity="1.0" prefHeight="-1.0" prefWidth="-1.0" rotate="0.0" style="" visible="true" HBox.hgrow="ALWAYS">
               <children>
-                <StackPane layoutX="0.0" prefHeight="-1.0" rotate="0.0" style="">
+                <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" visible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                   <children>
-                    <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" StackPane.alignment="TOP_CENTER">
-                      <children>
-                        <VBox id="VBox" alignment="CENTER" spacing="5.0">
-                          <children>
-                            <Text fx:id="tgfxTitle" fill="#ff3d00" fontSmoothingType="GRAY" strikethrough="false" stroke="$x4" strokeType="OUTSIDE" strokeWidth="0.0" text="tgFX" textAlignment="CENTER">
-                              <effect>
-                                <Glow level="0.841685694828346" />
-                              </effect>
-                            </Text>
-                            <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="synthetos.com">
-                              <font>
-                                <Font name="System Bold" size="12.0" />
-                              </font>
-                            </Text>
-                          </children>
-                        </VBox>
-                        <ImageView id="stepper.png" fitHeight="46.26190370832171" fitWidth="29.0" opacity="0.6" preserveRatio="true">
-                          <image>
-                            <Image url="@stepper.png" preserveRatio="true" smooth="true" />
-                          </image>
-                        </ImageView>
-                      </children>
-                      <padding>
-                        <Insets left="15.0" />
-                      </padding>
-                    </HBox>
-                  </children>
-                  <prefWidth>
-                    <Long fx:value="-1" />
-                  </prefWidth>
-                </StackPane>
-                <HBox alignment="CENTER" layoutY="20.0" prefHeight="-1.0" AnchorPane.rightAnchor="0.0">
-                  <children>
-                    <Label fx:id="serialTitle" alignment="CENTER" prefHeight="27.0" prefWidth="131.0" text="Serial Ports: " />
+                    <Label fx:id="serialTitle" alignment="CENTER_RIGHT" prefHeight="-1.0" prefWidth="-1.0" text="Serial Ports: " HBox.hgrow="ALWAYS" />
                     <ChoiceBox fx:id="serialPorts" focusTraversable="false" minHeight="21.0" minWidth="120.0" HBox.hgrow="ALWAYS" />
                     <Button fx:id="Connect" focusTraversable="false" onAction="#handleConnect" text="Connect" />
                     <Button fx:id="reScan" focusTraversable="false" onAction="#FXreScanSerial" text="Re-Scan" />
                   </children>
-                  <prefWidth>
-                    <Long fx:value="-1" />
-                  </prefWidth>
                   <spacing>
                     <Long fx:value="5" />
                   </spacing>
                 </HBox>
+                <Text fill="WHITE" layoutX="14.0" layoutY="22.0" strokeType="OUTSIDE" strokeWidth="0.0" text="tgFX - TinyG Controller" />
               </children>
               <padding>
-                <Insets right="15.0" />
+                <Insets right="5.0" fx:id="x2" />
               </padding>
             </AnchorPane>
           </children>
