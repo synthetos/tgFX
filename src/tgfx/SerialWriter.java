@@ -7,6 +7,7 @@ package tgfx;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
+import tgfx.tinyg.TinygDriver;
 import tgfx.ui.gcode.GcodeTabController;
 
 /**
@@ -25,6 +26,7 @@ public class SerialWriter implements Runnable {
     private SerialDriver ser = SerialDriver.getInstance();
     private static final Object mutex = new Object();
     private static boolean throttled = false;
+    private int pbaChamberedRounds = 0;
 
     //   public Condition clearToSend = lock.newCondition();
     public SerialWriter(BlockingQueue q) {
@@ -120,13 +122,31 @@ public class SerialWriter implements Runnable {
         Main.postConsoleMessage(" Gcode Comment << " + gcodeComment);
     }
     
+    
+//    private int getChamberCount(int currentPlanningBuffer){
+//        //This function takes the current planning buffer and determines how many
+//        //"rounds" or lines of gcode should be "chambered" or loaded before re read the pba
+//        //and recalculating.
+//        if(24 - currentPlanningBuffer > 3){
+//            
+//        }
+//    }
+    
     public void write(String str) {
         try {
             synchronized (mutex) {
-                if (str.length() > getBufferValue()) {
-                    setThrottled(true);
-                } else {
-                    this.setBuffer(getBufferValue() - str.length());
+                
+                
+                
+//                if (str.length() > getBufferValue()) {
+//                    setThrottled(true);
+//                } else {
+//                    this.setBuffer(getBufferValue() - str.length());
+//                }
+                int _currentPlanningBuffer = TinygDriver.getInstance().qr.getPba();
+                
+                if(_currentPlanningBuffer < 28){
+                    //if we have less that 28 moves in the planning buffer send a line
                 }
 
                 while (throttled) {
@@ -177,7 +197,7 @@ public class SerialWriter implements Runnable {
                     //Our end of file sending token has been detected.
                     //We will not enable jogging by setting isSendingFile to false
                     GcodeTabController.setIsFileSending(false);
-                }else if(tmpCmd.startsWith("Comment:")){
+                }else if(tmpCmd.startsWith("**COMMENT**")){
                     //Display current gcode comment
                     GcodeTabController.setGcodeTextTemp("Comment: " + tmpCmd);
                     continue;

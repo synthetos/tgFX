@@ -688,7 +688,7 @@ public class GcodeTabController implements Initializable {
                         }
 
                         if (_gcl.getCodeLine().toLowerCase().contains("(")) {
-                            TinygDriver.getInstance().write("Comment:" + _gcl.getCodeLine());
+                            TinygDriver.getInstance().write("**COMMENT**" + _gcl.getCodeLine());
 //                            tgfx.Main.postConsoleMessage("GCODE COMMENT:" + _gcl.getCodeLine());
                             continue;
 

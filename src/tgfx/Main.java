@@ -278,7 +278,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                              */
                             onConnectActions();
                         }
-                    } catch (SerialPortException ex) {
+                    } catch (jssc.SerialPortException ex) {
                         java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {

@@ -66,8 +66,8 @@ public class TgFX extends Application {
         Parent root;
         root = (Parent) FXMLLoader.load(getClass().getResource("Main.fxml"));
         Scene scene = new Scene(root);
-
         scene.setRoot(root);
+        
 
         FXMLLoader fxmlLoader = new FXMLLoader();
 

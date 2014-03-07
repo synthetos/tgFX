@@ -223,11 +223,9 @@ public class ResponseParser extends Observable implements Runnable {
                             break;
 
                         case "msg":
-
                             message[0] = "TINYG_USER_MESSAGE";
                             message[1] = (String) js.get(key) + "\n";
                             logger.info("[+]TinyG Message Sent:  " + js.get(key) + "\n");
-                            
                             setChanged();
                             notifyObservers(message);
                             break;
@@ -448,13 +446,13 @@ public class ResponseParser extends Observable implements Runnable {
                 String newJs;
 //                  String _key = parentGroup; //I changed this to deal with the fb mnemonic.. not sure if this works all over.
                 rc.setSettingValue(String.valueOf(js.get(js.keys().next().toString())));
-                logger.info("Single Key Value: Group:" + rc.getSettingParent() +" key:" + rc.getSettingKey() +" value:"+ rc.getSettingValue());
-                if(rc.getSettingValue().equals((""))){
+                logger.info("Single Key Value: Group:" + rc.getSettingParent() + " key:" + rc.getSettingKey() + " value:" + rc.getSettingValue());
+                if (rc.getSettingValue().equals((""))) {
                     logger.info(rc.getSettingKey() + " value was null");
-                }else{
+                } else {
                     this.applySetting(rc.buildJsonObject()); //We pass the new json object we created from the string above
                 }
-            }
+        }
 
 
     }
@@ -553,6 +551,8 @@ public class ResponseParser extends Observable implements Runnable {
                 }
             });
 
+        } else if (js.has("qr")) {
+            TinygDriver.getInstance().qr.parse(js);
         } else if (js.has("er")) {
             applySetting(js);
         }

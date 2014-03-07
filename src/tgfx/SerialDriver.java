@@ -106,15 +106,16 @@ public class SerialDriver implements SerialPortEventListener {
         if (event.isRXCHAR()) {
             try {
                 //            int bytesToRead = input.read(inbuffer, 0, inbuffer.length);
-                tmpBuffer = serialPort.readBytes(bytesToRead, 10);
+                
+                tmpBuffer = serialPort.readBytes(bytesToRead, serialPort.getInputBufferBytesCount());
             } catch (    SerialPortException | SerialPortTimeoutException ex) {
                 java.util.logging.Logger.getLogger(SerialDriver.class.getName()).log(Level.SEVERE, null, ex);
             }
             
             for (int i = 0; i < bytesToRead; i++) {
-                if (tmpBuffer[i] == 0x11 || tmpBuffer[i] == 0x13) {  //We have to filter our XON or XOFF charaters from JSON
-                    continue;
-                }
+//                if (tmpBuffer[i] == 0x11 || tmpBuffer[i] == 0x13) {  //We have to filter our XON or XOFF charaters from JSON
+//                    continue;
+//                }
                 if (tmpBuffer[i] == 0xA) { // inbuffer[i] is a \n
                     String f = new String(lineBuffer, 0, lineIdx);
                     if (!f.equals("")) { //Do not add "" to the jsonQueue..
