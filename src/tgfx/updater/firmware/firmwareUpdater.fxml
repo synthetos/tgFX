@@ -72,7 +72,7 @@
                 <Insets left="5.0" fx:id="x2" />
               </padding>
             </HBox>
-            <HBox alignment="CENTER_LEFT" padding="$x2" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
+            <HBox alignment="CENTER_LEFT" fillHeight="true" padding="$x2" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
               <children>
                 <Label id="currentFirmwareLabel" fx:id="buildNumb" text="unknown" textFill="WHITE">
                   <graphic>
@@ -81,15 +81,27 @@
                 </Label>
               </children>
             </HBox>
-            <HBox alignment="BOTTOM_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+            <VBox prefHeight="-1.0" prefWidth="-1.0">
               <children>
-                <Button id="checkFirmwareUpdate" mnemonicParsing="false" onAction="#checkFirmwareUpdate" text="Check For Updates" />
-                <Button fx:id="handleUpdateFirmware" mnemonicParsing="false" onAction="#handleUpdateFirmware" text="Update Firmware" />
+                <HBox alignment="BOTTOM_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+                  <children>
+                    <Button id="checkFirmwareUpdate" mnemonicParsing="false" onAction="#checkFirmwareUpdate" text="Check For Updates" />
+                    <Button id="handleUpdateFirmware" fx:id="btnhandleUpdateFirmwareFromOnline" mnemonicParsing="false" onAction="#handleUpdateFirmwareFromOnline" text="Update Firmware Online" />
+                  </children>
+                  <padding>
+                    <Insets bottom="10.0" right="5.0" />
+                  </padding>
+                </HBox>
+                <HBox alignment="CENTER_RIGHT" fillHeight="true" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+                  <children>
+                    <Button id="handleUpdateFirmwareFromFile" fx:id="btnhandleUpdateFirmwareFromFile" mnemonicParsing="false" onAction="#handleUpdateFirmwareFromFile" text="Update Firmware From File" />
+                  </children>
+                  <padding>
+                    <Insets left="10.0" right="5.0" />
+                  </padding>
+                </HBox>
               </children>
-              <padding>
-                <Insets bottom="10.0" right="5.0" />
-              </padding>
-            </HBox>
+            </VBox>
           </children>
         </VBox>
       </children>

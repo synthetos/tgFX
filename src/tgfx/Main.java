@@ -727,23 +727,23 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         topTabPane.disableProperty()
                 .bind(TinygDriver.getInstance().connectionStatus.not());
 
-        /*######################################
-         * THREAD INITS
-         ######################################*/
-        Thread serialWriterThread = new Thread(tg.serialWriter);
-
-        serialWriterThread.setName(
-                "SerialWriter");
-        serialWriterThread.setDaemon(
-                true);
-        serialWriterThread.start();
-        Thread threadResponseParser = new Thread(tg.resParse);
-
-        threadResponseParser.setDaemon(
-                true);
-        threadResponseParser.setName(
-                "ResponseParser");
-        threadResponseParser.start();
+//        /*######################################
+//         * THREAD INITS
+//         ######################################*/
+//        Thread serialWriterThread = new Thread(tg.serialWriter);
+//
+//        serialWriterThread.setName(
+//                "SerialWriter");
+//        serialWriterThread.setDaemon(
+//                true);
+//        serialWriterThread.start();
+//        Thread threadResponseParser = new Thread(tg.resParse);
+//
+//        threadResponseParser.setDaemon(
+//                true);
+//        threadResponseParser.setName(
+//                "ResponseParser");
+//        threadResponseParser.start();
 
 
         /*######################################

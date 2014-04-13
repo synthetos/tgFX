@@ -167,9 +167,11 @@ public class SerialWriter implements Runnable {
         }
     }
 
+    
+    
     @Override
     public void run() {
-        Main.print("[+]Serial Writer Thread Running...");
+        //Main.print("[+]Serial Writer Thread Running...");
         while (RUN) {
             try {
                 tmpCmd = queue.take();  //Grab the line

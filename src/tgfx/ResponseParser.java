@@ -74,18 +74,30 @@ public class ResponseParser extends Observable implements Runnable {
         this.TEXT_MODE = TEXT_MODE;
     }
 
+    public boolean isRUN() {
+        return RUN;
+    }
+
+    public void setRUN(boolean RUN) {
+        this.RUN = RUN;
+    }
+    
+   
+
     @Override
     public void run() {
         logger.info("Response Parser Running");
-        if (!Main.LOGLEVEL.equals("OFF")) {
-            Main.print("[+]Response Parser Thread Running...");
-        }
+//        if (!Main.LOGLEVEL.equals("OFF")) {
+//            Main.print("[+]Response Parser Thread Running...");
+//        }
         while (RUN) {
             try {
                 line = TinygDriver.jsonQueue.take();
+                
                 if (line.equals("")) {
                     continue;
-                }
+                } 
+                
                 if (line.startsWith("{")) {
                     if (isTEXT_MODE()) {
                         setTEXT_MODE(false);
@@ -121,8 +133,10 @@ public class ResponseParser extends Observable implements Runnable {
                     message[1] = line + "\n";
                     notifyObservers(message);
                 }
-            } catch (InterruptedException | JSONException ex) {
+            } catch (JSONException ex) {
                 logger.error("[!]Error in responseParser run(): " + ex.getMessage());
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(ResponseParser.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
             }
         }
     }

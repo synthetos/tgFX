@@ -61,7 +61,7 @@ public class TinygDriver extends Observable {
 
 
     public void setAsyncTimer(AsyncTimer value){
-        connectionTimer = value;
+        connectionTimer = value;;
     }
     
     public AsyncTimer getAsyncTimer(){

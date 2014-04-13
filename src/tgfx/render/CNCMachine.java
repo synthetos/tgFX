@@ -27,6 +27,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import tgfx.Main;
+import static tgfx.render.CNCMachine.resetDrawingCoords;
 import tgfx.tinyg.CommandManager;
 import tgfx.tinyg.TinygDriver;
 import tgfx.ui.gcode.GcodeTabController;
@@ -41,8 +42,8 @@ public class CNCMachine extends Pane {
     private BooleanExpression cursorVisibleBinding;
     private DecimalFormat df = new DecimalFormat("#.##");
     private final Circle cursorPoint = new Circle(2, javafx.scene.paint.Color.RED);
-    private static double xPrevious;
-    private static double yPrevious;
+    private static double xPrevious = -999.999;
+    private static double yPrevious = -999.999;
     private boolean _msgSent = false;
     private double magnification = 1;
     private SimpleDoubleProperty cncHeight = new SimpleDoubleProperty();
@@ -53,10 +54,6 @@ public class CNCMachine extends Pane {
         //Cursor point indicator
         cursorPoint.setRadius(1);
 
-
-
-
-
         this.setMaxSize(0, 0);  //hide this element until we connect
         //Set our machine size from tinyg travel max
         this.setVisible(false);
@@ -64,50 +61,24 @@ public class CNCMachine extends Pane {
         this.setFocusTraversable(true);
         this.setFocused(true);
 
-
-
         /*####################################
          *CSS
          #################################### */
-
         this.setStyle("-fx-background-color: black; -fx-border-color: orange;  -fx-border-width: .5;");
 
         /*####################################
          *PositionCursor Set
          #################################### */
-
         final Circle c = new Circle(2, Color.RED);
         final Text cursorText = new Text("None");
         cursorText.setFill(Color.YELLOW);
         cursorText.setFont(Font.font("Arial", 6));
 
-
-
         setupLayout(); //initial layout setup in constructor
-
-
 
         /*####################################
          *Event / Change Listeners
          *#################################### */
-
-//ugh...
-//
-//
-//        ChangeListener posChangeListener = new ChangeListener() {
-//            @Override
-//            public void changed(ObservableValue ov, Object t, Object t1) {
-//                if (TinygDriver.getInstance().m.getAxisByName("y").getMachinePosition() > heightProperty().get()
-//                        || TinygDriver.getInstance().m.getAxisByName("x").getMachinePosition() > widthProperty().get()) {
-//                    hideOrShowCursor(false);
-//                } else {
-//                    hideOrShowCursor(true);
-//                }
-//
-//            }
-//        };
-
-
 
         this.setOnMouseExited(new EventHandler<MouseEvent>() {
             @Override
@@ -118,7 +89,6 @@ public class CNCMachine extends Pane {
             }
         });
 
-
         this.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent me) {
@@ -127,7 +97,6 @@ public class CNCMachine extends Pane {
 
             }
         });
-
 
         this.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -152,7 +121,6 @@ public class CNCMachine extends Pane {
                             //G92 does not invoke a status report... So we need to generate one to have
                             //Our GUI update the coordinates to zero
 
-
                         }
                     });
                     cm.getItems().add(menuItem1);
@@ -166,7 +134,6 @@ public class CNCMachine extends Pane {
         /*####################################
          *Bindings
          *#################################### */
-
         maxHeightProperty().bind(TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().multiply(TinygDriver.getInstance().machine.gcodeUnitDivision));
         maxWidthProperty().bind(TinygDriver.getInstance().machine.getAxisByName("x").getTravelMaxSimple().multiply(TinygDriver.getInstance().machine.gcodeUnitDivision));
         cursorPoint.translateYProperty().bind(this.heightProperty().subtract(TinygDriver.getInstance().machine.getAxisByName("y").getMachinePositionSimple()));
@@ -184,7 +151,7 @@ public class CNCMachine extends Pane {
     private void unFocusForJogging() {
         this.setFocused(true);
 //        Main.postConsoleMessage("UnFocused");
-        GcodeTabController.hideGcodeText();
+//        GcodeTabController.hideGcodeText();
     }
 
     private void setFocusForJogging() {
@@ -210,7 +177,7 @@ public class CNCMachine extends Pane {
     }
 
     public boolean checkBoundsY(Line l) {
-        if ((this.getHeight() - l.getEndY()) >=0 && (this.getHeight() - l.getEndY()) <= this.getHeight() + 1) {
+        if ((this.getHeight() - l.getEndY()) >= 0 && (this.getHeight() - l.getEndY()) <= this.getHeight() + 1) {
             return true;
         } else {
             return false;
@@ -244,98 +211,69 @@ public class CNCMachine extends Pane {
         double scale = 1;
         double unitMagnication = 1;
 
-//        if (TinygDriver.getInstance().m.getGcodeUnitMode().get().equals(Gcode_unit_modes.inches.toString())) {
-//            unitMagnication = 5;  //INCHES
-//        } else {
-//            unitMagnication = 2; //MM
-//        }
-//        double newX = unitMagnication * (Double.valueOf(TinygDriver.getInstance().m.getAxisByName("X").getWork_position().get()) + 80);// + magnification;
-//        double newY = unitMagnication * (Double.valueOf(TinygDriver.getInstance().m.getAxisByName("Y").getWork_position().get()) + 80);// + magnification;
-
-
-//        if (newX > gcodePane.getWidth() || newX > gcodePane.getWidth()) {
-//            scale = scale / 2;
-//            Line line = new Line();
-//            Iterator ii = gcodePane.getChildren().iterator();
-//            gcodePane.getChildren().clear(); //remove them after we have the iterator
-//            while (ii.hasNext()) {
-//                if (ii.next().getClass().toString().contains("Line")) {
-//                    //This is a line.
-//                    line = (Line) ii.next();
-//                    line.setStartX(line.getStartX() / 2);
-//                    line.setStartY(line.getStartY() / 2);
-//                    line.setEndX(line.getEndX() / 2);
-//                    line.setEndY(line.getEndY() / 2);
-//                    gcodePane.getChildren().add(line);
-//
-//                }
-
-//            }
-//            console.appendText("[+]Finished Drawing Prevew Scale Change.\n");
-//            gcodeWindow.setScaleX(scale);
-//            gcodeWindow.setScaleY(scale);
-//        }
-//        Main.print(gcodePane.getHeight() - TinygDriver.getInstance().m.getAxisByName("y").getWork_position().get());
-        double newX = TinygDriver.getInstance().machine.getAxisByName("x").getMachinePositionSimple().get();// + magnification;
-        double newY = this.getHeight() - TinygDriver.getInstance().machine.getAxisByName("y").getMachinePositionSimple().get();//(gcodePane.getHeight() - (Double.valueOf(TinygDriver.getInstance().m.getAxisByName("y").getWork_position().get())));// + magnification;
-       
-        
-        if (Draw2d.isFirstDraw()) {
-            //This is to not have us draw a line on the first connect.
-            l = new Line(newX, this.getHeight(), newX, this.getHeight());
-            Draw2d.setFirstDraw(false);
+        if (getHeight() == 21 || getWidth() == 21) {
+            //this is the default height of the region.  This means that we are on our initial connect and getting ready to draw the workspace.
         } else {
+            double newX = TinygDriver.getInstance().machine.getAxisByName("x").getMachinePositionSimple().get();// + magnification;
+            double newY = this.getHeight() - TinygDriver.getInstance().machine.getAxisByName("y").getMachinePositionSimple().get();//(gcodePane.getHeight() - (Double.valueOf(TinygDriver.getInstance().m.getAxisByName("y").getWork_position().get())));// + magnification;
+            if (Draw2d.isFirstDraw()) {
+                // && xPrevious == -999.999 && yPrevious == -999.999
+                //This is to not have us draw a line on the first connect.
+                //l = new Line(newX, this.getHeight(), newX, this.getHeight());
+                //l = new Line(newX, newY, newX, newY);
+                //This is our first time connecting we need to draw a zero length line
+                xPrevious = newX;
+                yPrevious = newY;
+
+//            l.setStrokeWidth(.5);
+                Draw2d.setFirstDraw(false);
+            }
+
             l = new Line(xPrevious, yPrevious, newX, newY);
-            l.setStrokeWidth(.5);
-        }
-        
-         xPrevious = newX;
-        yPrevious = newY; //TODO Pull these out to CNC machine or Draw2d these are out of place
+            xPrevious = newX;
+            yPrevious = newY; //TODO Pull these out to CNC machine or Draw2d these are out of place
 
-
-        if (TinygDriver.getInstance().machine.getMotionMode().get().equals("traverse")) {
-            //G0 Moves
-            l.getStrokeDashArray().addAll(1d, 5d);
-            l.setStroke(Draw2d.TRAVERSE);
-        } else {
-//            l.setStroke(Draw2d.getLineColorFromVelocity(vel));
-            l.setStroke(Draw2d.FAST);
-        }
-
-
-
-        if (l != null) {
-            if (this.checkBoundsX(l) && this.checkBoundsY(l)) {
-                //Line is within the travel max gcode preview box.  So we will draw it.
-                this.getChildren().add(l);  //Add the line to the Pane 
-//                cursorPoint.visibleProperty().set(true);
-                _msgSent = false;
-                if (!getChildren().contains(cursorPoint)) { //If the cursorPoint is not in the Group and we are in bounds
-                    this.getChildren().add(cursorPoint);  //Adding the cursorPoint back
-                }
-
+            if (TinygDriver.getInstance().machine.getMotionMode().get().equals("traverse")) {
+                //G0 Moves
+                l.getStrokeDashArray().addAll(1d, 5d);
+                l.setStroke(Draw2d.TRAVERSE);
             } else {
-                Logger.getLogger("Main").info("Outside of Bounds X");
-                
-                if (getWidth() != 21 && getHeight() != 21) { //This is a bug fix to avoid the cursor being hidden on the initial connect.
-                    //This should be fairly harmless as it will always show the cursor if its the inital connect size 21,21
-                    //its a bit of a hack but it works for now.
+//            l.setStroke(Draw2d.getLineColorFromVelocity(vel));
+                l.setStroke(Draw2d.FAST);
+            }
+
+            if (l != null) {
+                if (this.checkBoundsX(l) && this.checkBoundsY(l)) {
+                    //Line is within the travel max gcode preview box.  So we will draw it.
+                    this.getChildren().add(l);  //Add the line to the Pane 
+//                cursorPoint.visibleProperty().set(true);
+                    _msgSent = false;
+                    if (!getChildren().contains(cursorPoint)) { //If the cursorPoint is not in the Group and we are in bounds
+                        this.getChildren().add(cursorPoint);  //Adding the cursorPoint back
+                    }
+
+                } else {
+                    Logger.getLogger("Main").info("Outside of Bounds X");
+
+                    if (getWidth() != 21 && getHeight() != 21) { //This is a bug fix to avoid the cursor being hidden on the initial connect.
+                        //This should be fairly harmless as it will always show the cursor if its the inital connect size 21,21
+                        //its a bit of a hack but it works for now.
 //                    cursorPoint.visibleProperty().set(false);
 //                    Draw2d.setFirstDraw(true);
-                    if (getChildren().contains(cursorPoint)) { //If cursor is in the group we are going to remove it util above is true
-                        getChildren().remove(this.getChildren().indexOf(cursorPoint)); //Remove it.
-                        if (!_msgSent) {
-                            Main.postConsoleMessage("You are out of your TinyG machine working envelope.  You need to either move back in by jogging, homing"
-                                    + "\n or you can right click on the Gcode Preview and click set position to set your estimated position.\n");
-                            _msgSent = true; //We do this as to not continue to spam the user with out of bound errors.
+                        if (getChildren().contains(cursorPoint)) { //If cursor is in the group we are going to remove it util above is true
+                            getChildren().remove(this.getChildren().indexOf(cursorPoint)); //Remove it.
+                            if (!_msgSent) {
+                                Main.postConsoleMessage("You are out of your TinyG machine working envelope.  You need to either move back in by jogging, homing"
+                                        + "\n or you can right click on the Gcode Preview and click set position to set your estimated position.\n");
+                                _msgSent = true; //We do this as to not continue to spam the user with out of bound errors.
+                            }
                         }
+                    } else {
                     }
-                }else{
-                    
                 }
             }
         }
-       
+
     }
 
     public void zeroSystem() {
@@ -386,8 +324,6 @@ public class CNCMachine extends Pane {
     public void autoScaleWorkTravelSpace(double scaleAmount) {
 
         //Get the axis with the smallest available space.  Think aspect ratio really
-
-
         double stroke = 2 / scaleAmount;
         this.setScaleX(scaleAmount);
         this.setScaleY(scaleAmount);
