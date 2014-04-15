@@ -1,6 +1,6 @@
 {
     "platformName": "TinyGv7",
-    "minimalBuildVersion": 380.05,
+    "minimalBuildVersion": 412.01,
     "latestVersionUrl": "https://raw.github.com/synthetos/TinyG/master/version.current",
     "manufacturer": "Synthetos",
     "firmwareUrl": "https://raw.github.com/synthetos/TinyG/master/firmware/tinyg/default/tinyg.hex",
