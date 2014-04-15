@@ -380,28 +380,8 @@ public class GcodeTabController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        /* add support for zmove
-         * 
-         */
-//        assert zMoveScale != null : "fx:id=\"zMoveScale\" was not injected: check your FXML file 'Position.fxml'.";
-//
-//        // Set up ChoiceBox selection handler
-//        zMoveScale.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-//            @Override
-//            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number result) {
-//                switch ((int) result) {
-//                    case 0:
-//                        zScale = 10.0f;
-//                        break;
-//                    case 1:
-//                        zScale = 1.0f;
-//                        break;
-//                    case 2:
-//                        zScale = 0.1f;
-//                        break;
-//                }
-//            }
-//        });
+
+        
 
         timeStartDt = new Date();
 
@@ -451,10 +431,8 @@ public class GcodeTabController implements Initializable {
         TinygDriver.getInstance().machine.getGcodeUnitMode().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                String tmp = TinygDriver.getInstance().machine.getGcodeUnitMode().get();
-
 //                gcodeUnitMode.getSelectionModel().select(TinygDriver.getInstance().m.getGcodeUnitModeAsInt());
-                if (TinygDriver.getInstance().machine.getGcodeUnitModeAsInt() == 0) {
+                if (TinygDriver.getInstance().machine.getGcodeUnitMode().get() == 0) {
                     //A bug in the jfxtras does not allow for units to be updated.. we hide them if they are not mm
                     xLcd.lcdUnitVisibleProperty().setValue(false);
                     yLcd.lcdUnitVisibleProperty().setValue(false);
@@ -468,10 +446,17 @@ public class GcodeTabController implements Initializable {
                     aLcd.lcdUnitVisibleProperty().setValue(true);
                     velLcd.lcdUnitVisibleProperty().setValue(true);
                 }
-                tgfx.Main.postConsoleMessage("[+]Gcode Unit Mode Changed to: " + tmp + "\n");
 
                 try {
+                    int tmp = TinygDriver.getInstance().machine.getGcodeUnitMode().get();
+                    tgfx.Main.postConsoleMessage("[+]Gcode Unit Mode Changed to: " + tmp + "\n");
+
+                    if (tmp == 0) {
+                        TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_UNITMODE_INCHES);
+                    }
                     TinygDriver.getInstance().serialWriter.setThrottled(true);
+
+                    TinygDriver.getInstance().priorityWrite(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
                     TinygDriver.getInstance().priorityWrite(CommandManager.CMD_QUERY_MOTOR_1_SETTINGS);
                     TinygDriver.getInstance().priorityWrite(CommandManager.CMD_QUERY_MOTOR_2_SETTINGS);
                     TinygDriver.getInstance().priorityWrite(CommandManager.CMD_QUERY_MOTOR_3_SETTINGS);
@@ -819,16 +804,19 @@ public class GcodeTabController implements Initializable {
      * EVENT LISTENERS CODE
      ######################################*/
     public void handleMaxHeightChange() {
+        
+
+          
         if (gcodePane.getWidth() - TinygDriver.getInstance().machine.getAxisByName("x").getTravelMaxSimple().get() < gcodePane.getHeight() - TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get()) {
             //X is longer use this code
-            if (TinygDriver.getInstance().machine.getGcodeUnitModeAsInt() == 0) {  //INCHES
+            if (TinygDriver.getInstance().machine.getGcodeUnitMode().get() == 0) {  //INCHES
                 scaleAmount = ((gcodePane.heightProperty().get() / (TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get() * 25.4))) * .80;  //%80 of the scale;
             } else { //MM
                 scaleAmount = ((gcodePane.heightProperty().get() / TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
             }
         } else {
             //Y is longer use this code
-            if (TinygDriver.getInstance().machine.getGcodeUnitModeAsInt() == 0) {  //INCHES
+            if (TinygDriver.getInstance().machine.getGcodeUnitMode().get() == 0) {  //INCHES
                 scaleAmount = ((gcodePane.heightProperty().get() / (TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get() * 25.4))) * .80;  //%80 of the scale;
             } else { //MM
                 scaleAmount = ((gcodePane.heightProperty().get() / TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
@@ -845,16 +833,18 @@ public class GcodeTabController implements Initializable {
 
     public void handleMaxWithChange() {
         //This is for the change listener to call for Max Width Change on the CNC Machine
+
+        
         if (gcodePane.getWidth() - TinygDriver.getInstance().machine.getAxisByName("x").getTravelMaxSimple().get() < gcodePane.getHeight() - TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get()) {
             //X is longer use this code
-            if (TinygDriver.getInstance().machine.getGcodeUnitModeAsInt() == 0) {  //INCHES
+            if (TinygDriver.getInstance().machine.getGcodeUnitMode().get() == 0) {  //INCHES
                 scaleAmount = ((gcodePane.heightProperty().get() / (TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get() * 25.4))) * .80;  //%80 of the scale;
             } else { //MM
                 scaleAmount = ((gcodePane.heightProperty().get() / TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;
             }
         } else {
             //Y is longer use this code
-            if (TinygDriver.getInstance().machine.getGcodeUnitModeAsInt() == 0) {  //INCHES
+            if (TinygDriver.getInstance().machine.getGcodeUnitMode().get() == 0) {  //INCHES
                 scaleAmount = ((gcodePane.heightProperty().get() / (TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get() * 25.4))) * .80;  //%80 of the scale;
             } else { //MM
                 scaleAmount = ((gcodePane.heightProperty().get() / TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get())) * .80;  //%80 of the scale;

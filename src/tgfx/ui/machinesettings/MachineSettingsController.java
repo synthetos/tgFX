@@ -4,6 +4,7 @@
  */
 package tgfx.ui.machinesettings;
 
+import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +32,8 @@ import tgfx.tinyg.TinygDriver;
 import javafx.concurrent.Task;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
+import javafx.util.StringConverter;
+import javafx.util.converter.IntegerStringConverter;
 import org.json.JSONException;
 
 /**
@@ -48,12 +51,21 @@ public class MachineSettingsController implements Initializable {
     private static ChoiceBox machineSwitchType, machineUnitMode;
     @FXML
     private Button loadbutton;
-    
     @FXML
     private ProgressBar configProgress;
 
+    public MachineSettingsController() {
+        StringConverter sc = new IntegerStringConverter();
+        
+        
+    }
+
     public static void updateGuiMachineSettings() {
-        machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().machine.getGcodeUnitModeAsInt());
+        machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().machine.getGcodeUnitMode().get());
+
+//        machineUnitMode.setSelectionModel(null);
+//        TinygDriver.getInstance().machine.getGcodeUnitMode().bind(machineUnitMode.getSelectionModel().selectedIndexProperty());
+        //machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().machine.getGcodeUnitModeAsInt());
         machineSwitchType.getSelectionModel().select(TinygDriver.getInstance().machine.getSwitchType());
     }
 
@@ -92,14 +104,14 @@ public class MachineSettingsController implements Initializable {
 //        Platform.runLater(new Runnable() {
 //            @Override
 //            public void run() {
-                
+
 //                FileChooser fc = new FileChooser();
 //                fc.setInitialDirectory(new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator")));
 //                fc.setTitle("Save Current TinyG Configuration");
 //                File f = fc.showSaveDialog(null);
 //                if (f.canWrite()) {
 //                }
-            }
+    }
 //        });
 //    }
 
@@ -107,7 +119,6 @@ public class MachineSettingsController implements Initializable {
     private void handleImportConfig(ActionEvent event) throws Exception {
         Main.postConsoleMessage("Importing of Config Files is unsupported at this time.");
     }
-
 
     private void writeConfigValue(JSONObject j) throws Exception {
 
@@ -144,13 +155,13 @@ public class MachineSettingsController implements Initializable {
         //This function gets the config file selected and applys the settings onto tinyg.
         InputStream fis, fis2;
         final BufferedReader br, br2;
-        if(configsListView.getSelectionModel().isEmpty()){
+        if (configsListView.getSelectionModel().isEmpty()) {
             Main.postConsoleMessage("Please select a valid config file");
             return;
         }
         //Why are we reading the file 2x?  It is to get the count of elemnts we need to write.. then writing each line... so we just do it 2x.
         File selected_config = new File(System.getProperty("user.dir") + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + configsListView.getSelectionModel().getSelectedItem());
-        
+
         fis = new FileInputStream(selected_config);
         fis2 = new FileInputStream(selected_config);
 
@@ -158,7 +169,7 @@ public class MachineSettingsController implements Initializable {
         br2 = new BufferedReader(new InputStreamReader(fis2, Charset.forName("UTF-8")));
 
 
- 
+
         Task task;
         task = new Task<Void>() {
             @Override
@@ -207,17 +218,17 @@ public class MachineSettingsController implements Initializable {
                 Main.postConsoleMessage("Finished Loading " + filename + ".");
                 loadbutton.setDisable(false);
                 return null;
-                
+
             }
         };
-        
+
         if (TinygDriver.getInstance().isConnected().get()) {
             configProgress.progressProperty().bind(task.progressProperty());
             loadbutton.setDisable(true);
             new Thread(task).start();
         }
 
-       
+
     }
 
     @FXML

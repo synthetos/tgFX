@@ -176,7 +176,11 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
                         //Thread.sleep(delayValue);  //Should not need this for query operations
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
-                        connectionTimer.start();
+                        
+                        
+//                        connectionTimer.start();
+                    
+                    
                     } catch (Exception ex) {
                         logger.error("Error in OnConnectActions() " + ex.getMessage());
                     }
@@ -781,7 +785,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         srCoord.textProperty()
                 .bind(TinygDriver.getInstance().machine.getCoordinateSystem());
         srUnits.textProperty()
-                .bind(TinygDriver.getInstance().machine.getGcodeUnitMode());
+                .bind(TinygDriver.getInstance().machine.getGcodeUnitModeByName());
         srCoord.textProperty()
                 .bind(TinygDriver.getInstance().machine.gcm.getCurrentGcodeCoordinateSystemName());
         srGcodeLine.textProperty()

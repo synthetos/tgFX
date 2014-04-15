@@ -136,7 +136,7 @@ public class ResponseParser extends Observable implements Runnable {
             } catch (JSONException ex) {
                 logger.error("[!]Error in responseParser run(): " + ex.getMessage());
             } catch (InterruptedException ex) {
-                java.util.logging.Logger.getLogger(ResponseParser.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                logger.error("[!]Error in responseParser run() Interrupted: " + ex.getMessage());
             }
         }
     }
@@ -222,6 +222,12 @@ public class ResponseParser extends Observable implements Runnable {
 
     public void applySetting(JSONObject js) {
         try {
+            if (js.has("sr")){
+                //status reports will make it this far into the parsing code when you issue a "sr":null vs just getting a "sr" back from a movement.
+                applySettingStatusReport(js.getJSONObject("sr"));
+                return;
+            }
+            
             if (js.length() == 0) {
                 //This is a blank object we just return and move on
             } else if (js.keySet().size() > 1) { //If there are more than one object in the json response

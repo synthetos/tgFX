@@ -19,6 +19,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.SwipeEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -88,6 +89,15 @@ public class CNCMachine extends Pane {
                 unFocusForJogging();
             }
         });
+        
+        
+//        this.setOnSwipeRight(new EventHandler<SwipeEvent>(){
+//             @Override
+//            public void handle(SwipeEvent me) {
+//                Main.postConsoleMessage("Swiped right");
+//
+//            }
+//        });
 
         this.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
