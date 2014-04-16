@@ -4,7 +4,6 @@
  */
 package tgfx.ui.machinesettings;
 
-import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,13 +15,11 @@ import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.ResourceBundle;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
-import javafx.stage.FileChooser;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import tgfx.Main;
@@ -32,9 +29,14 @@ import tgfx.tinyg.TinygDriver;
 import javafx.concurrent.Task;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextField;
+import javafx.scene.input.InputEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import org.json.JSONException;
+import tgfx.system.Motor;
 
 /**
  * FXML Controller class
@@ -48,25 +50,28 @@ public class MachineSettingsController implements Initializable {
     @FXML
     private ListView configsListView;
     @FXML
+    private static TextField machineMotorIdleTimeout;
+    @FXML
     private static ChoiceBox machineSwitchType, machineUnitMode;
     @FXML
-    private Button loadbutton;
+    private static Button loadbutton;
     @FXML
     private ProgressBar configProgress;
 
     public MachineSettingsController() {
         StringConverter sc = new IntegerStringConverter();
-        
-        
+
+
+
     }
 
     public static void updateGuiMachineSettings() {
         machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().machine.getGcodeUnitMode().get());
-
-//        machineUnitMode.setSelectionModel(null);
-//        TinygDriver.getInstance().machine.getGcodeUnitMode().bind(machineUnitMode.getSelectionModel().selectedIndexProperty());
-        //machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().machine.getGcodeUnitModeAsInt());
+        machineMotorIdleTimeout.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorIdleTimeout().get()));
         machineSwitchType.getSelectionModel().select(TinygDriver.getInstance().machine.getSwitchType());
+        loadbutton.disableProperty().bind(TinygDriver.getInstance().connectionStatus.not());
+        //add import
+        //add save button
     }
 
     /**
@@ -78,6 +83,7 @@ public class MachineSettingsController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         populateConfigFiles();          //Populate all Config Files
+
 
     }
 
@@ -114,6 +120,24 @@ public class MachineSettingsController implements Initializable {
     }
 //        });
 //    }
+
+    @FXML
+    private void handleMotorIdleEnter(final InputEvent event) throws Exception {
+        //private void handleEnter(ActionEvent event) throws Exception {
+        final KeyEvent keyEvent = (KeyEvent) event;
+        if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+            TextField tf = (TextField) event.getSource();
+            //Little input checking
+            try{
+                Double.parseDouble(tf.getText());
+                TinygDriver.getInstance().applyMotorIdleTimeout(Double.valueOf(tf.getText()));
+            }catch(Exception ex){
+                Main.postConsoleMessage("Motor Idle Timeout requires a number as input.");
+                TinygDriver.getInstance().cmdManager.queryMachineMotorIdleValue(); //We are going to reload this value from the "invalid input"
+            }
+            
+        }
+    }
 
     @FXML
     private void handleImportConfig(ActionEvent event) throws Exception {

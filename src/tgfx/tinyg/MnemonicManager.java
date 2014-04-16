@@ -95,13 +95,13 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_HARDWARD_PLATFORM = "hp";
     public static final String MNEMONIC_SYSTEM_HARDWARE_VERSION = "hv";
     public static final String MNEMONIC_SYSTEM_JUNCTION_ACCELERATION = "ja";
-    public static final String MNEMONIC_SYSTEM_MIN_LINE_SEGMENT = "ml";
-    public static final String MNEMONIC_SYSTEM_MIN_ARC_SEGMENT = "ma";
-    public static final String MNEMONIC_SYSTEM_MIN_TIME_SEGMENT = "mt";
+//    public static final String MNEMONIC_SYSTEM_MIN_LINE_SEGMENT = "ml";
+//    public static final String MNEMONIC_SYSTEM_MIN_ARC_SEGMENT = "ma";
+    public static final String MNEMONIC_SYSTEM_MOTOR_IDLE_TIMEOUT = "mt";
     public static final String MNEMONIC_SYSTEM_IGNORE_CR = "ic";
-    public static final String MNEMONIC_SYSTEM_ENABLE_ECHO = "ee";
+//    public static final String MNEMONIC_SYSTEM_ENABLE_ECHO = "ee";
     public static final String MNEMONIC_SYSTEM_ENABLE_XON = "ex";
-    public static final String MNEMONIC_SYSTEM_QUEUE_REPORTS = "eq";
+//    public static final String MNEMONIC_SYSTEM_QUEUE_REPORTS = "eq";
     public static final String MNEMONIC_SYSTEM_ENABLE_JSON_MODE = "ej";
     public static final String MNEMONIC_SYSTEM_JSON_VOBERSITY = "jv";
     public static final String MNEMONIC_SYSTEM_TEXT_VOBERSITY = "tv";
@@ -145,7 +145,7 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE);
 
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_BAUDRATE);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_ECHO);
+//        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_ECHO);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_JSON_MODE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_XON);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_FIRMWARE_BUILD);
@@ -156,10 +156,10 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_IGNORE_CR);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_JSON_VOBERSITY);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_JUNCTION_ACCELERATION);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_MIN_ARC_SEGMENT);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_MIN_LINE_SEGMENT);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_MIN_TIME_SEGMENT);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_QUEUE_REPORTS);
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_MOTOR_IDLE_TIMEOUT);
+//        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_MIN_LINE_SEGMENT);
+//        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_MIN_TIME_SEGMENT);
+//        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_QUEUE_REPORTS);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_SWITCH_TYPE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_TEXT_VOBERSITY);

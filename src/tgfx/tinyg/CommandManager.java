@@ -41,8 +41,8 @@ public class CommandManager {
     public static final String CMD_APPLY_SYSTEM_HOME_XYZ_AXES = "{\"gc\":\"g28.2x0y0z0\"}\n";
     public static final String CMD_APPLY_SYSTEM_GCODE_UNITS_INCHES = "{\"" + MnemonicManager.MNEMONIC_STATUS_REPORT_UNIT + "\":0}\n"; //0=inches
     public static final String CMD_APPLY_SYSTEM_GCODE_UNITS_MM = "{\"" + MnemonicManager.MNEMONIC_STATUS_REPORT_UNIT + "\":1}\n"; //1=mm
-    public static final String CMD_APPLY_SYSTEM_DISABLE_LOCAL_ECHO = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO + "\":0}\n";
-    public static final String CMD_APPLY_SYSTEM_ENABLE_LOCAL_ECHO = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO + "\":0}\n";
+//    public static final String CMD_APPLY_SYSTEM_DISABLE_LOCAL_ECHO = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO + "\":0}\n";
+//    public static final String CMD_APPLY_SYSTEM_ENABLE_LOCAL_ECHO = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO + "\":0}\n";
     public static final String CMD_APPLY_SYSTEM_MNEMONIC_SYSTEM_SWITCH_TYPE_NC = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_SWITCH_TYPE + "\":1}\n";
     public static final String CMD_QUERY_SYSTEM_GCODE_UNIT_MODE = "{\"" + MnemonicManager.MNEMONIC_STATUS_REPORT_UNIT + "\":null}\n";
     public static final String CMD_QUERY_SYSTEM_GCODE_PLANE = "{\"" + MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE + "\":null}\n";
@@ -55,6 +55,7 @@ public class CommandManager {
     public static final String CMD_APPLY_TEXT_VOBERSITY = "{\"tv\":0}\n";
     public static final String CMD_APPLY_NOOP = "{}\n";
     public static final String CMD_QUERY_SWITCHMODE = "{\"st\":null}\n";
+    public static final String CMD_QUERY_MOTOR_IDLE_TIMEOUT = "{\"mt\":null}\n";
     public static final String CMD_APPLY_SWITCHMODE_NORMALLY_OPEN = "{\"st\":0}\n";
     public static final String CMD_APPLY_SWITCHMODE_NORMALLY_CLOSED = "{\"st\":1}\n";
     public static final String CMD_APPLY_UNITMODE_INCHES = "{\"gc\":\"g20\"}\n";
@@ -96,6 +97,11 @@ public class CommandManager {
         logger.setLevel(Level.ERROR);
     }
 
+    public String buildMotorIdleTimeoutString(Double timeout){
+        return("{\"" + MnemonicManager.MNEMONIC_SYSTEM_MOTOR_IDLE_TIMEOUT + "\":"+ timeout.toString() + "}\n");
+    }
+    
+    
     public static void stopTinyGMovement() throws Exception {
         logger.info("[!]Stopping Job Clearing Serial Queue...\n");
         TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_PAUSE);
@@ -194,6 +200,10 @@ public class CommandManager {
     public void queryMachineSwitchMode() throws Exception {
         TinygDriver.getInstance().write(CMD_QUERY_SWITCHMODE);
     }
+    
+    public void queryMachineMotorIdleValue() throws Exception {
+        TinygDriver.getInstance().write(CMD_QUERY_SWITCHMODE);
+    }
 
     public void applyMachineSwitchMode(int i) throws Exception {
         if (i == 0) {
@@ -216,7 +226,8 @@ public class CommandManager {
         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
         Main.postConsoleMessage("Getting TinyG System Settings...");
     }
-
+    
+   
     /**
      * writes the commands to query current hardware settings on the tinyg board
      *

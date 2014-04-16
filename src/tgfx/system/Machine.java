@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -49,6 +48,7 @@ public final class Machine {
     private SimpleIntegerProperty gcodeUnitMode = new SimpleIntegerProperty(-1);
     private SimpleStringProperty gcodeUnitByName = new SimpleStringProperty();
     public SimpleDoubleProperty gcodeUnitDivision = new SimpleDoubleProperty(1);
+    public SimpleDoubleProperty motorIdleTimeout = new SimpleDoubleProperty(5);
 //    private SimpleStringProperty gcodeDistanceMode = new SimpleStringProperty();
     private int switchType = 0; //0=normally closed 1 = normally open
     private int status_report_interval;
@@ -285,6 +285,17 @@ public final class Machine {
             gcodeUnitDivision.set(1.0);
         }
     }
+
+    public SimpleDoubleProperty getMotorIdleTimeout() {
+        return motorIdleTimeout;
+    }
+
+    public void setMotorIdleTimeout(Double motorIdleTimeout) {
+        this.motorIdleTimeout.set(motorIdleTimeout);
+    }
+    
+    
+    
 
     public IntegerProperty getGcodeUnitMode() {
         return gcodeUnitMode;
@@ -671,11 +682,13 @@ public final class Machine {
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_TINYG_DISTANCE_MODE):
                 TinygDriver.getInstance().machine.setGcodeDistanceMode(rc.getSettingValue());
                 break;
+                
 
             /*
              * INSERT HOMED HERE
              */
 
+                
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
                 TinygDriver.getInstance().machine.setMachineState(Integer.valueOf(rc.getSettingValue()));
                 break;
@@ -724,10 +737,10 @@ public final class Machine {
                         TinygDriver.getInstance().machine.setHardwareVersion(rc.getSettingValue());
                         break;
 
-                    case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO):
-                        TinygDriver.getInstance().machine.setEnable_echo(Boolean.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
+//                    case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_ECHO):
+//                        TinygDriver.getInstance().machine.setEnable_echo(Boolean.valueOf(rc.getSettingValue()));
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_JSON_MODE):
                         //TinygDriver.getInstance().m(Float.valueOf(rc.getSettingValue()));
@@ -775,21 +788,24 @@ public final class Machine {
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
-                    case (MnemonicManager.MNEMONIC_SYSTEM_MIN_ARC_SEGMENT):
+                    case (MnemonicManager.MNEMONIC_SYSTEM_MOTOR_IDLE_TIMEOUT):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        TinygDriver.getInstance().machine.setMotorIdleTimeout((Double.valueOf(rc.getSettingValue())));
                         break;
-
-                    case (MnemonicManager.MNEMONIC_SYSTEM_MIN_LINE_SEGMENT):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_SYSTEM_MIN_TIME_SEGMENT):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
-
-                    case (MnemonicManager.MNEMONIC_SYSTEM_QUEUE_REPORTS):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
-                        break;
+                        
+                 
+//
+//                    case (MnemonicManager.MNEMONIC_SYSTEM_MIN_LINE_SEGMENT):
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        break;
+//
+//                    case (MnemonicManager.MNEMONIC_SYSTEM_MIN_TIME_SEGMENT):
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        break;
+//
+//                    case (MnemonicManager.MNEMONIC_SYSTEM_QUEUE_REPORTS):
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());

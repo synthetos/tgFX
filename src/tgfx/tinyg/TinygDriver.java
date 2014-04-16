@@ -48,9 +48,9 @@ public class TinygDriver extends Observable {
      */
     public ArrayList<String> connections = new ArrayList<>();
     private final SerialDriver ser = SerialDriver.getInstance();
-    public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(10000);
+    public static ArrayBlockingQueue<String> jsonQueue = new ArrayBlockingQueue<>(100000);
     public static ArrayBlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(30);
-    public static ArrayBlockingQueue<GcodeLine[]> writerQueue = new ArrayBlockingQueue<>(50000);
+    public static ArrayBlockingQueue<GcodeLine[]> writerQueue = new ArrayBlockingQueue<>(500000);
     public ResponseParser resParse = new ResponseParser();
     public SerialWriter serialWriter = new SerialWriter(writerQueue);
     private boolean PAUSED = false;
@@ -68,7 +68,6 @@ public class TinygDriver extends Observable {
         return connectionTimer;
     }
     
-
    /**
     * gets the Connection semaphore
     * @return the Connection semaphore
@@ -83,6 +82,14 @@ public class TinygDriver extends Observable {
 
     public void setTimedout(boolean timedout) {
         this.timedout = timedout;
+    }
+    
+    public void applyMotorIdleTimeout(Double timeout){
+        try {
+            write(cmdManager.buildMotorIdleTimeoutString(timeout));
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(TinygDriver.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
     }
     
     

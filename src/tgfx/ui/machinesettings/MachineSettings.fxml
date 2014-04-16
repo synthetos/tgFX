@@ -70,6 +70,20 @@
                                         </FXCollections>
                                       </items>
                                     </ChoiceBox>
+                                    <Label id="lblMachine" minHeight="21.0" text="Motor Idle Timeout" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <HBox alignment="CENTER_LEFT" prefHeight="16.0" prefWidth="49.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                      <children>
+                                        <TextField fx:id="machineMotorIdleTimeout" onKeyPressed="#handleMotorIdleEnter" prefHeight="21.0" prefWidth="46.0" />
+                                        <Label id="lblMachine" minHeight="21.0" text="Seconds">
+                                          <HBox.margin>
+                                            <Insets left="5.0" />
+                                          </HBox.margin>
+                                        </Label>
+                                      </children>
+                                      <GridPane.margin>
+                                        <Insets right="5.0" fx:id="x2" />
+                                      </GridPane.margin>
+                                    </HBox>
                                   </children>
                                   <columnConstraints>
                                     <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
@@ -77,9 +91,9 @@
                                     <ColumnConstraints hgrow="ALWAYS" />
                                   </columnConstraints>
                                   <rowConstraints>
-                                    <RowConstraints maxHeight="21.0" minHeight="10.0" prefHeight="21.0" vgrow="ALWAYS" />
-                                    <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="ALWAYS" />
-                                    <RowConstraints maxHeight="0.0" prefHeight="0.0" vgrow="ALWAYS" />
+                                    <RowConstraints maxHeight="-1.0" minHeight="10.0" prefHeight="-1.0" vgrow="ALWAYS" />
+                                    <RowConstraints maxHeight="-1.0" minHeight="-1.0" prefHeight="-1.0" vgrow="ALWAYS" />
+                                    <RowConstraints maxHeight="-1.0" prefHeight="-1.0" vgrow="ALWAYS" />
                                     <RowConstraints maxHeight="0.0" prefHeight="0.0" vgrow="ALWAYS" />
                                   </rowConstraints>
                                 </GridPane>
@@ -138,8 +152,8 @@
                             </ProgressBar>
                             <HBox id="hBox5" alignment="CENTER" spacing="10.0" visible="true" VBox.vgrow="NEVER">
                               <children>
-                                <Button fx:id="importButton" id="importButton" text="Import" onAction="#handleImportConfig" />
-                                <Button fx:id="loadbutton" id="loadButton" onAction="#handleLoadConfig" text="Load" />
+                                <Button fx:id="importButton" onAction="#handleImportConfig" text="Import" />
+                                <Button id="loadButton" fx:id="loadbutton" onAction="#handleLoadConfig" text="Load" />
                                 <Button id="saveConfig" mnemonicParsing="false" onAction="#handleSaveCurrentSettings" text="Save" />
                               </children>
                               <padding>

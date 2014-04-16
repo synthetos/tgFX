@@ -678,12 +678,12 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                                     @Override
                                     public void run() {
                                         webEngFirmware.load("https://github.com/synthetos/TinyG/wiki/TinyG-Boot-Loader#wiki-updating");
-                                        try {
-                                            tg.disconnect();
-                                        } catch (SerialPortException ex) {
-                                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                        Connect.setText("Connect");
+//                                        try {
+//                                            tg.disconnect();
+//                                        } catch (SerialPortException ex) {
+//                                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+//                                        }
+//                                        Connect.setText("Connect");
                                     }
                                 });
                         break;
