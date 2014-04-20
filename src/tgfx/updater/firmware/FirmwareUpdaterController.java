@@ -49,9 +49,7 @@ public class FirmwareUpdaterController implements Initializable {
     @FXML
     private static Label firmwareVersion;
 
-    public static void handleUpdateFirmware(Object object) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     @FXML
     private Label hwVersion, buildNumb, hardwareId, latestFirmwareBuild;
@@ -126,7 +124,7 @@ public class FirmwareUpdaterController implements Initializable {
                     File avd = new File("tools" + File.separator + "avrdude.exe");
                     avrdudePath = avd.getAbsolutePath();
                 }
-
+        
                 if (enterBootloaderMode()) {
                     //we successfully sent "enterbootloader" most likely it worked.
                     Runtime rt = Runtime.getRuntime();
@@ -333,7 +331,7 @@ public class FirmwareUpdaterController implements Initializable {
     }
 
     protected static boolean enterBootloaderMode() throws InterruptedException {
-
+        
         Main.print("Trying to enter bootloader mode");
         Main.postConsoleMessage("Entering Bootloader mode.  tgFX will be un-responsive for then next 30 seconds.\n"
                 + "Your TinyG will start blinking rapidly while being programmed");

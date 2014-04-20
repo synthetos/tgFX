@@ -4,7 +4,7 @@
  */
 package tgfx.external;
 
-import tgfx.SerialDriver;
+import tgfx.serial.SerialDriver;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;

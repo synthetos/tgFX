@@ -2,11 +2,12 @@
  * Copyright (C) 2013-2014 Synthetos LLC. All Rights reserved.
  * http://www.synthetos.com
  */
-package tgfx;
+package tgfx.serial;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
+import tgfx.Main;
 import tgfx.ui.gcode.GcodeTabController;
 
 /**

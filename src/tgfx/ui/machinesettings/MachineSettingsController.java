@@ -128,14 +128,14 @@ public class MachineSettingsController implements Initializable {
         if (keyEvent.getCode().equals(KeyCode.ENTER)) {
             TextField tf = (TextField) event.getSource();
             //Little input checking
-            try{
+            try {
                 Double.parseDouble(tf.getText());
                 TinygDriver.getInstance().applyMotorIdleTimeout(Double.valueOf(tf.getText()));
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 Main.postConsoleMessage("Motor Idle Timeout requires a number as input.");
                 TinygDriver.getInstance().cmdManager.queryMachineMotorIdleValue(); //We are going to reload this value from the "invalid input"
             }
-            
+
         }
     }
 
@@ -225,11 +225,12 @@ public class MachineSettingsController implements Initializable {
                             while (it.hasNext()) {
                                 String k = (String) it.next();
                                 Double value = (Double) j.getJSONObject(topLevelParent).getDouble(k);
+                                
                                 System.out.println("This is the value " + k + " " + decimalFormat.format(value));
                                 Main.postConsoleMessage("Applied: " + k + ":" + decimalFormat.format(value));
                                 //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
 
-                                String singleJsonSetting = "{\"" + topLevelParent + k + "\":" + value + "}\n";
+                                String singleJsonSetting = "{\"" + topLevelParent + k + "\":" + decimalFormat.format(value) + "}\n";
                                 TinygDriver.getInstance().write(singleJsonSetting);
                                 updateProgress(currentElement, maxElements);
                                 Thread.sleep(400); //Writing Values to eeprom can take a bit of time..
@@ -248,7 +249,7 @@ public class MachineSettingsController implements Initializable {
 
         if (TinygDriver.getInstance().isConnected().get()) {
             configProgress.progressProperty().bind(task.progressProperty());
-            loadbutton.setDisable(true);
+            TinygDriver.getInstance().setConnectionStatus(false);
             new Thread(task).start();
         }
 

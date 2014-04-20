@@ -5,6 +5,8 @@
  */
 package tgfx;
 
+import tgfx.serial.SerialDriver;
+import tgfx.responses.ResponseParser;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -32,6 +34,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.util.logging.Level;
 import javafx.scene.Scene;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
@@ -122,6 +125,9 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     VBox topvbox, positionsVbox, tester, consoleVBox;
     @FXML
     private TabPane topTabPane;
+    @FXML 
+    private Tab machineSettingsTab;
+            
 
     public Main() {
         //Setup Logging for TinyG Driver
@@ -178,7 +184,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
                         
                         
-//                        connectionTimer.start();
+                        connectionTimer.start();
                     
                     
                     } catch (Exception ex) {
@@ -256,6 +262,8 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
             @Override
             public void run() {
                 if (serialPorts.getSelectionModel().getSelectedItem() == (null)) {
+                    TinygDriver.getInstance().setLastSerialPortConnected(serialPorts.getSelectionModel().getSelectedItem().toString()); //We keep track of what port was last connected in tgfx 
+                    //Even if this was unsuccessful connection attempt.
                     postConsoleMessage("[!]Error Connecting to Serial Port please select a valid port.\n");
                     return;
                 }
@@ -282,8 +290,8 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                              */
                             onConnectActions();
                         }
-                    } catch (SerialPortException ex) {
-                        java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (jssc.SerialPortException ex) {
+                        Main.postConsoleMessage("Error in connecting to TinyG: " + ex.getMessage());
                     }
                 } else {
                     try {
@@ -509,6 +517,8 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
             }
         }
     }
+    
+  
 
     private void doTinyGConnectionTimeout() {
         Main.postConsoleMessage("ERROR! - tgFX timed out while attempting to connect to TinyG.  \nVerify the port you selected and that power is applied to your TinyG.");
@@ -521,7 +531,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         .defaultButton(true)
                         .icon("/testmonologfx/dialog_apply.png")
                         .type(MonologFXButton.Type.CUSTOM2)
-                        .label("Auto Upgrade")
+                        .label("Upgrade Firmware")
                         .build();
 
                 MonologFXButton btnNo = MonologFXButtonBuilder.create()
@@ -534,8 +544,9 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 MonologFX mono = MonologFXBuilder.create()
                         .titleText("TinyG Connection Timeout")
                         .message("tgFX timed out while trying to connect to your TinyG.\nYour TinyG might have a version of firmware that is too old or"
-                                + " you might have selected the wrong serial port.  \nClick Auto Upgrade to attempt to upgrade your TinyG. This feature only works for TinyG boards not the Arduino Due port of TinyG."
-                                + "\nA Internet Connection is Required.  Clicking No will allow you to select a different serial port to try to connect to a different serial port.")
+                                + " you might have selected the wrong serial port.  \nClick Upgrade Firmware to attempt to upgrade your TinyG.  Click on the \"Machine Settings\" tab to see your firmware updating options.\nThis feature only works for TinyG boards not the Arduino Due port of TinyG.\n\n"
+                                + "!!! THIS WILL ERASE ALL OF YOUR TINYG'S SETTINGS !!!\n"
+                                + "\nA Internet Connection is Required.  Clicking \"Skip\" will allow you to select a different serial port to try to connect to.")
                         .button(btnYes)
                         .button(btnNo)
                         .type(MonologFX.Type.ERROR)
@@ -551,12 +562,13 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        FirmwareUpdaterController.handleUpdateFirmware(null);
-                                        try {
-                                            tg.disconnect();
-                                        } catch (SerialPortException ex) {
-                                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
+                                        topTabPane.getSelectionModel().select(2);
+                                        //FirmwareUpdaterController.handleUpdateFirmware();
+//                                        try {
+////                                            tg.disconnect();
+//                                        } catch (SerialPortException ex) {
+//                                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+//                                        }
 
                                     }
                                 });
@@ -606,6 +618,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         //TinyG's build version is up to date to run tgfx.
         if (!buildChecked && tg.isConnected().get()) {
             //we do this once on connect, disconnect will reset this flag
+            connectionTimer.disarm();
             onConnectActionsTwo();
         }
     }
@@ -631,6 +644,10 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         //This is the code to manage the build error window and checking system.
         logger.error("Your TinyG firmware is too old.  System is exiting.");
         console.appendText("Your TinyG firmware is too old.  Please update your TinyG Firmware.\n");
+        connectionTimer.disarm(); //  We want to stop this from displaying the connection timeout dialog when we know we already
+        //have a build that is too old.
+        
+        
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -651,7 +668,10 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         .titleText("TinyG Firware Build Outdated...")
                         .message("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.machine.getFirmwareBuild() + "\n"
                                 + "Minmal Needed Version: " + tg.machine.hardwarePlatform.getMinimalBuildVersion().toString() + "\n\n"
-                                + "Click ok to attempt to auto upgrade your TinyG. \nA Internet Connection is Required."
+                                + "Click ok to attempt to switch to the Machine Settings tab.  Once there click on update firmware online\n"
+                                + "or if you have a tinyg firmware file, click upgrade firmware from file. "
+                                + "\nA Internet Connection is Required.  This also WILL ERASE ALL TINYG SETTINGS."
+                                +"\n tgFX updating firmware function only works for TinyG v7's and TinyG V8's."
                                 + "\nClicking No will exit tgFX.")
                         .button(btnYes)
                         .button(btnNo)
@@ -663,29 +683,30 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 switch (retval) {
                     case YES:
                         logger.info("Clicked Yes");
-
-                        WebView firwareUpdate = new WebView();
-                        final WebEngine webEngFirmware = firwareUpdate.getEngine();
-                        Stage stage = new Stage();
-                        stage.setTitle("TinyG Firmware Update Guide");
-                        Scene s = new Scene(firwareUpdate, 1280, 800);
-
-                        stage.setScene(s);
-                        stage.show();
-
-                        Platform.runLater(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        webEngFirmware.load("https://github.com/synthetos/TinyG/wiki/TinyG-Boot-Loader#wiki-updating");
-//                                        try {
-//                                            tg.disconnect();
-//                                        } catch (SerialPortException ex) {
-//                                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-//                                        }
-//                                        Connect.setText("Connect");
-                                    }
-                                });
+                        topTabPane.getSelectionModel().select(2);
+                        
+//                        WebView firwareUpdate = new WebView();
+//                        final WebEngine webEngFirmware = firwareUpdate.getEngine();
+//                        Stage stage = new Stage();
+//                        stage.setTitle("TinyG Firmware Update Guide");
+//                        Scene s = new Scene(firwareUpdate, 1280, 800);
+//
+//                        stage.setScene(s);
+//                        stage.show();
+//
+//                        Platform.runLater(
+//                                new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        webEngFirmware.load("https://github.com/synthetos/TinyG/wiki/TinyG-Boot-Loader#wiki-updating");
+////                                        try {
+////                                            tg.disconnect();
+////                                        } catch (SerialPortException ex) {
+////                                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+////                                        }
+////                                        Connect.setText("Connect");
+//                                    }
+//                                });
                         break;
                     case NO:
                         logger.info("Clicked No");

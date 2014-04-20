@@ -2,7 +2,7 @@
  * Copyright (C) 2013-2014 Synthetos LLC. All Rights reserved.
  * http://www.synthetos.com
  */
-package tgfx;
+package tgfx.responses;
 
 import org.json.*;
 import java.util.Iterator;
@@ -16,6 +16,7 @@ import jfxtras.labs.dialogs.MonologFXButtonBuilder;
 import org.apache.log4j.Level;
 
 import org.apache.log4j.Logger;
+import tgfx.Main;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_A;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_B;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_C;

@@ -2,7 +2,7 @@
  * Copyright (C) 2013-2014 Synthetos LLC. All Rights reserved.
  * http://www.synthetos.com
  */
-package tgfx;
+package tgfx.serial;
 
 import tgfx.tinyg.TinygDriver;
 //import gnu.io.*;

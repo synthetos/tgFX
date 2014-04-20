@@ -20,9 +20,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import tgfx.Main;
-import tgfx.ResponseParser;
-import tgfx.SerialDriver;
-import tgfx.SerialWriter;
+import tgfx.responses.ResponseParser;
+import tgfx.serial.SerialDriver;
+import tgfx.serial.SerialWriter;
 import tgfx.ui.gcode.GcodeLine;
 import tgfx.system.Axis;
 import tgfx.system.Machine;
@@ -40,7 +40,17 @@ public class TinygDriver extends Observable {
     public CommandManager cmdManager = new CommandManager();
     private String[] message = new String[2];
     public SimpleBooleanProperty connectionStatus = new SimpleBooleanProperty(false);
+    private String lastSerialPortConnected = new String("none");
 
+    public String getLastSerialPortConnected() {
+        return lastSerialPortConnected;
+    }
+
+    public void setLastSerialPortConnected(String lastSerialPortConnected) {
+        this.lastSerialPortConnected = lastSerialPortConnected;
+    }
+    
+    
 
     public HardwarePlatformManager hardwarePlatformManager = new HardwarePlatformManager();
     /**
@@ -555,6 +565,10 @@ public class TinygDriver extends Observable {
         return (connectionStatus);
     }
 
+    public void setConnectionStatus(boolean choice){
+        connectionStatus.set(choice);
+    }
+    
     /**
      * All Methods involving writing to TinyG.. This messages will call the
      * SerialDriver write methods from here.
