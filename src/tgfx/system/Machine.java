@@ -269,21 +269,9 @@ public final class Machine {
     public String getMachineName() {
         return machineName;
     }
-    
-    public SimpleStringProperty getGcodeUnitModeByName(){
-       return gcodeUnitByName;
-    }
 
-    public void setGcodeUnits(int unitMode) {
-        if (unitMode == 0) {
-            gcodeUnitMode.set(unitMode);
-            gcodeUnitDivision.set(25.4);  //mm to inches conversion   
-
-
-        } else if (unitMode == 1) {
-            gcodeUnitMode.set(unitMode);
-            gcodeUnitDivision.set(1.0);
-        }
+    public SimpleStringProperty getGcodeUnitModeByName() {
+        return gcodeUnitByName;
     }
 
     public SimpleDoubleProperty getMotorIdleTimeout() {
@@ -293,9 +281,6 @@ public final class Machine {
     public void setMotorIdleTimeout(Double motorIdleTimeout) {
         this.motorIdleTimeout.set(motorIdleTimeout);
     }
-    
-    
-    
 
     public IntegerProperty getGcodeUnitMode() {
         return gcodeUnitMode;
@@ -308,6 +293,18 @@ public final class Machine {
 //            return (0);
 //        }
 //    }
+    public void setGcodeUnits(int unitMode) {
+        if (unitMode == 0) {
+            gcodeUnitMode.set(unitMode);
+            gcodeUnitDivision.set(25.4);  //mm to inches conversion   
+
+
+        } else if (unitMode == 1) {
+            gcodeUnitMode.set(unitMode);
+            gcodeUnitDivision.set(1.0);
+        }
+    }
+
     public void setGcodeUnits(String gcu) {
         int _tmpgcu = Integer.valueOf(gcu);
 
@@ -544,13 +541,13 @@ public final class Machine {
         xjoggingIncrement.bind(getAxisByName("X").getTravelMaxSimple());
         yjoggingIncrement.bind(getAxisByName("Y").getTravelMaxSimple());
         zjoggingIncrement.bind(getAxisByName("Z").getTravelMaxSimple());
-        
+
         gcodeUnitMode.addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                if(newValue == 0){
+                if (newValue == 0) {
                     gcodeUnitByName.set("Inches");
-                }else{
+                } else {
                     gcodeUnitByName.set("MM");
                 }
             }
@@ -682,13 +679,13 @@ public final class Machine {
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_TINYG_DISTANCE_MODE):
                 TinygDriver.getInstance().machine.setGcodeDistanceMode(rc.getSettingValue());
                 break;
-                
+
 
             /*
              * INSERT HOMED HERE
              */
 
-                
+
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
                 TinygDriver.getInstance().machine.setMachineState(Integer.valueOf(rc.getSettingValue()));
                 break;
@@ -792,8 +789,8 @@ public final class Machine {
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().machine.setMotorIdleTimeout((Double.valueOf(rc.getSettingValue())));
                         break;
-                        
-                 
+
+
 //
 //                    case (MnemonicManager.MNEMONIC_SYSTEM_MIN_LINE_SEGMENT):
 //                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());

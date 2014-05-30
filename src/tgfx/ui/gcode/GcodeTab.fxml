@@ -32,44 +32,130 @@
 
 <Tab fx:id="gcode_tab" closable="false" text="Gcode" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.ui.gcode.GcodeTabController">
   <content>
-    <HBox id="gcodeTabHbox" fx:id="gcodeTabControllerHBox" alignment="TOP_CENTER" fillHeight="true" minHeight="450.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: rgba(0,0,0,0.08), linear-gradient(#9a9a9a, #909090), linear-gradient(white 0%, #f3f3f3 50%, #ececec 51%, #f2f2f2 100%);&#10;-fx-background-insets: 0 0 -1 0,0,1;&#10;-fx-background-radius: 5,5,4;&#10;-fx-padding: 3 30 3 30;&#10;-fx-text-fill: #242d35;&#10;-fx-font-size: 14px;" visible="true">
+    <HBox id="gcodeTabHbox" fx:id="gcodeTabControllerHBox" alignment="TOP_LEFT" fillHeight="true" minHeight="-1.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: rgba(0,0,0,0.08), linear-gradient(#9a9a9a, #909090), linear-gradient(white 0%, #f3f3f3 50%, #ececec 51%, #f2f2f2 100%);&#10;-fx-background-insets: 0 0 -1 0,0,1;&#10;-fx-background-radius: 5,5,4;&#10;&#10;-fx-text-fill: #242d35;&#10;-fx-font-size: 14px;" visible="true">
       <children>
-        <VBox fx:id="gcodeProgramVbox" alignment="TOP_CENTER" blendMode="SRC_ATOP" maxWidth="300.0" minHeight="-Infinity" minWidth="320.0" prefHeight="300.0" prefWidth="320.0" style="&#10;" visible="true" HBox.hgrow="NEVER">
+        <VBox fx:id="gcodeProgramVbox" alignment="CENTER" blendMode="SRC_ATOP" fillWidth="true" maxWidth="320.0" minHeight="-Infinity" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" visible="true" HBox.hgrow="NEVER">
           <children>
-            <TableView fx:id="gcodeView" editable="true" focusTraversable="false" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-              <columns>
-                <TableColumn id="gcodeCol" maxWidth="500.0" minWidth="290.0" prefWidth="250.0" resizable="true" sortable="false" text="Gcode Program" fx:id="gcodeCol" />
-              </columns>
-              <VBox.margin>
-                <Insets bottom="15.0" left="5.0" right="5.0" top="15.0" />
-              </VBox.margin>
-            </TableView>
-            <HBox id="gcodeFile" fx:id="command_bar" alignment="TOP_CENTER" spacing="10.0">
+            <HBox prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
               <children>
-                <Button focusTraversable="false" onAction="#handleOpenFile" text="Load" />
-                <Button fx:id="runBtn" focusTraversable="false" onAction="#handleRunFile" text="Run" />
-                <Button fx:id="pauseResume" focusTraversable="false" onAction="#handlePauseResumeAct" text="Pause" />
+                <Accordion minWidth="310.0" HBox.hgrow="NEVER">
+                  <expandedPane>
+                    <TitledPane fx:id="x3" animated="true" contentDisplay="TOP" expanded="true" text="Gcode Program">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <VBox prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <children>
+                                <HBox id="gcodeFile" fx:id="command_bar" alignment="TOP_CENTER" spacing="10.0">
+                                  <children>
+                                    <Button focusTraversable="false" onAction="#handleOpenFile" text="Load" />
+                                    <Button fx:id="runBtn" focusTraversable="false" onAction="#handleRunFile" text="Run" />
+                                    <Button fx:id="pauseResume" focusTraversable="false" onAction="#handlePauseResumeAct" text="Pause" />
+                                  </children>
+                                  <padding>
+                                    <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
+                                  </padding>
+                                </HBox>
+                                <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+                                  <children>
+                                    <Button id="cancelBtn" fx:id="resetBtn" contentDisplay="CENTER" focusTraversable="false" graphicTextGap="0.0" onAction="#handleReset" prefWidth="-1.0" style="-fx-background-color:red" text="Reset" textAlignment="JUSTIFY" underline="false" HBox.hgrow="NEVER">
+                                      <HBox.margin>
+                                        <Insets fx:id="x727" />
+                                      </HBox.margin>
+                                    </Button>
+                                    <Button contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#handleStop" text="Stop Job" textAlignment="CENTER" />
+                                  </children>
+                                  <padding>
+                                    <Insets bottom="10.0" />
+                                  </padding>
+                                </HBox>
+                                <TableView fx:id="gcodeView" editable="true" focusTraversable="false" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+                                  <columns>
+                                    <TableColumn id="gcodeCol" maxWidth="310.0" minWidth="310.0" prefWidth="250.0" resizable="true" sortable="false" text="Gcode Program" fx:id="gcodeCol" />
+                                  </columns>
+                                  <VBox.margin>
+                                    <Insets bottom="15.0" left="5.0" right="5.0" top="15.0" />
+                                  </VBox.margin>
+                                </TableView>
+                              </children>
+                            </VBox>
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                  </expandedPane>
+                  <panes>
+                    <fx:reference source="x3" />
+                    <TitledPane fx:id="x2" alignment="CENTER_LEFT" animated="false" contentDisplay="TOP" text="Controls" textAlignment="LEFT">
+                      <content>
+                        <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0">
+                          <children>
+                            <VBox alignment="CENTER" prefHeight="463.0" prefWidth="320.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <children>
+                                <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS" />
+                                <Separator prefWidth="200.0" />
+                                <VBox prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" visible="true" VBox.vgrow="ALWAYS">
+                                  <children>
+                                    <Label mnemonicParsing="false" text="Jogging Controls">
+                                      <VBox.margin>
+                                        <Insets left="5.0" />
+                                      </VBox.margin>
+                                    </Label>
+                                    <VBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" style="" VBox.vgrow="ALWAYS">
+                                      <children>
+                                        <GridPane alignment="CENTER" gridLinesVisible="false" maxHeight="-1.0" prefHeight="183.0" prefWidth="243.5">
+                                          <children>
+                                            <Button id="btnYplus" contentDisplay="CENTER" maxHeight="50.0" maxWidth="65.0" minWidth="65.0" mnemonicParsing="false" text="Y+" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+                                            <Button id="btnZeroAll" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" text="Zero" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                                            <Button id="btnXminus" defaultButton="false" maxHeight="50.0" maxWidth="65.0" minWidth="65.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="65.0" text="X-" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+                                            <Button id="btnXplus" maxHeight="50.0" maxWidth="65.0" minWidth="65.0" mnemonicParsing="false" prefWidth="65.0" text="X+" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                                            <Button id="btnYminus" contentDisplay="CENTER" maxHeight="50.0" maxWidth="65.0" minWidth="65.0" mnemonicParsing="false" prefWidth="65.0" text="Y-" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+                                            <Button id="btnZplus" maxWidth="75.0" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: green&#10;" text="Z+" textFill="WHITE" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.rowSpan="2" GridPane.valignment="CENTER" />
+                                            <Button id="btnZminus" maxWidth="75.0" mnemonicParsing="false" prefHeight="50.0" style="-fx-background-color: red;&#10;" text="Z-" textFill="WHITE" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.rowSpan="2147483647" GridPane.valignment="CENTER" />
+                                          </children>
+                                          <columnConstraints>
+                                            <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          </columnConstraints>
+                                          <rowConstraints>
+                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          </rowConstraints>
+                                        </GridPane>
+                                      </children>
+                                      <padding>
+                                        <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
+                                      </padding>
+                                    </VBox>
+                                  </children>
+                                </VBox>
+                              </children>
+                            </VBox>
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </TitledPane>
+                  </panes>
+                </Accordion>
+                <VBox alignment="CENTER" prefHeight="-1.0" prefWidth="15.0" style="&#10;-fx-background-color:black&#10;" HBox.hgrow="NEVER">
+                  <children>
+                    <Text fill="WHITE" rotate="0.0" strokeType="OUTSIDE" strokeWidth="0.0" text="&lt;|">
+                      <font>
+                        <Font size="10.0" />
+                      </font>
+                    </Text>
+                  </children>
+                </VBox>
               </children>
-              <padding>
-                <Insets bottom="5.0" top="5.0" fx:id="x1_x0" />
-              </padding>
-            </HBox>
-            <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
-              <children>
-                <Button id="cancelBtn" fx:id="resetBtn" contentDisplay="CENTER" focusTraversable="false" graphicTextGap="0.0" onAction="#handleReset" prefWidth="-1.0" style="-fx-background-color:red" text="Reset" textAlignment="JUSTIFY" underline="false" HBox.hgrow="NEVER">
-                  <HBox.margin>
-                    <Insets fx:id="x727" />
-                  </HBox.margin>
-                </Button>
-                <Button contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#handleStop" text="Stop Job" textAlignment="CENTER" />
-              </children>
-              <padding>
-                <Insets top="10.0" />
-              </padding>
             </HBox>
           </children>
           <padding>
-            <Insets bottom="15.0" left="5.0" right="5.0" />
+            <Insets fx:id="x727" />
           </padding>
         </VBox>
         <HBox id="gcodePreviewVbox" fx:id="gcodePreviewHbox" alignment="CENTER" disable="false" prefHeight="-1.0" prefWidth="-1.0" visible="true" HBox.hgrow="ALWAYS">
@@ -79,7 +165,7 @@
               <children>
                 <HBox alignment="CENTER_RIGHT" prefHeight="-1.0" prefWidth="-1.0" style="">
                   <children>
-                    <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="25.0" HBox.hgrow="ALWAYS">
                       <children>
                         <Text fx:id="gcodeStatusMessage" smooth="true" strokeMiterLimit="10.0" strokeType="OUTSIDE" strokeWidth="0.0" style="" text="JOGGING ENABLED" underline="false" visible="true">
                           <font>
@@ -166,7 +252,7 @@
                 </HBox>
               </children>
               <effect>
-                <DropShadow color="WHITE" height="8.857142857142861" radius="3.9285714285714297" spread="0.49206349206349204" width="8.857142857142858" />
+                <DropShadow color="WHITE" height="8.857142857142858" radius="3.928571428571429" spread="0.49206349206349204" width="8.857142857142858" />
               </effect>
               <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
@@ -234,7 +320,7 @@
         </VBox>
       </children>
       <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
+        <Insets right="5.0" />
       </padding>
       <spacing>
         <Long fx:value="0" />

@@ -25,86 +25,94 @@
 <?import jfxtras.labs.scene.control.window.*?>
 <?scenebuilder-classpath-element ../../lib/jfxtras-labs-2.2-r6-20130520.173858-1.jar?>
 
-<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.Main">
+<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" onMousePressed="#handleResizeWorkspace" onMouseReleased="#handleResizeWorkspace" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.Main">
   <children>
     <BorderPane disable="false" prefHeight="-1.0" prefWidth="-1.0" style="" visible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
-        <VBox id="consoleHBox" fx:id="consoleVBox" alignment="CENTER" prefHeight="120.0" prefWidth="-1.0" style="-fx-background-color: GREY;" visible="true" BorderPane.alignment="CENTER">
+        <VBox id="consoleHBox" fx:id="consoleVBox" alignment="CENTER" onMouseClicked="#handleConsoleDoubleClick" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: GREY;" visible="true" BorderPane.alignment="CENTER">
           <children>
-            <TextArea fx:id="console" editable="false" focusTraversable="false" maxHeight="300.0" minHeight="50.0" wrapText="true" VBox.vgrow="ALWAYS">
-              <prefHeight>
-                <Long fx:value="75" />
-              </prefHeight>
-              <prefWidth>
-                <Long fx:value="-1" />
-              </prefWidth>
-            </TextArea>
-            <TextField fx:id="input" onKeyPressed="#handleKeyPress" prefHeight="40.0" promptText="TinyG&gt;">
-              <prefWidth>
-                <Long fx:value="-1" />
-              </prefWidth>
-            </TextField>
-            <FlowPane id="flowPane1" alignment="CENTER_RIGHT" columnHalignment="CENTER" maxHeight="22.0" minHeight="22.0" prefHeight="22.0" style="-fx-background-color:black;" VBox.vgrow="ALWAYS">
+            <VBox id="consoleHBox" fx:id="hConsole" alignment="CENTER" disable="false" fillWidth="true" opacity="1.0" prefHeight="-1.0" prefWidth="-1.0" visible="true" VBox.vgrow="NEVER">
               <children>
-                <Label id="srText" text="Gcode Block #" textFill="WHITE" />
-                <Label id="srText" fx:id="srGcodeLine" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="0">
-                  <textFill>
-                    <Color blue="0.624" green="0.624" red="0.624" fx:id="x1" />
-                  </textFill>
-                </Label>
-                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                <Label id="srText" text="Units" textFill="WHITE" />
-                <Label id="srText" fx:id="srUnits" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
-                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                <Label id="srText" text="Ver" textFill="WHITE" />
-                <Label id="srText" fx:id="srVer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1">
-                  <graphicTextGap>
-                    <Long fx:value="4" />
-                  </graphicTextGap>
-                </Label>
-                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                <Label id="srText" text="Build" textFill="WHITE" />
-                <Label id="srText" fx:id="srBuild" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
-                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                <Label id="srText" text="Motion Mode" textFill="WHITE">
-                  <FlowPane.margin>
-                    <Insets left="5.0" right="5.0" fx:id="x6_x0" />
-                  </FlowPane.margin>
-                </Label>
-                <Label id="srText" fx:id="srMomo" alignment="CENTER" maxWidth="78.0" prefWidth="78.0" text="?" textFill="$x1">
-                  <FlowPane.margin>
-                    <Insets right="5.0" fx:id="x2" />
-                  </FlowPane.margin>
-                </Label>
-                <Separator id="separatorVertical1" orientation="VERTICAL" />
-                <Label id="srText" fx:id="srState" text="State" textFill="WHITE">
-                  <FlowPane.margin>
-                    <Insets left="5.0" fx:id="x3" />
-                  </FlowPane.margin>
-                </Label>
-                <Label id="srText" fx:id="srState" alignment="CENTER" maxWidth="-Infinity" prefWidth="55.0" text="?" FlowPane.margin="$x2">
-                  <textFill>
-                    <Color blue="0.750" green="0.750" red="0.750" fx:id="x4" />
-                  </textFill>
-                </Label>
-                <Separator id="separatorVertical3" orientation="VERTICAL">
-                  <FlowPane.margin>
-                    <Insets right="20.0" />
-                  </FlowPane.margin>
-                </Separator>
-                <Label id="srText" text="Coord System" textFill="WHITE" />
-                <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
-                <Separator id="separatorVertical4" orientation="VERTICAL" />
-                <Label id="srText" text="Buffer" textFill="WHITE" visible="false" />
-                <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" visible="true" />
+                <TextArea fx:id="console" editable="false" focusTraversable="false" maxHeight="300.0" minHeight="50.0" wrapText="true" VBox.vgrow="ALWAYS">
+                  <prefHeight>
+                    <Long fx:value="75" />
+                  </prefHeight>
+                  <prefWidth>
+                    <Long fx:value="-1" />
+                  </prefWidth>
+                </TextArea>
+                <TextField fx:id="input" onKeyPressed="#handleKeyPress" prefHeight="40.0" promptText="TinyG&gt;">
+                  <prefWidth>
+                    <Long fx:value="-1" />
+                  </prefWidth>
+                </TextField>
               </children>
-              <hgap>
-                <Long fx:value="0" />
-              </hgap>
-              <prefWidth>
-                <Long fx:value="-1" />
-              </prefWidth>
-            </FlowPane>
+            </VBox>
+            <VBox prefHeight="-1.0" prefWidth="-1.0">
+              <children>
+                <FlowPane id="flowPane1" alignment="CENTER_RIGHT" columnHalignment="CENTER" maxHeight="22.0" minHeight="22.0" prefHeight="22.0" style="-fx-background-color:black;" VBox.vgrow="ALWAYS">
+                  <children>
+                    <Label id="srText" text="Gcode Block #" textFill="WHITE" />
+                    <Label id="srText" fx:id="srGcodeLine" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="0">
+                      <textFill>
+                        <Color blue="0.624" green="0.624" red="0.624" fx:id="x1" />
+                      </textFill>
+                    </Label>
+                    <Separator id="separatorVertical4" orientation="VERTICAL" />
+                    <Label id="srText" text="Units" textFill="WHITE" />
+                    <Label id="srText" fx:id="srUnits" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
+                    <Separator id="separatorVertical4" orientation="VERTICAL" />
+                    <Label id="srText" text="Ver" textFill="WHITE" />
+                    <Label id="srText" fx:id="srVer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1">
+                      <graphicTextGap>
+                        <Long fx:value="4" />
+                      </graphicTextGap>
+                    </Label>
+                    <Separator id="separatorVertical4" orientation="VERTICAL" />
+                    <Label id="srText" text="Build" textFill="WHITE" />
+                    <Label id="srText" fx:id="srBuild" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
+                    <Separator id="separatorVertical4" orientation="VERTICAL" />
+                    <Label id="srText" text="Motion Mode" textFill="WHITE">
+                      <FlowPane.margin>
+                        <Insets left="5.0" right="5.0" fx:id="x6_x0" />
+                      </FlowPane.margin>
+                    </Label>
+                    <Label id="srText" fx:id="srMomo" alignment="CENTER" maxWidth="78.0" prefWidth="78.0" text="?" textFill="$x1">
+                      <FlowPane.margin>
+                        <Insets right="5.0" fx:id="x2" />
+                      </FlowPane.margin>
+                    </Label>
+                    <Separator id="separatorVertical1" orientation="VERTICAL" />
+                    <Label id="srText" fx:id="srState" text="State" textFill="WHITE">
+                      <FlowPane.margin>
+                        <Insets left="5.0" fx:id="x3" />
+                      </FlowPane.margin>
+                    </Label>
+                    <Label id="srText" fx:id="srState" alignment="CENTER" maxWidth="-Infinity" prefWidth="55.0" text="?" FlowPane.margin="$x2">
+                      <textFill>
+                        <Color blue="0.750" green="0.750" red="0.750" fx:id="x4" />
+                      </textFill>
+                    </Label>
+                    <Separator id="separatorVertical3" orientation="VERTICAL">
+                      <FlowPane.margin>
+                        <Insets right="20.0" />
+                      </FlowPane.margin>
+                    </Separator>
+                    <Label id="srText" text="Coord System" textFill="WHITE" />
+                    <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
+                    <Separator id="separatorVertical4" orientation="VERTICAL" />
+                    <Label id="srText" text="Buffer" textFill="WHITE" visible="false" />
+                    <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" visible="true" />
+                  </children>
+                  <hgap>
+                    <Long fx:value="0" />
+                  </hgap>
+                  <prefWidth>
+                    <Long fx:value="-1" />
+                  </prefWidth>
+                </FlowPane>
+              </children>
+            </VBox>
           </children>
           <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x66" />
@@ -118,19 +126,21 @@
         </VBox>
       </bottom>
       <center>
-        <TabPane fx:id="topTabPane" disable="false" focusTraversable="false" rotateGraphic="false" side="RIGHT" style="" visible="true" BorderPane.alignment="CENTER">
-          <prefHeight>
-            <Long fx:value="-1" />
-          </prefHeight>
-          <prefWidth>
-            <Long fx:value="-1" />
-          </prefWidth>
-          <tabs>
-            <fx:include source="ui/gcode/GcodeTab.fxml" />
-            <fx:include source="ui/tinygconfig/TinyGConfig.fxml" />
-            <fx:include source="ui/machinesettings/MachineSettings.fxml" />
-            <fx:include source="ui/tgfxsettings/TgfxSettings.fxml" />
-            <!--                        <Tab fx:id="documentation_tab" closable="false" disable="false" text="Simple Gcoder">
+        <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="0.0" BorderPane.alignment="CENTER">
+          <children>
+            <TabPane fx:id="topTabPane" disable="false" focusTraversable="false" rotateGraphic="false" side="RIGHT" style="" visible="true" HBox.hgrow="ALWAYS">
+              <prefHeight>
+                <Long fx:value="-1" />
+              </prefHeight>
+              <prefWidth>
+                <Long fx:value="-1" />
+              </prefWidth>
+              <tabs>
+                <fx:include source="ui/gcode/GcodeTab.fxml" />
+                <fx:include source="ui/tinygconfig/TinyGConfig.fxml" />
+                <fx:include source="ui/machinesettings/MachineSettings.fxml" />
+                <fx:include source="ui/tgfxsettings/TgfxSettings.fxml" />
+                <!--                        <Tab fx:id="documentation_tab" closable="false" disable="false" text="Simple Gcoder">
                             <content>
                                 <AnchorPane id="docs" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
                                     <children>
@@ -139,7 +149,7 @@
                                 </AnchorPane>
                             </content>
                         </Tab>-->
-            <!--                        <Tab closable="false" disable="false" text="Documentation">
+                <!--                        <Tab closable="false" disable="false" text="Documentation">
                             <content>
                                 <AnchorPane id="docs" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style=" -fx-background-color:&#10;        #090a0c,linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),&#10;        linear-gradient(#20262b, #191d22),&#10;        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));">
                                     <children>
@@ -148,11 +158,10 @@
                                 </AnchorPane>
                             </content>
                         </Tab>-->
-          </tabs>
-          <BorderPane.margin>
-            <Insets fx:id="x77" />
-          </BorderPane.margin>
-        </TabPane>
+              </tabs>
+            </TabPane>
+          </children>
+        </HBox>
       </center>
       <top>
         <HBox fx:id="topMainTitle" alignment="CENTER" fillHeight="true" maxHeight="35.0" minHeight="35.0" opacity="1.0" prefHeight="35.0" rotate="0.0" style="" visible="true">

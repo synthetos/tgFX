@@ -91,14 +91,7 @@ public final class Axis {
         DISABLE,
         STANDARD,
         INHIBITED,
-        RADIUS,
-        SLAVE_X,
-        SLAVE_Y,
-        SLAVE_Z,
-        SLAVE_XY,
-        SLAVE_XZ,
-        SLAVE_YZ,
-        SLAVE_XYZ
+        RADIUS
     }
 
     public enum AXIS {
@@ -440,27 +433,7 @@ public final class Axis {
             case 3:
                 this.axis_mode = AXIS_MODES.RADIUS;
                 return true;
-            case 4:
-                this.axis_mode = AXIS_MODES.SLAVE_X;
-                return true;
-            case 5:
-                this.axis_mode = AXIS_MODES.SLAVE_Y;
-                return true;
-            case 6:
-                this.axis_mode = AXIS_MODES.SLAVE_Z;
-                return true;
-            case 7:
-                this.axis_mode = AXIS_MODES.SLAVE_XY;
-                return true;
-            case 8:
-                this.axis_mode = AXIS_MODES.SLAVE_XZ;
-                return true;
-            case 9:
-                this.axis_mode = AXIS_MODES.SLAVE_YZ;
-                return true;
-            case 10:
-                this.axis_mode = AXIS_MODES.SLAVE_XYZ;
-                return true;
+            
             default:
                 return false;
         }

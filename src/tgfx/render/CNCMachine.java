@@ -6,6 +6,7 @@ package tgfx.render;
 
 import java.text.DecimalFormat;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.binding.BooleanExpression;
@@ -89,8 +90,8 @@ public class CNCMachine extends Pane {
                 unFocusForJogging();
             }
         });
-        
-        
+
+
 //        this.setOnSwipeRight(new EventHandler<SwipeEvent>(){
 //             @Override
 //            public void handle(SwipeEvent me) {
@@ -341,8 +342,13 @@ public class CNCMachine extends Pane {
 
         while (ii.hasNext()) {
             if (ii.next().getClass().getName().endsWith("Line")) {
-                Line l = (Line) ii.next();
-                l.setStrokeWidth(stroke);
+                try {
+                    Line l = (Line) ii.next();
+                    l.setStrokeWidth(stroke);
+                }catch(NoSuchElementException ex){
+                    logger.error("Error in autoScaleWorkTravelSpace() " +ex.getMessage());
+                }
+
             }
         }
     }

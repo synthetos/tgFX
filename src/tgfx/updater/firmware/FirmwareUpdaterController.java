@@ -4,10 +4,12 @@
  */
 package tgfx.updater.firmware;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -48,17 +50,14 @@ public class FirmwareUpdaterController implements Initializable {
 
     @FXML
     private static Label firmwareVersion;
-
-
-
     @FXML
     private Label hwVersion, buildNumb, hardwareId, latestFirmwareBuild;
     @FXML
     private Label currentFirmwareVersionLabel;
     @FXML
-    private  Button btnhandleUpdateFirmwareFromOnline;
+    private Button btnhandleUpdateFirmwareFromOnline;
     @FXML
-    private  Button btnhandleUpdateFirmwareFromFile;
+    private Button btnhandleUpdateFirmwareFromFile;
     private SimpleDoubleProperty _currentVersionString = new SimpleDoubleProperty();
     private static String avrdudePath = new String();
     private static String avrconfigPath = new String();
@@ -110,7 +109,7 @@ public class FirmwareUpdaterController implements Initializable {
     private static Task updateFirmware() {
         Task task;
 //        final String updateFileName = getUpdateFile();
-
+        Main.showConsole();
         task = new Task<Void>() {
             @Override
             public Void call() throws IOException, Exception {
@@ -124,13 +123,39 @@ public class FirmwareUpdaterController implements Initializable {
                     File avd = new File("tools" + File.separator + "avrdude.exe");
                     avrdudePath = avd.getAbsolutePath();
                 }
-        
+
                 if (enterBootloaderMode()) {
                     //we successfully sent "enterbootloader" most likely it worked.
                     Runtime rt = Runtime.getRuntime();
                     try {
+                        String line;
+                        String[] command = {avrdudePath,"-C"+avrconfigPath,"-c", "avr109", "-p","x192a3","-b" ,"115200","-P",TinygDriver.getInstance().getPortName(),"-U","flash:w:"+updateFileName};
+                        ProcessBuilder pb = new ProcessBuilder(command);
+
+                        pb.redirectErrorStream(true);
+                        Process process = pb.start();
+
+                        InputStream stdout = process.getInputStream();
+
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(stdout));
+
+
+                        OutputStream stream = process.getOutputStream();
+
+                       
+                        int b;
+                        
+                        while ((b = reader.read()) != -1){
+                            Main.postConsoleMessage((char) b);
+                        }
+
+//                        while ((line = reader.readLine()) != null) {
+//                            System.out.println("Stdout: " + line);
+//                        }
+
+
                         Main.postConsoleMessage("Updating TinyG Now... Please Wait");
-                        Process process = rt.exec(avrdudePath + " -p x192a3 -C " + avrconfigPath + " -c avr109 -b 115200 -P " + TinygDriver.getInstance().getPortName() + " -U flash:w:" + updateFileName);
+
                         InputStream is = process.getInputStream();
                         Main.postConsoleMessage("Attempting to update TinyG's firmware.");
                         process.waitFor();
@@ -270,7 +295,7 @@ public class FirmwareUpdaterController implements Initializable {
                                 MonologFX mono = MonologFXBuilder.create()
                                         .titleText("Firmware Update Available")
                                         .message("There is a firmware update available for your TinyG Hardware. \n"
-                                                + "\n Click Yes to start your firmware update.")
+                                        + "\n Click Yes to start your firmware update.")
                                         .button(btnYes)
                                         .button(btnNo)
                                         .type(MonologFX.Type.ERROR)
@@ -331,7 +356,7 @@ public class FirmwareUpdaterController implements Initializable {
     }
 
     protected static boolean enterBootloaderMode() throws InterruptedException {
-        
+
         Main.print("Trying to enter bootloader mode");
         Main.postConsoleMessage("Entering Bootloader mode.  tgFX will be un-responsive for then next 30 seconds.\n"
                 + "Your TinyG will start blinking rapidly while being programmed");

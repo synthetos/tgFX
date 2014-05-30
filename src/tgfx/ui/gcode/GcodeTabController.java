@@ -381,7 +381,7 @@ public class GcodeTabController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-        
+
 
         timeStartDt = new Date();
 
@@ -411,6 +411,22 @@ public class GcodeTabController implements Initializable {
         /*######################################
          * CHANGE LISTENERS
          ######################################*/
+
+
+        gcodePane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {
+                System.out.println("Width: " + newSceneWidth);
+                //cncMachine.setupLayout();
+            }
+        });
+        gcodePane.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
+                System.out.println("Height: " + newSceneHeight);
+                handleMaxHeightChange();
+            }
+        });
 
 
         xLcd.valueProperty().addListener(new ChangeListener() {
@@ -509,7 +525,7 @@ public class GcodeTabController implements Initializable {
 
         gcodeCol.setCellValueFactory(
                 new PropertyValueFactory<GcodeLine, String>("codeLine"));
-        GcodeLine n = new GcodeLine("Click open to load..", 0);
+        GcodeLine n = new GcodeLine("Click load to open...", 0);
 
         gcodeView.getItems()
                 .setAll(data);
@@ -799,14 +815,16 @@ public class GcodeTabController implements Initializable {
         }
         return true;
     }
+    
+   
 
     /*######################################
      * EVENT LISTENERS CODE
      ######################################*/
     public void handleMaxHeightChange() {
-        
 
-          
+
+
         if (gcodePane.getWidth() - TinygDriver.getInstance().machine.getAxisByName("x").getTravelMaxSimple().get() < gcodePane.getHeight() - TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get()) {
             //X is longer use this code
             if (TinygDriver.getInstance().machine.getGcodeUnitMode().get() == 0) {  //INCHES
@@ -834,7 +852,7 @@ public class GcodeTabController implements Initializable {
     public void handleMaxWithChange() {
         //This is for the change listener to call for Max Width Change on the CNC Machine
 
-        
+
         if (gcodePane.getWidth() - TinygDriver.getInstance().machine.getAxisByName("x").getTravelMaxSimple().get() < gcodePane.getHeight() - TinygDriver.getInstance().machine.getAxisByName("y").getTravelMaxSimple().get()) {
             //X is longer use this code
             if (TinygDriver.getInstance().machine.getGcodeUnitMode().get() == 0) {  //INCHES

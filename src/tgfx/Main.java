@@ -33,13 +33,15 @@ import jfxtras.labs.dialogs.MonologFXButton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.util.logging.Level;
-import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
-import javafx.scene.web.WebEngine;
 import javafx.util.StringConverter;
 import jfxtras.labs.scene.control.gauge.Lcd;
 import jfxtras.labs.scene.control.gauge.LcdBuilder;
@@ -64,15 +66,15 @@ import tgfx.ui.gcode.GcodeTabController;
 import tgfx.ui.machinesettings.MachineSettingsController;
 import tgfx.ui.tgfxsettings.TgfxSettingsController;
 import tgfx.ui.tinygconfig.TinyGConfigController;
-import tgfx.updater.firmware.FirmwareUpdaterController;
 import tgfx.utility.QueueUsingTimer;
 import tgfx.utility.QueuedTimerable;
 
 /**
- * The <code>Main</code> class is logically the "main" class of the application,
- * but due to how javaFX's framework is setup, it is not the first class
- * executed on application startup, rather that is TgFX, which is kicked off
- * under the control of the XML instructions.
+ * The
+ * <code>Main</code> class is logically the "main" class of the application, but
+ * due to how javaFX's framework is setup, it is not the first class executed on
+ * application startup, rather that is TgFX, which is kicked off under the
+ * control of the XML instructions.
  *
  * @see TgFX
  * @author riley
@@ -83,7 +85,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     private String CONNECTION_TIMEOUT = "{\"tgfx\": \"TinyG Connection Timeout\"}";
     int CONNECTION_TIMEOUT_VALUE = 10000;  //This is the amount of time in milliseconds that will go until we say the connection has timed out.
     public static String OS = System.getProperty("os.name").toLowerCase();
-    private int delayValue = 150; //Time between config set'ers.
+    private int delayValue = 250; //Time between config set'ers.
     private boolean buildChecked = false;  //this is checked apon initial connect.  Once this is set to true
     //if a buildVersion changed message comes in it will not refire onConnect2() again and again
     static final Logger logger = Logger.getLogger(Main.class);
@@ -102,6 +104,8 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     @FXML
     private Label srMomo, srState, srBuild, srBuffer, srGcodeLine,
             srVer, srUnits, srCoord;
+    @FXML
+    static VBox hConsole, consoleVBox;
     @FXML
     StackPane cursorPoint;
     @FXML
@@ -122,12 +126,13 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     @FXML
     HBox canvasHolder;
     @FXML
-    VBox topvbox, positionsVbox, tester, consoleVBox;
+    AnchorPane topAnchorPane;
+    @FXML
+    VBox topvbox, positionsVbox, tester;
     @FXML
     private TabPane topTabPane;
-    @FXML 
+    @FXML
     private Tab machineSettingsTab;
-            
 
     public Main() {
         //Setup Logging for TinyG Driver
@@ -182,11 +187,11 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
                         //Thread.sleep(delayValue);  //Should not need this for query operations
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
-                        
-                        
+
+
                         connectionTimer.start();
-                    
-                    
+
+
                     } catch (Exception ex) {
                         logger.error("Error in OnConnectActions() " + ex.getMessage());
                     }
@@ -262,7 +267,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
             @Override
             public void run() {
                 if (serialPorts.getSelectionModel().getSelectedItem() == (null)) {
-                    TinygDriver.getInstance().setLastSerialPortConnected(serialPorts.getSelectionModel().getSelectedItem().toString()); //We keep track of what port was last connected in tgfx 
                     //Even if this was unsuccessful connection attempt.
                     postConsoleMessage("[!]Error Connecting to Serial Port please select a valid port.\n");
                     return;
@@ -270,19 +274,17 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 if (Connect.getText().equals("Connect") && serialPorts.getSelectionModel().getSelectedItem() != (null)) {
                     try {
                         String serialPortSelected = serialPorts.getSelectionModel().getSelectedItem().toString();
-                        
                         Main.print("[*]Attempting to Connect to TinyG.");
-                        
+
                         if (!tg.initialize(serialPortSelected, 115200)) {  //This will be true if we connected when we tried to!
                             //Our connect attempt failed.
                             postConsoleMessage("[!]There was an error connecting to " + serialPortSelected + " please verify that the port is not in use.");
                         }
-                        
+
                         if (tg.isConnected().get()) {
-                            
                             postConsoleMessage("[*]Opened Port: " + serialPortSelected + " Attempting to get TinyG Build Version Now...\n");
                             Connect.setText("Disconnect");
-                            
+
                             /**
                              * *******************************
                              * OnConnect Actions Called Here
@@ -299,7 +301,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         if (!tg.isConnected().get()) {
                             postConsoleMessage("[+]Disconnected from " + tg.getPortName() + " Serial Port Successfully.\n");
                             Connect.setText("Connect");
-                            
+
                         }
                     } catch (IOException ex) {
                         java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -336,9 +338,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                     TinygDriver.getInstance().serialWriter.notifyAck();
                     buildChecked = false; //Reset this so we can enable checking the build again on disconnect
                     GcodeTabController.setGcodeTextTemp("TinyG Disconnected.");
-                } catch (IOException ex) {
-                    java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (JSONException ex) {
+                } catch (IOException | JSONException ex) {
                     java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -348,6 +348,36 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
     @FXML
     private void handleKeyInput(final InputEvent event) {
+    }
+
+    public static void showConsole() {
+        if (!consoleVBox.getChildren().contains(hConsole)) { //If we do not have the hConsole showing.. Show it for updating messages.
+            boolean add = consoleVBox.getChildren().add(hConsole);
+        }
+    }
+
+    @FXML
+    private void handleConsoleDoubleClick(final MouseEvent me) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                if (consoleVBox.getChildren().contains(hConsole)) {
+                    consoleVBox.getChildren().remove(hConsole);
+                } else {
+                    consoleVBox.getChildren().add(hConsole);
+                }
+
+            }
+        });
+    }
+
+    public static void postConsoleMessage(final char c) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                console.appendText((String.valueOf(c)));
+            }
+        });
     }
 
     public static void postConsoleMessage(String message) {
@@ -398,6 +428,18 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         } else {
             postConsoleMessage("[!]TinyG Not Connected.. Ignoring System GUI Refresh Request....");
         }
+    }
+
+    @FXML
+    private void handleResizeWorkspace(MouseEvent me) {
+//        if (me.isSecondaryButtonDown()) { //Check to see if its a Right Click
+//            String t;
+//            String _axis;
+//            Lcd l;
+//            l = (Lcd) me.getSource();
+//            t = String.valueOf(l.idProperty().get().charAt(0));
+//        }
+        System.out.println("RESIZED!");
     }
 
     @FXML
@@ -517,8 +559,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
             }
         }
     }
-    
-  
 
     private void doTinyGConnectionTimeout() {
         Main.postConsoleMessage("ERROR! - tgFX timed out while attempting to connect to TinyG.  \nVerify the port you selected and that power is applied to your TinyG.");
@@ -544,9 +584,9 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 MonologFX mono = MonologFXBuilder.create()
                         .titleText("TinyG Connection Timeout")
                         .message("tgFX timed out while trying to connect to your TinyG.\nYour TinyG might have a version of firmware that is too old or"
-                                + " you might have selected the wrong serial port.  \nClick Upgrade Firmware to attempt to upgrade your TinyG.  Click on the \"Machine Settings\" tab to see your firmware updating options.\nThis feature only works for TinyG boards not the Arduino Due port of TinyG.\n\n"
-                                + "!!! THIS WILL ERASE ALL OF YOUR TINYG'S SETTINGS !!!\n"
-                                + "\nA Internet Connection is Required.  Clicking \"Skip\" will allow you to select a different serial port to try to connect to.")
+                        + " you might have selected the wrong serial port.  \nClick Upgrade Firmware to attempt to upgrade your TinyG.  Click on the \"Machine Settings\" tab to see your firmware updating options.\nThis feature only works for TinyG boards not the Arduino Due port of TinyG.\n\n"
+                        + "!!! THIS WILL ERASE ALL OF YOUR TINYG'S SETTINGS !!!\n"
+                        + "\nA Internet Connection is Required.  Clicking \"Skip\" will allow you to select a different serial port to try to connect to.")
                         .button(btnYes)
                         .button(btnNo)
                         .type(MonologFX.Type.ERROR)
@@ -560,18 +600,18 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
                         Platform.runLater(
                                 new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        topTabPane.getSelectionModel().select(2);
-                                        //FirmwareUpdaterController.handleUpdateFirmware();
+                            @Override
+                            public void run() {
+                                topTabPane.getSelectionModel().select(2);
+                                //FirmwareUpdaterController.handleUpdateFirmware();
 //                                        try {
 ////                                            tg.disconnect();
 //                                        } catch (SerialPortException ex) {
 //                                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
 //                                        }
 
-                                    }
-                                });
+                            }
+                        });
                         break;
 
                     case CUSTOM1:
@@ -646,8 +686,8 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         console.appendText("Your TinyG firmware is too old.  Please update your TinyG Firmware.\n");
         connectionTimer.disarm(); //  We want to stop this from displaying the connection timeout dialog when we know we already
         //have a build that is too old.
-        
-        
+
+
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -667,12 +707,12 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 MonologFX mono = MonologFXBuilder.create()
                         .titleText("TinyG Firware Build Outdated...")
                         .message("Your TinyG firmware is too old to be used with tgFX. \nYour build version: " + tg.machine.getFirmwareBuild() + "\n"
-                                + "Minmal Needed Version: " + tg.machine.hardwarePlatform.getMinimalBuildVersion().toString() + "\n\n"
-                                + "Click ok to attempt to switch to the Machine Settings tab.  Once there click on update firmware online\n"
-                                + "or if you have a tinyg firmware file, click upgrade firmware from file. "
-                                + "\nA Internet Connection is Required.  This also WILL ERASE ALL TINYG SETTINGS."
-                                +"\n tgFX updating firmware function only works for TinyG v7's and TinyG V8's."
-                                + "\nClicking No will exit tgFX.")
+                        + "Minmal Needed Version: " + tg.machine.hardwarePlatform.getMinimalBuildVersion().toString() + "\n\n"
+                        + "Click ok to attempt to switch to the Machine Settings tab.  Once there click on update firmware online\n"
+                        + "or if you have a tinyg firmware file, click upgrade firmware from file. "
+                        + "\nA Internet Connection is Required.  This also WILL ERASE ALL TINYG SETTINGS."
+                        + "\n tgFX updating firmware function only works for TinyG v7's and TinyG V8's."
+                        + "\nClicking No will exit tgFX.")
                         .button(btnYes)
                         .button(btnNo)
                         .type(MonologFX.Type.ERROR)
@@ -684,7 +724,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                     case YES:
                         logger.info("Clicked Yes");
                         topTabPane.getSelectionModel().select(2);
-                        
+
 //                        WebView firwareUpdate = new WebView();
 //                        final WebEngine webEngFirmware = firwareUpdate.getEngine();
 //                        Stage stage = new Stage();
@@ -752,23 +792,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         topTabPane.disableProperty()
                 .bind(TinygDriver.getInstance().connectionStatus.not());
 
-//        /*######################################
-//         * THREAD INITS
-//         ######################################*/
-//        Thread serialWriterThread = new Thread(tg.serialWriter);
-//
-//        serialWriterThread.setName(
-//                "SerialWriter");
-//        serialWriterThread.setDaemon(
-//                true);
-//        serialWriterThread.start();
-//        Thread threadResponseParser = new Thread(tg.resParse);
-//
-//        threadResponseParser.setDaemon(
-//                true);
-//        threadResponseParser.setName(
-//                "ResponseParser");
-//        threadResponseParser.start();
+
 
 
         /*######################################
@@ -791,6 +815,10 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                 return Integer.valueOf(s);
             }
         };
+
+
+
+        consoleVBox.getChildren().remove(hConsole);  //A way to  hide the console by default on startup
 
         /*#######################################################
          * BINDINGS
