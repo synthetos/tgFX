@@ -416,14 +416,14 @@ public class GcodeTabController implements Initializable {
         gcodePane.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {
-                System.out.println("Width: " + newSceneWidth);
+//                System.out.println("Width: " + newSceneWidth);
                 //cncMachine.setupLayout();
             }
         });
         gcodePane.heightProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
-                System.out.println("Height: " + newSceneHeight);
+//                System.out.println("Height: " + newSceneHeight);
                 handleMaxHeightChange();
             }
         });
@@ -541,6 +541,9 @@ public class GcodeTabController implements Initializable {
                     if (me.getClickCount() == 2) {
                         GcodeLine gcl = (GcodeLine) gcodeView.getSelectionModel().getSelectedItem();
                         if (TinygDriver.getInstance().isConnected().get()) {
+                            if(gcl == null){
+                                return;
+                            }
                             logger.info("Double Clicked gcodeView " + gcl.getCodeLine());
                             try {
                                 TinygDriver.getInstance().write(gcl.getGcodeLineJsonified());
@@ -688,7 +691,7 @@ public class GcodeTabController implements Initializable {
                             continue;
                         }
 
-                        if (_gcl.getCodeLine().toLowerCase().contains("(")) {
+                        if (_gcl.getCodeLine().toLowerCase().startsWith("(")) {
                             TinygDriver.getInstance().write("Comment:" + _gcl.getCodeLine());
 //                            tgfx.Main.postConsoleMessage("GCODE COMMENT:" + _gcl.getCodeLine());
                             continue;

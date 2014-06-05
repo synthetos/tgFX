@@ -49,6 +49,7 @@ public class CommandManager {
     public static final String CMD_APPLY_DISABLE_HASHCODE = "{\"eh\":0\"}\n";
     public static final String CMD_APPLY_DEFAULT_SETTINGS = "{\"defa\":1}\n";
     public static final String CMD_APPLY_STATUS_UPDATE_INTERVAL = "{\"si\":100}\n";
+    public static final String CMD_APPLY_STATUS_REPORT_VOBERSITY = "{\"sv\":1}\n";
     public static final String CMD_APPLY_JSON_VOBERSITY = "{\"jv\":3}\n";
     public static final String CMD_APPLY_ENABLE_JSON_MODE = "{\"ej\":1}\n";
     public static final String CMD_DEFAULT_ENABLE_JSON = "{\"ej\":1}\n";
@@ -91,17 +92,15 @@ public class CommandManager {
     public static final String CMD_APPLY_FLOWCONTROL = "{\"ex\":2}\n";
     public static final String CMD_ZERO_ALL_AXIS = "{\"gc\":G920g0x0y0z0}\n";
     public static final String CMD_APPLY_BOOTLOADER_MODE = "{\"boot\":1}\n";
-    
 
     public CommandManager() {
         logger.setLevel(Level.ERROR);
     }
 
-    public String buildMotorIdleTimeoutString(Double timeout){
-        return("{\"" + MnemonicManager.MNEMONIC_SYSTEM_MOTOR_IDLE_TIMEOUT + "\":"+ timeout.toString() + "}\n");
+    public String buildMotorIdleTimeoutString(Double timeout) {
+        return ("{\"" + MnemonicManager.MNEMONIC_SYSTEM_MOTOR_IDLE_TIMEOUT + "\":" + timeout.toString() + "}\n");
     }
-    
-    
+
     public static void stopTinyGMovement() throws Exception {
         logger.info("[!]Stopping Job Clearing Serial Queue...\n");
         TinygDriver.getInstance().priorityWrite(CommandManager.CMD_APPLY_PAUSE);
@@ -200,7 +199,7 @@ public class CommandManager {
     public void queryMachineSwitchMode() throws Exception {
         TinygDriver.getInstance().write(CMD_QUERY_SWITCHMODE);
     }
-    
+
     public void queryMachineMotorIdleValue() throws Exception {
         TinygDriver.getInstance().write(CMD_QUERY_SWITCHMODE);
     }
@@ -226,8 +225,7 @@ public class CommandManager {
         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_SYSTEM_SETTINGS);
         Main.postConsoleMessage("Getting TinyG System Settings...");
     }
-    
-   
+
     /**
      * writes the commands to query current hardware settings on the tinyg board
      *

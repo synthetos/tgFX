@@ -35,10 +35,8 @@ import org.apache.log4j.BasicConfigurator;
 import java.util.logging.Level;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
@@ -92,9 +90,9 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     private TinygDriver tg = TinygDriver.getInstance();
     private String PROMPT = "tinyg>";
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
-    //public final static String LOGLEVEL = "OFF";
+    public final static String LOGLEVEL = "OFF";
     private QueueUsingTimer connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
-    public final static String LOGLEVEL = "INFO";
+//    public final static String LOGLEVEL = "DEBUG";
     @FXML
     private Circle cursor;
     @FXML
@@ -180,6 +178,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         TinygDriver.getInstance().serialWriter.notifyAck(); //If the serialWriter is in a wait state.. wake it up
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP); //Just waking things up.
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
+                        tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);  //This is important.  If the $jv is not set to 3 then we will never leave this method.
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
 
 //                        TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_PLATFORM);
@@ -220,7 +219,9 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         /*####################################
                          *Priority Write's Must Observe the delays or you will smash TinyG as it goes into a "disable interrupt mode" to write values to EEPROM 
                          #################################### */
-                        tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
+//                        tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);
+//                        Thread.sleep(delayValue);
+                        tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_VOBERSITY);
                         Thread.sleep(delayValue);
                         tg.write(CommandManager.CMD_APPLY_STATUS_UPDATE_INTERVAL);
                         Thread.sleep(delayValue);
@@ -428,18 +429,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
         } else {
             postConsoleMessage("[!]TinyG Not Connected.. Ignoring System GUI Refresh Request....");
         }
-    }
-
-    @FXML
-    private void handleResizeWorkspace(MouseEvent me) {
-//        if (me.isSecondaryButtonDown()) { //Check to see if its a Right Click
-//            String t;
-//            String _axis;
-//            Lcd l;
-//            l = (Lcd) me.getSource();
-//            t = String.valueOf(l.idProperty().get().charAt(0));
-//        }
-        System.out.println("RESIZED!");
     }
 
     @FXML

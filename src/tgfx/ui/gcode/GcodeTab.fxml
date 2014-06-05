@@ -40,7 +40,7 @@
               <children>
                 <Accordion minWidth="310.0" HBox.hgrow="NEVER">
                   <expandedPane>
-                    <TitledPane fx:id="x3" animated="true" contentDisplay="TOP" expanded="true" text="Gcode Program">
+                    <TitledPane fx:id="x3" animated="true" collapsible="false" contentDisplay="TOP" expanded="true" text="Gcode Program">
                       <content>
                         <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                           <children>
@@ -86,7 +86,7 @@
                   </expandedPane>
                   <panes>
                     <fx:reference source="x3" />
-                    <TitledPane fx:id="x2" alignment="CENTER_LEFT" animated="false" contentDisplay="TOP" text="Controls" textAlignment="LEFT">
+                    <TitledPane fx:id="x2" alignment="CENTER_LEFT" animated="false" collapsible="true" contentDisplay="TOP" text="Controls" textAlignment="LEFT" visible="false">
                       <content>
                         <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0">
                           <children>
@@ -142,7 +142,7 @@
                     </TitledPane>
                   </panes>
                 </Accordion>
-                <VBox alignment="CENTER" prefHeight="-1.0" prefWidth="15.0" style="&#10;-fx-background-color:black&#10;" HBox.hgrow="NEVER">
+                <VBox alignment="CENTER" prefHeight="-1.0" prefWidth="15.0" style="&#10;-fx-background-color:black&#10;" visible="false" HBox.hgrow="NEVER">
                   <children>
                     <Text fill="WHITE" rotate="0.0" strokeType="OUTSIDE" strokeWidth="0.0" text="&lt;|">
                       <font>
@@ -187,7 +187,7 @@
                     <Insets right="5.0" />
                   </VBox.margin>
                 </HBox>
-                <StackPane id="topPreviewPane" fx:id="gcodePane" minHeight="400.0" minWidth="400.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color: black" VBox.vgrow="ALWAYS" />
+                <StackPane id="topPreviewPane" fx:id="gcodePane" minHeight="400.0" minWidth="400.0" prefHeight="-1.0" prefWidth="-1.0" style="-fx-background-color:#424242" VBox.vgrow="ALWAYS" />
                 <HBox fx:id="gcodeWindowButtonBar" alignment="CENTER_RIGHT" maxHeight="45.0" minHeight="55.0" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" style="" VBox.vgrow="NEVER">
                   <children>
                     <HBox alignment="CENTER_RIGHT" padding="$x1" prefHeight="100.0" prefWidth="200.0" spacing="5.0" style="" HBox.hgrow="ALWAYS">

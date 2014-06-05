@@ -121,8 +121,15 @@ public class CNCMachine extends Pane {
                         @Override
                         public void handle(ActionEvent t) {
                             Draw2d.setFirstDraw(true); //We do not want to draw a line from our previous position
+                            
                             TinygDriver.getInstance().cmdManager.setMachinePosition(getNormalizedX(me.getX()), getNormalizedY(me.getY()));
-                            Draw2d.setFirstDraw(true); //This allows us to move our drawing to a new place without drawing a line from the old.
+                            try {
+                                Thread.sleep(50);// We have to let the status report make it back from TinyG to reflect the change of coords.
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(CNCMachine.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            
+//                            Draw2d.setFirstDraw(true); //This allows us to move our drawing to a new place without drawing a line from the old.
                             try {
                                 TinygDriver.getInstance().write(CommandManager.CMD_APPLY_SYSTEM_ZERO_ALL_AXES);
                                 TinygDriver.getInstance().write(CommandManager.CMD_QUERY_STATUS_REPORT);
@@ -347,6 +354,9 @@ public class CNCMachine extends Pane {
                     l.setStrokeWidth(stroke);
                 }catch(NoSuchElementException ex){
                     logger.error("Error in autoScaleWorkTravelSpace() " +ex.getMessage());
+                }catch(ClassCastException ex){
+                    logger.error("error trying to cast to line: " + ex.getMessage());
+                    continue;
                 }
 
             }

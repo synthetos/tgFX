@@ -153,7 +153,7 @@ public class MachineSettingsController implements Initializable {
         while (it.hasNext()) {
             String k = (String) it.next();
             Double value = (Double) j.getJSONObject(topLevelParent).getDouble(k);
-            System.out.println("This is the value " + k + " " + decimalFormat.format(value));
+            logger.info("This is the value: "+ topLevelParent + k + " " + decimalFormat.format(value));
             //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
             String singleJsonSetting = "{\"" + topLevelParent + k + "\":" + value + "}\n";
             TinygDriver.getInstance().write(singleJsonSetting);
@@ -226,7 +226,7 @@ public class MachineSettingsController implements Initializable {
                                 String k = (String) it.next();
                                 Double value = (Double) j.getJSONObject(topLevelParent).getDouble(k);
                                 
-                                System.out.println("This is the value " + k + " " + decimalFormat.format(value));
+                                logger.info("This is the value: "+ topLevelParent + k + " " + decimalFormat.format(value));
                                 Main.postConsoleMessage("Applied: " + k + ":" + decimalFormat.format(value));
                                 //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
 
