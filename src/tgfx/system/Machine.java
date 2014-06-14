@@ -66,6 +66,7 @@ public final class Machine {
     private boolean enable_echo;
     private boolean enable_xon_xoff;
     private boolean enable_hashcode;
+    private int json_response_vobersity;
     //Misc
     public SimpleIntegerProperty lineNumber = new SimpleIntegerProperty(0);
     private String last_message = "";
@@ -91,6 +92,16 @@ public final class Machine {
 
         traverse, feed, cw_arc, ccw_arc, cancel
     }
+
+    public int getJson_response_vobersity() {
+        return json_response_vobersity;
+    }
+
+    public void setJson_response_vobersity(int json_response_vobersity) {
+        this.json_response_vobersity = json_response_vobersity;
+    }
+    
+    
 
     public static enum coordinate_systems {
 
@@ -699,15 +710,15 @@ public final class Machine {
                 TinygDriver.getInstance().machine.setVelocity(Double.valueOf(rc.getSettingValue()));
                 break;
             default:
-                logger.info("[applyJsonStatusReport in Machine.java] - had this default keys not handled in switch parse statement: " + rc.getSettingKey() + " " + rc.getSettingValue());
-
+//                logger.info("[applyJsonStatusReport in Machine.java] - had this default keys not handled in switch parse statement: " + rc.getSettingKey() + " " + rc.getSettingValue());
+                
 
         }
     }
 
 //This is the main method to parser a JSON sys object
     public void applyJsonSystemSetting(JSONObject js, String parent) throws IOException {
-        logger.info("Applying JSON Object to System Group");
+//        logger.info("Applying JSON Object to System Group");
         Iterator ii = js.keySet().iterator();
         try {
             while (ii.hasNext()) {
@@ -718,7 +729,7 @@ public final class Machine {
                 switch (_key) {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_BAUDRATE):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_HARDWARD_PLATFORM):
                         logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
@@ -741,12 +752,12 @@ public final class Machine {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_JSON_MODE):
                         //TinygDriver.getInstance().m(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_XON):
                         TinygDriver.getInstance().machine.setEnable_xon_xoff(Boolean.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_FIRMWARE_BUILD):
@@ -760,15 +771,15 @@ public final class Machine {
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_COORDINATE_SYSTEM):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_DISTANCE_MODE):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().machine.setGcodeDistanceMode(rc.getSettingValue());
                         break;
                     case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().machine.setGcodePathControl(rc.getSettingValue());
                         break;
 //                    case (MnemonicManager.MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE):
@@ -778,15 +789,15 @@ public final class Machine {
 //                        break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_JSON_VOBERSITY):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_JUNCTION_ACCELERATION):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_MOTOR_IDLE_TIMEOUT):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().machine.setMotorIdleTimeout((Double.valueOf(rc.getSettingValue())));
                         break;
 
@@ -805,11 +816,11 @@ public final class Machine {
 //                        break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_STATUS_REPORT_INTERVAL):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_SWITCH_TYPE):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         TinygDriver.getInstance().machine.setSwitchType(Integer.valueOf(rc.getSettingValue()));
                         String[] message = new String[2];
                         message[0] = "MACHINE_UPDATE";
@@ -819,15 +830,15 @@ public final class Machine {
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_TEXT_VOBERSITY):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_TINYG_ID_VERSION):
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         this.setHardwareId(rc.getSettingValue());
                         break;
                     default:
-                        logger.info("[applyJsonSystemSetting in Machine.java] - had this default keys not handled in switch parse statement: " + rc.getSettingKey() + " " + rc.getSettingValue());
+//                        logger.info("[applyJsonSystemSetting in Machine.java] - had this default keys not handled in switch parse statement: " + rc.getSettingKey() + " " + rc.getSettingValue());
                 }
             }
         } catch (JSONException | NumberFormatException ex) {

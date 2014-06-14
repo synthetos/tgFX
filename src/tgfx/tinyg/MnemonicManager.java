@@ -22,6 +22,7 @@ public class MnemonicManager {
     public static final String MNEMONIC_GROUP_SYSTEM = "sys";
     public static final String MNEMONIC_GROUP_EMERGENCY_SHUTDOWN = "er";
     public static final String MNEMONIC_GROUP_STATUS_REPORT = "sr";
+    public static final String MNEMONIC_GROUP_SEARCH_VELOCITY = "sv";
     public static final String MNEMONIC_GROUP_HOME = "hom";
     public static final String MNEMONIC_GROUP_POS = "pos";
     public static final String MNEMONIC_GROUP_MOTOR_1 = "1";
@@ -247,13 +248,24 @@ public class MnemonicManager {
         return null;
     }
 
+    public responseCommand lookupSystemGroup(String strToLookup) {
+        if (SYS_MNEMONICS.contains(strToLookup)) {
+            responseCommand rc = new responseCommand();
+            rc.setSettingParent(MNEMONIC_GROUP_SYSTEM);
+            rc.setSettingKey(strToLookup);
+            return (rc);
+        } else {
+            return null;
+        }
+    }
+
     public responseCommand lookupSingleGroup(String strToLookup) {
         //This will iterate all group mnemoics to see if the single group object
         // belongs in which group.
 
         responseCommand rc = new responseCommand();
 
-        if (AXIS_MNEMONICS.contains(strToLookup.substring(1))) {
+        if (AXIS_MNEMONICS.contains(strToLookup.substring(1)) || AXIS_MNEMONICS.contains(strToLookup)) {  //WE AR NOT PASSIN THIS IN RIGHT
             rc.setSettingParent(String.valueOf(strToLookup.charAt(0)));
             rc.setSettingKey(strToLookup.substring(1));
             return (rc);

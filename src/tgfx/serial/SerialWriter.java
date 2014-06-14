@@ -50,7 +50,7 @@ public class SerialWriter implements Runnable {
  
    public void clearQueueBuffer() {
         queue.clear();
-        this.cleared = true; // We set this to tell the mutex with waiting for an ack to send a line that it should not send a line.. we were asked to be cleared.
+        setClearedFlag();// We set this to tell the mutex with waiting for an ack to send a line that it should not send a line.. we were asked to be cleared.
         try {
             //This is done in resetBuffer is this needed?
             buffer_available.set(BUFFER_SIZE);
@@ -121,6 +121,16 @@ public class SerialWriter implements Runnable {
         Main.postConsoleMessage(" Gcode Comment << " + gcodeComment);
     }
     
+    //This method is used to clear the cleared flag.  WHen a user disconnects it set this to true
+    //on the next reconnect we need to have a way to set it to false.
+    public void clearClearedFlag(){
+        this.cleared = false;
+    }
+    
+    public void setClearedFlag(){
+        this.cleared = true;
+    }
+    
     public void write(String str) {
         try {
             synchronized (mutex) {
@@ -146,7 +156,7 @@ public class SerialWriter implements Runnable {
                     if(cleared){
                        //clear out the line we were waiting to send.. we were asked to clear our buffer
                         //includeing this line that is waiting to be sent.
-                        cleared = false;  //Reset this flag now...
+                        clearClearedFlag();  //Reset this flag now...
                         return;
                     }
                     logger.debug("We are free from Throttled!");
@@ -159,7 +169,7 @@ public class SerialWriter implements Runnable {
 
             ser.write(str);
             if(!Main.LOGLEVEL.equals("OFF")){
-                Main.print("+" + str);
+                Main.print("+" + str.trim());
             }
             
             

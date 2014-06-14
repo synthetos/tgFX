@@ -90,9 +90,9 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     private TinygDriver tg = TinygDriver.getInstance();
     private String PROMPT = "tinyg>";
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
-    public final static String LOGLEVEL = "OFF";
+//    public final static String LOGLEVEL = "OFF";
     private QueueUsingTimer connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
-//    public final static String LOGLEVEL = "DEBUG";
+    public final static String LOGLEVEL = "INFO";
     @FXML
     private Circle cursor;
     @FXML
@@ -131,6 +131,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     private TabPane topTabPane;
     @FXML
     private Tab machineSettingsTab;
+    
 
     public Main() {
         //Setup Logging for TinyG Driver
@@ -168,7 +169,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
      */
     private void onConnectActions() {
         try {
-            connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -176,19 +176,21 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                     try {
                         GcodeTabController.setGcodeTextTemp("Attempting to Connect to TinyG.");
                         TinygDriver.getInstance().serialWriter.notifyAck(); //If the serialWriter is in a wait state.. wake it up
+                        TinygDriver.getInstance().requestSerialBufferPurge();
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP); //Just waking things up.
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
                         tg.write(CommandManager.CMD_APPLY_JSON_VOBERSITY);  //This is important.  If the $jv is not set to 3 then we will never leave this method.
                         TinygDriver.getInstance().write(CommandManager.CMD_APPLY_NOOP);
 
-//                        TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_PLATFORM);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_VERSION);
                         TinygDriver.getInstance().write(CommandManager.CMD_QUERY_HARDWARE_BUILD_NUMBER);
                         //Thread.sleep(delayValue);  //Should not need this for query operations
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
 
 
-                        connectionTimer.start();
+//                        connectionTimer.start();
+                        logger.info("!!!!!!!!!!!!!!!!! Timer has been Armed !!!!!!!!!!!!!!!!!!!!!!!!");
+                        Thread.sleep(500); //this avoids a race condition to where the tries timer starts then the next check fails to disarm because it has not fully started
 
 
                     } catch (Exception ex) {
@@ -210,10 +212,13 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
+                    TinygDriver.getInstance().serialWriter.clearClearedFlag(); //This flag is used when disconnecting from TinyG.  
+                    //If we disconnect we want to clear the queue buffer.  However on connect we want to make sure this flag has been reset.
 
                     try {
                         if (connectionTimer != null) {
                             connectionTimer.disarm();
+                            logger.info("################# Timer has been disarmed ###########################");
                         }
 
                         /*####################################
@@ -230,19 +235,13 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         tg.write(CommandManager.CMD_APPLY_FLOWCONTROL);
                         Thread.sleep(delayValue);
                         tg.write(CommandManager.CMD_APPLY_STATUS_REPORT_FORMAT);
-                        Thread.sleep(600); //Setting the status report takes some time!  Just leave this alone.  This is a hardware limit..
+                         Thread.sleep(600); //Setting the status report takes some time!  Just leave this alone.  This is a hardware limit..
                         //writing to the eeprom (so many values) is troublesome :)  Like geese.. (this one is for alden)
 
                         /*####################################
                          *Query Code gets the regular write method
                          #################################### */
                         tg.cmdManager.queryAllMachineSettings();                    //SIXtH
-                        Thread.sleep(delayValue);
-                        tg.cmdManager.queryStatusReport();
-                        Thread.sleep(delayValue);
-                        tg.cmdManager.queryAllMotorSettings();
-                        Thread.sleep(delayValue);
-                        tg.cmdManager.queryAllHardwareAxisSettings();
                         Thread.sleep(delayValue);
                         tg.write(CommandManager.CMD_APPLY_TEXT_VOBERSITY);
 
@@ -713,29 +712,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                     case YES:
                         logger.info("Clicked Yes");
                         topTabPane.getSelectionModel().select(2);
-
-//                        WebView firwareUpdate = new WebView();
-//                        final WebEngine webEngFirmware = firwareUpdate.getEngine();
-//                        Stage stage = new Stage();
-//                        stage.setTitle("TinyG Firmware Update Guide");
-//                        Scene s = new Scene(firwareUpdate, 1280, 800);
-//
-//                        stage.setScene(s);
-//                        stage.show();
-//
-//                        Platform.runLater(
-//                                new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        webEngFirmware.load("https://github.com/synthetos/TinyG/wiki/TinyG-Boot-Loader#wiki-updating");
-////                                        try {
-////                                            tg.disconnect();
-////                                        } catch (SerialPortException ex) {
-////                                            java.util.logging.Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-////                                        }
-////                                        Connect.setText("Connect");
-//                                    }
-//                                });
                         break;
                     case NO:
                         logger.info("Clicked No");
@@ -760,6 +736,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        
         logger.info("[+]tgFX is starting....");
 
         /*####################################

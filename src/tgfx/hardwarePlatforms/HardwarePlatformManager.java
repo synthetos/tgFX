@@ -48,7 +48,7 @@ public class HardwarePlatformManager {
         for (int i = 0; i < availablePlatforms.size(); i++) {
             if (availablePlatforms.get(i).getHardwarePlatformVersion() == verNumber) {
                 TinygDriver.getInstance().machine.hardwarePlatform = availablePlatforms.get(i);
-                logger.info("Applied " + verNumber + " hardware platform id number to System");
+//                logger.info("Applied " + verNumber + " hardware platform id number to System");
                 return true;
 
             }

@@ -7,6 +7,7 @@ package tgfx.system;
 import java.util.Iterator;
 import org.json.JSONObject;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import tgfx.tinyg.MnemonicManager;
 import tgfx.tinyg.TinygDriver;
 import tgfx.tinyg.responseCommand;
@@ -153,7 +154,7 @@ public class Motor {
 
     //This is the main method to parser a JSON Motor object
 public void applyJsonSystemSetting(JSONObject js, String parent) {
-        logger.info("Applying JSON Object to " + parent + " Group");
+//        logger.info("Applying JSON Object to " + parent + " Group");
         Iterator ii = js.keySet().iterator();
         try {
             while (ii.hasNext()) {
@@ -164,32 +165,32 @@ public void applyJsonSystemSetting(JSONObject js, String parent) {
                 switch (_key) {
                     case (MnemonicManager.MNEMONIC_MOTOR_MAP_AXIS):
                         TinygDriver.getInstance().machine.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setMapToAxis(Integer.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_MOTOR_MICROSTEPS):
                         TinygDriver.getInstance().machine.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setMicrosteps(Integer.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_MOTOR_POLARITY):
                         TinygDriver.getInstance().machine.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setPolarity(Integer.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_MOTOR_POWER_MANAGEMENT):
                         TinygDriver.getInstance().machine.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setPower_management(Integer.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_MOTOR_STEP_ANGLE):
                         TinygDriver.getInstance().machine.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setStep_angle(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_MOTOR_TRAVEL_PER_REVOLUTION):
                         TinygDriver.getInstance().machine.getMotorByNumber(Integer.valueOf(rc.getSettingParent())).setTravel_per_revolution(Float.valueOf(rc.getSettingValue()));
-                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
                     default:
                         logger.info("Default Switch");
@@ -198,7 +199,7 @@ public void applyJsonSystemSetting(JSONObject js, String parent) {
                 }
             }
 
-        } catch (Exception ex) {
+        } catch (JSONException | NumberFormatException ex) {
             logger.error("Error in applyJsonSystemSetting in Motor");
         }
 

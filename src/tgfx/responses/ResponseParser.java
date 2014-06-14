@@ -82,8 +82,6 @@ public class ResponseParser extends Observable implements Runnable {
     public void setRUN(boolean RUN) {
         this.RUN = RUN;
     }
-    
-   
 
     @Override
     public void run() {
@@ -94,11 +92,11 @@ public class ResponseParser extends Observable implements Runnable {
         while (RUN) {
             try {
                 line = TinygDriver.jsonQueue.take();
-                
+
                 if (line.equals("")) {
                     continue;
-                } 
-                
+                }
+
                 if (line.startsWith("{")) {
                     if (isTEXT_MODE()) {
                         setTEXT_MODE(false);
@@ -223,12 +221,12 @@ public class ResponseParser extends Observable implements Runnable {
 
     public void applySetting(JSONObject js) {
         try {
-            if (js.has("sr")){
+            if (js.has("sr")) {
                 //status reports will make it this far into the parsing code when you issue a "sr":null vs just getting a "sr" back from a movement.
                 applySettingStatusReport(js.getJSONObject("sr"));
                 return;
             }
-            
+
             if (js.length() == 0) {
                 //This is a blank object we just return and move on
             } else if (js.keySet().size() > 1) { //If there are more than one object in the json response
@@ -248,7 +246,7 @@ public class ResponseParser extends Observable implements Runnable {
                             message[0] = "TINYG_USER_MESSAGE";
                             message[1] = (String) js.get(key) + "\n";
                             logger.info("[+]TinyG Message Sent:  " + js.get(key) + "\n");
-                            
+
                             setChanged();
                             notifyObservers(message);
                             break;
@@ -392,6 +390,13 @@ public class ResponseParser extends Observable implements Runnable {
                 //NOP
                 break;
 
+            case ("sv"):
+                //Alden made a collision in the system group naming convention imo :)
+                //sv = search velocity in axis too! ugh
+                //so we put this here to break it out early.
+                TinygDriver.getInstance().machine.setJson_response_vobersity(js.getInt(pg));
+                break;
+
             case (MNEMONIC_GROUP_SYSTEM):
                 TinygDriver.getInstance().machine.applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_SYSTEM), MNEMONIC_GROUP_SYSTEM);
                 /**
@@ -403,6 +408,15 @@ public class ResponseParser extends Observable implements Runnable {
                 setChanged();
                 notifyObservers(message);
                 break;
+
+            case ("err"):
+                if (js.get("err").equals("{}")) {
+                    break;
+                } else {
+                    Main.print("Error Sent From TinyG: " + (String) js.get("err"));
+                }
+
+
             case (MNEMONIC_GROUP_STATUS_REPORT):
                 logger.info("Status Report");
                 applySettingMasterGroup(js, MNEMONIC_GROUP_STATUS_REPORT);
@@ -465,17 +479,20 @@ public class ResponseParser extends Observable implements Runnable {
                 //This is pretty ugly but it gets the key and the value. For single values.
                 responseCommand rc = TinygDriver.getInstance().mneManager.lookupSingleGroup(pg);
 
-//                  String _parent = String.valueOf(parentGroup.charAt(0));
-                String newJs;
-//                  String _key = parentGroup; //I changed this to deal with the fb mnemonic.. not sure if this works all over.
-                rc.setSettingValue(String.valueOf(js.get(js.keys().next().toString())));
-                logger.info("Single Key Value: Group:" + rc.getSettingParent() +" key:" + rc.getSettingKey() +" value:"+ rc.getSettingValue());
-                if(rc.getSettingValue().equals((""))){
-                    logger.info(rc.getSettingKey() + " value was null");
-                }else{
-                    this.applySetting(rc.buildJsonObject()); //We pass the new json object we created from the string above
+                if (rc != null) {
+                    String newJs;
+                    rc.setSettingValue(String.valueOf(js.get(js.keys().next().toString())));
+                    logger.info("Single Key Value: Group:" + rc.getSettingParent() + " key:" + rc.getSettingKey() + " value:" + rc.getSettingValue());
+                    if (rc.getSettingValue().equals((""))) {
+                        logger.info(rc.getSettingKey() + " value was null");
+                    } else {
+                        this.applySetting(rc.buildJsonObject()); //We pass the new json object we created from the string above
+                    }
+                } else {
+                    //We sent a command that is not valid to TinyG so we are going to display a message.
+                    Main.print("Invalid TinyG Command Detected: " + pg);
                 }
-            }
+        }
 
 
     }

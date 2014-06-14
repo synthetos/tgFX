@@ -78,6 +78,11 @@ public class TinygDriver extends Observable {
         return connectionTimer;
     }
     
+    
+    public  void requestSerialBufferPurge() throws SerialPortException{
+        this.ser.requestSerialBufferPurge();
+    }
+    
    /**
     * gets the Connection semaphore
     * @return the Connection semaphore
@@ -335,7 +340,7 @@ public class TinygDriver extends Observable {
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_LINE):
                 TinygDriver.getInstance().machine.setLineNumber(Integer.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_MOTION_MODE):
@@ -346,36 +351,36 @@ public class TinygDriver extends Observable {
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSA):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
                 TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
 
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSX):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
                 TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSY):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
                 TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_POSZ):
                 _ax = rc.getSettingKey().charAt(rc.getSettingKey().length() - 1);
                 TinygDriver.getInstance().machine.getAxisByName(String.valueOf(_ax)).setWorkPosition(Float.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_STAT):
                 //TinygDriver.getInstance()(Float.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             case (MnemonicManager.MNEMONIC_STATUS_REPORT_VELOCITY):
                 TinygDriver.getInstance().machine.setVelocity(Double.valueOf(rc.getSettingValue()));
-                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+//                TinygDriver.logger.debug("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                 break;
 
             default:
@@ -556,6 +561,7 @@ public class TinygDriver extends Observable {
 
     public void disconnect() throws SerialPortException {
         this.ser.disconnect();
+        serialWriter.clearClearedFlag();
     }
 
     public SimpleBooleanProperty isConnected() {
@@ -578,9 +584,9 @@ public class TinygDriver extends Observable {
     public synchronized void write(String msg) throws Exception {
 
         TinygDriver.getInstance().serialWriter.addCommandToBuffer(msg);
-        if(!Main.LOGLEVEL.equals("OFF")){
-            Main.print("+" + msg);
-        }
+//        if(!Main.LOGLEVEL.equals("OFF")){
+//            Main.print("+" + msg);
+//        }
     }
     
    

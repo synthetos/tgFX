@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import org.apache.log4j.Logger;
+import org.apache.commons.lang3.CharUtils;
 
 /**
  *
@@ -94,6 +95,11 @@ public class SerialDriver implements SerialPortEventListener {
         return this.connectionState;
     }
 
+    public void requestSerialBufferPurge() throws SerialPortException {
+
+        this.serialPort.purgePort(jssc.SerialPort.PURGE_RXCLEAR | jssc.SerialPort.PURGE_TXCLEAR);
+    }
+
     @Override
     public void serialEvent(SerialPortEvent event) {
         byte[] inbuffer = new byte[1024];
@@ -107,18 +113,28 @@ public class SerialDriver implements SerialPortEventListener {
             try {
                 //            int bytesToRead = input.read(inbuffer, 0, inbuffer.length);
                 tmpBuffer = serialPort.readBytes(bytesToRead, 10);
-            } catch (    SerialPortException | SerialPortTimeoutException ex) {
+            } catch (SerialPortException | SerialPortTimeoutException ex) {
                 java.util.logging.Logger.getLogger(SerialDriver.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
             for (int i = 0; i < bytesToRead; i++) {
+                if (!CharUtils.isAsciiPrintable((char) tmpBuffer[i]) && tmpBuffer[i] != 10 ) {  //cast this byte to a char to see if its ascii printable
+                    lineBuffer = null;
+                    lineBuffer = new byte[1024];
+                    continue;
+                }
+                    
+
                 if (tmpBuffer[i] == 0x11 || tmpBuffer[i] == 0x13) {  //We have to filter our XON or XOFF charaters from JSON
                     continue;
                 }
                 if (tmpBuffer[i] == 0xA) { // inbuffer[i] is a \n
                     String f = new String(lineBuffer, 0, lineIdx);
-                    if (!f.equals("")) { //Do not add "" to the jsonQueue..
+                    if (!f.equals("") || !f.startsWith("{")) { //Do not add ""  or lines that had a bad character in them to the jsonQueue..
                         TinygDriver.getInstance().appendJsonQueue(f);
+                    }else{
+                        //This is here for a debugging spot for bad characters in tinyg responses
+                        lineIdx=0;
                     }
                     lineIdx = 0;
                 } else {
@@ -129,11 +145,7 @@ public class SerialDriver implements SerialPortEventListener {
         }
     }
 
-
-
-
-
-public static String[] listSerialPorts() {
+    public static String[] listSerialPorts() {
         String[] ports = jssc.SerialPortList.getPortNames();
         ArrayList portList = new ArrayList();
 
@@ -141,7 +153,6 @@ public static String[] listSerialPorts() {
 //            CommPortIdentifier port = (CommPortIdentifier) ports.nextElement();
             SerialPort _tmpPort = new SerialPort(port);
             if (!_tmpPort.getPortName().contains("Bluetooth")) {
-
             }
 
 //            if (UtilityFunctions.getOperatingSystem().equals("mac")) {
@@ -187,7 +198,7 @@ public static String[] listSerialPorts() {
         // add event listeners
         serialPort.addEventListener(this);
         //            serialPort.addEventListener(this);notifyOnDataAvailable(true);
-        
+
         logger.debug("[+]Opened " + port + " successfully.");
         setConnected(true); //Register that this is connectionState.
 
@@ -203,15 +214,15 @@ public static String[] listSerialPorts() {
 //            logger.error("[*] " + ex.getMessage());
 //            return false;
 //        }
-    
 
-}
+
+    }
 
     /**
      * usual IBM-approved singleton helper class.
      */
     private static class SerialDriverHolder {
 
-    private static final SerialDriver INSTANCE = new SerialDriver();
-}
+        private static final SerialDriver INSTANCE = new SerialDriver();
+    }
 }
