@@ -30,12 +30,11 @@
                   <children>
                     <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" style="" visible="true" VBox.vgrow="ALWAYS">
                       <children>
-                        <VBox id="VBox" alignment="TOP_CENTER" blendMode="SRC_OVER" spacing="5.0" style="&#10;" HBox.hgrow="NEVER">
+                        <VBox id="VBox" alignment="TOP_CENTER" blendMode="SRC_OVER" spacing="5.0" style="&#10;" visible="true" HBox.hgrow="NEVER">
                           <children>
-                            <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" visible="true" />
-                            <VBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="0.0" style="&#10;">
+                            <VBox alignment="CENTER" fillWidth="true" prefHeight="-1.0" prefWidth="-1.0" spacing="0.0" style="&#10;">
                               <children>
-                                <HBox id="motor_config_hbox" alignment="TOP_CENTER" minWidth="-1.0" prefWidth="-1.0" style="-fx-background-color: black;" VBox.vgrow="NEVER">
+                                <HBox id="motor_config_hbox" alignment="TOP_CENTER" minWidth="-1.0" prefWidth="-1.0" style="-fx-background-color: black;" visible="true" VBox.vgrow="ALWAYS">
                                   <children>
                                     <Label id="machineConfigLoaderLabel" alignment="CENTER" contentDisplay="CENTER" style="-fx-text-fill: white;" text="Misc" />
                                   </children>
@@ -46,8 +45,20 @@
                                     <Insets right="5.0" fx:id="x2" />
                                   </VBox.margin>
                                 </HBox>
-                                <GridPane id="miscGP" hgap="15.0" style="-fx-padding: 10" vgap="15.0">
+                                <GridPane id="miscGP" alignment="TOP_LEFT" hgap="15.0" style="-fx-padding: 10" vgap="15.0" VBox.vgrow="ALWAYS">
                                   <children>
+                                    <Label id="lblMachine" text="Chordal Tolerance" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                    <TextField fx:id="machineChordalTolerance" minHeight="21.0" onKeyPressed="#handleMachineSettingEnter" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
+                                      <tooltip>
+                                        <Tooltip text="Sets precision of arc drawing. Trades off precision for max arc draw rate." />
+                                      </tooltip>
+                                    </TextField>
+                                    <Label id="lblMachine" text="Junction Acceleration" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                    <TextField fx:id="machineJunctionAcceleration" maxWidth="-1.0" minHeight="21.0" onKeyPressed="#handleMachineSettingEnter" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
+                                      <tooltip>
+                                        <Tooltip text="Global cornering acceleration value." />
+                                      </tooltip>
+                                    </TextField>
                                     <Label id="lblMachine" text="Switch Type" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                       <labelFor>
                                         <ChoiceBox id="cbMachineSwitchType" fx:id="machineSwitchType" focusTraversable="false" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -73,7 +84,11 @@
                                     <Label id="lblMachine" minHeight="21.0" text="Motor Idle Timeout" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                     <HBox alignment="CENTER_LEFT" prefHeight="16.0" prefWidth="49.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                       <children>
-                                        <TextField fx:id="machineMotorIdleTimeout" onKeyPressed="#handleMotorIdleEnter" prefHeight="21.0" prefWidth="46.0" />
+                                        <TextField fx:id="machineMotorIdleTimeout" onKeyPressed="#handleMachineSettingEnter" prefHeight="21.0" prefWidth="46.0">
+                                          <tooltip>
+                                            <Tooltip text="Number of seconds before motor power is automatically released. Maximum value is 40 million." />
+                                          </tooltip>
+                                        </TextField>
                                         <Label id="lblMachine" minHeight="21.0" text="Seconds">
                                           <HBox.margin>
                                             <Insets left="5.0" />
@@ -89,11 +104,13 @@
                                     <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
                                     <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
                                     <ColumnConstraints hgrow="ALWAYS" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
                                   </columnConstraints>
                                   <rowConstraints>
                                     <RowConstraints maxHeight="-1.0" minHeight="10.0" prefHeight="-1.0" vgrow="ALWAYS" />
                                     <RowConstraints maxHeight="-1.0" minHeight="-1.0" prefHeight="-1.0" vgrow="ALWAYS" />
                                     <RowConstraints maxHeight="-1.0" prefHeight="-1.0" vgrow="ALWAYS" />
+                                    <RowConstraints maxHeight="0.0" prefHeight="0.0" vgrow="ALWAYS" />
                                     <RowConstraints maxHeight="0.0" prefHeight="0.0" vgrow="ALWAYS" />
                                   </rowConstraints>
                                 </GridPane>
@@ -152,9 +169,9 @@
                             </ProgressBar>
                             <HBox id="hBox5" alignment="CENTER" spacing="10.0" visible="true" VBox.vgrow="NEVER">
                               <children>
-                                <Button fx:id="importButton" onAction="#handleImportConfig" text="Import" />
+                                <Button fx:id="importButton" onAction="#handleImportConfig" text="Import" visible="false" />
                                 <Button id="loadButton" fx:id="loadbutton" onAction="#handleLoadConfig" text="Load" />
-                                <Button id="saveConfig" mnemonicParsing="false" onAction="#handleSaveCurrentSettings" text="Save" />
+                                <Button id="saveConfig" mnemonicParsing="false" onAction="#handleSaveCurrentSettings" text="Save" visible="false" />
                               </children>
                               <padding>
                                 <Insets left="5.0" right="5.0" fx:id="x6_x01" />

@@ -33,6 +33,7 @@ import jfxtras.labs.dialogs.MonologFXButton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.BasicConfigurator;
 import java.util.logging.Level;
+import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.MouseEvent;
@@ -188,7 +189,7 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                         postConsoleMessage("Getting TinyG Firmware Build Version....");
 
 
-//                        connectionTimer.start();
+                        connectionTimer.start();
                         logger.info("!!!!!!!!!!!!!!!!! Timer has been Armed !!!!!!!!!!!!!!!!!!!!!!!!");
                         Thread.sleep(500); //this avoids a race condition to where the tries timer starts then the next check fails to disarm because it has not fully started
 
@@ -504,9 +505,6 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
                     case ("TEXTMODE_REPORT"):
                         postConsoleMessage(KEY_ARGUMENT);
                         break;
-                    case ("BUFFER_UPDATE"):
-                        srBuffer.setText(KEY_ARGUMENT);
-                        break;
                     case ("UPDATE_LINE_NUMBER"):
                         srGcodeLine.setText(KEY_ARGUMENT);
                         break;
@@ -736,6 +734,25 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        
+        
+        this.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>(){
+           
+            
+            //This is a bug fix to allow for us to alway jog when arrow buttons are hit
+            @Override
+             public void handle(KeyEvent t) {
+            if (t.getCode().equals(KeyCode.TAB) && t.isControlDown()) {
+                    
+                    if(t.getCode().equals(KeyCode.RIGHT) || t.getCode().equals(KeyCode.LEFT) 
+                            || t.getCode().equals(KeyCode.UP) || t.getCode().equals(KeyCode.DOWN)){
+                        t.consume(); //consume just allows this key to trickle down to another event handler vs the defaul behavior
+                        //of trying to change tabs.
+                    }
+                    
+                }
+            }
+        });
         
         logger.info("[+]tgFX is starting....");
 

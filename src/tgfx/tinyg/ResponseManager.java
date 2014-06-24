@@ -12,7 +12,7 @@ public class ResponseManager {
     public static final String RESPONSE_FOOTER = "\"f\":[";
     public static final String RESPONSE_HEADER = "{\"r\":{\"gc\":";
     public static final String RESPONSE_STATUS_REPORT = "{\"r\":{\"sr\":{\"";
-    public static final String RESPONSE_QUEUE_REPORT = "{\"r\":{\"qr\":{";
+    public static final String RESPONSE_QUEUE_REPORT = "{\"qr\":";
     //public static final String RESPONSE_STATUS_REPORT = "{\"sr\":{";
     public static final String RESPONSE_BUFFER_STATUS = "{\"r\":{\"k\":{";
     public static final String RESPONSE_MACHINE_FIRMWARE_BUILD = "{\"r\":{\"sys\":{\"fb\":";

@@ -18,7 +18,6 @@ import tgfx.tinyg.responseCommand;
  */
 public class Motor {
 
-    
     static final Logger logger = Logger.getLogger(TinygDriver.class);
     private String CURRENT_MOTOR_JSON_OBJECT;
     private int id_number; //On TinyG the motor ports are 1-4
@@ -27,7 +26,7 @@ public class Motor {
     private float sa; //step angle
     private float tr; //travel revolution
     private boolean po; //polarity
-    private boolean pm; //power management
+    private int pm; //power management
 
     /**
      *
@@ -57,15 +56,7 @@ public class Motor {
             return (0);
         }
     }
-    //Small wrappers to return int's vs bools
 
-    public int isPower_managementInt() {
-        if (isPower_management() == true) {
-            return (1);
-        } else {
-            return (0);
-        }
-    }
 
     public int getId_number() {
         return id_number;
@@ -120,21 +111,25 @@ public class Motor {
         }
     }
 
-    public boolean isPower_management() {
+
+
+    public int getPowerManagement() {
         return pm;
     }
 
     public void setPower_management(int power_management) {
         if (power_management == 0) {
-            this.pm = false;
-        } else {
-            this.pm = true;
+            this.pm = 0;
+        } else if (power_management == 1) {
+            this.pm = 1;
+
+        } else if (power_management == 2) {
+            this.pm = 2;
+
         }
     }
 
-    public void setPower_management(boolean power_management) {
-        this.pm = power_management;
-    }
+    
 
     public float getStep_angle() {
         return sa;
@@ -153,7 +148,7 @@ public class Motor {
     }
 
     //This is the main method to parser a JSON Motor object
-public void applyJsonSystemSetting(JSONObject js, String parent) {
+    public void applyJsonSystemSetting(JSONObject js, String parent) {
 //        logger.info("Applying JSON Object to " + parent + " Group");
         Iterator ii = js.keySet().iterator();
         try {

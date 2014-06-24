@@ -25,7 +25,7 @@
 <?import jfxtras.labs.scene.control.window.*?>
 <?scenebuilder-classpath-element ../../lib/jfxtras-labs-2.2-r6-20130520.173858-1.jar?>
 
-<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0"  prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.Main">
+<fx:root type="javafx.scene.layout.AnchorPane" id="AnchorPane" fx:id="topAnchorPane" disable="false" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-1.0" minWidth="1280.0" prefHeight="-1.0" prefWidth="-1.0" style="&#10;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="tgfx.Main">
   <children>
     <BorderPane disable="false" prefHeight="-1.0" prefWidth="-1.0" style="" visible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
@@ -101,8 +101,7 @@
                     <Label id="srText" text="Coord System" textFill="WHITE" />
                     <Label id="srText" fx:id="srCoord" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" />
                     <Separator id="separatorVertical4" orientation="VERTICAL" />
-                    <Label id="srText" text="Buffer" textFill="WHITE" visible="false" />
-                    <Label id="srText" fx:id="srBuffer" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="?" textFill="$x1" visible="true" />
+                    <Label id="" alignment="CENTER" maxWidth="70.0" prefWidth="70.0" text="Console" textFill="$x1" visible="true" />
                   </children>
                   <hgap>
                     <Long fx:value="0" />

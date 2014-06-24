@@ -40,6 +40,7 @@ public class MnemonicManager {
     public static final String MNEMONIC_AXIS_VELOCITY_MAXIMUM = "vm";
     public static final String MNEMONIC_AXIS_FEEDRATE_MAXIMUM = "fr";
     public static final String MNEMONIC_AXIS_TRAVEL_MAXIMUM = "tm";
+    public static final String MNEMONIC_AXIS_TRAVEL_MIN = "tn";
     public static final String MNEMONIC_AXIS_JERK_MAXIMUM = "jm";
     public static final String MNEMONIC_AXIS_JERK_HOMING = "jh";
     public static final String MNEMONIC_AXIS_JUNCTION_DEVIATION = "jd";
@@ -96,6 +97,7 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_HARDWARD_PLATFORM = "hp";
     public static final String MNEMONIC_SYSTEM_HARDWARE_VERSION = "hv";
     public static final String MNEMONIC_SYSTEM_JUNCTION_ACCELERATION = "ja";
+    
 //    public static final String MNEMONIC_SYSTEM_MIN_LINE_SEGMENT = "ml";
 //    public static final String MNEMONIC_SYSTEM_MIN_ARC_SEGMENT = "ma";
     public static final String MNEMONIC_SYSTEM_MOTOR_IDLE_TIMEOUT = "mt";
@@ -113,6 +115,8 @@ public class MnemonicManager {
     public static final String MNEMONIC_SYSTEM_CHORDAL_TOLERANCE = "ct";
     public static final String MNEMONIC_SYSTEM_TINYG_ID_VERSION = "id";
     public static final String MNEMONIC_STATUS_REPORT_TINYG_DISTANCE_MODE = "dist";
+    public static final String MNEMONIC_RESPONSE_QR = "qr";
+    
 
     public MnemonicManager() {
         //When new settings are added we need to add them to the this class.
@@ -131,6 +135,7 @@ public class MnemonicManager {
         AXIS_MNEMONICS.add(MNEMONIC_AXIS_TRAVEL_MAXIMUM);
         AXIS_MNEMONICS.add(MNEMONIC_AXIS_VELOCITY_MAXIMUM);
         AXIS_MNEMONICS.add(MNEMONIC_AXIS_ZERO_BACKOFF);
+        AXIS_MNEMONICS.add(MNEMONIC_AXIS_TRAVEL_MIN);
         //Motor
         MOTOR_MNEMONICS.add(MNEMONIC_MOTOR_MAP_AXIS);
         MOTOR_MNEMONICS.add(MNEMONIC_MOTOR_MICROSTEPS);
@@ -144,16 +149,14 @@ public class MnemonicManager {
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_PATH_CONTROL);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_PLANE);
-
+        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_CHORDAL_TOLERANCE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_BAUDRATE);
-//        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_ECHO);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_JSON_MODE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_ENABLE_XON);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_FIRMWARE_BUILD);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_FIRMWARE_VERSION);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_HARDWARD_PLATFORM);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_HARDWARE_VERSION);
-//        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_GCODE_UNIT_MODE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_IGNORE_CR);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_JSON_VOBERSITY);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_JUNCTION_ACCELERATION);
@@ -167,7 +170,6 @@ public class MnemonicManager {
 
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_EXPAND_LF_TO_CRLF_ON_TX);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_DEFAULT_GCODE_UNIT_MODE);
-        SYS_MNEMONICS.add(MNEMONIC_SYSTEM_CHORDAL_TOLERANCE);
         SYS_MNEMONICS.add(MNEMONIC_SYSTEM_TINYG_ID_VERSION);
 
         //Status Report

@@ -45,6 +45,8 @@ public final class Machine {
     public StringProperty hardwareId = new SimpleStringProperty("na");
     public StringProperty hardwareVersion = new SimpleStringProperty("na");
     public SimpleDoubleProperty velocity = new SimpleDoubleProperty();
+    public SimpleDoubleProperty junctionAccleration = new SimpleDoubleProperty(0.000);
+    public SimpleDoubleProperty chordalTolerance = new SimpleDoubleProperty(0.000);
     private SimpleIntegerProperty gcodeUnitMode = new SimpleIntegerProperty(-1);
     private SimpleStringProperty gcodeUnitByName = new SimpleStringProperty();
     public SimpleDoubleProperty gcodeUnitDivision = new SimpleDoubleProperty(1);
@@ -62,8 +64,7 @@ public final class Machine {
     static final Logger logger = Logger.getLogger(TinygDriver.class);
     private float min_arc_segment;
     private double min_segment_time;
-    private boolean enable_CR_on_TX;
-    private boolean enable_echo;
+
     private boolean enable_xon_xoff;
     private boolean enable_hashcode;
     private int json_response_vobersity;
@@ -99,6 +100,14 @@ public final class Machine {
 
     public void setJson_response_vobersity(int json_response_vobersity) {
         this.json_response_vobersity = json_response_vobersity;
+    }
+
+    public SimpleDoubleProperty getChordalTolerance() {
+        return chordalTolerance;
+    }
+
+    public void setChordalTolerance(String chordalTolerance) {
+        this.chordalTolerance.set(Double.valueOf(chordalTolerance));
     }
     
     
@@ -243,14 +252,6 @@ public final class Machine {
         G17, G18, G19
     };
 
-    public boolean isEnable_CR_on_TX() {
-        return enable_CR_on_TX;
-    }
-
-    public void setEnable_CR_on_TX(boolean enable_CR_on_TX) {
-        this.enable_CR_on_TX = enable_CR_on_TX;
-    }
-
     public boolean isEnable_hashcode() {
         return enable_hashcode;
     }
@@ -369,13 +370,6 @@ public final class Machine {
         this.enable_acceleration = enable_acceleration;
     }
 
-    public boolean isEnable_echo() {
-        return enable_echo;
-    }
-
-    public void setEnable_echo(boolean enable_echo) {
-        this.enable_echo = enable_echo;
-    }
 
     public boolean isEnable_xon_xoff() {
         return enable_xon_xoff;
@@ -518,6 +512,16 @@ public final class Machine {
         this.min_segment_time = min_segment_time;
     }
 
+    public SimpleDoubleProperty getJunctionAccleration() {
+        return junctionAccleration;
+    }
+
+    public void setJunctionAccleration(String junctionAccleration) {
+        this.junctionAccleration.set(Double.valueOf(junctionAccleration));
+    }
+
+    
+    
     public Double getVelocity() {
         return (velocity.get());
     }
@@ -754,6 +758,10 @@ public final class Machine {
                         //TinygDriver.getInstance().m(Float.valueOf(rc.getSettingValue()));
 //                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
                         break;
+                    case (MnemonicManager.MNEMONIC_SYSTEM_CHORDAL_TOLERANCE):
+                        TinygDriver.getInstance().machine.setChordalTolerance(rc.getSettingValue());
+//                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_ENABLE_XON):
                         TinygDriver.getInstance().machine.setEnable_xon_xoff(Boolean.valueOf(rc.getSettingValue()));
@@ -794,6 +802,7 @@ public final class Machine {
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_JUNCTION_ACCELERATION):
 //                        logger.info("[APPLIED:" + rc.getSettingParent() + " " + rc.getSettingKey() + ":" + rc.getSettingValue());
+                        TinygDriver.getInstance().machine.setJunctionAccleration(rc.getSettingValue());
                         break;
 
                     case (MnemonicManager.MNEMONIC_SYSTEM_MOTOR_IDLE_TIMEOUT):

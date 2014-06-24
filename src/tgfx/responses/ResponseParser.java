@@ -331,7 +331,7 @@ public class ResponseParser extends Observable implements Runnable {
                 break;
 
             case (MNEMONIC_GROUP_AXIS_X):
-                TinygDriver.getInstance().machine.getAxisByName(MNEMONIC_GROUP_AXIS_X).applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_X), MNEMONIC_GROUP_AXIS_X);
+                TinygDriver.getInstance().machine.getAxisByName(MNEMONIC_GROUP_AXIS_X).applyJsonAxisSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_X), MNEMONIC_GROUP_AXIS_X);
                 setChanged();
                 message[0] = "CMD_GET_AXIS_SETTINGS";
                 message[1] = MNEMONIC_GROUP_AXIS_X;
@@ -340,7 +340,7 @@ public class ResponseParser extends Observable implements Runnable {
 
             case (MNEMONIC_GROUP_AXIS_Y):
                 TinygDriver.getInstance().machine.getAxisByName(MNEMONIC_GROUP_AXIS_Y)
-                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_Y), MNEMONIC_GROUP_AXIS_Y);
+                        .applyJsonAxisSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_Y), MNEMONIC_GROUP_AXIS_Y);
                 setChanged();
                 message[0] = "CMD_GET_AXIS_SETTINGS";
                 message[1] = MNEMONIC_GROUP_AXIS_Y;
@@ -349,7 +349,7 @@ public class ResponseParser extends Observable implements Runnable {
 
             case (MNEMONIC_GROUP_AXIS_Z):
                 TinygDriver.getInstance().machine.getAxisByName(MNEMONIC_GROUP_AXIS_Z)
-                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_Z), MNEMONIC_GROUP_AXIS_Z);
+                        .applyJsonAxisSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_Z), MNEMONIC_GROUP_AXIS_Z);
                 setChanged();
                 message[0] = "CMD_GET_AXIS_SETTINGS";
                 message[1] = MNEMONIC_GROUP_AXIS_Z;
@@ -358,7 +358,7 @@ public class ResponseParser extends Observable implements Runnable {
 
             case (MNEMONIC_GROUP_AXIS_A):
                 TinygDriver.getInstance().machine.getAxisByName(MNEMONIC_GROUP_AXIS_A)
-                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_A), MNEMONIC_GROUP_AXIS_A);
+                        .applyJsonAxisSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_A), MNEMONIC_GROUP_AXIS_A);
                 setChanged();
                 message[0] = "CMD_GET_AXIS_SETTINGS";
                 message[1] = MNEMONIC_GROUP_AXIS_A;
@@ -366,7 +366,7 @@ public class ResponseParser extends Observable implements Runnable {
                 break;
             case (MNEMONIC_GROUP_AXIS_B):
                 TinygDriver.getInstance().machine.getAxisByName(MNEMONIC_GROUP_AXIS_B)
-                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_B), MNEMONIC_GROUP_AXIS_B);
+                        .applyJsonAxisSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_B), MNEMONIC_GROUP_AXIS_B);
                 setChanged();
                 message[0] = "CMD_GET_AXIS_SETTINGS";
                 message[1] = MNEMONIC_GROUP_AXIS_B;
@@ -375,7 +375,7 @@ public class ResponseParser extends Observable implements Runnable {
 
             case (MNEMONIC_GROUP_AXIS_C):
                 TinygDriver.getInstance().machine.getAxisByName(MNEMONIC_GROUP_AXIS_C)
-                        .applyJsonSystemSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_C), MNEMONIC_GROUP_AXIS_C);
+                        .applyJsonAxisSetting(js.getJSONObject(MNEMONIC_GROUP_AXIS_C), MNEMONIC_GROUP_AXIS_C);
                 setChanged();
                 message[0] = "CMD_GET_AXIS_SETTINGS";
                 message[1] = MNEMONIC_GROUP_AXIS_C;
@@ -528,11 +528,7 @@ public class ResponseParser extends Observable implements Runnable {
                 int afterBytesReturned = TinygDriver.getInstance().serialWriter.getBufferValue();
                 logger.debug("Returned " + responseFooter.getRxRecvd() + " to buffer... Buffer was " + beforeBytesReturned + " is now " + afterBytesReturned);
                 TinygDriver.getInstance().serialWriter.notifyAck();  //We let our serialWriter thread know we have added some space to the buffer.
-                //Lets tell the UI the new size of the buffer
-                message[0] = "BUFFER_UPDATE";
-                message[1] = String.valueOf(afterBytesReturned);
-                setChanged();
-                notifyObservers(message);
+
             }
         } catch (Exception ex) {
             logger.error("Error parsing json footer");

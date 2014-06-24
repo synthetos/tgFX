@@ -36,7 +36,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import org.json.JSONException;
-import tgfx.system.Motor;
 
 /**
  * FXML Controller class
@@ -57,6 +56,8 @@ public class MachineSettingsController implements Initializable {
     private static Button loadbutton;
     @FXML
     private ProgressBar configProgress;
+    @FXML
+    private static TextField machineJunctionAcceleration, machineChordalTolerance;
 
     public MachineSettingsController() {
         StringConverter sc = new IntegerStringConverter();
@@ -68,6 +69,8 @@ public class MachineSettingsController implements Initializable {
     public static void updateGuiMachineSettings() {
         machineUnitMode.getSelectionModel().select(TinygDriver.getInstance().machine.getGcodeUnitMode().get());
         machineMotorIdleTimeout.setText(String.valueOf(TinygDriver.getInstance().machine.getMotorIdleTimeout().get()));
+        machineChordalTolerance.setText(String.valueOf(TinygDriver.getInstance().machine.getChordalTolerance().get()));
+        machineJunctionAcceleration.setText(String.valueOf(TinygDriver.getInstance().machine.getJunctionAccleration().get()));
         machineSwitchType.getSelectionModel().select(TinygDriver.getInstance().machine.getSwitchType());
         loadbutton.disableProperty().bind(TinygDriver.getInstance().connectionStatus.not());
         //add import
@@ -84,7 +87,9 @@ public class MachineSettingsController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         populateConfigFiles();          //Populate all Config Files
 
-
+        //BINDINGS
+//        machineJunctionAcceleration.textProperty().bind(TinygDriver.getInstance().machine.getJunctionAccleration().asString());
+//        machineChordalTolerance.textProperty().bind(TinygDriver.getInstance().machine.getChordalTolerance().asString());
     }
 
     private void populateConfigFiles() {
@@ -118,24 +123,31 @@ public class MachineSettingsController implements Initializable {
 //                if (f.canWrite()) {
 //                }
     }
-//        });
-//    }
 
     @FXML
-    private void handleMotorIdleEnter(final InputEvent event) throws Exception {
+    private void handleMachineSettingEnter(final InputEvent event) throws Exception {
         //private void handleEnter(ActionEvent event) throws Exception {
         final KeyEvent keyEvent = (KeyEvent) event;
         if (keyEvent.getCode().equals(KeyCode.ENTER)) {
             TextField tf = (TextField) event.getSource();
             //Little input checking
             try {
-                Double.parseDouble(tf.getText());
-                TinygDriver.getInstance().applyMotorIdleTimeout(Double.valueOf(tf.getText()));
+                Double val = Double.parseDouble(tf.getText());
+                if (tf.getId().contains("Chordal")) {
+                    TinygDriver.getInstance().cmdManager.applyMachineChordalTolerance(val);
+                } else if (tf.getId().contains("Junction")) {
+                    TinygDriver.getInstance().cmdManager.applyMachineJunctionAcceleration(val);
+                } else if (tf.getId().contains("Idle")) {
+                    TinygDriver.getInstance().cmdManager.applyMachineMotorIdleTimeout(Double.valueOf(val));
+                } else {
+                    Main.postConsoleMessage("Invalid Setting Detected: " + tf.getId() + " " + tf.getText());
+                    TinygDriver.getInstance().cmdManager.queryAllMachineSettings();  //We are going to reload this value from the "invalid input"
+                }
+
             } catch (Exception ex) {
                 Main.postConsoleMessage("Motor Idle Timeout requires a number as input.");
-                TinygDriver.getInstance().cmdManager.queryMachineMotorIdleValue(); //We are going to reload this value from the "invalid input"
+                TinygDriver.getInstance().cmdManager.queryAllMachineSettings();  //We are going to reload this value from the "invalid input"
             }
-
         }
     }
 
@@ -153,14 +165,12 @@ public class MachineSettingsController implements Initializable {
         while (it.hasNext()) {
             String k = (String) it.next();
             Double value = (Double) j.getJSONObject(topLevelParent).getDouble(k);
-            logger.info("This is the value: "+ topLevelParent + k + " " + decimalFormat.format(value));
+            logger.info("This is the value: " + topLevelParent + k + " " + decimalFormat.format(value));
             //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
             String singleJsonSetting = "{\"" + topLevelParent + k + "\":" + value + "}\n";
             TinygDriver.getInstance().write(singleJsonSetting);
             Thread.sleep(400);
-
         }
-
     }
 
     private int getElementCount(JSONObject j) throws JSONException {
@@ -225,8 +235,8 @@ public class MachineSettingsController implements Initializable {
                             while (it.hasNext()) {
                                 String k = (String) it.next();
                                 Double value = (Double) j.getJSONObject(topLevelParent).getDouble(k);
-                                
-                                logger.info("This is the value: "+ topLevelParent + k + " " + decimalFormat.format(value));
+
+                                logger.info("This is the value: " + topLevelParent + k + " " + decimalFormat.format(value));
                                 Main.postConsoleMessage("Applied: " + k + ":" + decimalFormat.format(value));
                                 //value = Double.valueOf(decimalFormatjunctionDeviation.format(value));
 
@@ -261,10 +271,13 @@ public class MachineSettingsController implements Initializable {
         try {
             TinygDriver.getInstance().cmdManager.applyMachineSwitchMode(machineSwitchType.getSelectionModel().getSelectedIndex());
             TinygDriver.getInstance().cmdManager.applyMachineUnitMode(machineUnitMode.getSelectionModel().getSelectedIndex());
+            TinygDriver.getInstance().cmdManager.applyMachineChordalTolerance(Double.valueOf(machineChordalTolerance.getText()));
+            TinygDriver.getInstance().cmdManager.applyMachineMotorIdleTimeout(Double.valueOf(machineMotorIdleTimeout.getText()));
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
     }
+
 
     @FXML
     private void handleQueryMachineSettings() {
