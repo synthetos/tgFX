@@ -22,10 +22,27 @@ public class SerialWriter implements Runnable {
     private boolean cleared  = false;
     private String tmpCmd;
     private int BUFFER_SIZE = 180;
+    private int QUEUE_MAX = 24;
+    private int QUEUE_LOW_WATER = 1;
+    private int QUEUE_HIGH_WATER = 22;
+    
+    
+    
     public AtomicInteger buffer_available = new AtomicInteger(BUFFER_SIZE);
+    public AtomicInteger queues_available = new AtomicInteger(0);
+//    public AtomicInteger buffer_available = new AtomicInteger(BUFFER_SIZE);
+//    public AtomicInteger buffer_available = new AtomicInteger(BUFFER_SIZE);
     private SerialDriver ser = SerialDriver.getInstance();
     private static final Object mutex = new Object();
     private static boolean throttled = false;
+
+    public AtomicInteger getQueues_available() {
+        return queues_available;
+    }
+
+    public void setQueues_available(AtomicInteger queues_available) {
+        this.queues_available = queues_available;
+    }
 
     //   public Condition clearToSend = lock.newCondition();
     public SerialWriter(BlockingQueue q) {
@@ -134,6 +151,14 @@ public class SerialWriter implements Runnable {
     public void write(String str) {
         try {
             synchronized (mutex) {
+                //NEW CODE
+                if(getQueues_available().get() <= QUEUE_HIGH_WATER){
+                    //if the queues avail are lesss than or eq to the high water mark write a line
+                }
+                
+                
+                
+                
                 if (str.length() > getBufferValue()) {
                     setThrottled(true);
                 } else {

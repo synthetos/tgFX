@@ -17,6 +17,7 @@ import org.apache.log4j.Level;
 
 import org.apache.log4j.Logger;
 import tgfx.Main;
+import tgfx.tinyg.MnemonicManager;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_A;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_B;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_AXIS_C;
@@ -30,6 +31,7 @@ import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_MOTOR_4;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_SYSTEM;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_STATUS_REPORT;
 import static tgfx.tinyg.MnemonicManager.MNEMONIC_GROUP_EMERGENCY_SHUTDOWN;
+import static tgfx.tinyg.MnemonicManager.MNEMONIC_RESPONSE_QR;
 import tgfx.tinyg.TinygDriver;
 import tgfx.tinyg.responseCommand;
 
@@ -544,7 +546,7 @@ public class ResponseParser extends Observable implements Runnable {
 
         final JSONObject js = new JSONObject(line);
 
-        if (js.has("r") || (js.has("sr")) || (js.has("tgfx"))) { //tgfx is for messages like timeout connections
+        if (js.has("r") || (js.has("sr")) ||(js.has("qr")) ||  (js.has("tgfx"))) { //tgfx is for messages like timeout connections
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -558,7 +560,10 @@ public class ResponseParser extends Observable implements Runnable {
                             message[1] = (String) js.get("tgfx") + "\n";
                             notifyObservers(message);
 
-                        } else if (js.has("f")) {
+                        } else if(js.has(MNEMONIC_RESPONSE_QR)){
+                            logger.info("Got QR report");
+                        }
+                        else if (js.has("f")) {
                             //The new version of TinyG's footer has a footer element in each response.
                             //We parse it here
                             parseFooter(js.getJSONArray("f"));
