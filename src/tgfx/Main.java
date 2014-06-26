@@ -91,9 +91,9 @@ public class Main extends Stage implements Initializable, Observer, QueuedTimera
     private TinygDriver tg = TinygDriver.getInstance();
     private String PROMPT = "tinyg>";
     private GcodeHistory gcodeCommandHistory = new GcodeHistory();
-    public final static String LOGLEVEL = "OFF";
+//    public final static String LOGLEVEL = "OFF";
     private QueueUsingTimer connectionTimer = new QueueUsingTimer(CONNECTION_TIMEOUT_VALUE, this, CONNECTION_TIMEOUT);
-//    public final static String LOGLEVEL = "INFO";
+    public final static String LOGLEVEL = "INFO";
     @FXML
     private Circle cursor;
     @FXML
