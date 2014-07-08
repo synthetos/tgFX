@@ -36,7 +36,7 @@ Thanks and remember that tgFX is still in beta. Try running a job with the motor
 
 Binary Downloads
 ==
-For those that want to test out tgFX on their TinyG the latest binaries will be located here at the <a href="https://www.dropbox.com/sh/huiupgemipv8f4q/X2l_1EH-gx">Download Page</a>
+For those that want to test out tgFX on their TinyG the latest binaries will be located here at the <a href="https://www.dropbox.com/sh/adg7nn44254pgme/AABq_9Fyi8ZsQPa-tVOkdf9-a">Download Page</a>
 <br><b>Notes:</b>
 Linux binaries are not provided.  However, it is possible to run tgFX in Linux through the Netbeans IDE.
 
