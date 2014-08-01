@@ -3,7 +3,7 @@
     "minimalBuildVersion": 412.01,
     "latestVersionUrl": "https://raw.github.com/synthetos/TinyG/master/version.current",
     "manufacturer": "Synthetos",
-    "firmwareUrl": "http://synthetos.github.io/binaries/tinyg-edge-412.01.hex",
+    "firmwareUrl": "http://synthetos.github.io/binaries/tinyg-edge-435.10.hex",
     "hardwarePlatformVersion":7,
     "isUpgradeable":"true"
 }

@@ -262,6 +262,9 @@ public class FirmwareUpdaterController implements Initializable {
             @Override
             public void run() {
                 try {
+                    if(TinygDriver.getInstance().machine.hardwarePlatform.getLatestVersionUrl() == null){
+                        Main.postConsoleMessage("Error updating TinyG Firmware, try updating though the update file method instead");
+                    }
                     URL url = new URL(TinygDriver.getInstance().machine.hardwarePlatform.getLatestVersionUrl());
                     URLConnection urlConnection = url.openConnection();
 

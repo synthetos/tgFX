@@ -560,7 +560,7 @@ public final class Machine {
         gcodeUnitMode.addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue ov, Object oldValue, Object newValue) {
-                if (newValue == 0) {
+                if ((Integer)newValue == 0) {
                     gcodeUnitByName.set("Inches");
                 } else {
                     gcodeUnitByName.set("MM");
