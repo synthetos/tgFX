@@ -4,7 +4,8 @@
  */
 package tgfx.system;
 
-import java.text.DecimalFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -60,9 +61,6 @@ public final class Axis {
     private SWITCH_MODES max_switch_mode = SWITCH_MODES.DISABLED;
     private SWITCH_MODES min_switch_mode = SWITCH_MODES.DISABLED;
     private List allAxis = new ArrayList();
-    DecimalFormat decimalFormat = new DecimalFormat("#.000");
-    DecimalFormat decimalFormatjunctionDeviation = new DecimalFormat("0.000000");
-    DecimalFormat decimalFormatMaximumJerk = new DecimalFormat("################################.############################");
 //    private float homing_travel;
 //    private float homing_search_velocity;
 //    private float homing_latch_velocity;
@@ -116,11 +114,11 @@ public final class Axis {
    
 
     public double getLatch_backoff() {
-        return formatDoubleValue(latch_backoff);
+        return formatDoubleValue(latch_backoff, 3);
     }
 
     public double getRadius() {
-        return formatDoubleValue(radius);
+        return formatDoubleValue(radius, 3);
     }
 
 //    public void setRadius(int radius) {
@@ -132,7 +130,7 @@ public final class Axis {
     }
 
     public float getLatch_velocity() {
-        return formatFloatValue(latch_velocity);
+        return (float)formatDoubleValue(latch_velocity, 3);
     }
 
 //    public float getSeek_rate_maximum() {
@@ -143,7 +141,7 @@ public final class Axis {
 //        this.seek_rate_maximum = seek_rate_maximum;
 //    }
     public double getSearch_velocity() {
-        return formatDoubleValue(searchVelocity);
+        return formatDoubleValue(searchVelocity, 3);
     }
 
     public boolean setSearch_velocity(double search_velocity) {
@@ -157,7 +155,7 @@ public final class Axis {
     }
 
     public double getZero_backoff() {
-        return formatDoubleValue(zero_backoff);
+        return formatDoubleValue(zero_backoff, 3);
     }
 
     public boolean setZero_backoff(float zero_backoff) {
@@ -248,7 +246,7 @@ public final class Axis {
     }
 
     public double getFeed_rate_maximum() {
-        return formatDoubleValue(feedRateMaximum);
+        return formatDoubleValue(feedRateMaximum, 3);
 
     }
 
@@ -258,7 +256,7 @@ public final class Axis {
     }
 
     public double getJerkHomingMaximum() {
-        return jerkHomingMaximum;
+        return formatDoubleValue(jerkHomingMaximum, 3);
     }
 
     public void setJerkHomingMaximum(double jerkHomingMaximum) {
@@ -266,7 +264,7 @@ public final class Axis {
     }
 
     public double getJerkMaximum() {
-        return (jerkMaximum);
+        return formatDoubleValue(jerkMaximum, 3);
     }
 
     public boolean setJerkMaximum(double jerk_maximum) {
@@ -275,7 +273,7 @@ public final class Axis {
     }
 
     public double getJunction_devation() {
-        return formatJuctionDeviation(junction_devation);
+        return formatDoubleValue(junction_devation, 6);
     }
 
     public boolean setJunctionDevation(float junction_devation) {
@@ -366,24 +364,11 @@ public final class Axis {
 
     
 
-    private double formatDoubleValue(double val) {
+    private double formatDoubleValue(double val, int decimals) {
         //Utility Method to cleanly trim doubles for display in the UI
-        return (Double.parseDouble(decimalFormat.format(val)));
-    }
-
-    private double formatJuctionDeviation(double val) {
-        //Utility Method to cleanly trim doubles for display in the UI
-        return (Double.parseDouble(decimalFormatjunctionDeviation.format(val)));
-    }
-
-    private double formatJerkMaximum(double val) {
-        //Utility Method to cleanly trim doubles for display in the UI
-        return (Double.parseDouble(decimalFormat.format(val)));
-    }
-
-    private float formatFloatValue(float val) {
-        //Utility Method to cleanly trim doubles for display in the UI
-        return (Float.parseFloat(decimalFormat.format(val)));
+	BigDecimal bd = new BigDecimal(val);
+	bd = bd.setScale(decimals, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
     //Travel Max Code
@@ -392,7 +377,7 @@ public final class Axis {
     }
     
     public double getTravel_maximum() {
-        return formatDoubleValue(travel_maximum.getValue());
+        return formatDoubleValue(travel_maximum.getValue(), 3);
     }
     
     public void setTravel_min(double travel_min){
@@ -429,13 +414,13 @@ public final class Axis {
     }
     
     public double getTravel_min() {
-        return formatDoubleValue(travel_min.getValue());
+        return formatDoubleValue(travel_min.getValue(), 3);
     }
 
 
     
     public double getVelocityMaximum() {
-        return formatDoubleValue(velocityMaximum);
+        return formatDoubleValue(velocityMaximum, 3);
     }
 
     public boolean setVelocityMaximum(double velocity_maximum) {
