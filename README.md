@@ -21,7 +21,7 @@ Please note that tgFX is NOT backwards compatible with firmware older tinyg firm
 
 Getting Started
 ==
-Most people want to know where to get the binary download for tgFX and move on.  While this is possible, we urge you to read the wiki pages on how to use tgFX with TinyG.  Using any software to control CNC machines can be dangerous and is definitely woth the time of taking 10 minutes to read tgFX's wiki pages for saftey's sake.  That being said please refer to <a href="https://github.com/synthetos/tgFX/edit/master/README.md#software-disclaimer">Synthetos LLC's Software Disclaimer</a>.
+Most people want to know where to get the binary download for tgFX and move on.  While this is possible, we urge you to read the wiki pages on how to use tgFX with TinyG.  Using any software to control CNC machines can be dangerous and is definitely worth the time of taking 10 minutes to read tgFX's wiki pages for saftey's sake.  That being said please refer to <a href="https://github.com/synthetos/tgFX/edit/master/README.md#software-disclaimer">Synthetos LLC's Software Disclaimer</a>.
 
 
 
