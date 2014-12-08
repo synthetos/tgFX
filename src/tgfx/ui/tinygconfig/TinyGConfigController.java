@@ -5,7 +5,6 @@
 package tgfx.ui.tinygconfig;
 
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -32,7 +31,6 @@ import tgfx.tinyg.TinygDriver;
 public class TinyGConfigController implements Initializable {
 
     private static final Logger logger = Logger.getLogger(TinyGConfigController.class);
-    private static DecimalFormat decimalFormat = new DecimalFormat("#0.000");
     
 
     public TinyGConfigController() {
@@ -180,7 +178,7 @@ public class TinyGConfigController implements Initializable {
                 axisAminTravel.setText(String.valueOf(ax.getTravel_min()));
                 axisAjunctionDeviation.setText(String.valueOf(ax.getJunction_devation()));
                 axisAmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisAmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
+                axisAmaxJerk.setText(String.valueOf(ax.getJerkMaximum()));
                 axisAradius.setText(String.valueOf(ax.getRadius()));
                 axisAsearchVelocity.setText(String.valueOf(ax.getSearch_velocity()));
                 axisAzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
@@ -206,7 +204,7 @@ public class TinyGConfigController implements Initializable {
                 axisBminTravel.setText(String.valueOf(ax.getTravel_min()));
                 axisBjunctionDeviation.setText(String.valueOf(ax.getJunction_devation()));
                 axisBmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisBmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
+                axisBmaxJerk.setText(String.valueOf(ax.getJerkMaximum()));
                 axisBradius.setText(String.valueOf(ax.getRadius()));
                 //Rotational Do not have these.
                 axisBsearchVelocity.setDisable(true);
@@ -225,7 +223,7 @@ public class TinyGConfigController implements Initializable {
                 axisCminTravel.setText(String.valueOf(ax.getTravel_min()));
                 axisCjunctionDeviation.setText(String.valueOf(ax.getJunction_devation()));
                 axisCmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisCmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
+                axisCmaxJerk.setText(String.valueOf(ax.getJerkMaximum()));
                 axisCradius.setText(String.valueOf(ax.getRadius()));
 
                 //Rotational Do not have these.
@@ -250,7 +248,7 @@ public class TinyGConfigController implements Initializable {
                 axisXzeroBackoff.setText(String.valueOf(ax.getZero_backoff()));
                 axisXswitchModeMax.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
                 axisXswitchModeMin.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
-                axisXmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
+                axisXmaxJerk.setText(String.valueOf(ax.getJerkMaximum()));
 
                 axisXmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
                 axisXlatchBackoff.setText(String.valueOf(ax.getLatch_backoff()));
@@ -272,7 +270,7 @@ public class TinyGConfigController implements Initializable {
                 axisYswitchModeMax.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
                 axisYswitchModeMin.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
                 axisYmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisYmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
+                axisYmaxJerk.setText(String.valueOf(ax.getJerkMaximum()));
 //                                axisYmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 // axisYradius.setText(String.valueOf(ax.getRadius()));
                 axisYlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
@@ -291,7 +289,7 @@ public class TinyGConfigController implements Initializable {
                 axisZswitchModeMin.getSelectionModel().select(ax.getMinSwitchMode().ordinal());
                 axisZswitchModeMax.getSelectionModel().select(ax.getMaxSwitchMode().ordinal());
                 axisZmaxVelocity.setText(String.valueOf(ax.getVelocityMaximum()));
-                axisZmaxJerk.setText(decimalFormat.format(ax.getJerkMaximum()));
+                axisZmaxJerk.setText(String.valueOf(ax.getJerkMaximum()));
 //                                axisZmaxJerk.setText(String.valueOf(ax.getJerk_maximum()));
                 //axisZradius.setText(String.valueOf(ax.getRadius()));
                 axisZlatchVelocity.setText(String.valueOf(ax.getLatch_velocity()));
