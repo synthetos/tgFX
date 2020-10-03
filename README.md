@@ -1,7 +1,7 @@
 ﻿tgFX - A TinyG GUI
 ====
 
-tgFX has been discontinued.  Please see Chilipeppr for a TinyG UI.
+**tgFX has been discontinued**  Please see Chilipeppr for a TinyG UI.
 http://chilipeppr.com/tinyg
 
 
